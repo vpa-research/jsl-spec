@@ -30,19 +30,19 @@ val true: boolean = 1;
 
 @NoReturn
 define action THROW_NEW(
-		exceptionType: string,
-		params: any[]
-	): void;
+        exceptionType: string,
+        params: any[]
+    ): void;
 
 @NoReturn
 define action THROW_VALUE(
-		value: any
-	): void;
+        value: any
+    ): void;
 
 @NoReturn
 define action ERROR(
-		message: string
-	): void;
+        message: string
+    ): void;
 
 @NoReturn
 define action TODO(): void;
@@ -51,6 +51,6 @@ define action TODO(): void;
 define action NOT_IMPLEMENTED(): void;
 
 define action CALL(
-		callable: Object,
-		params: any[]
-	): Object;
+        callable: Object,
+        params: any[]
+    ): Object;
