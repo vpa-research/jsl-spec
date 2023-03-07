@@ -8,19 +8,19 @@ import 'list-actions.lsl';
 
 
 @Alias('java.util.Set')
-typealias Set = Object;    @problem
+typealias Set = Object;    // #problem
 
 @Alias('java.util.Map')
-typealias Map = Object;    @problem
+typealias Map = Object;    // #problem
 
 @Alias('java.util.function.Function')
-typealias Function = Object;    @problem
+typealias Function = Object;    // #problem
 
 @Alias('java.util.function.BiFunction')
-typealias BiFunction = Object;    @problem
+typealias BiFunction = Object;    // #problem
 
 @Alias('java.util.function.BiConsumer')
-typealias BiConsumer = Object;    @problem
+typealias BiConsumer = Object;    // #problem
 
 
 @Public
@@ -75,13 +75,13 @@ automaton HashMap: int
 
     // utilities
 
-    @problem
+    // #problem
     sub updateModifications(): void
-    @problem
+    // #problem
     assigns self.modCounter;
-    enshures self.modCounter' > self.modCounter;
+    ensures self.modCounter' > self.modCounter;
     {
-        @problem
+        // #problem
         self.modCounter += 1;
     }
 
@@ -131,7 +131,7 @@ automaton HashMap: int
     constructor HashMap (initialCapacity: int, loadFactor: float): void
     requires initialCapacity >= 0;
     requires loadFactor > 0;
-    requires !loadFactor.isNaN;  @problem
+    requires !loadFactor.isNaN;  // #problem
     assigns self.keys;
     assigns self.values;
     assigns self.length;
@@ -159,9 +159,9 @@ automaton HashMap: int
         val otherSize = other.size();
         if (otherSize > 0)
         {
+            // #problem
             //for e in other.entrySet():
             //   m.put(e.getKey(), e.getValue());
-            @problem
             action NOT_IMPLEMENTED();
         }
         else
@@ -217,7 +217,7 @@ automaton HashMap: int
 
     fun get (key: Object): Object
     {
-        @problem
+        // #problem
         result = self.getOrDefault(key, null);
     }
 
@@ -236,17 +236,15 @@ automaton HashMap: int
     }
 
 
-    fun compute (key: Object, mapper: BiFunction): Object
-    requires mapper != null;
-    assigns self.keys;
-    assigns self.values;
-    assigns self.length;
+    fun compute (key: Object, remappingFunction: BiFunction): Object
+    requires remappingFunction != null;
+    // side effects should be inferred from calls to other methods
     {
         val oldValue = self.get(key);
         
         val mc = modCounter;
-        val newValue = action CALL(mapper, [key, oldValue]);
-        checkModifications(mc);
+        val newValue = action CALL(remappingFunction, [key, oldValue]);
+        self.checkModifications(mc);
 
         if (newValue == null)
         {
@@ -261,37 +259,57 @@ automaton HashMap: int
     }
 
 
-    fun computeIfAbsent (key: Object, mapper: Function): Object
-    requires mapper != null;
-    assigns self.keys;
-    assigns self.values;
-    assigns self.length;
+    fun computeIfAbsent (key: Object, mappingFunction: Function): Object
+    requires mappingFunction != null;
+    // side effects should be inferred from calls to other methods
     {
-        val idx = action LIST_FIND(keys, key);
-        if (idx < 0)
+        val oldValue = self.get(key);
+        if (oldValue != null)
         {
-            val mc = modCounter;
-            val newValue = action CALL(mapper, [key]);
-            checkModifications(mc);
-            
-            self.put(key, newValue);
-            
-            result = newValue;
+            result = oldValue;
         }
         else
         {
-            result = action LIST_GET(values, idx);
+            val mc = modCounter;
+            val newValue = action CALL(mappingFunction, [key]);
+            self.checkModifications(mc);
+
+            if (newValue != null)
+            {
+                self.put(key, newValue);
+            }
+
+            result = newValue;
         }
     }
 
 
-    fun computeIfPresent (key: Object, mapper: BiFunction): Object
-    requires mapper != null;
-    assigns self.keys;
-    assigns self.values;
-    assigns self.length;
+    fun computeIfPresent (key: Object, remappingFunction: BiFunction): Object
+    requires remappingFunction != null;
+    // side effects should be inferred from calls to other methods
     {
-        action TODO();
+        val oldValue = self.get(key);
+        if (oldValue != null)
+        {
+            val mc = modCounter;
+            val newValue = action CALL(remappingFunction, [key, oldValue]);
+            self.checkModifications(mc);
+
+            if (newValue == null)
+            {
+                self.remove(key);
+            }
+            else
+            {
+                self.put(key, newValue);
+            }
+
+            result = newValue;
+        }
+        else
+        {
+            result = null;
+        }
     }
 
 
@@ -327,15 +345,15 @@ automaton HashMap: int
 
 
     fun putIfAbsent (key: Object, value: Object): Object
-    assigns self.keys;
-    assigns self.values;
-    ensures self.length' >= self.length;
+    // side effects should be inferred from calls to other methods
     {
         val oldValue = self.get(key);
-        
-        action TODO();
-        
-        self.updateModifications();
+        if (oldValue == null)
+        {
+            self.put(key, value);
+        }
+
+        result = oldValue;
     }
 
 
@@ -363,16 +381,16 @@ automaton HashMap: int
 
 
     fun remove (key: Object, value: Object): boolean
-    assigns self.keys;
-    assigns self.values;
-    ensures self.length' <= self.length;
+    // side effects should be inferred from calls to other methods
     {
+        result = false;
+
         val idx = action LIST_FIND(keys, key);
         if (idx >= 0)
         {
             val oldValue = action LIST_GET(values, idx);
             
-            @problem
+            // #problem
             val isEqualValues = Objects.equals(value, oldValue);
             if (isEqualValues)
             {
@@ -380,27 +398,42 @@ automaton HashMap: int
             
                 result = true;
             }
-            else
-            {
-                result = false;
-            }
-        }
-        else
-        {
-            result = false;
         }
     }
 
 
     fun replace (key: Object, newValue: Object): Object
+    // side effects should be inferred from calls to other methods
     {
-        action TODO();
+        val oldValue = self.get(key);
+        if (oldValue != null)
+        {
+            self.put(key, newValue);
+        }
+
+        result = oldValue;
     }
 
 
     fun replace (key: Object, oldValue: Object, newValue: Object): boolean
+    assigns self.values;
     {
-        action TODO();
+        result = false;
+
+        val idx = action LIST_FIND(keys, key);
+        if (idx >= 0)
+        {
+            val value = action LIST_GET(values, idx);
+            // #problem
+            if (value == oldValue || (value != null && value.equals(oldValue)))
+            {
+                action LIST_SET(values, idx, newValue);
+
+                self.updateModifications();
+
+                result = true;
+            }
+        }
     }
 
 
@@ -446,12 +479,35 @@ automaton HashMap: int
     }
 
 
-    fun merge (key: Object, value: Object, remapping: BiFunction): Object
-    require value != null;
-    require remapping != null;
-    assigns self.values;
+    fun merge (key: Object, value: Object, remappingFunction: BiFunction): Object
+    requires value != null;
+    requires remappingFunction != null;
+    // side effects should be inferred from calls to other methods
     {
-        action TODO();
+        val oldValue = self.get(key);
+        if (oldValue != null)
+        {
+            val mc = modCounter;
+            val newValue = action CALL(remappingFunction, [oldValue, value]);
+            self.checkModifications(mc);
+
+            if (newValue == null)
+            {
+                self.remove(key);
+            }
+            else
+            {
+                self.put(key, newValue);
+            }
+
+            result = newValue;
+        }
+        else
+        {
+            self.put(key, value);
+
+            result = value;
+        }
     }
 
 
@@ -465,41 +521,59 @@ automaton HashMap: int
 
     fun toString (): string
     {
-        @problem
+        // result = action OBJECT_TO_STRING(self);
+        // #problem
         action NOT_IMPLEMENTED();
     }
 
     fun hashCode (): int
     {
-        @problem
+        // result = action OBJECT_HASH_CODE(self);
+        // #problem
         action NOT_IMPLEMENTED();
     }
 
     fun forEach (consumer: BiConsumer): void
     requires mapper != null;
     {
-        @problem
+        // #problem
         action NOT_IMPLEMENTED();
     }
 
     fun putAll (other: Map): void
     requires other != null;
     {
-        @problem
+        // #problem
         action NOT_IMPLEMENTED();
     }
 
     fun replaceAll (mapper: BiFunction): void
     requires mapper != null;
     {
-        @problem
+        // #problem
         action NOT_IMPLEMENTED();
     }
 
     fun equals (other: Object): boolean
     {
-        @problem
+        // #problem
         action NOT_IMPLEMENTED();
+    }
+
+    @Private
+    @Throws(['IOException', 'ClassNotFoundException'])
+    fun readObject(s: ObjectInputStream): void
+    requires s != null;
+    {
+        val size = s.readInt();
+
+        // #problem
+        val buff = new int[size];
+        // #problem
+        s.readFully(buff);
+        
+        // #problem
+        action FROM_BYTES(self, bytes);
     }
 }
 
@@ -529,23 +603,23 @@ automaton HashMap_KeySet: int
 
     fun size(): int
     {
-        @problem
+        // #problem
         result = parent.length;
     }
 
 
     fun clear(): void
-    @problem
+    // #problem
     assigns self.parent;
     {
-        @problem
+        // #problem
         result = parent.clear();
     }
 
 
     fun iterator(): Iterator
     {
-        @problem
+        // #problem
         val iParent = parent;
     
         result = new HashMap_KeyIterator(
