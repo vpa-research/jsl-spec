@@ -244,7 +244,7 @@ automaton HashMap: int
         
         val mc = modCounter;
         val newValue = action CALL(remappingFunction, [key, oldValue]);
-        self.checkModifications(mc);
+        self.checkForModifications(mc);
 
         if (newValue == null)
         {
@@ -272,7 +272,7 @@ automaton HashMap: int
         {
             val mc = modCounter;
             val newValue = action CALL(mappingFunction, [key]);
-            self.checkModifications(mc);
+            self.checkForModifications(mc);
 
             if (newValue != null)
             {
@@ -293,7 +293,7 @@ automaton HashMap: int
         {
             val mc = modCounter;
             val newValue = action CALL(remappingFunction, [key, oldValue]);
-            self.checkModifications(mc);
+            self.checkForModifications(mc);
 
             if (newValue == null)
             {
@@ -452,30 +452,27 @@ automaton HashMap: int
 
     fun clone (): Object
     {
-        val cState  = state;
         val cKeys   = action LIST_DUP(keys);
         val cValues = action LIST_DUP(values);
-        val cLength = length;
-        
+
         result = new HashMap(
-            state=cState, keys=cKeys, values=cValues, length=cLength);
+            state=self.state, keys=cKeys, values=cValues, length=self.length);
     }
 
 
-    fun values (): Collection
+    fun values (): Collection   // #problem
     {
-        val newValues = action LIST_DUP(values);
-    
-        //result = new ArrayList(state=Initialized, values=newValues);
-        action TODO();
+        // TODO: object instance caching
+
+        result = new HashMap_Values(state=Initialized);
     }
 
 
     fun keySet (): Set
     {
-        val newKeys = action LIST_DUP(keys);
-        
-        result = new HashMap_KeySet(state=Initialized, values=newKeys);
+        // TODO: object instance caching
+
+        result = new HashMap_KeySet(state=Initialized);
     }
 
 
@@ -489,7 +486,7 @@ automaton HashMap: int
         {
             val mc = modCounter;
             val newValue = action CALL(remappingFunction, [oldValue, value]);
-            self.checkModifications(mc);
+            self.checkForModifications(mc);
 
             if (newValue == null)
             {
@@ -513,7 +510,7 @@ automaton HashMap: int
 
     fun entrySet (): Set
     {
-        action TODO();
+        result = new HashMap_EntrySet(state=Initialized);
     }
 
 
@@ -581,6 +578,70 @@ automaton HashMap: int
 
 
 @PackagePrivate
+@Extends('java.util.AbstractCollection')
+automaton HashMap_Values: int
+{
+    initstate Initialized;
+    
+    shift Initialized -> self by [
+        // read operations
+        size,
+        contains,
+        
+        iterator,
+        spliterator,
+        
+        // write operations
+        clear,
+        forEach,
+    ];
+
+
+    // methods
+
+    fun size(): int
+    {
+        result = self.parent.length;
+    }
+
+
+    fun contains(o: Object): boolean
+    {
+        result = self.parent.containsValue(o);
+    }
+
+
+    fun iterator(): Iterator
+    {
+        result = new HashMap_ValueIterator(
+            state=Initialized, parent=self.parent, expectedModCount=self.parent.modCounter);
+    }
+
+
+    fun spliterator(): Spliterator
+    {
+        result = new HashMap_ValueSpliterator(state=Initialized,
+            // #problem
+            parent=self.parent);
+    }
+
+
+    fun clear(): void
+    {
+        self.parent.clear();
+    }
+
+
+    fun forEach(consumer: Consumer): void
+    {
+        action NOT_IMPLEMENTED();
+    }
+}
+
+
+
+
+@PackagePrivate
 @Extends('java.util.AbstractSet')
 automaton HashMap_KeySet: int
 {
@@ -604,7 +665,7 @@ automaton HashMap_KeySet: int
     fun size(): int
     {
         // #problem
-        result = parent.length;
+        result = self.parent.length;
     }
 
 
@@ -613,44 +674,102 @@ automaton HashMap_KeySet: int
     assigns self.parent;
     {
         // #problem
-        result = parent.clear();
+        result = self.parent.clear();
     }
 
 
     fun iterator(): Iterator
     {
-        // #problem
-        val iParent = parent;
-    
         result = new HashMap_KeyIterator(
-            state=Initialized, parent=iParent, index=0);
+            state=Initialized, parent=self.parent, expectedModCount=self.parent.modCounter);
     }
 
 
     fun contains(o: Object): boolean
     {
-        result = parent.containsKey(o);
+        result = self.parent.containsKey(o);
     }
 
 
     fun remove(key: Object): boolean
     assigns self.parent;
     {
-        val oldValue = parent.remove(key);
+        val oldValue = self.parent.remove(key);
         result = oldValue != null;
     }
 }
 
 
-// TODO
 
 
 @PackagePrivate
+@Implements('java.util.Iterator')
 automaton HashMap_KeyIterator: int
 (
-    var index: int = 0;
+    var index: int;
+    var expectedModCount: int;
+    var nextWasCalled: boolean;
 )
 {
-    ;
+    initstate Initialized;
+    
+    shift Initialized -> self by [
+        // read operations
+        hasNext,
+        
+        // write operations
+        next,
+        remove,
+    ];
+
+
+    // methods
+
+    fun hasNext(): boolean
+    {
+        result = index < self.parent.length;
+    }
+
+
+    fun next(): Object
+    {
+        self.parent.checkForModifications(expectedModCount);
+
+        val atValidPosition = self.hasNext();
+        if (!atValidPosition)
+        {
+            action THROW_NEW('java.util.NoSuchElementException');
+        }
+
+        result = action LIST_GET(self.parent.keys, index);
+
+        index += 1;
+        nextWasCalled = true;
+    }
+
+
+    fun remove(): void
+    {
+        val atValidPosition = self.hasNext();
+        if (!atValidPosition || !nextWasCalled)
+        {
+            action THROW_NEW('java.lang.IllegalStateException');
+        }
+        nextWasCalled = false;
+
+        self.parent.checkForModifications(expectedModCount);
+
+        val key = action LIST_GET(self.parent.keys, index);
+        self.parent.remove(key);
+
+        expectedModCount = self.parent.modCounter;
+    }
 }
 
+
+
+
+// TODO
+// HashMap_ValueIterator
+// HashMap_ValueSpliterator
+// HashMap_EntrySet
