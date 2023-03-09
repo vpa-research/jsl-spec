@@ -181,13 +181,36 @@ automaton LinkedList: int(
 	@Private
 	fun checkElementIndex (index: int): void {
 		//Работает ли в LibSL такой оператор "!" НЕ
-		if !(index>=0 && index<size) 
+		if (!isElementIndex(index)) 
 		{
 			//Работает ли такая конкатенация строк и можно ли внутри ифа  объявить локальную переменную
 			var message: string =  "Index: "+index+", Size: "+size;
 			action THROW_NEW('java.util._IndexOutOfBoundsException', [message]);
 		}
 	}
+	
+	
+	@Private
+	fun isElementIndex(index: int): boolean {
+       	 	return index >= 0 && index < size;
+    	}
+	
+	
+	@Private
+	fun isPositionIndex(index: int): boolean {
+        	return index >= 0 && index <= size;
+    	}
+	
+	
+	@Private
+	private void checkPositionIndex(int index) {
+        	if (!isPositionIndex(index))
+		{
+            		//Работает ли такая конкатенация строк и можно ли внутри ифа  объявить локальную переменную
+			var message: string =  "Index: "+index+", Size: "+size;
+			action THROW_NEW('java.util._IndexOutOfBoundsException', [message]);
+		}
+    	}
 	
 	
 	fun get (index: int): Object {
@@ -204,7 +227,7 @@ automaton LinkedList: int(
 	
 	
 	fun add(index: int, element: Object): void {
-		checkElementIndex(index);
+		checkPositionIndex(index);
 		linkAny(index, element);
 	}
 	
@@ -213,6 +236,181 @@ automaton LinkedList: int(
 		checkElementIndex(index);
 		result = unlinkAny(index);
 	}
+	
+	
+	fun indexOf(o: Object): int {
+		result = action LIST_FIND(storage,o, 0, size, 1);
+	}
+	
+	
+	fun lastIndexOf(o: Object): int {
+		result = action LIST_FIND(storage,o, size, 0, -1);
+	}
+	
+	
+	fun peek(): Object {
+		if(size == 0)
+		{
+			result = null;
+		}
+		else
+		{
+			result = action LIST_GET(storage, 0);
+		}
+	}
+	
+	
+	fun element (): Object {
+		result = getFirst();	
+	}
+	
+	
+	fun poll(): Object {
+		if(size==0)
+		{
+			result = null;
+		}
+		else 
+		{
+			result = unlinkAny(0);
+		}
+	}
+	
+	
+	fun remove(): Object {
+		result = removeFirst();
+	}
+	
+	
+	fun offer(e: Object): boolean {
+	 	add(e);
+		result = true;
+	}
+
+	
+	fun offerFirst(e: Object): boolean {
+		addFirst(e);
+		result = true;
+	}
+
+
+	fun offerLast(e: Object): boolean {
+		addLast(e);
+		result = true;
+	}
+	
+	
+	fun peekFirst(): Object {
+		if(size == 0)
+		{
+			result = null;
+		}
+		else
+		{
+			result = action LIST_GET(storage, 0);
+		}
+	}
+	
+	
+	fun peekLast(): Object {
+		if(size == 0)
+		{
+			result = null;
+		}
+		else
+		{
+			result = action LIST_GET(storage, size-1);
+		}
+	}
+
+
+	fun pollFirst(): Object {
+		if(size == 0)
+		{
+			result = null;
+		}
+		else
+		{
+			result = unlinkAny(0);
+		}
+	}
+	
+	
+	fun pollLast(): Object {
+		if(size == 0)
+		{
+			result = null;
+		}
+		else
+		{
+ 			result = unlinkAny(size-1);
+		}
+	}
+	
+	
+	fun push(e: Object): void {
+		addFirst(e);
+	}
+
+
+	fun pop(): Object {
+		result = removeFirst();
+	}
+	
+	
+	fun removeFirstOccurrence(o: Object): boolean {
+		result = remove(o);
+	}
+	
+	
+	fun removeLastOccurrence(o: Object): boolean {
+		//I need think about this
+	}
+	
+	
+	//We need add type: typealias ArrayObject = array<Object>;
+	fun toArray(a: ArrayObject): ArrayObject {
+		result = action LIST_TO_ARRAY(storage, a);
+	}
+
+	
+	fun spliterator(): Spliterator {
+		result = new LLSpliterator(state=Initialized,
+		//This is right ? "parent=self"
+		parent=self,
+		est=-1,
+		expectedModCount=0);
+	}
+
+
+	fun listIterator(index: int): ListIterator {
+		checkPositionIndex(index);
+		result = new ListItr(state=Created,
+		parent = self,
+		index = self.index);
+	}
+
+
+	fun clone (): Object
+    	{ 
+		result = action LIST_DUP(storage);
+	}
+	
+	
+	fun hashCode (): int
+    	{
+       	 	// result = action OBJECT_HASH_CODE(self);
+       		// #problem
+       		action NOT_IMPLEMENTED();
+    	}
+	
+	
+	fun toString (): string
+  	{
+       		// result = action OBJECT_TO_STRING(self);
+       		// #problem
+        	action NOT_IMPLEMENTED();
+    	}
 
 }
 
