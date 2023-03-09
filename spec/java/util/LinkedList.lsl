@@ -31,20 +31,133 @@ automaton LinkedList: int(
 )
 {
 
-    constructor LinkedList (): void {
-    	action LIST_RESIZE(storage, 0);
-    }
+	constructor LinkedList (): void {
+    		action LIST_RESIZE(storage, 0);
+	}
     
-    //problem:
-    // we need add constraint for collection type: Collection<? extends E> c
-    constructor LinkedList (c: Collection): void {
-    	action LIST_RESIZE(storage, 0);
 	//problem:
-	//we don't know how to avoid cycle i this method
-	//addAll(c);
-    }
+	// we need add constraint for collection type: Collection<? extends E> c
+	constructor LinkedList (c: Collection): void {
+    		self();
+		//problem:
+		//we don't know how to avoid cycle i this method
+		//addAll(c);
+	}
+	
+	// methods
     
     
+	fun getFirst () : Object {
+		if (size == 0)
+		{
+			action THROW_NEW('java.util.NoSuchElementException', []);
+		}
+		else
+		{
+			result = action LIST_GET(storage, 0);
+		}
+	}
+
+
+	fun getLast() : Object {
+		if (size==0)
+		{
+			action THROW_NEW('java.util.NoSuchElementException', []);
+		}
+		else
+		{
+			result = action LIST_GET(storage, size-1);
+		}
+	}
+
+
+	@Private
+	fun unlinkAny(index: int): Object {
+		result = action LIST_REMOVE(storage, index);
+		//Problem
+		//We need add decrement and increment in the LibSL
+		size--;
+		modCount++;
+	}
+	
+	
+	fun removeFirst() : Object {
+		if (size==0)
+		{
+			action THROW_NEW('java.util.NoSuchElementException', []);
+		}
+		else {
+			//Problem
+			//We need add ivocation of the functions in the LibSL
+			result = unlinkAny(0);
+		}
+	}
+
+
+	fun removeLast() : Object {
+		if (size==0)
+		{
+			action THROW_NEW('java.util.NoSuchElementException', []);
+		}
+		else {
+			result = unlinkAny(size-1);
+		}
+	}
+
+
+	@Private
+	fun linkAny (index: int, e: Object): void {
+		action LIST_INSERT_AT(storage, index, e);
+		//Problem
+		//We need add decrement and increment in the LibSL
+		size++;
+		modCount++;
+	}
+	
+	
+	fun addFirst(e: Object): void {
+		//Problem
+		//We need add ivocation of the functions in the LibSL
+		linkAny(0, e);
+	}
+
+
+	fun addLast (e: Object): void {
+		//Problem
+		//We need add ivocation of the functions in the LibSL
+		linkAny(size-1, e);
+	}
+
+
+	fun contains (o: Object): boolean{
+		//Problem
+		//Can we write such expressions in the LibSL ?
+		result = action LIST_FIND(storage,o) >= 0;
+	}
+
+
+	fun size (): int{
+		result = size;
+	}
+
+
+	fun add (e: Object): boolean {
+		linkAny(size-1, e);
+		result = true;
+	}
+
+	
+	
+	fun remove (o: Object): boolean {
+		result = action LIST_REMOVE(storage, o);
+		*Можно ли писать result НЕ в самом конце ? *
+		if(result == true)
+		{
+			*Существует ли такой -= оператор в LibSL ?*
+			size--;
+			modCount++;	
+		}
+	}
 
 }
 
