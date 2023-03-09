@@ -7,6 +7,14 @@ import 'list-actions.lsl';
 
 include java.util.function.Consumer;
 
+//For generation this imports are needed:
+include java.util.AbstractSequentialList;
+include java.util.Collection;
+include java.util.Deque;
+include java.util.Iterator;
+include java.util.List;
+include java.util.ListIterator;
+
 @Public
 @Extends('java.util.AbstractSequentialList')
 @Implements(['java.util.List','java.util.Deque','java.lang.Cloneable','java.io.Serializable'])
@@ -16,8 +24,12 @@ include java.util.function.Consumer;
     matchInterfaces=true,
 )
 automaton LinkedList: int(
+    var storage: list<Object>,
+	@Transient var size: int = 0,
+	@Protected @Transient var modCount: int = 0,
+    var serialVersionUID:long = 876323262645176354
 )
 {
-
+    
 }
 
