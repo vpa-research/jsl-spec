@@ -71,7 +71,8 @@ automaton LinkedList: int(
 
 	@Private
 	fun unlinkAny(index: int): Object {
-		result = action LIST_REMOVE(storage, index);
+		result = action LIST_GET(storage, index);
+		action LIST_REMOVE(storage, index);
 		//Problem
 		//We need add decrement and increment in the LibSL
 		size--;
@@ -130,7 +131,7 @@ automaton LinkedList: int(
 	fun contains (o: Object): boolean{
 		//Problem
 		//Can we write such expressions in the LibSL ?
-		result = action LIST_FIND(storage,o) >= 0;
+		result = action LIST_FIND(storage,o,0,size,1) >= 0;
 	}
 
 
@@ -147,7 +148,8 @@ automaton LinkedList: int(
 	
 	
 	fun remove (o: Object): boolean {
-		result = action LIST_REMOVE(storage, o);
+		var index = indexOf(o);
+		result = action LIST_REMOVE(storage, index);
 		*Можно ли писать result НЕ в самом конце ? *
 		if(result == true)
 		{
