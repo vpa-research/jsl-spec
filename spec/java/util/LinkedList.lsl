@@ -24,12 +24,27 @@ include java.util.ListIterator;
     matchInterfaces=true,
 )
 automaton LinkedList: int(
-    var storage: list<Object>,
+   	var storage: list<Object>,
 	@Transient var size: int = 0,
 	@Protected @Transient var modCount: int = 0,
-    var serialVersionUID:long = 876323262645176354
+    	var serialVersionUID:long = 876323262645176354
 )
 {
+
+    constructor LinkedList (): void {
+    	action LIST_RESIZE(storage, 0);
+    }
     
+    //problem:
+    // we need add constraint for collection type: Collection<? extends E> c
+    constructor LinkedList (c: Collection): void {
+    	action LIST_RESIZE(storage, 0);
+	//problem:
+	//we don't know how to avoid cycle i this method
+	//addAll(c);
+    }
+    
+    
+
 }
 
