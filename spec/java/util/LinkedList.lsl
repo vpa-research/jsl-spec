@@ -39,9 +39,7 @@ automaton LinkedList: int(
 	// we need add constraint for collection type: Collection<? extends E> c
 	constructor LinkedList (c: Collection): void {
     		self();
-		//problem:
-		//we don't know how to avoid cycle i this method
-		//addAll(c);
+		addAll(c);
 	}
 	
 	// methods
@@ -157,6 +155,63 @@ automaton LinkedList: int(
 			size--;
 			modCount++;	
 		}
+	}
+	
+	
+	//problem:
+	// we need add constraint for collection type: Collection<? extends E> 
+	fun addAll (c: Collection): boolean {
+		result = addAll(size, c);
+	}
+	
+	
+	fun addAll (index:int, c:Collection): boolean {
+		//problem:
+		//we don't know how to avoid cycle i this method
+	}
+	
+	
+	fun clear(): void {
+		action LIST_CLEAR(storage);
+		size = 0;
+		modCount++;
+	}
+
+	
+	@Private
+	fun checkElementIndex (index: int): void {
+		//Работает ли в LibSL такой оператор "!" НЕ
+		if !(index>=0 && index<size) 
+		{
+			//Работает ли такая конкатенация строк и можно ли внутри ифа  объявить локальную переменную
+			var message: string =  "Index: "+index+", Size: "+size;
+			action THROW_NEW('java.util._IndexOutOfBoundsException', [message]);
+		}
+	}
+	
+	
+	fun get (index: int): Object {
+		checkElementIndex(index);
+		result = action LIST_GET(storage, index);
+	}
+
+	
+	fun set (index: int, element: Object): Object {
+		checkElementIndex(index);
+		action LIST_SET(storage, index, element);
+		result = action LIST_GET(storage, index);
+	}
+	
+	
+	fun add(index: int, element: Object): void {
+		checkElementIndex(index);
+		linkAny(index, element);
+	}
+	
+	
+	fun remove (index: int): Object {
+		checkElementIndex(index);
+		result = unlinkAny(index);
 	}
 
 }
