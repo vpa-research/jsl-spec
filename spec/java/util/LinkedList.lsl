@@ -174,7 +174,7 @@ automaton LinkedList: int(
 	
 	
 	fun clear(): void {
-		action LIST_CLEAR(storage);
+		action LIST_RESIZE(storage, 0);
 		size = 0;
 		modCount++;
 	}
@@ -416,3 +416,191 @@ automaton LinkedList: int(
 
 }
 
+
+
+
+
+
+@Private
+@Implements('java.util.ListIterator')
+@WrapperMeta(
+    src='java.util.ListItr',
+    dst='org.utbot.engine.overrides.collections.UtListItr',
+    matchInterfaces=true,
+)
+automaton ListItr: int(
+	var nextIndex:int,
+	var next: Object,
+	var lastReturned: Object,
+	var expectedModCount = parent.modCount)
+{
+	initstate Initialized;
+	
+	shift Initialized -> self by [
+        // read operations
+        hasNext,
+	hasPrevious,
+	nextIndex,
+	previousIndex,
+	
+        // write operations
+        next,
+        remove,
+	previous,
+	set,
+	add,
+	forEachRemaining
+    ];
+    
+    //constructors
+    
+    constructor ListItr(index: int): void 
+    {
+    	if(index == self.parent.size)
+	{
+		next = null;
+	}
+	else
+	{
+		next = action LIST_GET(self.parent.storage, index);
+	}
+	nextIndex = index;
+    }
+    
+    
+    //methods
+    
+    fun hasNext(): boolean
+    {
+        result = nextIndex < self.parent.size;
+    }
+    
+    
+    fun next(): Object
+    {
+    	checkForComodification();
+	if (!hasNext())
+	{
+		action THROW_NEW('java.util.NoSuchElementException', []);
+	}
+	lastReturned = next;
+	nextIndex++;
+	next = action LIST_GET(self.parent.storage, nextIndex);
+	result = lastReturned;
+    }
+    
+    
+    fun hasPrevious(): boolean 
+    {
+	result = nextIndex > 0;
+    }
+    
+    
+    fun previous(): Object
+    {
+    	checkForComodification();
+	if (!hasNext())
+	{
+		action THROW_NEW('java.util.NoSuchElementException', []);
+	}
+	if(next == null)
+	{
+		next = action LIST_GET(self.parent.storage, self.parent.size - 1);
+	}
+	else
+	{
+		next = action LIST_GET(self.parent.storage, nextIndex - 1);
+	}
+	lastReturned = next;
+	nextIndex--;
+	result = lastReturned;
+    }
+    
+    
+    fun nextIndex(): int 
+    {
+            result = nextIndex;
+    }
+    
+    
+    fun previousIndex(): int 
+    {
+            result = nextIndex - 1;
+    }
+    
+    
+    fun remove(): void
+    {
+    	checkForComodification();
+	if (lastReturned == null)
+	{
+		action THROW_NEW('java.lang.IllegalStateException', []);
+	}
+	
+	var lastNext = action LIST_GET(self.parent.storage, nextIndex + 1);
+	
+	var index = self.parent.indexof(lastReturned);
+	action LIST_REMOVE(self.parent.storage, index);
+	
+	if(next == lastReturned)
+	{
+		next = lastNext;
+	}
+	else
+	{
+		nextIndex--;
+	}
+	
+	lastReturned = null;
+	expectedModCount++;
+    }
+    
+    
+    fun set(e: Object): void
+    {
+    	if (lastReturned == null)
+	{
+		action THROW_NEW('java.lang.IllegalStateException', []);
+	}
+	checkForComodification();
+	var index = self.parent.indexof(lastReturned);
+	action LIST_SET(storage, index, e);
+    }
+   
+   
+    fun add(e: Object): void
+    {
+    	checkForComodification();
+	lastReturned = null;
+	if(next == null)
+	{
+		self.parent.linkAny(self.parent-size - 1, e);
+	}
+	else
+	{
+		//We need to insert before next
+		var index = self.parent.indexof(next) - 1;
+		self.parent.linkAny(, e);
+	}
+	nextIndex++;
+        expectedModCount++;
+    }
+    
+    
+    fun forEachRemaining (action: Consumer): void
+    {
+        // #problem
+        action NOT_IMPLEMENTED();
+    }
+    
+    
+    
+    fun checkForComodification(): void 
+    {
+	if (self.parent.modCount != expectedModCount)
+	{
+		action THROW_NEW('java.util.ConcurrentModificationException', []);
+	}
+    }
+    
+}
