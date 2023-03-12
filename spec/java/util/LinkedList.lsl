@@ -31,6 +31,66 @@ automaton LinkedList: int(
 )
 {
 
+	// constructors
+	shift Allocated -> Initialized by [
+        	LinkedList(),
+        	LinkedList(Collection)
+   	];
+	
+	shift Initialized -> self by [
+        	// read operations
+		getFirst,
+		getLast,
+		contains,
+		size,
+		get,
+		indexOf(Object),
+		indexOf(int),
+		lastIndexOf,
+		peek,
+		element,
+		peekFirst,
+		peekLast,
+		toArray,
+		spliterator,
+		listIterator
+		
+		
+
+        	toString,
+        	hashCode,
+        	clone,
+        
+        	// write operations
+        	removeFirst,
+		removeLast,
+		addFirst,
+		addLast,
+		add(Object),
+		remove(Object),
+		addAll(Collection),
+		addAll(int, Collection),
+		clear,
+		set,
+		add(int, Object),
+		remove(int),
+		poll,
+		remove(),
+		offer,
+		offerFirst,
+		offerLast,
+		pollFirst,
+		pollLast,
+		push,
+		pop,
+		removeFirstOccurrence,
+		removeLastOccurrence
+   	 ];
+
+	
+
+	//constructors
+
 	constructor LinkedList (): void {
     		action LIST_RESIZE(storage, 0);
 	}
