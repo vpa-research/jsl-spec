@@ -130,7 +130,7 @@ automaton LinkedList: int(
 
 
 	@Private
-	fun unlinkAny(index: int): Object {
+	sub unlinkAny(index: int): Object {
 		result = action LIST_GET(storage, index);
 		action LIST_REMOVE(storage, index);
 		//Problem
@@ -165,7 +165,7 @@ automaton LinkedList: int(
 
 
 	@Private
-	fun linkAny (index: int, e: Object): void {
+	sub linkAny (index: int, e: Object): void {
 		action LIST_INSERT_AT(storage, index, e);
 		//Problem
 		//We need add decrement and increment in the LibSL
@@ -241,7 +241,7 @@ automaton LinkedList: int(
 
 	
 	@Private
-	fun checkElementIndex (index: int): void {
+	sub checkElementIndex (index: int): void {
 		//Работает ли в LibSL такой оператор "!" НЕ
 		if (!isElementIndex(index)) 
 		{
@@ -253,19 +253,19 @@ automaton LinkedList: int(
 	
 	
 	@Private
-	fun isElementIndex(index: int): boolean {
+	sub isElementIndex(index: int): boolean {
        	 	return index >= 0 && index < size;
     	}
 	
 	
 	@Private
-	fun isPositionIndex(index: int): boolean {
+	sub isPositionIndex(index: int): boolean {
         	return index >= 0 && index <= size;
     	}
 	
 	
 	@Private
-	private void checkPositionIndex(int index) {
+	sub checkPositionIndex(index: int) {
         	if (!isPositionIndex(index))
 		{
             		//Работает ли такая конкатенация строк и можно ли внутри ифа  объявить локальную переменную
@@ -655,7 +655,7 @@ automaton ListItr: int(
     
     
     
-    fun checkForComodification(): void 
+    sub checkForComodification(): void 
     {
 	if (self.parent.modCount != expectedModCount)
 	{
