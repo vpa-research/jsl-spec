@@ -451,6 +451,11 @@ automaton LinkedList: int(
 		parent = self,
 		index = self.index);
 	}
+	
+	fun descendingIterator(): Iterator {
+        	result = new DescendingIterator(state=Created,
+		parent = self);
+    	}
 
 
 	fun clone (): Object
@@ -663,4 +668,59 @@ automaton ListItr: int(
 	}
     }
     
+}
+
+
+
+@Private
+@Implements('java.util.Iterator')
+@WrapperMeta(
+    src='java.util.ListItr',
+    dst='org.utbot.engine.overrides.collections.UtDescendingIterator',
+    matchInterfaces=true,
+)
+automaton DescendingIterator: int(
+	//Do we can write in such way or not ??
+	var itr = new ListItr(state=Created,
+		parent = self.parent,
+		index = self.parent.size())
+)
+{
+	
+	initstate Initialized;
+	
+	shift Initialized -> self by [
+        // read operations
+        hasNext,
+	
+        // write operations
+        next,
+        remove,
+	forEachRemaining
+        ];
+
+
+	fun next(): Object
+	{
+		result = itr.previous();
+	}
+	
+	
+	fun hasNext(): boolean
+    	{
+        	result = itr.hasPrevious();
+   	}
+	
+	
+	fun remove(): void
+    	{
+		itr.remove();
+	}
+	
+	
+	fun forEachRemaining (action: Consumer): void
+    	{
+        // #problem
+        action NOT_IMPLEMENTED();
+    	}
 }
