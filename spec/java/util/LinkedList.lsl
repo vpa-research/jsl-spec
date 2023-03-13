@@ -724,3 +724,66 @@ automaton DescendingIterator: int(
         action NOT_IMPLEMENTED();
     	}
 }
+
+
+
+@Private
+@Implements('java.util.Spliterator')
+@WrapperMeta(
+    src='java.util.ListItr',
+    dst='org.utbot.engine.overrides.collections.UtLLSpliterator',
+    matchInterfaces=true,
+)
+automaton LLSpliterator: int(
+	var BATCH_UNIT: int = 1 << 10,
+	var MAX_BATCH: int = 1 << 25,
+	var list: LinkedList,
+	est: int,
+	expectedModCount: int,
+	batch: int
+	)
+{
+
+
+	//constructors
+	
+	constructor LLSpliterator(list: LinkedList, est: int, expectedModCount: int): void
+	{
+		
+	}
+	
+	//sub's
+	
+	sub getEst(): int
+	{
+	
+	}
+	
+	//methods
+	
+	fun estimateSize(): long
+	{
+	
+	}
+	
+	fun trySplit(): Spliterator
+	{
+	
+	}
+	
+	fun forEachRemaining(action: Consumer): void
+	{
+	
+	}
+	
+	fun tryAdvance(action: Consumer): boolean
+	{
+	
+	}
+	
+	fun characteristics(): int
+	{
+	
+	}
+	
+}
