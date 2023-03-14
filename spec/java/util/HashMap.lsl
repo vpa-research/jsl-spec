@@ -1,45 +1,35 @@
-libsl '1.1.0';
+libsl "1.1.0";
 
-library 'std:collections' language 'Java' version '11' url '-';
+library "std:collections" language "Java" version "11" url "-";
 
-import 'java-common.lsl';
-import 'list-actions.lsl';
+// imports
+
+import "list-actions.lsl";
+
+import "java-common.lsl";
+import "java/util/interfaces.lsl"
+import "java/util/function/interfaces.lsl"
 
 
-
-@Alias('java.util.Set')
-typealias Set = Object;    // #problem
-
-@Alias('java.util.Map')
-typealias Map = Object;    // #problem
-
-@Alias('java.util.function.Function')
-typealias Function = Object;    // #problem
-
-@Alias('java.util.function.BiFunction')
-typealias BiFunction = Object;    // #problem
-
-@Alias('java.util.function.BiConsumer')
-typealias BiConsumer = Object;    // #problem
-
+// automata
 
 @Public
-@Extends('java.util.AbstractMap')
+@Extends("java.util.AbstractMap")
 @WrapperMeta(
-    src='java.util.HashMap',
-    dst='org.utbot.engine.overrides.collections.UtHashMap',
+    src="java.util.HashMap",
+    dst="org.utbot.engine.overrides.collections.UtHashMap",
     matchInterfaces=true,
 )
 automaton HashMap: int
 (
-    var keys: list<Object>;
-    var values: list<Object>;
-    var length: int;
-    @Transient var modCounter: int;
+    var keys: list<Object> = new list();
+    var values: list<Object> = new list();  // #problem
+    var length: int = 0;
+    @Transient var modCounter: int = 0;
 )
 {
     initstate Allocated;
-    finishstate Initialized;
+    state Initialized;
 
     // constructors
     shift Allocated -> Initialized by [
@@ -75,36 +65,114 @@ automaton HashMap: int
 
     // utilities
 
-    // #problem
-    sub updateModifications(): void
-    // #problem
-    assigns self.modCounter;
-    ensures self.modCounter' > self.modCounter;
+    proc _updateModifications(): void
     {
-        // #problem
+        assigns self.modCounter;
+        ensures self.modCounter" > self.modCounter;
+
         self.modCounter += 1;
     }
 
 
-    sub checkForModifications(lastMods: int): void
+    proc _checkForModifications(lastMods: int): void
     {
         if (modCounter != lastMods)
         {
-            action THROW_NEW('java.util.ConcurrentModificationException', []);
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+        }
+    }
+
+
+    proc _getMappingOrDefault (key: Object, defaultValue: Object): Object
+    {
+        val idx = action LIST_FIND(keys, key);
+        if (idx >= 0)
+        {
+            result = action LIST_GET(values, idx);
+        }
+        else
+        {
+            result = default;
+        }
+    }
+
+
+    proc _setMapping (key: Object, value: Object): Object
+    {
+        assigns self.keys;
+        assigns self.values;
+        ensures self.length" >= self.length;
+
+        val idx = action LIST_FIND(keys, key);
+        if (idx >= 0)
+        {
+            result = action LIST_GET(values, idx);
+            
+            action LIST_SET(values, idx, value);
+        }
+        else
+        {
+            val newLength = length + 1;
+            action LIST_RESIZE(keys, newLength);
+            action LIST_RESIZE(values, newLength);
+            
+            val newIdx = length;
+            action LIST_SET(keys, newIdx, key);
+            action LIST_SET(values, newIdx, value);
+            
+            length = newLength;
+            
+            result = null;
+        }
+        
+        self._updateModifications();
+    }
+
+
+    proc _removeMapping (index: int): Object
+    {
+        requires index >= 0 && index < self.length;
+        assigns self.keys;
+        assigns self.values;
+        ensures self.length" <= self.length;
+
+        result = action LIST_GET(values, index);
+        
+        action LIST_REMOVE(keys, index);
+        action LIST_REMOVE(values, index);
+        
+        length -= 1;
+        self._updateModifications();
+    }
+
+
+    proc _removeMapping (key: Object): Object
+    {
+        // side effects should be inferred from calls to other subroutines
+
+        val idx = action LIST_FIND(keys, key);
+        if (idx >= 0)
+        {
+            result = self._removeMapping(idx);
+        }
+        else
+        {
+            result = null;
         }
     }
 
 
     // constructors
 
-    constructor HashMap (): void
-    assigns self.keys;
-    assigns self.values;
-    assigns self.length;
-    assigns self.modCounter;
-    ensures self.length = 0;
-    ensures self.modCounter = 0;
+    constructor HashMap ()
     {
+        assigns self.keys;
+        assigns self.values;
+        assigns self.length;
+        assigns self.modCounter;
+        ensures self.length = 0;
+        ensures self.modCounter = 0;
+
         length = 0;
         modCounter = 0;
         action LIST_RESIZE(keys, 0);
@@ -112,15 +180,16 @@ automaton HashMap: int
     }
 
 
-    constructor HashMap (initialCapacity: int): void
-    requires initialCapacity >= 0;
-    assigns self.keys;
-    assigns self.values;
-    assigns self.length;
-    assigns self.modCounter;
-    ensures self.length = 0;
-    ensures self.modCounter = 0;
+    constructor HashMap (initialCapacity: int)
     {
+        requires initialCapacity >= 0;
+        assigns self.keys;
+        assigns self.values;
+        assigns self.length;
+        assigns self.modCounter;
+        ensures self.length = 0;
+        ensures self.modCounter = 0;
+
         length = 0;
         modCounter = 0;
         action LIST_RESIZE(keys, 0);
@@ -128,17 +197,18 @@ automaton HashMap: int
     }
 
 
-    constructor HashMap (initialCapacity: int, loadFactor: float): void
-    requires initialCapacity >= 0;
-    requires loadFactor > 0;
-    requires !loadFactor.isNaN;  // #problem
-    assigns self.keys;
-    assigns self.values;
-    assigns self.length;
-    assigns self.modCounter;
-    ensures self.length = 0;
-    ensures self.modCounter = 0;
+    constructor HashMap (initialCapacity: int, loadFactor: float)
     {
+        requires initialCapacity >= 0;
+        requires loadFactor > 0;
+        requires !loadFactor.isNaN;  // #problem
+        assigns self.keys;
+        assigns self.values;
+        assigns self.length;
+        assigns self.modCounter;
+        ensures self.length = 0;
+        ensures self.modCounter = 0;
+
         length = 0;
         modCounter = 0;
         action LIST_RESIZE(keys, 0);
@@ -146,14 +216,15 @@ automaton HashMap: int
     }
 
 
-    constructor HashMap (other: Map): void
-    requires other != null;
-    assigns self.keys;
-    assigns self.values;
-    assigns self.length;
-    assigns self.modCounter;
-    ensures self.modCounter = 0;
+    constructor HashMap (other: Map)
     {
+        requires other != null;
+        assigns self.keys;
+        assigns self.values;
+        assigns self.length;
+        assigns self.modCounter;
+        ensures self.modCounter = 0;
+
         modCounter = 0;
         
         val otherSize = other.size();
@@ -217,53 +288,46 @@ automaton HashMap: int
 
     fun get (key: Object): Object
     {
-        // #problem
-        result = self.getOrDefault(key, null);
+        result = self._getMappingOrDefault(key, null);
     }
 
 
-    fun getOrDefault (key: Object, default: Object): Object
+    fun getOrDefault (key: Object, defaultValue: Object): Object
     {
-        val idx = action LIST_FIND(keys, key);
-        if (idx >= 0)
-        {
-            result = action LIST_GET(values, idx);
-        }
-        else
-        {
-            result = default;
-        }
+        result = self._getMappingOrDefault(key, defaultValue);
     }
 
 
     fun compute (key: Object, remappingFunction: BiFunction): Object
-    requires remappingFunction != null;
-    // side effects should be inferred from calls to other methods
     {
-        val oldValue = self.get(key);
-        
+        requires remappingFunction != null;
+        // side effects should be inferred from calls to other subroutines
+
+        val oldValue = self._getMappingOrDefault(key, null);
+
         val mc = modCounter;
         val newValue = action CALL(remappingFunction, [key, oldValue]);
-        self.checkForModifications(mc);
+        self._checkForModifications(mc);
 
         if (newValue == null)
         {
-            self.remove(key);
+            self._removeMapping(key);
         }
         else
         {
-            self.put(key, newValue);
+            self._setMapping(key, newValue);
         }
-        
+
         result = newValue;
     }
 
 
     fun computeIfAbsent (key: Object, mappingFunction: Function): Object
-    requires mappingFunction != null;
-    // side effects should be inferred from calls to other methods
     {
-        val oldValue = self.get(key);
+        requires mappingFunction != null;
+        // side effects should be inferred from calls to other subroutines
+
+        val oldValue = self._getMappingOrDefault(key, null);
         if (oldValue != null)
         {
             result = oldValue;
@@ -272,11 +336,11 @@ automaton HashMap: int
         {
             val mc = modCounter;
             val newValue = action CALL(mappingFunction, [key]);
-            self.checkForModifications(mc);
+            self._checkForModifications(mc);
 
             if (newValue != null)
             {
-                self.put(key, newValue);
+                self._setMapping(key, newValue);
             }
 
             result = newValue;
@@ -285,23 +349,24 @@ automaton HashMap: int
 
 
     fun computeIfPresent (key: Object, remappingFunction: BiFunction): Object
-    requires remappingFunction != null;
-    // side effects should be inferred from calls to other methods
     {
-        val oldValue = self.get(key);
+        requires remappingFunction != null;
+        // side effects should be inferred from calls to other subroutines
+
+        val oldValue = self._getMappingOrDefault(key, null);
         if (oldValue != null)
         {
             val mc = modCounter;
             val newValue = action CALL(remappingFunction, [key, oldValue]);
-            self.checkForModifications(mc);
+            self._checkForModifications(mc);
 
             if (newValue == null)
             {
-                self.remove(key);
+                self._removeMapping(key);
             }
             else
             {
-                self.put(key, newValue);
+                self._setMapping(key, newValue);
             }
 
             result = newValue;
@@ -314,43 +379,21 @@ automaton HashMap: int
 
 
     fun put (key: Object, value: Object): Object
-    assigns self.keys;
-    assigns self.values;
-    ensures self.length' >= self.length;
     {
-        val idx = action LIST_FIND(keys, key);
-        if (idx >= 0)
-        {
-            result = action LIST_GET(values, idx);
-            
-            action LIST_SET(values, idx, value);
-        }
-        else
-        {
-            val newLength = length + 1;
-            action LIST_RESIZE(keys, newLength);
-            action LIST_RESIZE(values, newLength);
-            
-            val newIdx = length;
-            action LIST_SET(keys, newIdx, key);
-            action LIST_SET(values, newIdx, value);
-            
-            length = newLength;
-            
-            result = null;
-        }
-        
-        self.updateModifications();
+        // side effects should be inferred from calls to other subroutines
+
+        result = self._setMapping(key, value);
     }
 
 
     fun putIfAbsent (key: Object, value: Object): Object
-    // side effects should be inferred from calls to other methods
     {
-        val oldValue = self.get(key);
+        // side effects should be inferred from calls to other subroutines
+
+        val oldValue = self._getMappingOrDefault(key, null);
         if (oldValue == null)
         {
-            self.put(key, value);
+            self._setMapping(key, value);
         }
 
         result = oldValue;
@@ -358,31 +401,15 @@ automaton HashMap: int
 
 
     fun remove (key: Object): Object
-    assigns self.keys;
-    assigns self.values;
-    ensures self.length' <= self.length;
     {
-        val idx = action LIST_FIND(keys, key);
-        if (idx >= 0)
-        {
-            result = action LIST_GET(values, idx);
-            
-            action LIST_REMOVE(keys, idx);
-            action LIST_REMOVE(values, idx);
-            
-            length -= 1;
-            self.updateModifications();
-        }
-        else
-        {
-            result = null;
-        }
+        result = self._removeMapping(key);
     }
 
 
     fun remove (key: Object, value: Object): boolean
-    // side effects should be inferred from calls to other methods
     {
+        // side effects should be inferred from calls to other subroutines
+
         result = false;
 
         val idx = action LIST_FIND(keys, key);
@@ -390,11 +417,10 @@ automaton HashMap: int
         {
             val oldValue = action LIST_GET(values, idx);
             
-            // #problem
-            val isEqualValues = Objects.equals(value, oldValue);
+            val isEqualValues = Objects.equals(value, oldValue);  // #problem
             if (isEqualValues)
             {
-                self.remove(m, key);
+                self._removeMapping(m, key);
             
                 result = true;
             }
@@ -403,12 +429,13 @@ automaton HashMap: int
 
 
     fun replace (key: Object, newValue: Object): Object
-    // side effects should be inferred from calls to other methods
     {
-        val oldValue = self.get(key);
+        // side effects should be inferred from calls to other subroutines
+
+        val oldValue = self._getMappingOrDefault(key, null);
         if (oldValue != null)
         {
-            self.put(key, newValue);
+            self._setMapping(key, newValue);
         }
 
         result = oldValue;
@@ -416,8 +443,9 @@ automaton HashMap: int
 
 
     fun replace (key: Object, oldValue: Object, newValue: Object): boolean
-    assigns self.values;
     {
+        assigns self.values;
+
         result = false;
 
         val idx = action LIST_FIND(keys, key);
@@ -429,7 +457,7 @@ automaton HashMap: int
             {
                 action LIST_SET(values, idx, newValue);
 
-                self.updateModifications();
+                self._updateModifications();
 
                 result = true;
             }
@@ -438,13 +466,14 @@ automaton HashMap: int
 
 
     fun clear (): void
-    assigns self.keys;
-    assigns self.values;
-    assigns self.length;
-    ensures self.length == 0;
     {
+        assigns self.keys;
+        assigns self.values;
+        assigns self.length;
+        ensures self.length == 0;
+
         length = 0;
-        self.updateModifications();
+        self._updateModifications();
         action LIST_RESIZE(keys, 0);
         action LIST_RESIZE(values, 0);
     }
@@ -460,7 +489,7 @@ automaton HashMap: int
     }
 
 
-    fun values (): Collection   // #problem
+    fun values (): Collection
     {
         // TODO: object instance caching
 
@@ -477,31 +506,32 @@ automaton HashMap: int
 
 
     fun merge (key: Object, value: Object, remappingFunction: BiFunction): Object
-    requires value != null;
-    requires remappingFunction != null;
-    // side effects should be inferred from calls to other methods
     {
-        val oldValue = self.get(key);
+        requires value != null;
+        requires remappingFunction != null;
+        // side effects should be inferred from calls to other subroutines
+
+        val oldValue = self._getMappingOrDefault(key, null);
         if (oldValue != null)
         {
             val mc = modCounter;
             val newValue = action CALL(remappingFunction, [oldValue, value]);
-            self.checkForModifications(mc);
+            self._checkForModifications(mc);
 
             if (newValue == null)
             {
-                self.remove(key);
+                self._removeMapping(key);
             }
             else
             {
-                self.put(key, newValue);
+                self._setMapping(key, newValue);
             }
 
             result = newValue;
         }
         else
         {
-            self.put(key, value);
+            self._setMapping(key, value);
 
             result = value;
         }
@@ -531,22 +561,25 @@ automaton HashMap: int
     }
 
     fun forEach (consumer: BiConsumer): void
-    requires mapper != null;
     {
+        requires mapper != null;
+
         // #problem
         action NOT_IMPLEMENTED();
     }
 
     fun putAll (other: Map): void
-    requires other != null;
     {
+        requires other != null;
+
         // #problem
         action NOT_IMPLEMENTED();
     }
 
     fun replaceAll (mapper: BiFunction): void
-    requires mapper != null;
     {
+        requires mapper != null;
+
         // #problem
         action NOT_IMPLEMENTED();
     }
@@ -558,10 +591,11 @@ automaton HashMap: int
     }
 
     @Private
-    @Throws(['IOException', 'ClassNotFoundException'])
+    @Throws(["IOException", "ClassNotFoundException"])
     fun readObject(s: ObjectInputStream): void
-    requires s != null;
     {
+        requires s != null;
+
         val size = s.readInt();
 
         // #problem
@@ -578,7 +612,7 @@ automaton HashMap: int
 
 
 @PackagePrivate
-@Extends('java.util.AbstractCollection')
+@Extends("java.util.AbstractCollection")
 automaton HashMap_Values: int
 {
     initstate Initialized;
@@ -605,9 +639,16 @@ automaton HashMap_Values: int
     }
 
 
-    fun contains(o: Object): boolean
+    fun contains(value: Object): boolean
     {
-        result = self.parent.containsValue(o);
+        if (self.parent.length == 0)
+        {
+            result = false;
+        }
+        else
+        {
+            result = action LIST_FIND(self.parent.values, value);
+        }
     }
 
 
@@ -620,20 +661,20 @@ automaton HashMap_Values: int
 
     fun spliterator(): Spliterator
     {
-        result = new HashMap_ValueSpliterator(state=Initialized,
-            // #problem
-            parent=self.parent);
+        result = new HashMap_ValueSpliterator(state=Initialized, parent=self.parent);
     }
 
 
     fun clear(): void
     {
+        // #todo
         self.parent.clear();
     }
 
 
     fun forEach(consumer: Consumer): void
     {
+        // #problem
         action NOT_IMPLEMENTED();
     }
 }
@@ -642,7 +683,7 @@ automaton HashMap_Values: int
 
 
 @PackagePrivate
-@Extends('java.util.AbstractSet')
+@Extends("java.util.AbstractSet")
 automaton HashMap_KeySet: int
 {
     initstate Initialized;
@@ -664,16 +705,15 @@ automaton HashMap_KeySet: int
 
     fun size(): int
     {
-        // #problem
         result = self.parent.length;
     }
 
 
     fun clear(): void
-    // #problem
-    assigns self.parent;
     {
-        // #problem
+        assigns self.parent;
+
+        // #todo
         result = self.parent.clear();
     }
 
@@ -685,16 +725,24 @@ automaton HashMap_KeySet: int
     }
 
 
-    fun contains(o: Object): boolean
+    fun contains(key: Object): boolean
     {
-        result = self.parent.containsKey(o);
+        if (self.parent.length == 0)
+        {
+            result = false;
+        }
+        else
+        {
+            result = action LIST_FIND(self.parent.keys, key);
+        }
     }
 
 
     fun remove(key: Object): boolean
-    assigns self.parent;
     {
-        val oldValue = self.parent.remove(key);
+        assigns self.parent;
+
+        val oldValue = self.parent._removeMapping(key);
         result = oldValue != null;
     }
 }
@@ -703,12 +751,12 @@ automaton HashMap_KeySet: int
 
 
 @PackagePrivate
-@Implements('java.util.Iterator')
+@Implements("java.util.Iterator")
 automaton HashMap_KeyIterator: int
 (
-    var index: int;
+    var index: int = 0;
     var expectedModCount: int;
-    var nextWasCalled: boolean;
+    var nextWasCalled: boolean = false;
 )
 {
     initstate Initialized;
@@ -733,12 +781,12 @@ automaton HashMap_KeyIterator: int
 
     fun next(): Object
     {
-        self.parent.checkForModifications(expectedModCount);
+        self.parent._checkForModifications(expectedModCount);
 
-        val atValidPosition = self.hasNext();
+        val atValidPosition = index < self.parent.length;
         if (!atValidPosition)
         {
-            action THROW_NEW('java.util.NoSuchElementException');
+            action THROW_NEW("java.util.NoSuchElementException", []);
         }
 
         result = action LIST_GET(self.parent.keys, index);
@@ -753,14 +801,13 @@ automaton HashMap_KeyIterator: int
         val atValidPosition = self.hasNext();
         if (!atValidPosition || !nextWasCalled)
         {
-            action THROW_NEW('java.lang.IllegalStateException');
+            action THROW_NEW("java.lang.IllegalStateException", []);
         }
         nextWasCalled = false;
 
-        self.parent.checkForModifications(expectedModCount);
+        self.parent._checkForModifications(expectedModCount);
 
-        val key = action LIST_GET(self.parent.keys, index);
-        self.parent.remove(key);
+        self.parent._removeMapping(index);
 
         expectedModCount = self.parent.modCounter;
     }
