@@ -4,11 +4,11 @@ library "std:collections" language "Java" version "11" url "-";
 
 import "java-common.lsl";
 
-@Alias("java.util.Collection")
+@TypeMapping("java.util.Collection")
 typealias Map = Object;    // #problem
 
-@Alias("java.util.Set")
+@TypeMapping("java.util.Set")
 typealias Set = Object;    // #problem
 
-@Alias("java.util.Map")
+@TypeMapping("java.util.Map")
 typealias Map = Object;    // #problem

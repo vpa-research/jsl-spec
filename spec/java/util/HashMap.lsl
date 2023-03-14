@@ -751,7 +751,7 @@ automaton HashMap_KeySet: int
 
 
 @PackagePrivate
-@Implements("java.util.Iterator")
+@Implements(["java.util.Iterator"])
 automaton HashMap_KeyIterator: int
 (
     var index: int = 0;

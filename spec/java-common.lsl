@@ -1,6 +1,11 @@
-libsl '1.1.0';
+libsl "1.1.0";
 
-library 'std:common' language 'Java' version '11' url '-';
+library "std" language "Java" version "11" url "-";
+
+
+// === IMPORTS ===
+
+import "generator-annotations.lsl";
 
 
 // === TYPES ===
@@ -12,7 +17,7 @@ typealias long    = int64;
 typealias float   = float32;
 typealias double  = float64;
 
-@Alias('java.lang.Object')
+@TypeMapping("java.lang.Object")
 typealias Object = *void;
 
 
