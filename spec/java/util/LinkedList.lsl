@@ -106,30 +106,27 @@ automaton LinkedList: int(
 	
 	//subs
 	
-	@Private
 	sub unlinkAny(index: int): 
 	{
 		result = action LIST_GET(storage, index);
 		action LIST_REMOVE(storage, index, 1);
 		//Problem
 		//We need add decrement and increment in the LibSL
-		size--;
-		modCount++;
+		size = size - 1;
+		modCount = modCount + 1;
 	}
 	
 	
-	@Private
 	sub linkAny (index: int, e: any): void 
 	{
 		action LIST_INSERT_AT(storage, index, e);
 		//Problem
 		//We need add decrement and increment in the LibSL
-		size++;
-		modCount++;
+		size = size + 1;
+		modCount = modCount + 1;
 	}
 	
 	
-	@Private
 	sub checkElementIndex (index: int): void 
 	{
 		//Do we have operator not "!" in the LibSL ?
@@ -141,21 +138,18 @@ automaton LinkedList: int(
 	}
 	
 	
-	@Private
 	sub isElementIndex(index: int): boolean 
 	{
        	 	return index >= 0 && index < size;
     	}
 	
 	
-	@Private
 	sub isPositionIndex(index: int): boolean 
 	{
         	return index >= 0 && index <= size;
     	}
 	
 	
-	@Private
 	sub checkPositionIndex(index: int) 
 	{
         	if (!isPositionIndex(index))
@@ -166,7 +160,7 @@ automaton LinkedList: int(
 		}
     	}
 	
-	@Private
+	
 	sub unlinkFirst(): any
 	{
 		if (size==0)
@@ -182,20 +176,18 @@ automaton LinkedList: int(
 	}
 	
 	
-	@Private
 	sub unlinkByFirstEqualsObject(o: any): boolean
 	{
 		var index = action LIST_FIND(storage,o, 0, size, 1);
 		result = action LIST_REMOVE(storage, index, 1);
 		if(result == true)
 		{
-			size--;
-			modCount++;	
+			size = size -1;
+			modCount = modCount + 1;	
 		}
 	}
 	
 	
-	@Private
 	sub addAllElements(index:int, c:Collection): boolean
 	{
 		//problem:
@@ -204,7 +196,6 @@ automaton LinkedList: int(
 	}
 	
 	
-	@Private
 	sub getFirstElement(): any
 	{
 		if (size == 0)
@@ -317,7 +308,7 @@ automaton LinkedList: int(
 	{
 		action LIST_RESIZE(storage, 0);
 		size = 0;
-		modCount++;
+		modCount = modCount + 1;
 	}
 	
 	
@@ -508,25 +499,25 @@ automaton LinkedList: int(
 	fun spliterator(): Spliterator 
 	{
 		result = new LLSpliterator(state=Initialized,
-		//This is right ? "parent=self"
-		parent=self,
-		est=-1,
-		expectedModCount=0);
-	}
+			 //This is right ? "parent=self"
+			 parent=self,
+			 est=-1,
+			 expectedModCount=0);
+	} 
 
 
 	fun listIterator(index: int): ListIterator 
 	{
 		checkPositionIndex(index);
 		result = new ListItr(state=Created,
-		parent = self,
-		index = self.index);
+			 parent = self,
+			 index = self.index);
 	}
 	
 	fun descendingIterator(): Iterator 
 	{
         	result = new DescendingIterator(state=Created,
-		parent = self);
+			 parent = self);
     	}
 
 
@@ -626,7 +617,7 @@ automaton ListItr: int(
 		action THROW_NEW('java.util.NoSuchElementException', []);
 	}
 	lastReturned = next;
-	nextIndex++;
+	nextIndex = nextIndex + 1;
 	next = action LIST_GET(self.parent.storage, nextIndex);
 	result = lastReturned;
     }
@@ -654,7 +645,7 @@ automaton ListItr: int(
 		next = action LIST_GET(self.parent.storage, nextIndex - 1);
 	}
 	lastReturned = next;
-	nextIndex--;
+	nextIndex = nextIndex - 1;
 	result = lastReturned;
     }
     
@@ -690,11 +681,11 @@ automaton ListItr: int(
 	}
 	else
 	{
-		nextIndex--;
+		nextIndex = nextIndex - 1;
 	}
 	
 	lastReturned = null;
-	expectedModCount++;
+	expectedModCount = expectedModCount + 1;
     }
     
     
@@ -716,16 +707,16 @@ automaton ListItr: int(
 	lastReturned = null;
 	if(next == null)
 	{
-		self.parent.linkAny(self.parent-size - 1, e);
+		self.parent.linkAny(self.parent.size - 1, e);
 	}
 	else
 	{
 		//We need to insert before next
 		var index = self.parent.indexof(next) - 1;
-		self.parent.linkAny(, e);
+		self.parent.linkAny(index, e);
 	}
-	nextIndex++;
-        expectedModCount++;
+	nextIndex = nextIndex + 1;
+        expectedModCount = expectedModCount + 1;
     }
     
     
@@ -797,8 +788,8 @@ automaton DescendingIterator: int(
 	
 	fun forEachRemaining (action: Consumer): void
     	{
-        // #problem
-        action NOT_IMPLEMENTED();
+        	// #problem
+        	action NOT_IMPLEMENTED();
     	}
 }
 
