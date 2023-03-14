@@ -104,6 +104,63 @@ automaton LinkedList: int(
 		addAll(c);
 	}
 	
+	//subs
+	
+	@Private
+	sub unlinkAny(index: int): Object {
+		result = action LIST_GET(storage, index);
+		action LIST_REMOVE(storage, index, 1);
+		//Problem
+		//We need add decrement and increment in the LibSL
+		size--;
+		modCount++;
+	}
+	
+	
+	@Private
+	sub linkAny (index: int, e: Object): void {
+		action LIST_INSERT_AT(storage, index, e);
+		//Problem
+		//We need add decrement and increment in the LibSL
+		size++;
+		modCount++;
+	}
+	
+	
+	@Private
+	sub checkElementIndex (index: int): void {
+		//Работает ли в LibSL такой оператор "!" НЕ
+		if (!isElementIndex(index)) 
+		{
+			//Работает ли такая конкатенация строк и можно ли внутри ифа  объявить локальную переменную
+			var message: string =  "Index: "+index+", Size: "+size;
+			action THROW_NEW('java.util._IndexOutOfBoundsException', [message]);
+		}
+	}
+	
+	
+	@Private
+	sub isElementIndex(index: int): boolean {
+       	 	return index >= 0 && index < size;
+    	}
+	
+	
+	@Private
+	sub isPositionIndex(index: int): boolean {
+        	return index >= 0 && index <= size;
+    	}
+	
+	
+	@Private
+	sub checkPositionIndex(index: int) {
+        	if (!isPositionIndex(index))
+		{
+            		//Работает ли такая конкатенация строк и можно ли внутри ифа  объявить локальную переменную
+			var message: string =  "Index: "+index+", Size: "+size;
+			action THROW_NEW('java.util._IndexOutOfBoundsException', [message]);
+		}
+    	}
+	
 	// methods
     
     
@@ -129,17 +186,6 @@ automaton LinkedList: int(
 			result = action LIST_GET(storage, size-1);
 		}
 	}
-
-
-	@Private
-	sub unlinkAny(index: int): Object {
-		result = action LIST_GET(storage, index);
-		action LIST_REMOVE(storage, index, 1);
-		//Problem
-		//We need add decrement and increment in the LibSL
-		size--;
-		modCount++;
-	}
 	
 	
 	fun removeFirst() : Object {
@@ -163,16 +209,6 @@ automaton LinkedList: int(
 		else {
 			result = unlinkAny(size-1);
 		}
-	}
-
-
-	@Private
-	sub linkAny (index: int, e: Object): void {
-		action LIST_INSERT_AT(storage, index, e);
-		//Problem
-		//We need add decrement and increment in the LibSL
-		size++;
-		modCount++;
 	}
 	
 	
@@ -240,41 +276,6 @@ automaton LinkedList: int(
 		size = 0;
 		modCount++;
 	}
-
-	
-	@Private
-	sub checkElementIndex (index: int): void {
-		//Работает ли в LibSL такой оператор "!" НЕ
-		if (!isElementIndex(index)) 
-		{
-			//Работает ли такая конкатенация строк и можно ли внутри ифа  объявить локальную переменную
-			var message: string =  "Index: "+index+", Size: "+size;
-			action THROW_NEW('java.util._IndexOutOfBoundsException', [message]);
-		}
-	}
-	
-	
-	@Private
-	sub isElementIndex(index: int): boolean {
-       	 	return index >= 0 && index < size;
-    	}
-	
-	
-	@Private
-	sub isPositionIndex(index: int): boolean {
-        	return index >= 0 && index <= size;
-    	}
-	
-	
-	@Private
-	sub checkPositionIndex(index: int) {
-        	if (!isPositionIndex(index))
-		{
-            		//Работает ли такая конкатенация строк и можно ли внутри ифа  объявить локальную переменную
-			var message: string =  "Index: "+index+", Size: "+size;
-			action THROW_NEW('java.util._IndexOutOfBoundsException', [message]);
-		}
-    	}
 	
 	
 	fun get (index: int): Object {
