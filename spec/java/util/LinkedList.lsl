@@ -24,10 +24,10 @@ include java.util.ListIterator;
     matchInterfaces=true,
 )
 automaton LinkedList: int(
-   	var storage: list<Object>,
+	var storage: list<Object>,
 	@Transient var size: int = 0,
-	@Protected @Transient var modCount: int = 0,
-    	var serialVersionUID:long = 876323262645176354
+	@Transient var modCount: int = 0,
+    	@Final var serialVersionUID:long = 876323262645176354
 )
 {
 
@@ -91,13 +91,15 @@ automaton LinkedList: int(
 
 	//constructors
 
-	constructor LinkedList (): void {
+	constructor LinkedList ()
+	{
     		action LIST_RESIZE(storage, 0);
 	}
     
 	//problem:
 	// we need add constraint for collection type: Collection<? extends E> c
-	constructor LinkedList (c: Collection): void {
+	constructor LinkedList (c: Collection)
+	{
     		self();
 		addAll(c);
 	}
@@ -132,7 +134,7 @@ automaton LinkedList: int(
 	@Private
 	sub unlinkAny(index: int): Object {
 		result = action LIST_GET(storage, index);
-		action LIST_REMOVE(storage, index);
+		action LIST_REMOVE(storage, index, 1);
 		//Problem
 		//We need add decrement and increment in the LibSL
 		size--;
@@ -209,7 +211,7 @@ automaton LinkedList: int(
 	
 	fun remove (o: Object): boolean {
 		var index = indexOf(o);
-		result = action LIST_REMOVE(storage, index);
+		result = action LIST_REMOVE(storage, index, 1);
 		*Можно ли писать result НЕ в самом конце ? *
 		if(result == true)
 		{
@@ -501,6 +503,11 @@ automaton ListItr: int(
 {
 	initstate Initialized;
 	
+	// constructors
+	shift Allocated -> Initialized by [
+        	ListItr(int)
+   	];
+	
 	shift Initialized -> self by [
         // read operations
         hasNext,
@@ -519,7 +526,7 @@ automaton ListItr: int(
     
     //constructors
     
-    constructor ListItr(index: int): void 
+    constructor ListItr(index: int)
     {
     	if(index == self.parent.size)
 	{
@@ -605,7 +612,7 @@ automaton ListItr: int(
 	var lastNext = action LIST_GET(self.parent.storage, nextIndex + 1);
 	
 	var index = self.parent.indexof(lastReturned);
-	action LIST_REMOVE(self.parent.storage, index);
+	action LIST_REMOVE(self.parent.storage, index, 1);
 	
 	if(next == lastReturned)
 	{
@@ -735,9 +742,9 @@ automaton DescendingIterator: int(
     matchInterfaces=true,
 )
 automaton LLSpliterator: int(
-	var BATCH_UNIT: int = 1 << 10,
-	var MAX_BATCH: int = 1 << 25,
-	var list: LinkedList,
+	@Final var BATCH_UNIT: int = 1 << 10,
+	@Final var MAX_BATCH: int = 1 << 25,
+	@Final var list: LinkedList,
 	est: int,
 	expectedModCount: int,
 	batch: int
@@ -747,7 +754,7 @@ automaton LLSpliterator: int(
 
 	//constructors
 	
-	constructor LLSpliterator(list: LinkedList, est: int, expectedModCount: int): void
+	constructor LLSpliterator(list: LinkedList, est: int, expectedModCount: int)
 	{
 		
 	}
