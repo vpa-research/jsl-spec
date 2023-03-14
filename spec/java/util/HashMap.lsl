@@ -170,8 +170,8 @@ automaton HashMap: int
         assigns self.values;
         assigns self.length;
         assigns self.modCounter;
-        ensures self.length = 0;
-        ensures self.modCounter = 0;
+        ensures self.length == 0;
+        ensures self.modCounter == 0;
 
         length = 0;
         modCounter = 0;
@@ -187,8 +187,8 @@ automaton HashMap: int
         assigns self.values;
         assigns self.length;
         assigns self.modCounter;
-        ensures self.length = 0;
-        ensures self.modCounter = 0;
+        ensures self.length == 0;
+        ensures self.modCounter == 0;
 
         length = 0;
         modCounter = 0;
@@ -206,8 +206,8 @@ automaton HashMap: int
         assigns self.values;
         assigns self.length;
         assigns self.modCounter;
-        ensures self.length = 0;
-        ensures self.modCounter = 0;
+        ensures self.length == 0;
+        ensures self.modCounter == 0;
 
         length = 0;
         modCounter = 0;
@@ -223,7 +223,7 @@ automaton HashMap: int
         assigns self.values;
         assigns self.length;
         assigns self.modCounter;
-        ensures self.modCounter = 0;
+        ensures self.modCounter == 0;
 
         modCounter = 0;
         
