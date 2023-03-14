@@ -119,7 +119,8 @@ automaton LinkedList: int(
 	
 	
 	@Private
-	sub linkAny (index: int, e: any): void {
+	sub linkAny (index: int, e: any): void 
+	{
 		action LIST_INSERT_AT(storage, index, e);
 		//Problem
 		//We need add decrement and increment in the LibSL
@@ -129,7 +130,8 @@ automaton LinkedList: int(
 	
 	
 	@Private
-	sub checkElementIndex (index: int): void {
+	sub checkElementIndex (index: int): void 
+	{
 		//Do we have operator not "!" in the LibSL ?
 		if (!isElementIndex(index)) 
 		{
@@ -140,19 +142,22 @@ automaton LinkedList: int(
 	
 	
 	@Private
-	sub isElementIndex(index: int): boolean {
+	sub isElementIndex(index: int): boolean 
+	{
        	 	return index >= 0 && index < size;
     	}
 	
 	
 	@Private
-	sub isPositionIndex(index: int): boolean {
+	sub isPositionIndex(index: int): boolean 
+	{
         	return index >= 0 && index <= size;
     	}
 	
 	
 	@Private
-	sub checkPositionIndex(index: int) {
+	sub checkPositionIndex(index: int) 
+	{
         	if (!isPositionIndex(index))
 		{
             		//Работает ли такая конкатенация строк и можно ли внутри ифа  объявить локальную переменную
@@ -168,7 +173,8 @@ automaton LinkedList: int(
 		{
 			action THROW_NEW('java.util.NoSuchElementException', []);
 		}
-		else {
+		else 
+		{
 			//Problem
 			//We need add ivocation of the functions in the LibSL
 			result = unlinkAny(0);
@@ -215,12 +221,14 @@ automaton LinkedList: int(
 	// methods
     
     
-	fun getFirst () : any {
+	fun getFirst () : any 
+	{
 		result = getFirstElement();
 	}
 
 
-	fun getLast() : any {
+	fun getLast() : any 
+	{
 		if (size==0)
 		{
 			action THROW_NEW('java.util.NoSuchElementException', []);
@@ -232,111 +240,130 @@ automaton LinkedList: int(
 	}
 	
 	
-	fun removeFirst() : any {
+	fun removeFirst() : any 
+	{
 		result = unlinkFirst();
 	}
 
 
-	fun removeLast() : any {
+	fun removeLast() : any 
+	{
 		if (size==0)
 		{
 			action THROW_NEW('java.util.NoSuchElementException', []);
 		}
-		else {
+		else 
+		{
 			result = unlinkAny(size-1);
 		}
 	}
 	
 	
-	fun addFirst(e: any): void {
+	fun addFirst(e: any): void 
+	{
 		linkAny(0, e);
 	}
 
 
-	fun addLast (e: any): void {
+	fun addLast (e: any): void 
+	{
 		linkAny(size-1, e);
 	}
 
 
-	fun contains (o: any): boolean{
+	fun contains (o: any): boolean
+	{
 		//Problem
 		//Can we write such expressions in the LibSL ?
 		result = action LIST_FIND(storage,o,0,size,1) >= 0;
 	}
 
 
-	fun size (): int{
+	fun size (): int
+	{
 		result = size;
 	}
 
 
-	fun add (e: any): boolean {
+	fun add (e: any): boolean 
+	{
 		linkAny(size-1, e);
 		result = true;
 	}
 
 	
 	
-	fun remove (o: any): boolean {
+	fun remove (o: any): boolean 
+	{
 		result = unlinkByFirstEqualsObject(o);
 	}
 	
 	
 	//problem:
 	// we need add constraint for collection type: Collection<? extends E> 
-	fun addAll (c: Collection): boolean {
+	fun addAll (c: Collection): boolean 
+	{
 		result = addAllElements(size, c);
 	}
 	
 	
-	fun addAll (index:int, c:Collection): boolean {
+	fun addAll (index:int, c:Collection): boolean 
+	{
 		result = addAllElements(index, c);
 	}
 	
 	
-	fun clear(): void {
+	fun clear(): void 
+	{
 		action LIST_RESIZE(storage, 0);
 		size = 0;
 		modCount++;
 	}
 	
 	
-	fun get (index: int): any {
+	fun get (index: int): any 
+	{
 		checkElementIndex(index);
 		result = action LIST_GET(storage, index);
 	}
 
 	
-	fun set (index: int, element: any): any {
+	fun set (index: int, element: any): any 
+	{
 		checkElementIndex(index);
 		action LIST_SET(storage, index, element);
 		result = action LIST_GET(storage, index);
 	}
 	
 	
-	fun add(index: int, element: any): void {
+	fun add(index: int, element: any): void 
+	{
 		checkPositionIndex(index);
 		linkAny(index, element);
 	}
 	
 	
-	fun remove (index: int): any {
+	fun remove (index: int): any 
+	{
 		checkElementIndex(index);
 		result = unlinkAny(index);
 	}
 	
 	
-	fun indexOf(o: any): int {
+	fun indexOf(o: any): int 
+	{
 		result = action LIST_FIND(storage,o, 0, size, 1);
 	}
 	
 	
-	fun lastIndexOf(o: any): int {
+	fun lastIndexOf(o: any): int 
+	{
 		result = action LIST_FIND(storage,o, size, 0, -1);
 	}
 	
 	
-	fun peek(): any {
+	fun peek(): any 
+	{
 		if(size == 0)
 		{
 			result = null;
@@ -348,12 +375,14 @@ automaton LinkedList: int(
 	}
 	
 	
-	fun element (): any {
+	fun element (): any 
+	{
 		result = getFirstElement();	
 	}
 	
 	
-	fun poll(): any {
+	fun poll(): any 
+	{
 		if(size==0)
 		{
 			result = null;
@@ -365,30 +394,35 @@ automaton LinkedList: int(
 	}
 	
 	
-	fun remove(): any {
+	fun remove(): any 
+	{
 		result = unlinkFirst();
 	}
 	
 	
-	fun offer(e: any): boolean {
+	fun offer(e: any): boolean 
+	{
 	 	linkAny(size-1, e);
 		result = true;
 	}
 
 	
-	fun offerFirst(e: any): boolean {
+	fun offerFirst(e: any): boolean 
+	{
 		linkAny(0, e);
 		result = true;
 	}
 
 
-	fun offerLast(e: any): boolean {
+	fun offerLast(e: any): boolean 
+	{
 		linkAny(size-1, e);
 		result = true;
 	}
 	
 	
-	fun peekFirst(): any {
+	fun peekFirst(): any 
+	{
 		if(size == 0)
 		{
 			result = null;
@@ -400,7 +434,8 @@ automaton LinkedList: int(
 	}
 	
 	
-	fun peekLast(): any {
+	fun peekLast(): any 
+	{
 		if(size == 0)
 		{
 			result = null;
@@ -412,7 +447,8 @@ automaton LinkedList: int(
 	}
 
 
-	fun pollFirst(): any {
+	fun pollFirst(): any 
+	{
 		if(size == 0)
 		{
 			result = null;
@@ -424,7 +460,8 @@ automaton LinkedList: int(
 	}
 	
 	
-	fun pollLast(): any {
+	fun pollLast(): any 
+	{
 		if(size == 0)
 		{
 			result = null;
@@ -436,34 +473,40 @@ automaton LinkedList: int(
 	}
 	
 	
-	fun push(e: any): void {
+	fun push(e: any): void 
+	{
 		linkAny(0, e);
 	}
 
 
-	fun pop(): any {
+	fun pop(): any 
+	{
 		result = unlinkFirst();
 	}
 	
 	
-	fun removeFirstOccurrence(o: any): boolean {
+	fun removeFirstOccurrence(o: any): boolean 
+	{
 		result = unlinkByFirstEqualsObject(o);
 	}
 	
 	
-	fun removeLastOccurrence(o: any): boolean {
+	fun removeLastOccurrence(o: any): boolean 
+	{
 		//I need think about this
 		action NOT_IMPLEMENTED();
 	}
 	
 	
 	//We need add type: typealias ArrayObject = array<any>;
-	fun toArray(a: ArrayObject): ArrayObject {
+	fun toArray(a: ArrayObject): ArrayObject 
+	{
 		result = action LIST_TO_ARRAY(storage, a);
 	}
 
 	
-	fun spliterator(): Spliterator {
+	fun spliterator(): Spliterator 
+	{
 		result = new LLSpliterator(state=Initialized,
 		//This is right ? "parent=self"
 		parent=self,
@@ -472,14 +515,16 @@ automaton LinkedList: int(
 	}
 
 
-	fun listIterator(index: int): ListIterator {
+	fun listIterator(index: int): ListIterator 
+	{
 		checkPositionIndex(index);
 		result = new ListItr(state=Created,
 		parent = self,
 		index = self.index);
 	}
 	
-	fun descendingIterator(): Iterator {
+	fun descendingIterator(): Iterator 
+	{
         	result = new DescendingIterator(state=Created,
 		parent = self);
     	}
