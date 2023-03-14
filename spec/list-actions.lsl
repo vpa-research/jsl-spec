@@ -38,5 +38,6 @@ define action LIST_DUP(
     
 define action LIST_REMOVE(
         aList: list<any>,
-        index: int
+        index: int,
+        count: int
     ): void;
