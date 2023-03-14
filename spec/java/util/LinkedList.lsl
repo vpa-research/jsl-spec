@@ -24,7 +24,7 @@ include java.util.ListIterator;
     matchInterfaces=true,
 )
 automaton LinkedList: int(
-	var storage: list<Object>,
+	var storage: list<any>,
 	@Transient var size: int = 0,
 	@Transient var modCount: int = 0,
     	@Final var serialVersionUID:long = 876323262645176354
@@ -44,7 +44,7 @@ automaton LinkedList: int(
 		contains,
 		size,
 		get,
-		indexOf(Object),
+		indexOf(any),
 		indexOf(int),
 		lastIndexOf,
 		peek,
@@ -66,13 +66,13 @@ automaton LinkedList: int(
 		removeLast,
 		addFirst,
 		addLast,
-		add(Object),
-		remove(Object),
+		add(any),
+		remove(any),
 		addAll(Collection),
 		addAll(int, Collection),
 		clear,
 		set,
-		add(int, Object),
+		add(int, any),
 		remove(int),
 		poll,
 		remove(),
@@ -101,13 +101,14 @@ automaton LinkedList: int(
 	constructor LinkedList (c: Collection)
 	{
     		self();
-		addAll(c);
+		addAllElements(size, c);
 	}
 	
 	//subs
 	
 	@Private
-	sub unlinkAny(index: int): Object {
+	sub unlinkAny(index: int): 
+	{
 		result = action LIST_GET(storage, index);
 		action LIST_REMOVE(storage, index, 1);
 		//Problem
@@ -118,7 +119,7 @@ automaton LinkedList: int(
 	
 	
 	@Private
-	sub linkAny (index: int, e: Object): void {
+	sub linkAny (index: int, e: any): void {
 		action LIST_INSERT_AT(storage, index, e);
 		//Problem
 		//We need add decrement and increment in the LibSL
@@ -129,10 +130,9 @@ automaton LinkedList: int(
 	
 	@Private
 	sub checkElementIndex (index: int): void {
-		//Работает ли в LibSL такой оператор "!" НЕ
+		//Do we have operator not "!" in the LibSL ?
 		if (!isElementIndex(index)) 
 		{
-			//Работает ли такая конкатенация строк и можно ли внутри ифа  объявить локальную переменную
 			var message: string =  "Index: "+index+", Size: "+size;
 			action THROW_NEW('java.util._IndexOutOfBoundsException', [message]);
 		}
@@ -161,10 +161,46 @@ automaton LinkedList: int(
 		}
     	}
 	
-	// methods
-    
-    
-	fun getFirst () : Object {
+	@Private
+	sub unlinkFirst(): any
+	{
+		if (size==0)
+		{
+			action THROW_NEW('java.util.NoSuchElementException', []);
+		}
+		else {
+			//Problem
+			//We need add ivocation of the functions in the LibSL
+			result = unlinkAny(0);
+		}
+	}
+	
+	
+	@Private
+	sub unlinkByFirstEqualsObject(o: any): boolean
+	{
+		var index = action LIST_FIND(storage,o, 0, size, 1);
+		result = action LIST_REMOVE(storage, index, 1);
+		if(result == true)
+		{
+			size--;
+			modCount++;	
+		}
+	}
+	
+	
+	@Private
+	sub addAllElements(index:int, c:Collection): boolean
+	{
+		//problem:
+		//we don't know how to avoid cycle i this method
+		action NOT_IMPLEMENTED();
+	}
+	
+	
+	@Private
+	sub getFirstElement(): any
+	{
 		if (size == 0)
 		{
 			action THROW_NEW('java.util.NoSuchElementException', []);
@@ -174,9 +210,17 @@ automaton LinkedList: int(
 			result = action LIST_GET(storage, 0);
 		}
 	}
+	
+	
+	// methods
+    
+    
+	fun getFirst () : any {
+		result = getFirstElement();
+	}
 
 
-	fun getLast() : Object {
+	fun getLast() : any {
 		if (size==0)
 		{
 			action THROW_NEW('java.util.NoSuchElementException', []);
@@ -188,20 +232,12 @@ automaton LinkedList: int(
 	}
 	
 	
-	fun removeFirst() : Object {
-		if (size==0)
-		{
-			action THROW_NEW('java.util.NoSuchElementException', []);
-		}
-		else {
-			//Problem
-			//We need add ivocation of the functions in the LibSL
-			result = unlinkAny(0);
-		}
+	fun removeFirst() : any {
+		result = unlinkFirst();
 	}
 
 
-	fun removeLast() : Object {
+	fun removeLast() : any {
 		if (size==0)
 		{
 			action THROW_NEW('java.util.NoSuchElementException', []);
@@ -212,21 +248,17 @@ automaton LinkedList: int(
 	}
 	
 	
-	fun addFirst(e: Object): void {
-		//Problem
-		//We need add ivocation of the functions in the LibSL
+	fun addFirst(e: any): void {
 		linkAny(0, e);
 	}
 
 
-	fun addLast (e: Object): void {
-		//Problem
-		//We need add ivocation of the functions in the LibSL
+	fun addLast (e: any): void {
 		linkAny(size-1, e);
 	}
 
 
-	fun contains (o: Object): boolean{
+	fun contains (o: any): boolean{
 		//Problem
 		//Can we write such expressions in the LibSL ?
 		result = action LIST_FIND(storage,o,0,size,1) >= 0;
@@ -238,36 +270,27 @@ automaton LinkedList: int(
 	}
 
 
-	fun add (e: Object): boolean {
+	fun add (e: any): boolean {
 		linkAny(size-1, e);
 		result = true;
 	}
 
 	
 	
-	fun remove (o: Object): boolean {
-		var index = indexOf(o);
-		result = action LIST_REMOVE(storage, index, 1);
-		*Можно ли писать result НЕ в самом конце ? *
-		if(result == true)
-		{
-			*Существует ли такой -= оператор в LibSL ?*
-			size--;
-			modCount++;	
-		}
+	fun remove (o: any): boolean {
+		result = unlinkByFirstEqualsObject(o);
 	}
 	
 	
 	//problem:
 	// we need add constraint for collection type: Collection<? extends E> 
 	fun addAll (c: Collection): boolean {
-		result = addAll(size, c);
+		result = addAllElements(size, c);
 	}
 	
 	
 	fun addAll (index:int, c:Collection): boolean {
-		//problem:
-		//we don't know how to avoid cycle i this method
+		result = addAllElements(index, c);
 	}
 	
 	
@@ -278,42 +301,42 @@ automaton LinkedList: int(
 	}
 	
 	
-	fun get (index: int): Object {
+	fun get (index: int): any {
 		checkElementIndex(index);
 		result = action LIST_GET(storage, index);
 	}
 
 	
-	fun set (index: int, element: Object): Object {
+	fun set (index: int, element: any): any {
 		checkElementIndex(index);
 		action LIST_SET(storage, index, element);
 		result = action LIST_GET(storage, index);
 	}
 	
 	
-	fun add(index: int, element: Object): void {
+	fun add(index: int, element: any): void {
 		checkPositionIndex(index);
 		linkAny(index, element);
 	}
 	
 	
-	fun remove (index: int): Object {
+	fun remove (index: int): any {
 		checkElementIndex(index);
 		result = unlinkAny(index);
 	}
 	
 	
-	fun indexOf(o: Object): int {
+	fun indexOf(o: any): int {
 		result = action LIST_FIND(storage,o, 0, size, 1);
 	}
 	
 	
-	fun lastIndexOf(o: Object): int {
+	fun lastIndexOf(o: any): int {
 		result = action LIST_FIND(storage,o, size, 0, -1);
 	}
 	
 	
-	fun peek(): Object {
+	fun peek(): any {
 		if(size == 0)
 		{
 			result = null;
@@ -325,12 +348,12 @@ automaton LinkedList: int(
 	}
 	
 	
-	fun element (): Object {
-		result = getFirst();	
+	fun element (): any {
+		result = getFirstElement();	
 	}
 	
 	
-	fun poll(): Object {
+	fun poll(): any {
 		if(size==0)
 		{
 			result = null;
@@ -342,30 +365,30 @@ automaton LinkedList: int(
 	}
 	
 	
-	fun remove(): Object {
-		result = removeFirst();
+	fun remove(): any {
+		result = unlinkFirst();
 	}
 	
 	
-	fun offer(e: Object): boolean {
-	 	add(e);
+	fun offer(e: any): boolean {
+	 	linkAny(size-1, e);
 		result = true;
 	}
 
 	
-	fun offerFirst(e: Object): boolean {
-		addFirst(e);
+	fun offerFirst(e: any): boolean {
+		linkAny(0, e);
 		result = true;
 	}
 
 
-	fun offerLast(e: Object): boolean {
-		addLast(e);
+	fun offerLast(e: any): boolean {
+		linkAny(size-1, e);
 		result = true;
 	}
 	
 	
-	fun peekFirst(): Object {
+	fun peekFirst(): any {
 		if(size == 0)
 		{
 			result = null;
@@ -377,7 +400,7 @@ automaton LinkedList: int(
 	}
 	
 	
-	fun peekLast(): Object {
+	fun peekLast(): any {
 		if(size == 0)
 		{
 			result = null;
@@ -389,7 +412,7 @@ automaton LinkedList: int(
 	}
 
 
-	fun pollFirst(): Object {
+	fun pollFirst(): any {
 		if(size == 0)
 		{
 			result = null;
@@ -401,7 +424,7 @@ automaton LinkedList: int(
 	}
 	
 	
-	fun pollLast(): Object {
+	fun pollLast(): any {
 		if(size == 0)
 		{
 			result = null;
@@ -413,27 +436,28 @@ automaton LinkedList: int(
 	}
 	
 	
-	fun push(e: Object): void {
-		addFirst(e);
+	fun push(e: any): void {
+		linkAny(0, e);
 	}
 
 
-	fun pop(): Object {
-		result = removeFirst();
+	fun pop(): any {
+		result = unlinkFirst();
 	}
 	
 	
-	fun removeFirstOccurrence(o: Object): boolean {
-		result = remove(o);
+	fun removeFirstOccurrence(o: any): boolean {
+		result = unlinkByFirstEqualsObject(o);
 	}
 	
 	
-	fun removeLastOccurrence(o: Object): boolean {
+	fun removeLastOccurrence(o: any): boolean {
 		//I need think about this
+		action NOT_IMPLEMENTED();
 	}
 	
 	
-	//We need add type: typealias ArrayObject = array<Object>;
+	//We need add type: typealias ArrayObject = array<any>;
 	fun toArray(a: ArrayObject): ArrayObject {
 		result = action LIST_TO_ARRAY(storage, a);
 	}
@@ -461,7 +485,7 @@ automaton LinkedList: int(
     	}
 
 
-	fun clone (): Object
+	fun clone (): any
     	{ 
 		result = action LIST_DUP(storage);
 	}
@@ -498,8 +522,8 @@ automaton LinkedList: int(
 )
 automaton ListItr: int(
 	var nextIndex:int,
-	var next: Object,
-	var lastReturned: Object,
+	var next: any,
+	var lastReturned: any,
 	var expectedModCount = parent.modCount)
 {
 	initstate Initialized;
@@ -549,7 +573,7 @@ automaton ListItr: int(
     }
     
     
-    fun next(): Object
+    fun next(): any
     {
     	checkForComodification();
 	if (!hasNext())
@@ -569,7 +593,7 @@ automaton ListItr: int(
     }
     
     
-    fun previous(): Object
+    fun previous(): any
     {
     	checkForComodification();
 	if (!hasNext())
@@ -629,7 +653,7 @@ automaton ListItr: int(
     }
     
     
-    fun set(e: Object): void
+    fun set(e: any): void
     {
     	if (lastReturned == null)
 	{
@@ -641,7 +665,7 @@ automaton ListItr: int(
     }
    
    
-    fun add(e: Object): void
+    fun add(e: any): void
     {
     	checkForComodification();
 	lastReturned = null;
@@ -708,7 +732,7 @@ automaton DescendingIterator: int(
         ];
 
 
-	fun next(): Object
+	fun next(): any
 	{
 		result = itr.previous();
 	}
