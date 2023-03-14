@@ -68,7 +68,7 @@ automaton HashMap: int
     proc _updateModifications(): void
     {
         assigns self.modCounter;
-        ensures self.modCounter" > self.modCounter;
+        ensures self.modCounter' > self.modCounter;
 
         self.modCounter += 1;
     }
@@ -101,7 +101,7 @@ automaton HashMap: int
     {
         assigns self.keys;
         assigns self.values;
-        ensures self.length" >= self.length;
+        ensures self.length' >= self.length;
 
         val idx = action LIST_FIND(keys, key);
         if (idx >= 0)
@@ -134,7 +134,7 @@ automaton HashMap: int
         requires index >= 0 && index < self.length;
         assigns self.keys;
         assigns self.values;
-        ensures self.length" <= self.length;
+        ensures self.length' <= self.length;
 
         result = action LIST_GET(values, index);
         
