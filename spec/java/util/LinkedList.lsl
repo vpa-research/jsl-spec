@@ -31,6 +31,9 @@ automaton LinkedList: int(
 )
 {
 
+    initstate Allocated;
+    state Initialized;
+    
     // constructors
     shift Allocated -> Initialized by [
         LinkedList(),
@@ -481,8 +484,7 @@ automaton LinkedList: int(
     }
     
     
-    //We need add type: typealias ArrayObject = array<any>;
-    fun toArray (a: ArrayObject): ArrayObject 
+    fun toArray (a: array<any>): array<any> 
     {
         result = action LIST_TO_ARRAY(storage, a);
     }
@@ -502,20 +504,21 @@ automaton LinkedList: int(
     {
         checkPositionIndex(index);
             result = new ListItr(state=Created,
-            parent = self,
             expectedModCount=self.modCounter);
     }
     
     fun descendingIterator (): Iterator 
     {
-        result = new DescendingIterator(state=Created,
-            parent = self);
+        result = new DescendingIterator(state=Created);
     }
 
 
     fun clone (): any
     { 
-        result = action LIST_DUP(storage);
+        storageCopy = action LIST_DUP(storage);
+        
+        result = new LinkedList(
+            state=self.state, storage=storageCopy, size=self.size);
     }
     
     
@@ -628,7 +631,7 @@ automaton ListItr: int(
         }
         
         index = index - 1;
-        result = LIST_GET(self.parent.storage, index);
+        result = action LIST_GET(self.parent.storage, index);
         prevWasCalled = true;
         nextWasCalled = false;
     }
@@ -742,11 +745,9 @@ automaton ListItr: int(
     matchInterfaces=true,
 )
 automaton DescendingIterator: int(
-    //Do we can write in such way or not ??
-    var itr = new ListItr(state=Created,
-    parent = self.parent,
-    index = self.parent.size())
-)
+    var index: int = 0,
+    var expectedModCount: int,
+    var nextWasCalled: boolean = false)
 {
     
     initstate Initialized;
@@ -764,19 +765,40 @@ automaton DescendingIterator: int(
 
     fun next (): any
     {
-        result = itr.previous();
+        checkForComodification();
+        val atValidPosition = index > 0;
+        
+        if (!atValidPosition)
+        {
+            action THROW_NEW("java.util.NoSuchElementException", []);
+        }
+        
+        index = index - 1;
+        result = action LIST_GET(self.parent.storage, index);
+        nextWasCalled = true;
     }
     
     
     fun hasNext (): boolean
     {
-        result = itr.hasPrevious();
+        result = index > 0;
     }
     
     
     fun remove (): void
     {
-        itr.remove();
+        checkForComodification();
+        
+        if (!nextWasCalled)
+        {
+            action THROW_NEW("java.lang.IllegalStateException", []);
+        }
+        
+        self.parent.unlinkAny(index);
+        index = index - 1;
+        nextWasCalled = false;
+        
+        expectedModCount = expectedModCount + 1;
     }
     
     
@@ -785,6 +807,16 @@ automaton DescendingIterator: int(
         // #problem
         action NOT_IMPLEMENTED();
     }
+    
+    
+    sub checkForComodification (): void 
+    {
+        if (self.parent.modCount != expectedModCount)
+        {
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+        }
+    }
+    
 }
 
 
@@ -810,41 +842,41 @@ automaton LLSpliterator: int(
     
     constructor LLSpliterator (list: LinkedList, est: int, expectedModCount: int)
     {
-        
+        action NOT_IMPLEMENTED();
     }
     
     //sub's
     
     sub getEst (): int
     {
-    
+        action NOT_IMPLEMENTED();
     }
     
     //methods
     
     fun estimateSize (): long
     {
-    
+        action NOT_IMPLEMENTED();    
     }
     
     fun trySplit (): Spliterator
     {
-    
+        action NOT_IMPLEMENTED();
     }
     
     fun forEachRemaining (action: Consumer): void
     {
-    
+        action NOT_IMPLEMENTED();
     }
     
     fun tryAdvance (action: Consumer): boolean
     {
-    
+        action NOT_IMPLEMENTED();
     }
     
     fun characteristics (): int
     {
-    
+        action NOT_IMPLEMENTED();
     }
     
 }
