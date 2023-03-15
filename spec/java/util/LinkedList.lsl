@@ -251,7 +251,7 @@ automaton LinkedList: int(
 
 	fun addLast (e: any): void 
 	{
-		linkAny(size-1, e);
+		linkAny(size, e);
 	}
 
 
@@ -271,7 +271,7 @@ automaton LinkedList: int(
 
 	fun add (e: any): boolean 
 	{
-		linkAny(size-1, e);
+		linkAny(size, e);
 		result = true;
 	}
 
@@ -386,7 +386,7 @@ automaton LinkedList: int(
 	
 	fun offer (e: any): boolean 
 	{
-		linkAny(size-1, e);
+		linkAny(size, e);
 		result = true;
 	}
 
@@ -400,7 +400,7 @@ automaton LinkedList: int(
 
 	fun offerLast (e: any): boolean 
 	{
-		linkAny(size-1, e);
+		linkAny(size, e);
 		result = true;
 	}
 	
@@ -504,7 +504,7 @@ automaton LinkedList: int(
 		checkPositionIndex(index);
 		result = new ListItr(state=Created,
 			parent = self,
-			index = self.index);
+			expectedModCount=self.modCounter);
 	}
 	
 	fun descendingIterator (): Iterator 
@@ -550,10 +550,11 @@ automaton LinkedList: int(
     matchInterfaces=true,
 )
 automaton ListItr: int(
-	var nextIndex:int,
-	var next: any,
-	var lastReturned: any,
-	var expectedModCount = parent.modCount)
+	var index: int = 0,
+	var expectedModCount: int,
+	var nextWasCalled: boolean = false,
+	var prevWasCalled: boolean = false
+)
 {
 	initstate Initialized;
 	
@@ -580,17 +581,9 @@ automaton ListItr: int(
     
     //constructors
     
-    constructor ListItr (index: int)
+    constructor ListItr (startIndex: int)
     {
-    	if (index == self.parent.size)
-		{
-			next = null;
-		}
-		else
-		{
-			next = action LIST_GET(self.parent.storage, index);
-		}
-		nextIndex = index;
+		index = startIndex;
     }
     
     
@@ -598,117 +591,126 @@ automaton ListItr: int(
     
     fun hasNext (): boolean
     {
-        result = nextIndex < self.parent.size;
+        result = index < self.parent.size;
     }
     
     
     fun next (): any
     {
     	checkForComodification();
-		if (!hasNext())
+		val atValidPosition = index < self.parent.length;
+		
+		if (!atValidPosition)
 		{
 			action THROW_NEW('java.util.NoSuchElementException', []);
 		}
-		lastReturned = next;
-		nextIndex = nextIndex + 1;
-		next = action LIST_GET(self.parent.storage, nextIndex);
-		result = lastReturned;
+		
+		result = action LIST_GET(self.parent.storage, index);
+		index = index + 1;
+		nextWasCalled = true;
+		prevWasCalled = false;
     }
     
     
     fun hasPrevious (): boolean 
     {
-		result = nextIndex > 0;
+		result = index > 0;
     }
     
     
     fun previous (): any
     {
     	checkForComodification();
-		if (!hasNext())
+		val atValidPosition = index > 0;
+		
+		if (!atValidPosition)
 		{
 			action THROW_NEW('java.util.NoSuchElementException', []);
 		}
-		if (next == null)
-		{
-			next = action LIST_GET(self.parent.storage, self.parent.size - 1);
-		}
-		else
-		{
-			next = action LIST_GET(self.parent.storage, nextIndex - 1);
-		}
-		lastReturned = next;
-		nextIndex = nextIndex - 1;
-		result = lastReturned;
+		
+		index = index - 1;
+		result = LIST_GET(self.parent.storage, index);
+		prevWasCalled = true;
+		nextWasCalled = false;
     }
     
     
     fun nextIndex (): int 
     {
-		result = nextIndex;
+		result = index;
     }
     
     
     fun previousIndex (): int 
     {
-		result = nextIndex - 1;
+		result = index - 1;
     }
     
     
     fun remove (): void
     {
     	checkForComodification();
-		if (lastReturned == null)
+		
+		if (!nextWasCalled || !prevWasCalled)
 		{
 			action THROW_NEW('java.lang.IllegalStateException', []);
 		}
-	
-		var lastNext = action LIST_GET(self.parent.storage, nextIndex + 1);
-	
-		var index = self.parent.indexof(lastReturned);
-		action LIST_REMOVE(self.parent.storage, index, 1);
-	
-		if (next == lastReturned)
+		
+		if (nextWasCalled)
 		{
-			next = lastNext;
+			self.parent.unlinkAny(index - 1);
+			nextWasCalled = false;
 		}
 		else
 		{
-			nextIndex = nextIndex - 1;
+			self.parent.unlinkAny(index);
+			index = index - 1;
+			prevWasCalled = false;
 		}
 	
-		lastReturned = null;
 		expectedModCount = expectedModCount + 1;
     }
     
     
     fun set (e: any): void
     {
-    	if (lastReturned == null)
+    	if (!nextWasCalled || !prevWasCalled)
 		{
 			action THROW_NEW('java.lang.IllegalStateException', []);
 		}
+		
 		checkForComodification();
-		var index = self.parent.indexof(lastReturned);
-		action LIST_SET(storage, index, e);
+		
+		if (nextWasCalled)
+		{
+			action LIST_SET(storage, index - 1, e);
+		}
+		else
+		{
+			action LIST_SET(storage, index, e);
+		}
     }
    
    
     fun add (e: any): void
     {
     	checkForComodification();
-		lastReturned = null;
-		if (next == null)
+		val hasNextPosition = index < self.parent.length;
+		
+		
+		if (!hasNextPosition)
 		{
-			self.parent.linkAny(self.parent.size - 1, e);
+			self.parent.linkAny(self.parent.size, e);
 		}
 		else
 		{
-			//We need to insert before next
-			var index = self.parent.indexof(next) - 1;
 			self.parent.linkAny(index, e);
 		}
-		nextIndex = nextIndex + 1;
+		
+		nextWasCalled = false;
+		prevWasCalled = false;
+		
+		index = index + 1;
         expectedModCount = expectedModCount + 1;
     }
     
