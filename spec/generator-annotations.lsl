@@ -4,6 +4,12 @@ libsl "1.1.0";
 // language-specific aspects
 
 
+annotation Static ();
+
+annotation Final ();
+
+annotation Transient ();
+
 annotation Private ();
 
 annotation PackagePrivate ();
@@ -18,8 +24,6 @@ annotation Implements (
     fullInterfaceNames: array<string>;
 );
 
-annotation Transient ();
-
 annotation Throws (
     exceptionTypes: array<string> = [];
 );
@@ -31,7 +35,11 @@ annotation Throws (
 annotation NoReturn ();
 
 annotation TypeMapping (
-    fullClassName: string
+    fullClassName: string;
+);
+
+annotation EmbedInto (
+    parentAutomatonName: string;
 );
 
 annotation WrapperMeta (

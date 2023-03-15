@@ -17,15 +17,17 @@ import "java/util/function/interfaces.lsl"
 @Extends("java.util.AbstractMap")
 @WrapperMeta(
     src="java.util.HashMap",
-    dst="org.utbot.engine.overrides.collections.UtHashMap",
+    dst="ru.spbpu.libsl.overrides.collections.HashMap",
     matchInterfaces=true,
 )
 automaton HashMap: int
 (
-    var keys: list<Object> = new list();
-    var values: list<Object> = new list();  // #problem
+    var keys: list<Object> = null;
+    var values: list<Object> = null;
     var length: int = 0;
     @Transient var modCounter: int = 0;
+
+    @Private @Static @Final serialVersionUID: long = 362498820763181265;
 )
 {
     initstate Allocated;
@@ -49,10 +51,10 @@ automaton HashMap: int
         isEmpty,
         toString,
         hashCode,
-        
+
         clone,
         keySet,
-        
+
         // write operations
         put,
         putAll,
@@ -64,6 +66,18 @@ automaton HashMap: int
 
 
     // utilities
+
+    proc _initLists(): void
+    {
+        assigns self.keys;
+        assigns self.values;
+        ensures self.keys != null;
+        ensures self.values != null;
+
+        keys = new list();
+        values = new list();
+    }
+
 
     proc _updateModifications(): void
     {
@@ -107,7 +121,7 @@ automaton HashMap: int
         if (idx >= 0)
         {
             result = action LIST_GET(values, idx);
-            
+
             action LIST_SET(values, idx, value);
         }
         else
@@ -115,16 +129,16 @@ automaton HashMap: int
             val newLength = length + 1;
             action LIST_RESIZE(keys, newLength);
             action LIST_RESIZE(values, newLength);
-            
+
             val newIdx = length;
             action LIST_SET(keys, newIdx, key);
             action LIST_SET(values, newIdx, value);
-            
+
             length = newLength;
-            
+
             result = null;
         }
-        
+
         self._updateModifications();
     }
 
@@ -134,13 +148,13 @@ automaton HashMap: int
         requires index >= 0 && index < self.length;
         assigns self.keys;
         assigns self.values;
-        ensures self.length' <= self.length;
+        ensures self.length' < self.length;
 
         result = action LIST_GET(values, index);
-        
+
         action LIST_REMOVE(keys, index);
         action LIST_REMOVE(values, index);
-        
+
         length -= 1;
         self._updateModifications();
     }
@@ -149,6 +163,7 @@ automaton HashMap: int
     proc _removeMapping (key: Object): Object
     {
         // side effects should be inferred from calls to other subroutines
+        ensures self.length' <= self.length;
 
         val idx = action LIST_FIND(keys, key);
         if (idx >= 0)
@@ -173,6 +188,8 @@ automaton HashMap: int
         ensures self.length == 0;
         ensures self.modCounter == 0;
 
+        self._initLists();
+
         length = 0;
         modCounter = 0;
         action LIST_RESIZE(keys, 0);
@@ -189,6 +206,8 @@ automaton HashMap: int
         assigns self.modCounter;
         ensures self.length == 0;
         ensures self.modCounter == 0;
+
+        self._initLists();
 
         length = 0;
         modCounter = 0;
@@ -209,6 +228,8 @@ automaton HashMap: int
         ensures self.length == 0;
         ensures self.modCounter == 0;
 
+        self._initLists();
+
         length = 0;
         modCounter = 0;
         action LIST_RESIZE(keys, 0);
@@ -223,10 +244,12 @@ automaton HashMap: int
         assigns self.values;
         assigns self.length;
         assigns self.modCounter;
+        ensures self.length >= 0;
         ensures self.modCounter == 0;
 
+        self._initLists();
         modCounter = 0;
-        
+
         val otherSize = other.size();
         if (otherSize > 0)
         {
@@ -241,6 +264,21 @@ automaton HashMap: int
             action LIST_RESIZE(keys, 0);
             action LIST_RESIZE(values, 0);
         }
+    }
+
+
+    proc _clearMappings (): void
+    {
+        assigns self.keys;
+        assigns self.values;
+        assigns self.length;
+        ensures self.length == 0;
+
+        length = 0;
+        action LIST_RESIZE(keys, 0);
+        action LIST_RESIZE(values, 0);
+
+        self._updateModifications();
     }
 
 
@@ -416,12 +454,12 @@ automaton HashMap: int
         if (idx >= 0)
         {
             val oldValue = action LIST_GET(values, idx);
-            
+
             val isEqualValues = Objects.equals(value, oldValue);  // #problem
             if (isEqualValues)
             {
                 self._removeMapping(m, key);
-            
+
                 result = true;
             }
         }
@@ -453,7 +491,7 @@ automaton HashMap: int
         {
             val value = action LIST_GET(values, idx);
             // #problem
-            if (value == oldValue || (value != null && value.equals(oldValue)))
+            if (value == oldValue || (value != null && Objects.equals(value, oldValue)))
             {
                 action LIST_SET(values, idx, newValue);
 
@@ -467,15 +505,7 @@ automaton HashMap: int
 
     fun clear (): void
     {
-        assigns self.keys;
-        assigns self.values;
-        assigns self.length;
-        ensures self.length == 0;
-
-        length = 0;
-        self._updateModifications();
-        action LIST_RESIZE(keys, 0);
-        action LIST_RESIZE(values, 0);
+        self._clearMappings();
     }
 
 
@@ -540,7 +570,7 @@ automaton HashMap: int
 
     fun entrySet (): Set
     {
-        result = new HashMap_EntrySet(state=Initialized);
+        result = new HashMap_EntrySet(state=Initialized); // parent will be implicitly set to self
     }
 
 
@@ -602,7 +632,7 @@ automaton HashMap: int
         val buff = new int[size];
         // #problem
         s.readFully(buff);
-        
+
         // #problem
         action FROM_BYTES(self, bytes);
     }
@@ -613,18 +643,19 @@ automaton HashMap: int
 
 @PackagePrivate
 @Extends("java.util.AbstractCollection")
+@EmbedInto("HashMap")
 automaton HashMap_Values: int
 {
     initstate Initialized;
-    
+
     shift Initialized -> self by [
         // read operations
         size,
         contains,
-        
+
         iterator,
         spliterator,
-        
+
         // write operations
         clear,
         forEach,
@@ -667,8 +698,9 @@ automaton HashMap_Values: int
 
     fun clear(): void
     {
-        // #todo
-        self.parent.clear();
+        assigns self.parent;
+
+        self.parent._clearMappings();
     }
 
 
@@ -684,17 +716,18 @@ automaton HashMap_Values: int
 
 @PackagePrivate
 @Extends("java.util.AbstractSet")
+@EmbedInto("HashMap")
 automaton HashMap_KeySet: int
 {
     initstate Initialized;
-    
+
     shift Initialized -> self by [
         // read operations
         size,
         contains,
-        
+
         iterator,
-        
+
         // write operations
         clear,
         remove,
@@ -703,29 +736,28 @@ automaton HashMap_KeySet: int
 
     // methods
 
-    fun size(): int
+    fun size (): int
     {
         result = self.parent.length;
     }
 
 
-    fun clear(): void
+    fun clear (): void
     {
         assigns self.parent;
 
-        // #todo
-        result = self.parent.clear();
+        result = self.parent._clearMappings();
     }
 
 
-    fun iterator(): Iterator
+    fun iterator (): Iterator
     {
         result = new HashMap_KeyIterator(
             state=Initialized, parent=self.parent, expectedModCount=self.parent.modCounter);
     }
 
 
-    fun contains(key: Object): boolean
+    fun contains (key: Object): boolean
     {
         if (self.parent.length == 0)
         {
@@ -738,7 +770,7 @@ automaton HashMap_KeySet: int
     }
 
 
-    fun remove(key: Object): boolean
+    fun remove (key: Object): boolean
     {
         assigns self.parent;
 
@@ -752,6 +784,7 @@ automaton HashMap_KeySet: int
 
 @PackagePrivate
 @Implements(["java.util.Iterator"])
+@EmbedInto("HashMap")
 automaton HashMap_KeyIterator: int
 (
     var index: int = 0;
@@ -760,11 +793,11 @@ automaton HashMap_KeyIterator: int
 )
 {
     initstate Initialized;
-    
+
     shift Initialized -> self by [
         // read operations
         hasNext,
-        
+
         // write operations
         next,
         remove,
@@ -773,13 +806,13 @@ automaton HashMap_KeyIterator: int
 
     // methods
 
-    fun hasNext(): boolean
+    fun hasNext (): boolean
     {
         result = index < self.parent.length;
     }
 
 
-    fun next(): Object
+    fun next (): Object
     {
         self.parent._checkForModifications(expectedModCount);
 
@@ -796,9 +829,9 @@ automaton HashMap_KeyIterator: int
     }
 
 
-    fun remove(): void
+    fun remove (): void
     {
-        val atValidPosition = self.hasNext();
+        val atValidPosition = index < self.parent.length;
         if (!atValidPosition || !nextWasCalled)
         {
             action THROW_NEW("java.lang.IllegalStateException", []);
