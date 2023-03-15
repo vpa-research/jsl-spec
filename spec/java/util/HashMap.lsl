@@ -849,7 +849,73 @@ automaton HashMap_KeyIterator: int
 
 
 
+@PackagePrivate
+@Implements(["java.util.Iterator"])
+@EmbedInto("HashMap")
+automaton HashMap_ValueIterator: int
+(
+    var index: int = 0;
+    var expectedModCount: int;
+    var nextWasCalled: boolean = false;
+)
+{
+    initstate Initialized;
+
+    shift Initialized -> self by [
+        // read operations
+        hasNext,
+
+        // write operations
+        next,
+        remove,
+    ];
+
+
+    // methods
+
+    fun hasNext (): boolean
+    {
+        result = index < self.parent.length;
+    }
+
+
+    fun next (): Object
+    {
+        self.parent._checkForModifications(expectedModCount);
+
+        val atValidPosition = index < self.parent.length;
+        if (!atValidPosition)
+        {
+            action THROW_NEW("java.util.NoSuchElementException", []);
+        }
+
+        result = action LIST_GET(self.parent.values, index);
+
+        index += 1;
+        nextWasCalled = true;
+    }
+
+
+    fun remove (): void
+    {
+        val atValidPosition = index < self.parent.length;
+        if (!atValidPosition || !nextWasCalled)
+        {
+            action THROW_NEW("java.lang.IllegalStateException", []);
+        }
+        nextWasCalled = false;
+
+        self.parent._checkForModifications(expectedModCount);
+
+        self.parent._removeMapping(index);
+
+        expectedModCount = self.parent.modCounter;
+    }
+}
+
+
+
+
 // TODO
-// HashMap_ValueIterator
 // HashMap_ValueSpliterator
 // HashMap_EntrySet
