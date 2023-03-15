@@ -11,6 +11,10 @@ import "java/util/interfaces.lsl"
 import "java/util/function/interfaces.lsl"
 
 
+@TypeMapping("java.util.ObjectInputStream")
+typealias ObjectInputStream = Object;  // #problem
+
+
 // automata
 
 @Public
@@ -576,19 +580,25 @@ automaton HashMap: int
 
     // problematic methods
 
-    fun toString (): string
-    {
-        // result = action OBJECT_TO_STRING(self);
-        // #problem
-        action NOT_IMPLEMENTED();
-    }
+//    fun toString (): string
+//    {
+//        // result = action OBJECT_TO_STRING(self);
+//        // #problem
+//        action NOT_IMPLEMENTED();
+//    }
 
-    fun hashCode (): int
-    {
-        // result = action OBJECT_HASH_CODE(self);
-        // #problem
-        action NOT_IMPLEMENTED();
-    }
+//    fun hashCode (): int
+//    {
+//        // result = action OBJECT_HASH_CODE(self);
+//        // #problem
+//        action NOT_IMPLEMENTED();
+//    }
+
+//    fun equals (other: Object): boolean
+//    {
+//        // #problem
+//        action NOT_IMPLEMENTED();
+//    }
 
     fun forEach (consumer: BiConsumer): void
     {
@@ -614,36 +624,32 @@ automaton HashMap: int
         action NOT_IMPLEMENTED();
     }
 
-    fun equals (other: Object): boolean
-    {
-        // #problem
-        action NOT_IMPLEMENTED();
-    }
-
     @Private
     @Throws(["IOException", "ClassNotFoundException"])
     fun readObject(s: ObjectInputStream): void
     {
         requires s != null;
 
-        val size = s.readInt();
+        action NOT_IMPLEMENTED();
 
-        // #problem
-        val buff = new int[size];
-        // #problem
-        s.readFully(buff);
+//        val size = s.readInt();
 
-        // #problem
-        action FROM_BYTES(self, bytes);
+//        // #problem
+//        val buff = new int[size];
+//        // #problem
+//        s.readFully(buff);
+
+//        // #problem
+//        action FROM_BYTES(self, bytes);
     }
 }
 
 
 
 
+@From("HashMap")
 @PackagePrivate
 @Extends("java.util.AbstractCollection")
-@EmbedInto("HashMap")
 automaton HashMap_Values: int
 {
     initstate Initialized;
@@ -654,7 +660,7 @@ automaton HashMap_Values: int
         contains,
 
         iterator,
-        spliterator,
+//        spliterator,
 
         // write operations
         clear,
@@ -690,10 +696,11 @@ automaton HashMap_Values: int
     }
 
 
-    fun spliterator(): Spliterator
-    {
-        result = new HashMap_ValueSpliterator(state=Initialized, parent=self.parent);
-    }
+// #todo
+//    fun spliterator(): Spliterator
+//    {
+//        result = new HashMap_ValueSpliterator(state=Initialized, parent=self.parent);
+//    }
 
 
     fun clear(): void
@@ -714,9 +721,9 @@ automaton HashMap_Values: int
 
 
 
+@From("HashMap")
 @PackagePrivate
 @Extends("java.util.AbstractSet")
-@EmbedInto("HashMap")
 automaton HashMap_KeySet: int
 {
     initstate Initialized;
@@ -727,6 +734,7 @@ automaton HashMap_KeySet: int
         contains,
 
         iterator,
+//        spliterator,
 
         // write operations
         clear,
@@ -757,6 +765,13 @@ automaton HashMap_KeySet: int
     }
 
 
+// #todo
+//    fun spliterator (): Spliterator
+//    {
+//        result = new HashMap_KeySpliterator(state=Initialized, parent=self.parent);
+//    }
+
+
     fun contains (key: Object): boolean
     {
         if (self.parent.length == 0)
@@ -782,9 +797,9 @@ automaton HashMap_KeySet: int
 
 
 
+@From("HashMap")
 @PackagePrivate
 @Implements(["java.util.Iterator"])
-@EmbedInto("HashMap")
 automaton HashMap_KeyIterator: int
 (
     var index: int = 0;
@@ -849,9 +864,9 @@ automaton HashMap_KeyIterator: int
 
 
 
+@From("HashMap")
 @PackagePrivate
 @Implements(["java.util.Iterator"])
-@EmbedInto("HashMap")
 automaton HashMap_ValueIterator: int
 (
     var index: int = 0;
@@ -916,6 +931,190 @@ automaton HashMap_ValueIterator: int
 
 
 
+@From("HashMap")
+@PackagePrivate
+@Implements(["java.util.Map.Entry"])
+automaton HashMap_Entry: int
+(
+    var index: int;
+)
+{
+    initstate Initialized;
+
+    shift Initialized -> self by [
+        // read operations
+
+        getKey,
+        getValue,
+
+        equals,
+        toString,
+        hashCode,
+
+        // write operations
+
+        setValue,
+    ];
+
+
+    // methods
+
+    fun getKey (): Object
+    {
+        // TODO: key caching
+
+        // we do not have references to arbitrary types, so 'action' it is
+        result = action LIST_GET(self.parent.keys, index);
+    }
+
+
+    fun getValue (): Object
+    {
+        result = action LIST_GET(self.parent.values, index);
+    }
+
+
+    fun setValue (newValue: Object): Object
+    {
+        result = action LIST_GET(self.parent.values, index);
+
+        action LIST_SET(self.parent.values, index, newValue);
+    }
+
+
+    fun equals (other: Object): Object
+    {
+        if (other == self)
+        {
+            result = true;
+        }
+        else
+        {
+            // #problem
+            // instanceof
+
+            // #problem
+            // val key = action CALL_INTERFACE(other, "getKey():java.lang.Object", []);
+
+            action NOT_IMPLEMENTED();
+        }
+    }
+
+
+    fun toString (): string
+    {
+        val key   = action LIST_GET(self.parent.keys, index);
+        val value = action LIST_GET(self.parent.values, index);
+
+        val sKey   = action OBJECT_TO_STRING(key);
+        val sValue = action OBJECT_TO_STRING(value);
+
+        result = sKey + "=" + sValue;
+    }
+
+
+    fun hashCode (): int
+    {
+        val key   = action LIST_GET(self.parent.keys, index);
+        val value = action LIST_GET(self.parent.values, index);
+
+        val hKey   = action OBJECT_HASH_CODE(key);
+        val hValue = action OBJECT_HASH_CODE(value);
+
+        result = hKey ^ hValue;
+    }
+
+}
+
+
+
+
+@From("HashMap")
+@PackagePrivate
+@Extends("java.util.AbstractSet")
+automaton HashMap_EntrySet: int
+{
+    initstate Initialized;
+
+    shift Initialized -> self by [
+        // read operations
+        size,
+        contains,
+
+        iterator,
+        spliterator,
+
+        // write operations
+        clear,
+        remove,
+    ];
+
+
+    // methods
+
+    fun size (): int
+    {
+        result = self.parent.length;
+    }
+
+
+    fun clear (): void
+    {
+        assigns self.parent;
+
+        result = self.parent._clearMappings();
+    }
+
+
+    fun iterator (): Iterator
+    {
+        result = new HashMap_EntryIterator(
+            state=Initialized, parent=self.parent, expectedModCount=self.parent.modCounter);
+    }
+
+
+    fun spliterator (): Spliterator
+    {
+        result = new HashMap_EntrySpliterator(state=Initialized, parent=self.parent);
+    }
+
+
+    fun contains (e: Object): boolean
+    {
+        if (self.parent.length == 0)
+        {
+            result = false;
+        }
+        else
+        {
+            // #problem
+            // instanceof
+
+            // #problem
+            // val key = action CALL_INTERFACE(other, "getKey():java.lang.Object", []);
+
+            action NOT_IMPLEMENTED();
+        }
+    }
+
+
+    fun remove (e: Object): boolean
+    {
+        assigns self.parent;
+
+        // #problem
+        // val key = action CALL_INTERFACE(e, "getKey():java.lang.Object", []);
+
+        val oldValue = self.parent._removeMapping(key);
+        result = oldValue != null;
+    }
+}
+
+
+
+
 // TODO
+// HashMap_EntryIterator
 // HashMap_ValueSpliterator
-// HashMap_EntrySet
+// HashMap_KeySpliterator
+// HashMap_EntrySpliterator

@@ -59,3 +59,16 @@ define action CALL(
         callable: Object,
         params: any[]
     ): Object;
+
+define action OBJECT_EQUALS(
+        a: any,
+        b: any
+    ): string;
+
+define action OBJECT_TO_STRING(
+        thing: any
+    ): string;
+
+define action OBJECT_HASH_CODE(
+        thing: any
+    ): int;

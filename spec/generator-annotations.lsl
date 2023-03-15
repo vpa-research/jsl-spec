@@ -38,7 +38,7 @@ annotation TypeMapping (
     fullClassName: string;
 );
 
-annotation EmbedInto (
+annotation From (
     parentAutomatonName: string;
 );
 
