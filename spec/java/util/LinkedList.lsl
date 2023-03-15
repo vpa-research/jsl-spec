@@ -31,12 +31,12 @@ automaton LinkedList: int(
 )
 {
 
-	// constructors
+    // constructors
     shift Allocated -> Initialized by [
         LinkedList(),
         LinkedList(Collection)
     ];
-	
+    
     shift Initialized -> self by [
         // read operations
         getFirst,
@@ -99,9 +99,9 @@ automaton LinkedList: int(
         self();
         addAllElements(size, c);
     }
-	
+    
     //subs
-	
+    
     sub unlinkAny (index: int): any
     {
         result = action LIST_GET(storage, index);
@@ -111,8 +111,8 @@ automaton LinkedList: int(
         size = size - 1;
         modCount = modCount + 1;
     }
-	
-	
+    
+    
     sub linkAny (index: int, e: any): void 
     {
         action LIST_INSERT_AT(storage, index, e);
@@ -121,8 +121,8 @@ automaton LinkedList: int(
         size = size + 1;
         modCount = modCount + 1;
     }
-	
-	
+    
+    
     sub checkElementIndex (index: int): void 
     {
         //Do we have operator not "!" in the LibSL ?
@@ -132,20 +132,20 @@ automaton LinkedList: int(
             action THROW_NEW('java.util._IndexOutOfBoundsException', [message]);
         }
     }
-	
-	
+    
+    
     sub isElementIndex (index: int): boolean 
     {
         return index >= 0 && index < size;
     }
-	
-	
+    
+    
     sub isPositionIndex (index: int): boolean 
     {
         return index >= 0 && index <= size;
     }
-	
-	
+    
+    
     sub checkPositionIndex (index: int): void 
     {
         if (!isPositionIndex(index))
@@ -154,8 +154,8 @@ automaton LinkedList: int(
             action THROW_NEW('java.util._IndexOutOfBoundsException', [message]);
         }
     }
-	
-	
+    
+    
     sub unlinkFirst (): any
     {
         if (size==0)
@@ -167,8 +167,8 @@ automaton LinkedList: int(
             result = unlinkAny(0);
         }
     }
-	
-	
+    
+    
     sub unlinkByFirstEqualsObject (o: any): boolean
     {
         var index = action LIST_FIND(storage,o, 0, size, 1);
@@ -176,19 +176,19 @@ automaton LinkedList: int(
         if (result == true)
         {
             size = size -1;
-            modCount = modCount + 1;	
+            modCount = modCount + 1;    
         }
     }
-	
-	
+    
+    
     sub addAllElements (index:int, c:Collection): boolean
     {
         //problem:
         //we don't know how to avoid cycle i this method
         action NOT_IMPLEMENTED();
     }
-	
-	
+    
+    
     sub getFirstElement (): any
     {
         if (size == 0)
@@ -200,8 +200,8 @@ automaton LinkedList: int(
             result = action LIST_GET(storage, 0);
         }
     }
-	
-	
+    
+    
     // methods
     
     
@@ -222,8 +222,8 @@ automaton LinkedList: int(
             result = action LIST_GET(storage, size-1);
         }
     }
-	
-	
+    
+    
     fun removeFirst (): any 
     {
         result = unlinkFirst();
@@ -241,8 +241,8 @@ automaton LinkedList: int(
             result = unlinkAny(size-1);
         }
     }
-	
-	
+    
+    
     fun addFirst (e: any): void 
     {
         linkAny(0, e);
@@ -275,76 +275,76 @@ automaton LinkedList: int(
         result = true;
     }
 
-	
+    
     fun remove (o: any): boolean 
     {
         result = unlinkByFirstEqualsObject(o);
     }
-	
-	
+    
+    
     //problem:
     // we need add constraint for collection type: Collection<? extends E> 
     fun addAll (c: Collection): boolean 
     {
         result = addAllElements(size, c);
     }
-	
-	
+    
+    
     fun addAll (index:int, c:Collection): boolean 
     {
         result = addAllElements(index, c);
     }
-	
-	
+    
+    
     fun clear (): void 
     {
         action LIST_RESIZE(storage, 0);
         size = 0;
         modCount = modCount + 1;
     }
-	
-	
+    
+    
     fun get (index: int): any 
     {
         checkElementIndex(index);
         result = action LIST_GET(storage, index);
     }
 
-	
+    
     fun set (index: int, element: any): any 
     {
         checkElementIndex(index);
         action LIST_SET(storage, index, element);
         result = action LIST_GET(storage, index);
     }
-	
-	
+    
+    
     fun add (index: int, element: any): void 
     {
         checkPositionIndex(index);
         linkAny(index, element);
     }
-	
-	
+    
+    
     fun remove (index: int): any 
     {
         checkElementIndex(index);
         result = unlinkAny(index);
     }
-	
-	
+    
+    
     fun indexOf (o: any): int 
     {
         result = action LIST_FIND(storage,o, 0, size, 1);
     }
-	
-	
+    
+    
     fun lastIndexOf (o: any): int 
     {
         result = action LIST_FIND(storage,o, size, 0, -1);
     }
-	
-	
+    
+    
     fun peek(): any 
     {
         if (size == 0)
@@ -356,14 +356,14 @@ automaton LinkedList: int(
             result = action LIST_GET(storage, 0);
         }
     }
-	
-	
+    
+    
     fun element (): any 
     {
-        result = getFirstElement();	
+        result = getFirstElement();    
     }
-	
-	
+    
+    
     fun poll (): any 
     {
         if (size==0)
@@ -375,21 +375,21 @@ automaton LinkedList: int(
             result = unlinkAny(0);
         }
     }
-	
-	
+    
+    
     fun remove (): any 
     {
         result = unlinkFirst();
     }
-	
-	
+    
+    
     fun offer (e: any): boolean 
     {
         linkAny(size, e);
         result = true;
     }
 
-	
+    
     fun offerFirst (e: any): boolean 
     {
         linkAny(0, e);
@@ -402,8 +402,8 @@ automaton LinkedList: int(
         linkAny(size, e);
         result = true;
     }
-	
-	
+    
+    
     fun peekFirst (): any 
     {
         if (size == 0)
@@ -415,8 +415,8 @@ automaton LinkedList: int(
             result = action LIST_GET(storage, 0);
         }
     }
-	
-	
+    
+    
     fun peekLast (): any 
     {
         if (size == 0)
@@ -441,8 +441,8 @@ automaton LinkedList: int(
             result = unlinkAny(0);
         }
     }
-	
-	
+    
+    
     fun pollLast (): any 
     {
         if (size == 0)
@@ -454,8 +454,8 @@ automaton LinkedList: int(
             result = unlinkAny(size-1);
         }
     }
-	
-	
+    
+    
     fun push (e: any): void 
     {
         linkAny(0, e);
@@ -466,28 +466,28 @@ automaton LinkedList: int(
     {
         result = unlinkFirst();
     }
-	
-	
+    
+    
     fun removeFirstOccurrence (o: any): boolean 
     {
         result = unlinkByFirstEqualsObject(o);
     }
-	
-	
+    
+    
     fun removeLastOccurrence (o: any): boolean 
     {
         //I need think about this action
         action NOT_IMPLEMENTED();
     }
-	
-	
+    
+    
     //We need add type: typealias ArrayObject = array<any>;
     fun toArray (a: ArrayObject): ArrayObject 
     {
         result = action LIST_TO_ARRAY(storage, a);
     }
 
-	
+    
     fun spliterator (): Spliterator 
     {
         result = new LLSpliterator(state=Initialized,
@@ -505,7 +505,7 @@ automaton LinkedList: int(
             parent = self,
             expectedModCount=self.modCounter);
     }
-	
+    
     fun descendingIterator (): Iterator 
     {
         result = new DescendingIterator(state=Created,
@@ -517,16 +517,16 @@ automaton LinkedList: int(
     { 
         result = action LIST_DUP(storage);
     }
-	
-	
+    
+    
     fun hashCode (): int
     {
         // result = action OBJECT_HASH_CODE(self);
         // #problem
         action NOT_IMPLEMENTED();
     }
-	
-	
+    
+    
     fun toString (): string
     {
         // result = action OBJECT_TO_STRING(self);
@@ -556,19 +556,19 @@ automaton ListItr: int(
 )
 {
     initstate Initialized;
-	
+    
     // constructors
     shift Allocated -> Initialized by [
         ListItr(int)
     ];
-	
+    
     shift Initialized -> self by [
         // read operations
         hasNext,
         hasPrevious,
         nextIndex,
         previousIndex,
-	
+    
         // write operations
         next,
         remove,
@@ -598,12 +598,12 @@ automaton ListItr: int(
     {
         checkForComodification();
         val atValidPosition = index < self.parent.length;
-		
+        
         if (!atValidPosition)
         {
             action THROW_NEW('java.util.NoSuchElementException', []);
         }
-		
+        
         result = action LIST_GET(self.parent.storage, index);
         index = index + 1;
         nextWasCalled = true;
@@ -621,12 +621,12 @@ automaton ListItr: int(
     {
         checkForComodification();
         val atValidPosition = index > 0;
-		
+        
         if (!atValidPosition)
         {
             action THROW_NEW('java.util.NoSuchElementException', []);
         }
-		
+        
         index = index - 1;
         result = LIST_GET(self.parent.storage, index);
         prevWasCalled = true;
@@ -649,12 +649,12 @@ automaton ListItr: int(
     fun remove (): void
     {
         checkForComodification();
-		
+        
         if (!nextWasCalled && !prevWasCalled)
         {
             action THROW_NEW('java.lang.IllegalStateException', []);
         }
-		
+        
         if (nextWasCalled)
         {
             self.parent.unlinkAny(index - 1);
@@ -666,7 +666,7 @@ automaton ListItr: int(
             index = index - 1;
             prevWasCalled = false;
         }
-	
+    
         expectedModCount = expectedModCount + 1;
     }
     
@@ -677,9 +677,9 @@ automaton ListItr: int(
         {
             action THROW_NEW('java.lang.IllegalStateException', []);
         }
-		
+        
         checkForComodification();
-		
+        
         if (nextWasCalled)
         {
             action LIST_SET(storage, index - 1, e);
@@ -695,8 +695,8 @@ automaton ListItr: int(
     {
         checkForComodification();
         val hasNextPosition = index < self.parent.length;
-		
-		
+        
+        
         if (!hasNextPosition)
         {
             self.parent.linkAny(self.parent.size, e);
@@ -705,10 +705,10 @@ automaton ListItr: int(
         {
             self.parent.linkAny(index, e);
         }
-		
+        
         nextWasCalled = false;
         prevWasCalled = false;
-		
+        
         index = index + 1;
         expectedModCount = expectedModCount + 1;
     }
@@ -748,13 +748,13 @@ automaton DescendingIterator: int(
     index = self.parent.size())
 )
 {
-	
+    
     initstate Initialized;
-	
+    
     shift Initialized -> self by [
         // read operations
         hasNext,
-	
+    
         // write operations
         next,
         remove,
@@ -766,20 +766,20 @@ automaton DescendingIterator: int(
     {
         result = itr.previous();
     }
-	
-	
+    
+    
     fun hasNext (): boolean
     {
         result = itr.hasPrevious();
     }
-	
-	
+    
+    
     fun remove (): void
     {
         itr.remove();
     }
-	
-	
+    
+    
     fun forEachRemaining (action: Consumer): void
     {
         // #problem
@@ -807,44 +807,44 @@ automaton LLSpliterator: int(
 {
 
     //constructors
-	
+    
     constructor LLSpliterator (list: LinkedList, est: int, expectedModCount: int)
     {
-		
+        
     }
-	
+    
     //sub's
-	
+    
     sub getEst (): int
     {
-	
+    
     }
-	
+    
     //methods
-	
+    
     fun estimateSize (): long
     {
-	
+    
     }
-	
+    
     fun trySplit (): Spliterator
     {
-	
+    
     }
-	
+    
     fun forEachRemaining (action: Consumer): void
     {
-	
+    
     }
-	
+    
     fun tryAdvance (action: Consumer): boolean
     {
-	
+    
     }
-	
+    
     fun characteristics (): int
     {
-	
+    
     }
-	
+    
 }
