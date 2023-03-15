@@ -16,11 +16,11 @@ include java.util.List;
 include java.util.ListIterator;
 
 @Public
-@Extends('java.util.AbstractSequentialList')
-@Implements(['java.util.List','java.util.Deque','java.lang.Cloneable','java.io.Serializable'])
+@Extends("java.util.AbstractSequentialList")
+@Implements(["java.util.List","java.util.Deque","java.lang.Cloneable","java.io.Serializable"])
 @WrapperMeta(
-    src='java.util.LinkedList',
-    dst='org.utbot.engine.overrides.collections.UtLinkedList',
+    src="java.util.LinkedList",
+    dst="org.utbot.engine.overrides.collections.UtLinkedList",
     matchInterfaces=true,
 )
 automaton LinkedList: int(
@@ -96,7 +96,7 @@ automaton LinkedList: int(
     // we need add constraint for collection type: Collection<? extends E> c
     constructor LinkedList (c: Collection)
     {
-        self();
+        action LIST_RESIZE(storage, 0);
         addAllElements(size, c);
     }
     
@@ -126,15 +126,15 @@ automaton LinkedList: int(
     sub checkElementIndex (index: int): void 
     {
         //Do we have operator not "!" in the LibSL ?
-        if (!isElementIndex(index)) 
+        if (!isValidIndex(index)) 
         {
             var message: string =  "Index: "+index+", Size: "+size;
-            action THROW_NEW('java.util._IndexOutOfBoundsException', [message]);
+            action THROW_NEW("java.util.IndexOutOfBoundsException", [message]);
         }
     }
     
     
-    sub isElementIndex (index: int): boolean 
+    sub isValidIndex (index: int): boolean 
     {
         return index >= 0 && index < size;
     }
@@ -151,7 +151,7 @@ automaton LinkedList: int(
         if (!isPositionIndex(index))
         {
             var message: string =  "Index: "+index+", Size: "+size;
-            action THROW_NEW('java.util._IndexOutOfBoundsException', [message]);
+            action THROW_NEW("java.util.IndexOutOfBoundsException", [message]);
         }
     }
     
@@ -160,7 +160,7 @@ automaton LinkedList: int(
     {
         if (size==0)
         {
-            action THROW_NEW('java.util.NoSuchElementException', []);
+            action THROW_NEW("java.util.NoSuchElementException", []);
         }
         else 
         {
@@ -193,7 +193,7 @@ automaton LinkedList: int(
     {
         if (size == 0)
         {
-            action THROW_NEW('java.util.NoSuchElementException', []);
+            action THROW_NEW("java.util.NoSuchElementException", []);
         }
         else
         {
@@ -215,7 +215,7 @@ automaton LinkedList: int(
     {
         if (size==0)
         {
-            action THROW_NEW('java.util.NoSuchElementException', []);
+            action THROW_NEW("java.util.NoSuchElementException", []);
         }
         else
         {
@@ -234,7 +234,7 @@ automaton LinkedList: int(
     {
         if (size==0)
         {
-            action THROW_NEW('java.util.NoSuchElementException', []);
+            action THROW_NEW("java.util.NoSuchElementException", []);
         }
         else 
         {
@@ -542,10 +542,10 @@ automaton LinkedList: int(
 
 
 @Private
-@Implements('java.util.ListIterator')
+@Implements("java.util.ListIterator")
 @WrapperMeta(
-    src='java.util.ListItr',
-    dst='org.utbot.engine.overrides.collections.UtListItr',
+    src="java.util.ListItr",
+    dst="org.utbot.engine.overrides.collections.UtListItr",
     matchInterfaces=true,
 )
 automaton ListItr: int(
@@ -601,7 +601,7 @@ automaton ListItr: int(
         
         if (!atValidPosition)
         {
-            action THROW_NEW('java.util.NoSuchElementException', []);
+            action THROW_NEW("java.util.NoSuchElementException", []);
         }
         
         result = action LIST_GET(self.parent.storage, index);
@@ -624,7 +624,7 @@ automaton ListItr: int(
         
         if (!atValidPosition)
         {
-            action THROW_NEW('java.util.NoSuchElementException', []);
+            action THROW_NEW("java.util.NoSuchElementException", []);
         }
         
         index = index - 1;
@@ -652,7 +652,7 @@ automaton ListItr: int(
         
         if (!nextWasCalled && !prevWasCalled)
         {
-            action THROW_NEW('java.lang.IllegalStateException', []);
+            action THROW_NEW("java.lang.IllegalStateException", []);
         }
         
         if (nextWasCalled)
@@ -675,7 +675,7 @@ automaton ListItr: int(
     {
         if (!nextWasCalled && !prevWasCalled)
         {
-            action THROW_NEW('java.lang.IllegalStateException', []);
+            action THROW_NEW("java.lang.IllegalStateException", []);
         }
         
         checkForComodification();
@@ -726,7 +726,7 @@ automaton ListItr: int(
     {
         if (self.parent.modCount != expectedModCount)
         {
-            action THROW_NEW('java.util.ConcurrentModificationException', []);
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
         }
     }
     
@@ -735,10 +735,10 @@ automaton ListItr: int(
 
 
 @Private
-@Implements('java.util.Iterator')
+@Implements("java.util.Iterator")
 @WrapperMeta(
-    src='java.util.ListItr',
-    dst='org.utbot.engine.overrides.collections.UtDescendingIterator',
+    src="java.util.ListItr",
+    dst="org.utbot.engine.overrides.collections.UtDescendingIterator",
     matchInterfaces=true,
 )
 automaton DescendingIterator: int(
@@ -790,10 +790,10 @@ automaton DescendingIterator: int(
 
 
 @Private
-@Implements('java.util.Spliterator')
+@Implements("java.util.Spliterator")
 @WrapperMeta(
-    src='java.util.ListItr',
-    dst='org.utbot.engine.overrides.collections.UtLLSpliterator',
+    src="java.util.ListItr",
+    dst="org.utbot.engine.overrides.collections.UtLLSpliterator",
     matchInterfaces=true,
 )
 automaton LLSpliterator: int(
