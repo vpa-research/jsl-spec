@@ -5,6 +5,21 @@ library "std:collections" language "Java" version "11" url "-";
 import "java-common.lsl";
 import "list-actions.lsl";
 
+//For generation this imports are needed:
+include java.util.AbstractList;
+include java.util.ArrayList;
+include java.util.Collection;
+include java.util.Iterator;
+include java.util.List;
+include java.util.ListIterator;
+include java.util.NoSuchElementException;
+include java.util.Objects;
+include java.util.RandomAccess;
+include java.util.function.Consumer;
+include java.util.function.Predicate;
+include java.util.function.UnaryOperator;
+include java.util.stream.Stream;
+
 @Extends("java.util.AbstractList")
 @Implements(["java.util.List", "java.util.RandomAccess","java.lang.Cloneable","java.io.Serializable"])
 @WrapperMeta(
@@ -19,6 +34,55 @@ automaton ArrayList: int (
 
 ) {
 
+    initstate Allocated;
+    state Initialized;
+
+    // constructors
+    shift Allocated -> Initialized by [
+        ArrayList(),
+        ArrayList(int),
+        ArrayList(Collection)
+    ];
+
+    shift Initialized -> self by [
+        // read operations
+        contains,
+        get,
+        indexOf,
+        isEmpty,
+        lastIndexOf,
+        size
+
+        toString,
+        hashCode,
+        clone,
+
+        iterator,
+        listIterator(),
+        listIterator(int),
+        spliterator,
+        subList,
+        toArray(),
+        toArray(array<any>)
+
+        // write operations
+        add(any),
+        add(int, any),
+        addAll(Collection),
+        addAll(int, Collection),
+        clear,
+        ensureCapacity,
+        forEach,
+        remove(int),
+        remove(any),
+        removeAll,
+        removeIf,
+        replaceAll,
+        retainAll,
+        set,
+        sort,
+        trimToSize
+        ];
 
     //constructors
 
