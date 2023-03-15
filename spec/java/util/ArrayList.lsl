@@ -29,9 +29,9 @@ include java.util.stream.Stream;
 automaton ArrayList: int (
     @Private @Final serialVersionUID: long = 8683452581122892189,
     @Private @Final serialVersion DEFAULT_CAPACITY: int = 10,
-    @Transient elementData: List<Object>,
-    @Private size: int
-
+    @Transient storage: List<Object>,
+    @Private length: int,
+    @Private @Static @Final DEFAULT_CAPACITY: int = 10
 ) {
 
     initstate Allocated;
@@ -88,19 +88,36 @@ automaton ArrayList: int (
 
     constructor ArrayList (initialCapacity: int)
     {
-
+        if (initialCapacity >= 0)
+        {
+            action LIST_RESIZE(storage, initialCapacity);
+        }
+        else
+        {
+            //We are thinking about this action: "TO_STRING"
+            var message = "Illegal Capacity: "+ action TO_STRING(initialCapacity);
+            action THROW_NEW("java.lang.NoSuchElementException", [message]);
+        }
     }
 
 
     constructor ArrayList ()
     {
-
+        action LIST_RESIZE(storage, 0);
     }
 
 
     constructor ArrayList (c: Collection)
     {
-
+        //I suppose that "c" is another automaton and it has "toArray" sub (or with another sub name).
+        //That's why we can invoke this.
+        action ARRAY_TO_LIST(c.toArray(), storage);
+        //Problem:
+        //In the next code of the original class can be such situation:  https://bugs.openjdk.java.net/browse/JDK-6260652
+        //(you can see at the original class); But as a understand, this bug can be reproduced only
+        //in jdk 1.5; We must think about this ? Or we don't have to do anything with it ?
+        //It wasn't reproduced in JDK  11.0.1
+        action NOT_IMPLEMENTED();
     }
 
 
