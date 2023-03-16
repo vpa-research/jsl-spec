@@ -78,7 +78,7 @@ automaton HashMap: int
         ensures self.keys != null;
         ensures self.values != null;
 
-        keys = new list();
+        keys = new list(); // #problem: can we use LIST_RESIZE to also allocate this object?
         values = new list();
     }
 
@@ -103,7 +103,7 @@ automaton HashMap: int
 
     proc _getMappingOrDefault (key: Object, defaultValue: Object): Object
     {
-        val idx = action LIST_FIND(keys, key);
+        val idx = action LIST_FIND(keys, key, 0, length, +1);
         if (idx >= 0)
         {
             result = action LIST_GET(values, idx);
@@ -121,7 +121,7 @@ automaton HashMap: int
         assigns self.values;
         ensures self.length' >= self.length;
 
-        val idx = action LIST_FIND(keys, key);
+        val idx = action LIST_FIND(keys, key, 0, length, +1);
         if (idx >= 0)
         {
             result = action LIST_GET(values, idx);
@@ -169,7 +169,7 @@ automaton HashMap: int
         // side effects should be inferred from calls to other subroutines
         ensures self.length' <= self.length;
 
-        val idx = action LIST_FIND(keys, key);
+        val idx = action LIST_FIND(keys, key, 0, length, +1);
         if (idx >= 0)
         {
             result = self._removeMapping(idx);
@@ -296,7 +296,7 @@ automaton HashMap: int
         }
         else
         {
-            val idx = action LIST_FIND(keys, key);
+            val idx = action LIST_FIND(keys, key, 0, length, +1);
             result = idx >= 0;
         }
     }
@@ -310,7 +310,7 @@ automaton HashMap: int
         }
         else
         {
-            val idx = action LIST_FIND(values, value);
+            val idx = action LIST_FIND(values, value, 0, length, +1);
             result = idx >= 0;
         }
     }
@@ -454,7 +454,7 @@ automaton HashMap: int
 
         result = false;
 
-        val idx = action LIST_FIND(keys, key);
+        val idx = action LIST_FIND(keys, key, 0, length, +1);
         if (idx >= 0)
         {
             val oldValue = action LIST_GET(values, idx);
@@ -462,7 +462,7 @@ automaton HashMap: int
             val isEqualValues = Objects.equals(value, oldValue);  // #problem
             if (isEqualValues)
             {
-                self._removeMapping(m, key);
+                self._removeMapping(idx);
 
                 result = true;
             }
@@ -490,7 +490,7 @@ automaton HashMap: int
 
         result = false;
 
-        val idx = action LIST_FIND(keys, key);
+        val idx = action LIST_FIND(keys, key, 0, length, +1);
         if (idx >= 0)
         {
             val value = action LIST_GET(values, idx);
@@ -515,8 +515,8 @@ automaton HashMap: int
 
     fun clone (): Object
     {
-        val cKeys   = action LIST_DUP(keys);
-        val cValues = action LIST_DUP(values);
+        val cKeys   = action LIST_COPY(keys, 0, length);
+        val cValues = action LIST_COPY(values, 0, length);
 
         result = new HashMap(
             state=self.state, keys=cKeys, values=cValues, length=self.length);
@@ -684,7 +684,7 @@ automaton HashMap_Values: int
         }
         else
         {
-            result = action LIST_FIND(self.parent.values, value);
+            result = action LIST_FIND(self.parent.values, value, 0, self.parent.length, +1);
         }
     }
 
@@ -780,7 +780,7 @@ automaton HashMap_KeySet: int
         }
         else
         {
-            result = action LIST_FIND(self.parent.keys, key);
+            result = action LIST_FIND(self.parent.keys, key, 0, self.parent.length, +1);
         }
     }
 
