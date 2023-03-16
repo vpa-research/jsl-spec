@@ -35,4 +35,9 @@ define action LIST_RESIZE(
 define action LIST_DUP(
         aList: list<any>
     ): list<any>;
-
+    
+define action LIST_REMOVE(
+        aList: list<any>,
+        index: int,
+        count: int
+    ): void;
