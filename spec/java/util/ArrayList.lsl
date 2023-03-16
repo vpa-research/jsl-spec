@@ -31,7 +31,8 @@ automaton ArrayList: int (
     @Private @Final serialVersion DEFAULT_CAPACITY: int = 10,
     @Transient storage: List<Object>,
     @Private length: int,
-    @Private @Static @Final DEFAULT_CAPACITY: int = 10
+    @Private @Static @Final DEFAULT_CAPACITY: int = 10,
+    @Private @Transient modCount: int = 0
 ) {
 
     initstate Allocated;
@@ -63,18 +64,18 @@ automaton ArrayList: int (
         spliterator,
         subList,
         toArray(),
-        toArray(array<any>)
+        toArray(array<Object>)
 
         // write operations
-        add(any),
-        add(int, any),
+        add(Object),
+        add(int, Object),
         addAll(Collection),
         addAll(int, Collection),
         clear,
         ensureCapacity,
         forEach,
         remove(int),
-        remove(any),
+        remove(Object),
         removeAll,
         removeIf,
         replaceAll,
@@ -123,6 +124,14 @@ automaton ArrayList: int (
 
     //subs
 
+    sub checkValidIndex (index: int): void
+    {
+        if (index < 0 || index >= length)
+        {
+            var message = "Index "+ action TO_STRING(index) + " out of bounds for length "+ action TO_STRING(length);
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
+        }
+    }
 
     sub grow (minCapacity: int): list<Object>
     {
@@ -248,80 +257,93 @@ automaton ArrayList: int (
 
     fun trimToSize (): void
     {
-
+        modCount = modCount + 1;
+        //As we work with List we mustn't resize it... Or not ?
     }
 
 
     fun ensureCapacity (minCapacity: int): void
     {
-
+        modCount = modCount + 1;
+        //As we work with List we mustn't resize it... Or not ?
     }
 
 
     fun size (): int
     {
-
+        result = length;
     }
 
 
     fun isEmpty (): boolean
     {
-
+        result = length == 0;
     }
 
 
     fun contains (o: Object): boolean
     {
-
+        result = action LIST_FIND(storage, o) >= 0;
     }
 
 
     fun indexOf (o: Object): int
     {
-
+        result = action LIST_FIND(storage, o);
     }
 
 
 
     fun lastIndexOf (o: Object): int
     {
-
+        //I must think about this new action.
+        action NOT_IMPLEMENTED();
     }
 
 
     fun clone (): Object
     {
-
+        storageCopy = action LIST_DUP(storage);
+        result = new ArrayList(
+            state=self.state, storage=storageCopy, length=self.length);
     }
 
 
-    fun toArray (): list<Object>
+    fun toArray (): array<Object>
     {
-
+        //Problem
+        //How set size of the array ?
+        var a: array<int>;
+        result = action LIST_TO_ARRAY(storage, a);
     }
 
 
-    fun toArray (a: list<Object>): list<Object>
+    fun toArray (a: list<Object>): array<Object>
     {
-
+        result = action LIST_TO_ARRAY(storage, a);
     }
 
 
     fun get (index: int): Object
     {
-
+        checkValidIndex(index);
+        result = action LIST_GET(storage, index);
     }
 
 
     fun set (index: int, element: Object): Object
     {
-
+        checkValidIndex(index);
+        result = action LIST_GET(storage, index);
+        action LIST_SET(storage, index, element);
     }
 
 
     fun add (e: Object): boolean
     {
-
+        modCount = modCount + 1;
+        action LIST_INSERT_AT(storage, length, e);
+        length = length + 1;
     }
 
 
