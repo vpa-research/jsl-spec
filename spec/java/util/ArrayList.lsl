@@ -133,123 +133,47 @@ automaton ArrayList: int (
         }
     }
 
-    sub grow (minCapacity: int): list<Object>
-    {
-
-    }
-
-
-    sub grow (): list<Object>
-    {
-
-    }
-
-
-    sub indexOfRange (o: Object, start: int, end: int): int
-    {
-
-    }
-
-
-    sub lastIndexOfRange (o: Object, start: int, end: int): int
-    {
-
-    }
-
-
-    sub elementData (index: int): Object
-    {
-
-    }
-
-
-    sub elementAt (es: list<Object>, index: int): Object
-    {
-
-    }
-
-
-    sub add (e: Object, elementData: list<Object>, s: int): void
-    {
-
-    }
-
-
-    sub equalsRange (other: List, from: int, to: int): boolean
-    {
-
-    }
-
-
-    sub equalsArrayList (other: ArrayList): boolean
-    {
-
-    }
-
-
-    sub checkForComodification (@Final expectedModCount: int): void
-    {
-
-    }
-
-
-    sub hashCodeRange (from: int, to: int):int
-    {
-
-    }
-
-
-    sub fastRemove (es: list<Object>, I: int): void
-    {
-
-    }
-
-
-    sub removeRange (fromIndex: int, toIndex): void
-    {
-
-    }
-
-
-    sub shiftTailOverGap (es: list<Object>, lo: int, hi: int): void
-    {
-
-    }
-
 
     sub rangeCheckForAdd (index: int): void
     {
-
+        if (index < 0 || index > length)
+        {
+            var message = "Index: " + action TO_STRING(index) + ", Size: " + action TO_STRING(length);
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
+        }
     }
 
 
-    sub outOfBoundsMsg (index: int): String
+    sub addAllElements (index:int, c:Collection): boolean
     {
+        modCount = modCount + 1;
 
+        //problem:
+        //we don't know how to avoid cycle i this method
+        action NOT_IMPLEMENTED();
+
+        length = length + c.length;
     }
 
-
-    sub outOfBoundsMsg (fromIndex: int, toIndex: int): String
+    sub subListRangeCheck (int fromIndex, int toIndex, int size): void
     {
+        if (fromIndex < 0)
+        {
+            var message: String = "fromIndex = " + action TO_STRING(fromIndex);
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
+        }
 
-    }
+        if (toIndex > size)
+        {
+            var message: String = "toIndex = " + action TO_STRING(toIndex);
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
+        }
 
-
-    sub batchRemove (c: Collection, complement: boolean, @Final from: int, @Final end: int)
-    {
-
-    }
-
-
-    sub removeIf (filter: Predicate, i: int, @Final end: int): boolean
-    {
-
-    }
-
-
-    sub replaceAllRange (operator: UnaryOperator, i: int, end: int): void
-    {
-
+        if (fromIndex > toIndex)
+        {
+            var message: String = "fromIndex(" + action TO_STRING(fromIndex) + ") > toIndex(" + action TO_STRING(toIndex) + ")";
+            action THROW_NEW("java.lang.IllegalArgumentException", [message]);
+        }
     }
 
 
@@ -349,129 +273,200 @@ automaton ArrayList: int (
 
     fun add (index: int, element: Object): void
     {
-
+         rangeCheckForAdd(index);
+         modCount = modCount + 1;
+         action LIST_INSERT_AT(storage, index, e);
+         length = length + 1;
     }
 
 
     fun remove (index: int): Object
     {
-
+        checkValidIndex(index);
+        result = action LIST_GET(storage, index);
+        action LIST_REMOVE(storage, index, 1);
+        modCount = modCount + 1;
+        length = length - 1;
     }
 
 
     fun equals (o: Object): boolean
     {
-
+        //Problem
+        //We don't know at this moment how create this method.
+        action NOT_IMPLEMENTED();
     }
 
 
     fun hashCode (): int
     {
-
+        // result = action OBJECT_HASH_CODE(self);
+        // #problem
+        action NOT_IMPLEMENTED();
     }
 
 
     fun remove (o: Object): boolean
     {
-
+        var index = action LIST_FIND(storage, o);
+        if (index == -1)
+        {
+            result = false;
+        }
+        else
+        {
+            action LIST_REMOVE(storage, index, 1);
+            result = true;
+        }
     }
 
 
     fun clear (): void
     {
-
+        action LIST_RESIZE(storage, 0);
+        length = 0;
+        modCount = modCount + 1;
     }
 
 
     fun addAll (c: Collection): boolean
     {
-
+        result = addAllElements(length, c);
     }
 
 
 
     fun addAll (index: int, c: Collection): boolean
     {
-
+        result = addAllElements(length, c);
     }
 
 
     fun removeAll (c: Collection): boolean
     {
+        //Problem.
+        //I want to create such action:
 
+        //define action SUBTRACTING_SETS(
+        //        aListSubtracting: array<any>,
+        //        aListDeductible: array<any>
+        //    ): list<any>;
+
+        //But Collection isn't List.
+        //But it has method: toArray();
+        //Maybe we must have two arrays as params ?
+
+        //storage = action SUBTRACTING_SETS(storage, c);
+
+        action NOT_IMPLEMENTED();
     }
 
 
     fun retainAll (c: Collection): boolean
     {
+        //Problem.
+        //I want to create such action:
 
+        //define action INTERSECTION(
+        //        aListSubtracting: array<any>,
+        //        aListDeductible: array<any>
+        //    ): list<any>;
+
+        //But Collection isn't List.
+        //But it has method: toArray();
+        //Maybe we must have two arrays as params ?
+
+        //storage = action INTERSECTION(storage, c);
+
+        action NOT_IMPLEMENTED();
     }
 
 
     @Private
     fun writeObject (s: ObjectOutputStream): void
     {
-
+        action NOT_IMPLEMENTED();
     }
 
 
     @Private
     fun readObject (s: ObjectInputStream): void
     {
-
+        action NOT_IMPLEMENTED();
     }
 
 
     fun listIterator (index: int): ListIterator
     {
+        rangeCheckForAdd(index);
 
+        result = new ListItr(state=Created,
+            cursor=index,
+            expectedModCount=modCount);
     }
 
 
     fun listIterator (): ListIterator
     {
-
+        result = new ListItr(state=Created,
+            cursor=index,
+            expectedModCount=modCount);
     }
 
 
     fun iterator (): Iterator
     {
-
+        result = new Itr(state=Created,
+            expectedModCount=modCount);
     }
 
 
     fun subList (fromIndex: int, toIndex: int): List
     {
-
+        subListRangeCheck(fromIndex, toIndex, length);
+        result = new Itr(state=Created,
+            //Think about THIS !
+            //TODO
+            start=fromIndex,
+            end=toIndex);
     }
 
 
     fun forEach (action: Consumer): void
     {
-
+        // #problem
+        action NOT_IMPLEMENTED();
     }
 
 
     fun spliterator (): Spliterator
     {
-
+        result = new ArrayListSpliterator(state=Initialized,
+            //This is right ? "parent=self"
+            parent=self,
+            origin = 0,
+            est=-1,
+            expectedModCount=0);
     }
 
 
     fun removeIf (filter: Predicate): boolean
     {
-
+        // #problem
+        action NOT_IMPLEMENTED();
     }
 
 
     fun replaceAll (operator: UnaryOperator): void
     {
-
+        // #problem
+        action NOT_IMPLEMENTED();
     }
 
 
     fun sort (c: Comparator): void
     {
-
+        // #problem
+        action NOT_IMPLEMENTED();
     }
 }
