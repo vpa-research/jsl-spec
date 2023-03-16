@@ -32,10 +32,15 @@ annotation Throws (
 // generator-specific aspects
 
 
+annotation Deprecated ();
+
 annotation NoReturn ();
 
+annotation StopsControlFlow ();
+
 annotation TypeMapping (
-    fullClassName: string;
+    fullClassName: string = null;
+    builtin: bool = false;
 );
 
 annotation From (
@@ -45,6 +50,6 @@ annotation From (
 annotation WrapperMeta (
     src: string;
     dst: string;
-    matchInterfaces: bool = false;
+    forceMatchInterfaces: bool = false;
 );
 

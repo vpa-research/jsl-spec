@@ -22,7 +22,7 @@ typealias ObjectInputStream = Object;  // #problem
 @WrapperMeta(
     src="java.util.HashMap",
     dst="ru.spbpu.libsl.overrides.collections.HashMap",
-    matchInterfaces=true,
+    forceMatchInterfaces=true,
 )
 automaton HashMap: int
 (
