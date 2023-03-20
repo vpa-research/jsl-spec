@@ -195,6 +195,23 @@ automaton ArrayList: int (
     }
 
 
+    sub addElement (index: int, e: Object): void
+    {
+        rangeCheckForAdd(index);
+        modCount = modCount + 1;
+        action LIST_INSERT_AT(storage, index, e);
+        length = length + 1;
+    }
+
+
+    sub setElement (index: int, e: Object): void
+    {
+        checkValidIndex(index);
+        result = action LIST_GET(storage, index);
+        action LIST_SET(storage, index, element);
+    }
+
+
     //methods
 
     fun trimToSize (): void
@@ -275,9 +292,7 @@ automaton ArrayList: int (
 
     fun set (index: int, element: Object): Object
     {
-        checkValidIndex(index);
-        result = action LIST_GET(storage, index);
-        action LIST_SET(storage, index, element);
+        setElement(index, element);
     }
 
 
@@ -291,10 +306,7 @@ automaton ArrayList: int (
 
     fun add (index: int, element: Object): void
     {
-         rangeCheckForAdd(index);
-         modCount = modCount + 1;
-         action LIST_INSERT_AT(storage, index, e);
-         length = length + 1;
+        addElement(index, e);
     }
 
 
@@ -500,13 +512,13 @@ automaton Itr: int (
     expectedModCount: int
 ) {
 
-     initstate Initialized;
+    initstate Initialized;
 
-     shift Allocated -> Initialized by [
-             Itr()
-     ];
+    shift Allocated -> Initialized by [
+        Itr()
+    ];
 
-     shift Initialized -> self by [
+    shift Initialized -> self by [
         // read operations
         hasNext,
 
@@ -514,69 +526,69 @@ automaton Itr: int (
         next,
         remove,
         forEachRemaining
-     ]
+    ]
 
 
-     // constructors
+    // constructors
 
 
-     //Maybe here is needed @DefaultModifier ?
-     constructor Itr()
-     {
-     }
+    //Maybe here is needed @DefaultModifier ?
+    constructor Itr()
+    {
+    }
 
 
-     // methods
+    // methods
 
 
-     fun hasNext (): boolean
-     {
-         result = cursor != self.parent.length;
-     }
+    fun hasNext (): boolean
+    {
+        result = cursor != self.parent.length;
+    }
 
 
-     fun next (): Object
-     {
-         self.parent.checkForComodification(expectedModCount);
-         var i = cursor;
+    fun next (): Object
+    {
+        self.parent.checkForComodification(expectedModCount);
+        var i = cursor;
 
-         if (i >= parent.length)
-         {
-             action THROW_NEW("java.util.NoSuchElementException", []);
-         }
+        if (i >= parent.length)
+        {
+            action THROW_NEW("java.util.NoSuchElementException", []);
+        }
 
-         //Problem
-         //I don't know what to do with ConcurrentModificationException(); ?
+        //Problem
+        //I don't know what to do with ConcurrentModificationException(); ?
 
-         cursor = i + 1;
-         lastRet = i;
-         result = action LIST_GET(self.parent.storage, lastRet);
-     }
-
-
-     fun remove (): void
-     {
-         if (lastRet < 0)
-         {
-             action THROW_NEW("java.lang.IllegalStateException", []);
-         }
-
-         self.parent.checkForComodification(expectedModCount);
-
-         //Problem
-         //What i must to do with try-catch in this method ?
-
-         self.parent.deleteElement(lastRet);
-         cursor = lastRet;
-         lastRet = -1;
-         expectedModCount = self.parent.modCount;
-     }
+        cursor = i + 1;
+        lastRet = i;
+        result = action LIST_GET(self.parent.storage, lastRet);
+    }
 
 
-     fun forEachRemaining (action: Consumer): void
-     {
-         action NOT_IMPLEMENTED();
-     }
+    fun remove (): void
+    {
+        if (lastRet < 0)
+        {
+            action THROW_NEW("java.lang.IllegalStateException", []);
+        }
+
+        self.parent.checkForComodification(expectedModCount);
+
+        //Problem
+        //What i must to do with try-catch in this method ?
+
+        self.parent.deleteElement(lastRet);
+        cursor = lastRet;
+        lastRet = -1;
+        expectedModCount = self.parent.modCount;
+    }
+
+
+    fun forEachRemaining (action: Consumer): void
+    {
+        action NOT_IMPLEMENTED();
+    }
 
 }
 
@@ -586,9 +598,9 @@ automaton Itr: int (
 @Extends("java.util.ArrayList$Itr")
 @Implements("java.util.Iterator")
 @WrapperMeta(
-    src="java.util.ArrayList$Itr",
+    src="java.util.ArrayList$ListItr",
     //Maybe will be another name of the dest class
-    dest="org.utbot.engine.overrides.collections.ArrayList$Itr",
+    dest="org.utbot.engine.overrides.collections.ArrayList$ListItr",
     matchInterface=true)
 automaton ListItr: int (
     cursor: int,
@@ -604,10 +616,15 @@ automaton ListItr: int (
 
     shift Initialized -> self by [
        // read operations
+       hasNext,
        hasPrevious,
        nextIndex,
+       previousIndex,
 
        // write operations
+       next,
+       remove,
+       forEachRemaining,
        previous,
        set,
        add
@@ -620,7 +637,7 @@ automaton ListItr: int (
     {
         //Problem
         //How invoke super() ??
-
+        cursor = index;
     }
 
 
@@ -629,37 +646,118 @@ automaton ListItr: int (
 
     fun hasPrevious (): boolean
     {
-
+        result = cursor != 0;
     }
 
 
     fun nextIndex (): int
     {
-
+        result = cursor;
     }
 
 
     fun previousIndex (): int
     {
+        result = cursor - 1;
+    }
 
+
+    fun hasNext (): boolean
+    {
+        result = cursor != self.parent.length;
+    }
+
+
+    fun next (): Object
+    {
+        self.parent.checkForComodification(expectedModCount);
+        var i = cursor;
+
+        if (i >= parent.length)
+        {
+            action THROW_NEW("java.util.NoSuchElementException", []);
+        }
+
+        //Problem
+        //I don't know what to do with ConcurrentModificationException(); ?
+
+        cursor = i + 1;
+        lastRet = i;
+        result = action LIST_GET(self.parent.storage, lastRet);
     }
 
 
     fun previous (): Object
     {
+        self.parent.checkForComodification(expectedModCount);
+        var i = cursor - 1;
 
+        if (i < 0)
+        {
+            action THROW_NEW("java.util.NoSuchElementException", []);
+        }
+
+        //Problem
+        //I don't know what to do with ConcurrentModificationException(); ?
+
+        cursor = i;
+        lastRet = i;
+        result = action LIST_GET(self.parent.storage, lastRet);
     }
 
 
+    fun remove (): void
+    {
+        if (lastRet < 0)
+        {
+            action THROW_NEW("java.lang.IllegalStateException", []);
+        }
+
+        self.parent.checkForComodification(expectedModCount);
+
+        //Problem
+        //What i must to do with try-catch in this method ?
+
+        self.parent.deleteElement(lastRet);
+        cursor = lastRet;
+        lastRet = -1;
+        expectedModCount = self.parent.modCount;
+    }
+
     fun set (e: Object): void
     {
+        if (lastRet < 0)
+        {
+            action THROW_NEW("java.lang.IllegalStateException", []);
+        }
 
+        self.parent.checkForComodification(expectedModCount);
+
+        //Problem
+        //What i must to do with try-catch in this method ?
+
+        self.parent.setElement(lastRet, e);
     }
 
 
     fun add (e: Object): void
     {
+        self.parent.checkForComodification(expectedModCount);
 
+        //Problem
+        //What i must to do with try-catch in this method ?
+
+        var i = cursor;
+        self.parent.addElement(self.parent.length, e);
+        cursor = i + 1;
+        lastRet = -1;
+        expectedModCount = self.parent.modCount;
+    }
+
+
+    fun forEachRemaining (action: Consumer): void
+    {
+        action NOT_IMPLEMENTED();
     }
 
 }
