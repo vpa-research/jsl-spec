@@ -763,3 +763,79 @@ automaton ListItr: int (
 }
 
 
+
+@Final
+@Implements("java.util.Spliterator")
+@WrapperMeta(
+    src="java.util.ArrayList$ArrayListSpliterator",
+    dst="org.utbot.engine.overrides.collections.ArrayList$UtArrayListSpliterator",
+    matchInterfaces=true,
+)
+automaton ArrayListSpliterator: int(
+    index: int,
+    fence: int,
+    expectedModCount: int
+)
+{
+
+    initstate Initialized;
+
+    shift Allocated -> Initialized by [
+        ArrayListSpliterator(int, int, int)
+    ];
+
+    shift Initialized -> self by [
+       // read operations
+       estimateSize,
+       characteristics
+
+       // write operations
+       trySplit,
+       tryAdvance,
+       forEachRemaining
+    ]
+
+    //constructors
+
+
+    constructor ArrayListSpliterator (origin: int, fence: int, expectedModCount: int)
+    {
+        self.index = origin;
+        self.fence = fence;
+        self.expectedModCount = expectedModCount;
+    }
+
+
+    //methods
+
+
+    fun trySplit (): ArrayListSpliterator
+    {
+        action NOT_IMPLEMENTED();
+    }
+
+
+    fun tryAdvance (action: Consumer): void
+    {
+        action NOT_IMPLEMENTED();
+    }
+
+
+    fun forEachRemaining (action: Consumer): void
+    {
+        action NOT_IMPLEMENTED();
+    }
+
+
+    fun estimateSize (): long
+    {
+        action NOT_IMPLEMENTED();
+    }
+
+
+    fun characteristics (): int
+    {
+        action NOT_IMPLEMENTED();
+    }
+
+}
