@@ -581,3 +581,87 @@ automaton Itr: int (
 }
 
 
+
+@PackagePrivate
+@Extends("java.util.ArrayList$Itr")
+@Implements("java.util.Iterator")
+@WrapperMeta(
+    src="java.util.ArrayList$Itr",
+    //Maybe will be another name of the dest class
+    dest="org.utbot.engine.overrides.collections.ArrayList$Itr",
+    matchInterface=true)
+automaton ListItr: int (
+    cursor: int,
+    lastRet: int = -1,
+    expectedModCount: int
+) {
+
+    initstate Initialized;
+
+    shift Allocated -> Initialized by [
+        ListItr(int)
+    ];
+
+    shift Initialized -> self by [
+       // read operations
+       hasPrevious,
+       nextIndex,
+
+       // write operations
+       previous,
+       set,
+       add
+    ]
+
+    //constructors
+
+
+    constructor ListItr(index: int)
+    {
+        //Problem
+        //How invoke super() ??
+
+    }
+
+
+    //methods
+
+
+    fun hasPrevious (): boolean
+    {
+
+    }
+
+
+    fun nextIndex (): int
+    {
+
+    }
+
+
+    fun previousIndex (): int
+    {
+
+    }
+
+
+    fun previous (): Object
+    {
+
+    }
+
+
+    fun set (e: Object): void
+    {
+
+    }
+
+
+    fun add (e: Object): void
+    {
+
+    }
+
+}
+
+
