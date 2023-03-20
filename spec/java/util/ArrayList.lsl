@@ -177,6 +177,24 @@ automaton ArrayList: int (
     }
 
 
+    sub checkForComodification (expectedModCount: int): void
+    {
+        if (modCount != expectedModCount)
+        {
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+        }
+    }
+
+    sub deleteElement (index: int): Object
+    {
+        checkValidIndex(index);
+        result = action LIST_GET(storage, index);
+        action LIST_REMOVE(storage, index, 1);
+        modCount = modCount + 1;
+        length = length - 1;
+    }
+
+
     //methods
 
     fun trimToSize (): void
@@ -282,11 +300,7 @@ automaton ArrayList: int (
 
     fun remove (index: int): Object
     {
-        checkValidIndex(index);
-        result = action LIST_GET(storage, index);
-        action LIST_REMOVE(storage, index, 1);
-        modCount = modCount + 1;
-        length = length - 1;
+        result = deleteElement(index);
     }
 
 
@@ -424,7 +438,7 @@ automaton ArrayList: int (
     fun subList (fromIndex: int, toIndex: int): List
     {
         subListRangeCheck(fromIndex, toIndex, length);
-        result = new Itr(state=Created,
+        result = new SubList(state=Created,
             //Think about THIS !
             //TODO
             start=fromIndex,
@@ -470,3 +484,100 @@ automaton ArrayList: int (
         action NOT_IMPLEMENTED();
     }
 }
+
+
+
+@PackagePrivate
+@Implements("java.util.Iterator")
+@WrapperMeta(
+    src="java.util.ArrayList$Itr",
+    //Maybe will be another name of the dest class
+    dest="org.utbot.engine.overrides.collections.ArrayList$Itr",
+    matchInterface=true)
+automaton Itr: int (
+    cursor: int,
+    lastRet: int = -1,
+    expectedModCount: int
+) {
+
+     initstate Initialized;
+
+     shift Allocated -> Initialized by [
+             Itr()
+     ];
+
+     shift Initialized -> self by [
+        // read operations
+        hasNext,
+
+        // write operations
+        next,
+        remove,
+        forEachRemaining
+     ]
+
+
+     // constructors
+
+
+     //Maybe here is needed @DefaultModifier ?
+     constructor Itr()
+     {
+     }
+
+
+     // methods
+
+
+     fun hasNext (): boolean
+     {
+         result = cursor != self.parent.length;
+     }
+
+
+     fun next (): Object
+     {
+         self.parent.checkForComodification(expectedModCount);
+         var i = cursor;
+
+         if (i >= parent.length)
+         {
+             action THROW_NEW("java.util.NoSuchElementException", []);
+         }
+
+         //Problem
+         //I don't know what to do with ConcurrentModificationException(); ?
+
+         cursor = i + 1;
+         lastRet = i;
+         result = action LIST_GET(self.parent.storage, lastRet);
+     }
+
+
+     fun remove (): void
+     {
+         if (lastRet < 0)
+         {
+             action THROW_NEW("java.lang.IllegalStateException", []);
+         }
+
+         self.parent.checkForComodification(expectedModCount);
+
+         //Problem
+         //What i must to do with try-catch in this method ?
+
+         self.parent.deleteElement(lastRet);
+         cursor = lastRet;
+         lastRet = -1;
+         expectedModCount = self.parent.modCount;
+     }
+
+
+     fun forEachRemaining (action: Consumer): void
+     {
+         action NOT_IMPLEMENTED();
+     }
+
+}
+
+
