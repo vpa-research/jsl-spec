@@ -124,7 +124,7 @@ automaton ArrayList: int (
 
     //subs
 
-    sub checkValidIndex (index: int): void
+    sub checkValidIndex (index: int, length: int): void
     {
         if (index < 0 || index >= length)
         {
@@ -134,7 +134,7 @@ automaton ArrayList: int (
     }
 
 
-    sub rangeCheckForAdd (index: int): void
+    sub rangeCheckForAdd (index: int, length: int): void
     {
         if (index < 0 || index > length)
         {
@@ -187,7 +187,7 @@ automaton ArrayList: int (
 
     sub deleteElement (index: int): Object
     {
-        checkValidIndex(index);
+        checkValidIndex(index, length);
         result = action LIST_GET(storage, index);
         action LIST_REMOVE(storage, index, 1);
         modCount = modCount + 1;
@@ -197,7 +197,7 @@ automaton ArrayList: int (
 
     sub addElement (index: int, e: Object): void
     {
-        rangeCheckForAdd(index);
+        rangeCheckForAdd(index, length);
         modCount = modCount + 1;
         action LIST_INSERT_AT(storage, index, e);
         length = length + 1;
@@ -206,7 +206,7 @@ automaton ArrayList: int (
 
     sub setElement (index: int, e: Object): void
     {
-        checkValidIndex(index);
+        checkValidIndex(index, length);
         result = action LIST_GET(storage, index);
         action LIST_SET(storage, index, element);
     }
@@ -273,19 +273,19 @@ automaton ArrayList: int (
         //Problem
         //How set size of the array ?
         var a: array<int>;
-        result = action LIST_TO_ARRAY(storage, a);
+        result = action LIST_TO_ARRAY(storage, a, 0, length);
     }
 
 
     fun toArray (a: list<Object>): array<Object>
     {
-        result = action LIST_TO_ARRAY(storage, a);
+        result = action LIST_TO_ARRAY(storage, a, 0, length);
     }
 
 
     fun get (index: int): Object
     {
-        checkValidIndex(index);
+        checkValidIndex(index, length);
         result = action LIST_GET(storage, index);
     }
 
@@ -424,7 +424,7 @@ automaton ArrayList: int (
 
     fun listIterator (index: int): ListIterator
     {
-        rangeCheckForAdd(index);
+        rangeCheckForAdd(index, length);
 
         result = new ListItr(state=Created,
             cursor=index,
@@ -453,8 +453,8 @@ automaton ArrayList: int (
         result = new SubList(state=Created,
             //Think about THIS !
             //TODO
-            start=fromIndex,
-            end=toIndex);
+            startIndex=fromIndex,
+            endIndex=toIndex);
     }
 
 
@@ -839,3 +839,331 @@ automaton ArrayListSpliterator: int(
     }
 
 }
+
+
+
+@Private
+@Static
+@Extends("java.util.AbstractList")
+@Implements("java.util.RandomAccess")
+@WrapperMeta(
+    src="java.util.ArrayList$SubList",
+    dst="org.utbot.engine.overrides.collections.ArrayList$UtSubList",
+    matchInterfaces=true,
+)
+automaton SubList: int(
+    @Final index: offset,
+    length: int,
+    @Transient modCount: int,
+
+)
+{
+
+    initstate Initialized;
+
+    shift Allocated -> Initialized by [
+    ];
+
+    shift Initialized -> self by [
+       // read operations
+
+       // write operations
+    ]
+
+
+    //constructors
+
+
+    constructor SubList(startIndex: int, endIndex: int)
+    {
+        offset = startIndex;
+        length = endIndex - startIndex;
+        modCount = self.parent.modCount;
+    }
+
+
+    @Private
+    constructor SubList(parentList: SubList, startIndex: int, endIndex: int)
+    {
+        //Problem
+        //???
+        offset = startIndex;
+        length = endIndex - startIndex;
+        modCount = self.parent.modCount;
+    }
+
+
+    //subs
+
+    sub addAllElements (index:int, c:Collection): boolean
+    {
+        self.parent.rangeCheckForAdd(index, length);
+
+        //I use suppose that Collection interface will have size sub or analog
+        var collectionSize = c.size();
+
+        if (collectionSize == 0)
+        {
+            result = false;
+        }
+        else
+        {
+            self.parent.checkForComodification(modCount);
+
+            var curIndex = offset + index;
+
+            self.parent.addAllElements(index, c);
+
+            updateSizeAndModCount(collectionSize);
+
+            result = true;
+        }
+    }
+
+
+    sub updateSizeAndModCount (sizeChange: int): void
+    {
+        //Problem
+        //Here is cycle
+        action NOT_IMPLEMENTED();
+    }
+
+
+    sub indexOfElement (o: Object): int
+    {
+        var index = action LIST_FIND(self.parent.storage, o);
+        self.parent.checkForComodification(modCount);
+
+        if (index >= 0)
+        {
+            result = index - offset;
+        }
+        else
+        {
+            result = -1;
+        }
+    }
+
+
+    //methods
+
+
+    fun set (index: int, element: Object): void
+    {
+        self.parent.checkValidIndex(index, length);
+        self.parent.checkForComodification(modCount);
+
+        var curIndex = offset + index;
+
+        result = action LIST_GET(self.parent.storage, curIndex);
+        action LIST_SET(self.parent.storage, curIndex, element);
+    }
+
+
+    fun get (index: int): Object
+    {
+        self.parent.checkValidIndex(index, length);
+        self.parent.checkForComodification(modCount);
+
+        var curIndex = offset + index;
+
+        result = action LIST_GET(self.parent.storage, curIndex);
+    }
+
+
+    fun size (): int
+    {
+        self.parent.checkForComodification(modCount);
+        result = length;
+    }
+
+
+    fun add (index: int, element: Object): void
+    {
+        self.parent.rangeCheckForAdd(index, length);
+        self.parent.checkForComodification(modCount);
+
+        var curIndex = offset + index;
+        self.parent.addElement(curIndex, element);
+
+        updateSizeAndModCount(1);
+    }
+
+
+    fun remove (index: int): Object
+    {
+        self.parent.checkValidIndex(index, length);
+        self.parent.checkForComodification(modCount);
+
+        var curIndex = offset + index;
+
+        result = self.parent.deleteElement(curIndex);
+
+        updateSizeAndModCount(-1);
+    }
+
+
+    fun addAll (c: Collection): boolean
+    {
+        addAllElements(length, c);
+    }
+
+
+    fun addAll (index: int, c: Collection): boolean
+    {
+        addAllElements(index, c);
+    }
+
+
+    fun replaceAll (operator: UnaryOperator): void
+    {
+        // #problem
+        action NOT_IMPLEMENTED();
+    }
+
+
+    fun removeAll (c: Collection): boolean
+    {
+        // #problem
+        action NOT_IMPLEMENTED();
+    }
+
+
+    fun retainAll (c: Collection): boolean
+    {
+        // #problem
+        action NOT_IMPLEMENTED();
+    }
+
+
+    fun removeIf (filter: Predicate): boolean
+    {
+        // #problem
+        action NOT_IMPLEMENTED();
+    }
+
+
+    fun toArray (): array<Object>
+    {
+        //Problem
+        //How set size of the array ?
+        var a: array<int>;
+
+        var end = offset + length;
+        result = action LIST_TO_ARRAY(storage, a, offset, end);
+    }
+
+
+    fun toArray (a: list<Object>): array<Object>
+    {
+        var end = offset + length;
+        result = action LIST_TO_ARRAY(storage, a, offset, end);
+    }
+
+
+    fun equals (o: Object): boolean
+    {
+        // #problem
+        action NOT_IMPLEMENTED();
+    }
+
+
+    fun hashCode (): int
+    {
+        // result = action OBJECT_HASH_CODE(self);
+        // #problem
+        action NOT_IMPLEMENTED();
+    }
+
+
+    fun indexOf (o: Object): int
+    {
+        result = indexOfElement(o);
+    }
+
+
+    fun lastIndexOf (o: Object): int
+    {
+        //I must think about this new action.
+        action NOT_IMPLEMENTED();
+    }
+
+
+    fun contains (o: Object): boolean
+    {
+        result = indexOfElement(o) >= 0;
+    }
+
+
+    fun subList (fromIndex: int, toIndex: int): List
+    {
+        self.parent.subListRangeCheck(fromIndex, toIndex, length);
+        result = new SubList(state=Created,
+            //Think about THIS !
+            //TODO
+            parentList = self,
+            startIndex=fromIndex,
+            endIndex=toIndex);
+    }
+
+
+    fun iterator (): Iterator
+    {
+
+    }
+
+
+    fun spliterator (): Spliterator
+    {
+        action NOT_IMPLEMENTED();
+    }
+
+}
+
+
+
+@PackagePrivate
+@Extends("java.util.ArrayList$Itr")
+@Implements("java.util.Iterator")
+@WrapperMeta(
+    src="java.util.ArrayList$SubList$1",
+    //Maybe will be another name of the dest class
+    dest="org.utbot.engine.overrides.collections.UtArrayList$SubList$1",
+    matchInterface=true)
+automaton ListItr: int (
+    cursor: int,
+    lastRet: int = -1,
+    expectedModCount: int
+) {
+
+
+    //subs
+
+
+    sub checkForComodification (expectedModCount: int): void
+    {
+        if (modCount != expectedModCount)
+        {
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+        }
+    }
+
+
+    //methods
+
+
+    fun hasNext(): boolean
+    {
+        result = cursor != self.parent.length;
+    }
+
+
+    fun next(): Object
+    {
+        checkForComodification(self.parent.modCount);
+
+    }
+
+
+}
+
