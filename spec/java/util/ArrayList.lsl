@@ -124,7 +124,7 @@ automaton ArrayList: int (
 
     //subs
 
-    sub checkValidIndex (index: int, length: int): void
+    proc _checkValidIndex (index: int, length: int): void
     {
         if (index < 0 || index >= length)
         {
@@ -134,7 +134,7 @@ automaton ArrayList: int (
     }
 
 
-    sub rangeCheckForAdd (index: int, length: int): void
+    proc _rangeCheckForAdd (index: int, length: int): void
     {
         if (index < 0 || index > length)
         {
@@ -144,7 +144,7 @@ automaton ArrayList: int (
     }
 
 
-    sub addAllElements (index:int, c:Collection): boolean
+    proc _addAllElements (index:int, c:Collection): boolean
     {
         modCount = modCount + 1;
 
@@ -155,7 +155,7 @@ automaton ArrayList: int (
         length = length + c.length;
     }
 
-    sub subListRangeCheck (int fromIndex, int toIndex, int size): void
+    proc _subListRangeCheck (int fromIndex, int toIndex, int size): void
     {
         if (fromIndex < 0)
         {
@@ -177,7 +177,7 @@ automaton ArrayList: int (
     }
 
 
-    sub checkForComodification (expectedModCount: int): void
+    proc _checkForComodification (expectedModCount: int): void
     {
         if (modCount != expectedModCount)
         {
@@ -185,9 +185,9 @@ automaton ArrayList: int (
         }
     }
 
-    sub deleteElement (index: int): Object
+    proc _deleteElement (index: int): Object
     {
-        checkValidIndex(index, length);
+        _checkValidIndex(index, length);
         result = action LIST_GET(storage, index);
         action LIST_REMOVE(storage, index, 1);
         modCount = modCount + 1;
@@ -195,18 +195,18 @@ automaton ArrayList: int (
     }
 
 
-    sub addElement (index: int, e: Object): void
+    proc _addElement (index: int, e: Object): void
     {
-        rangeCheckForAdd(index, length);
+        _rangeCheckForAdd(index, length);
         modCount = modCount + 1;
         action LIST_INSERT_AT(storage, index, e);
         length = length + 1;
     }
 
 
-    sub setElement (index: int, e: Object): void
+    proc _setElement (index: int, e: Object): void
     {
-        checkValidIndex(index, length);
+        _checkValidIndex(index, length);
         result = action LIST_GET(storage, index);
         action LIST_SET(storage, index, element);
     }
@@ -285,14 +285,14 @@ automaton ArrayList: int (
 
     fun get (index: int): Object
     {
-        checkValidIndex(index, length);
+        _checkValidIndex(index, length);
         result = action LIST_GET(storage, index);
     }
 
 
     fun set (index: int, element: Object): Object
     {
-        setElement(index, element);
+        _setElement(index, element);
     }
 
 
@@ -306,13 +306,13 @@ automaton ArrayList: int (
 
     fun add (index: int, element: Object): void
     {
-        addElement(index, e);
+        _addElement(index, e);
     }
 
 
     fun remove (index: int): Object
     {
-        result = deleteElement(index);
+        result = _deleteElement(index);
     }
 
 
@@ -357,14 +357,14 @@ automaton ArrayList: int (
 
     fun addAll (c: Collection): boolean
     {
-        result = addAllElements(length, c);
+        result = _addAllElements(length, c);
     }
 
 
 
     fun addAll (index: int, c: Collection): boolean
     {
-        result = addAllElements(length, c);
+        result = _addAllElements(length, c);
     }
 
 
@@ -424,7 +424,7 @@ automaton ArrayList: int (
 
     fun listIterator (index: int): ListIterator
     {
-        rangeCheckForAdd(index, length);
+        _rangeCheckForAdd(index, length);
 
         result = new ListItr(state=Created,
             cursor=index,
@@ -449,7 +449,7 @@ automaton ArrayList: int (
 
     fun subList (fromIndex: int, toIndex: int): List
     {
-        subListRangeCheck(fromIndex, toIndex, length);
+        _subListRangeCheck(fromIndex, toIndex, length);
         result = new SubList(state=Created,
             //Think about THIS !
             //TODO
@@ -549,7 +549,7 @@ automaton Itr: int (
 
     fun next (): Object
     {
-        self.parent.checkForComodification(expectedModCount);
+        self.parent._checkForComodification(expectedModCount);
         var i = cursor;
 
         if (i >= parent.length)
@@ -573,12 +573,12 @@ automaton Itr: int (
             action THROW_NEW("java.lang.IllegalStateException", []);
         }
 
-        self.parent.checkForComodification(expectedModCount);
+        self.parent._checkForComodification(expectedModCount);
 
         //Problem
         //What i must to do with try-catch in this method ?
 
-        self.parent.deleteElement(lastRet);
+        self.parent._deleteElement(lastRet);
         cursor = lastRet;
         lastRet = -1;
         expectedModCount = self.parent.modCount;
@@ -670,7 +670,7 @@ automaton ListItr: int (
 
     fun next (): Object
     {
-        self.parent.checkForComodification(expectedModCount);
+        self.parent._checkForComodification(expectedModCount);
         var i = cursor;
 
         if (i >= parent.length)
@@ -689,7 +689,7 @@ automaton ListItr: int (
 
     fun previous (): Object
     {
-        self.parent.checkForComodification(expectedModCount);
+        self.parent._checkForComodification(expectedModCount);
         var i = cursor - 1;
 
         if (i < 0)
@@ -713,12 +713,12 @@ automaton ListItr: int (
             action THROW_NEW("java.lang.IllegalStateException", []);
         }
 
-        self.parent.checkForComodification(expectedModCount);
+        self.parent._checkForComodification(expectedModCount);
 
         //Problem
         //What i must to do with try-catch in this method ?
 
-        self.parent.deleteElement(lastRet);
+        self.parent._deleteElement(lastRet);
         cursor = lastRet;
         lastRet = -1;
         expectedModCount = self.parent.modCount;
@@ -731,24 +731,24 @@ automaton ListItr: int (
             action THROW_NEW("java.lang.IllegalStateException", []);
         }
 
-        self.parent.checkForComodification(expectedModCount);
+        self.parent._checkForComodification(expectedModCount);
 
         //Problem
         //What i must to do with try-catch in this method ?
 
-        self.parent.setElement(lastRet, e);
+        self.parent._setElement(lastRet, e);
     }
 
 
     fun add (e: Object): void
     {
-        self.parent.checkForComodification(expectedModCount);
+        self.parent._checkForComodification(expectedModCount);
 
         //Problem
         //What i must to do with try-catch in this method ?
 
         var i = cursor;
-        self.parent.addElement(self.parent.length, e);
+        self.parent._addElement(self.parent.length, e);
         cursor = i + 1;
         lastRet = -1;
         expectedModCount = self.parent.modCount;
@@ -895,9 +895,9 @@ automaton SubList: int(
 
     //subs
 
-    sub addAllElements (index:int, c:Collection): boolean
+    proc _addAllElements (index:int, c:Collection): boolean
     {
-        self.parent.rangeCheckForAdd(index, length);
+        self.parent._rangeCheckForAdd(index, length);
 
         //I use suppose that Collection interface will have size sub or analog
         var collectionSize = c.size();
@@ -908,20 +908,20 @@ automaton SubList: int(
         }
         else
         {
-            self.parent.checkForComodification(modCount);
+            self.parent._checkForComodification(modCount);
 
             var curIndex = offset + index;
 
-            self.parent.addAllElements(index, c);
+            self.parent._addAllElements(index, c);
 
-            updateSizeAndModCount(collectionSize);
+            _updateSizeAndModCount(collectionSize);
 
             result = true;
         }
     }
 
 
-    sub updateSizeAndModCount (sizeChange: int): void
+    proc _updateSizeAndModCount (sizeChange: int): void
     {
         //Problem
         //Here is cycle
@@ -929,10 +929,10 @@ automaton SubList: int(
     }
 
 
-    sub indexOfElement (o: Object): int
+    proc _indexOfElement (o: Object): int
     {
         var index = action LIST_FIND(self.parent.storage, o);
-        self.parent.checkForComodification(modCount);
+        self.parent._checkForComodification(modCount);
 
         if (index >= 0)
         {
@@ -950,8 +950,8 @@ automaton SubList: int(
 
     fun set (index: int, element: Object): void
     {
-        self.parent.checkValidIndex(index, length);
-        self.parent.checkForComodification(modCount);
+        self.parent._checkValidIndex(index, length);
+        self.parent._checkForComodification(modCount);
 
         var curIndex = offset + index;
 
@@ -962,8 +962,8 @@ automaton SubList: int(
 
     fun get (index: int): Object
     {
-        self.parent.checkValidIndex(index, length);
-        self.parent.checkForComodification(modCount);
+        self.parent._checkValidIndex(index, length);
+        self.parent._checkForComodification(modCount);
 
         var curIndex = offset + index;
 
@@ -973,45 +973,45 @@ automaton SubList: int(
 
     fun size (): int
     {
-        self.parent.checkForComodification(modCount);
+        self.parent._checkForComodification(modCount);
         result = length;
     }
 
 
     fun add (index: int, element: Object): void
     {
-        self.parent.rangeCheckForAdd(index, length);
-        self.parent.checkForComodification(modCount);
+        self.parent._rangeCheckForAdd(index, length);
+        self.parent._checkForComodification(modCount);
 
         var curIndex = offset + index;
-        self.parent.addElement(curIndex, element);
+        self.parent._addElement(curIndex, element);
 
-        updateSizeAndModCount(1);
+        _updateSizeAndModCount(1);
     }
 
 
     fun remove (index: int): Object
     {
-        self.parent.checkValidIndex(index, length);
-        self.parent.checkForComodification(modCount);
+        self.parent._checkValidIndex(index, length);
+        self.parent._checkForComodification(modCount);
 
         var curIndex = offset + index;
 
-        result = self.parent.deleteElement(curIndex);
+        result = self.parent._deleteElement(curIndex);
 
-        updateSizeAndModCount(-1);
+        _updateSizeAndModCount(-1);
     }
 
 
     fun addAll (c: Collection): boolean
     {
-        addAllElements(length, c);
+        _addAllElements(length, c);
     }
 
 
     fun addAll (index: int, c: Collection): boolean
     {
-        addAllElements(index, c);
+        _addAllElements(index, c);
     }
 
 
@@ -1078,7 +1078,7 @@ automaton SubList: int(
 
     fun indexOf (o: Object): int
     {
-        result = indexOfElement(o);
+        result = _indexOfElement(o);
     }
 
 
@@ -1091,13 +1091,13 @@ automaton SubList: int(
 
     fun contains (o: Object): boolean
     {
-        result = indexOfElement(o) >= 0;
+        result = _indexOfElement(o) >= 0;
     }
 
 
     fun subList (fromIndex: int, toIndex: int): List
     {
-        self.parent.subListRangeCheck(fromIndex, toIndex, length);
+        self.parent._subListRangeCheck(fromIndex, toIndex, length);
         result = new SubList(state=Created,
             //Think about THIS !
             //TODO
@@ -1140,7 +1140,7 @@ automaton ListItr: int (
     //subs
 
 
-    sub checkForComodification (expectedModCount: int): void
+    proc _checkForComodification (expectedModCount: int): void
     {
         if (modCount != expectedModCount)
         {
@@ -1160,7 +1160,7 @@ automaton ListItr: int (
 
     fun next(): Object
     {
-        checkForComodification(self.parent.modCount);
+        _checkForComodification(self.parent.modCount);
 
     }
 
