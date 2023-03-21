@@ -523,18 +523,16 @@ automaton HashMap: int
     }
 
 
+    @CacheOnce
     fun values (): Collection
     {
-        // TODO: object instance caching
-
         result = new HashMap_Values(state=Initialized);
     }
 
 
+    @CacheOnce
     fun keySet (): Set
     {
-        // TODO: object instance caching
-
         result = new HashMap_KeySet(state=Initialized);
     }
 
@@ -959,10 +957,9 @@ automaton HashMap_Entry: int
 
     // methods
 
+    @CacheOnce
     fun getKey (): Object
     {
-        // TODO: key caching
-
         // we do not have references to arbitrary types, so 'action' it is
         result = action LIST_GET(self.parent.keys, index);
     }
@@ -1113,8 +1110,75 @@ automaton HashMap_EntrySet: int
 
 
 
+@From("HashMap")
+@PackagePrivate
+@Implements(["java.util.Iterator"])
+automaton HashMap_EntryIterator: int
+(
+    var index: int = 0;
+    var expectedModCount: int;
+    var nextWasCalled: boolean = false;
+)
+{
+    initstate Initialized;
+
+    shift Initialized -> self by [
+        // read operations
+        hasNext,
+
+        // write operations
+        next,
+        remove,
+    ];
+
+
+    // methods
+
+    fun hasNext (): boolean
+    {
+        result = index < self.parent.length;
+    }
+
+
+    fun next (): Object
+    {
+        self.parent._checkForModifications(expectedModCount);
+
+        val atValidPosition = index < self.parent.length;
+        if (!atValidPosition)
+        {
+            action THROW_NEW("java.util.NoSuchElementException", []);
+        }
+
+        result = new HashMap_Entry(index=self.index);
+
+        index += 1;
+        nextWasCalled = true;
+    }
+
+
+    fun remove (): void
+    {
+        val atValidPosition = index < self.parent.length;
+        if (!atValidPosition || !nextWasCalled)
+        {
+            action THROW_NEW("java.lang.IllegalStateException", []);
+        }
+        nextWasCalled = false;
+
+        self.parent._checkForModifications(expectedModCount);
+
+        self.parent._removeMapping(index);
+
+        expectedModCount = self.parent.modCounter;
+    }
+}
+
+
+
+
+
 // TODO
-// HashMap_EntryIterator
 // HashMap_ValueSpliterator
 // HashMap_KeySpliterator
 // HashMap_EntrySpliterator

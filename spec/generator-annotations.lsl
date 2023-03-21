@@ -32,3 +32,7 @@ annotation WrapperMeta (
     forceMatchInterfaces: bool = false;
 );
 
+// Stores a result of function computation as a private field inside of a generated class.
+// Something like: `private Set fun_keySet_cached = null;`
+annotation CacheOnce ();
+
