@@ -17,8 +17,8 @@ typealias ObjectInputStream = Object;  // #problem
 
 // automata
 
-@Public
-@Extends("java.util.AbstractMap")
+@public
+@extends("java.util.AbstractMap")
 @WrapperMeta(
     src="java.util.HashMap",
     dst="ru.spbpu.libsl.overrides.collections.HashMap",
@@ -28,10 +28,10 @@ automaton HashMap: int
 (
     var keys: list<Object> = null;
     var values: list<Object> = null;
-    var length: int = 0;
-    @Transient var modCounter: int = 0;
+    @transient var length: int = 0;
+    @transient var modCounter: int = 0;
 
-    @Private @Static @Final serialVersionUID: long = 362498820763181265;
+    @private @static @final serialVersionUID: long = 362498820763181265;
 )
 {
     initstate Allocated;
@@ -181,6 +181,13 @@ automaton HashMap: int
     }
 
 
+    @AutoInline
+    proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
     // constructors
 
     constructor HashMap ()
@@ -211,6 +218,13 @@ automaton HashMap: int
         ensures self.length == 0;
         ensures self.modCounter == 0;
 
+        if (initialCapacity < 0)
+        {
+            action THROW_NEW(
+                "java.lang.IllegalArgumentException",
+                ["Illegal initial capacity: " + initialCapacity]);
+        }
+
         self._initLists();
 
         length = 0;
@@ -231,6 +245,20 @@ automaton HashMap: int
         assigns self.modCounter;
         ensures self.length == 0;
         ensures self.modCounter == 0;
+
+        if (initialCapacity < 0)
+        {
+            action THROW_NEW(
+                "java.lang.IllegalArgumentException",
+                ["Illegal initial capacity: " + initialCapacity]); // #problem
+        }
+
+        if (loadFactor <= 0 || loadFactor.isNaN)
+        {
+            action THROW_NEW(
+                "java.lang.IllegalArgumentException",
+                ["Illegal load factor: " + loadFactor]);
+        }
 
         self._initLists();
 
@@ -345,6 +373,11 @@ automaton HashMap: int
         requires remappingFunction != null;
         // side effects should be inferred from calls to other subroutines
 
+        if (remappingFunction == null)
+        {
+            self._throwNPE();
+        }
+
         val oldValue = self._getMappingOrDefault(key, null);
 
         val mc = modCounter;
@@ -368,6 +401,11 @@ automaton HashMap: int
     {
         requires mappingFunction != null;
         // side effects should be inferred from calls to other subroutines
+
+        if (mappingFunction == null)
+        {
+            self._throwNPE();
+        }
 
         val oldValue = self._getMappingOrDefault(key, null);
         if (oldValue != null)
@@ -394,6 +432,11 @@ automaton HashMap: int
     {
         requires remappingFunction != null;
         // side effects should be inferred from calls to other subroutines
+
+        if (remappingFunction == null)
+        {
+            self._throwNPE();
+        }
 
         val oldValue = self._getMappingOrDefault(key, null);
         if (oldValue != null)
@@ -459,7 +502,7 @@ automaton HashMap: int
         {
             val oldValue = action LIST_GET(values, idx);
 
-            val isEqualValues = Objects.equals(value, oldValue);  // #problem
+            val isEqualValues = action OBJECT_EQUALS(value, oldValue);
             if (isEqualValues)
             {
                 self._removeMapping(idx);
@@ -477,7 +520,8 @@ automaton HashMap: int
         val oldValue = self._getMappingOrDefault(key, null);
         if (oldValue != null)
         {
-            self._setMapping(key, newValue);
+            val idx = action LIST_FIND(keys, key, 0, length, +1);
+            action LIST_SET(values, idx, newValue);
         }
 
         result = oldValue;
@@ -498,8 +542,6 @@ automaton HashMap: int
             if (value == oldValue || (value != null && Objects.equals(value, oldValue)))
             {
                 action LIST_SET(values, idx, newValue);
-
-                self._updateModifications();
 
                 result = true;
             }
@@ -543,6 +585,11 @@ automaton HashMap: int
         requires remappingFunction != null;
         // side effects should be inferred from calls to other subroutines
 
+        if (value == null || remappingFunction == null)
+        {
+            self._throwNPE();
+        }
+
         val oldValue = self._getMappingOrDefault(key, null);
         if (oldValue != null)
         {
@@ -570,6 +617,7 @@ automaton HashMap: int
     }
 
 
+    @CacheOnce
     fun entrySet (): Set
     {
         result = new HashMap_EntrySet(state=Initialized); // parent will be implicitly set to self
@@ -602,6 +650,11 @@ automaton HashMap: int
     {
         requires mapper != null;
 
+        if (consumer == null)
+        {
+            self._throwNPE();
+        }
+
         // #problem
         action NOT_IMPLEMENTED();
     }
@@ -618,12 +671,17 @@ automaton HashMap: int
     {
         requires mapper != null;
 
+        if (mapper == null)
+        {
+            self._throwNPE();
+        }
+
         // #problem
         action NOT_IMPLEMENTED();
     }
 
-    @Private
-    @Throws(["IOException", "ClassNotFoundException"])
+    @private
+    @throws(["java.io.IOException", "java.lang.ClassNotFoundException"])
     fun readObject(s: ObjectInputStream): void
     {
         requires s != null;
@@ -646,8 +704,8 @@ automaton HashMap: int
 
 
 @From("HashMap")
-@PackagePrivate
-@Extends("java.util.AbstractCollection")
+@packageprivate
+@extends("java.util.AbstractCollection")
 automaton HashMap_Values: int
 {
     initstate Initialized;
@@ -682,7 +740,8 @@ automaton HashMap_Values: int
         }
         else
         {
-            result = action LIST_FIND(self.parent.values, value, 0, self.parent.length, +1);
+            val idx = action LIST_FIND(self.parent.values, value, 0, self.parent.length, +1);
+            result = idx >= 0;
         }
     }
 
@@ -720,8 +779,8 @@ automaton HashMap_Values: int
 
 
 @From("HashMap")
-@PackagePrivate
-@Extends("java.util.AbstractSet")
+@packageprivate
+@extends("java.util.AbstractSet")
 automaton HashMap_KeySet: int
 {
     initstate Initialized;
@@ -752,7 +811,7 @@ automaton HashMap_KeySet: int
     {
         assigns self.parent;
 
-        result = self.parent._clearMappings();
+        self.parent._clearMappings();
     }
 
 
@@ -778,7 +837,8 @@ automaton HashMap_KeySet: int
         }
         else
         {
-            result = action LIST_FIND(self.parent.keys, key, 0, self.parent.length, +1);
+            val idx = action LIST_FIND(self.parent.keys, key, 0, self.parent.length, +1);
+            result = idx >= 0;
         }
     }
 
@@ -796,8 +856,8 @@ automaton HashMap_KeySet: int
 
 
 @From("HashMap")
-@PackagePrivate
-@Implements(["java.util.Iterator"])
+@packageprivate
+@implements(["java.util.Iterator"])
 automaton HashMap_KeyIterator: int
 (
     var index: int = 0;
@@ -863,8 +923,8 @@ automaton HashMap_KeyIterator: int
 
 
 @From("HashMap")
-@PackagePrivate
-@Implements(["java.util.Iterator"])
+@packageprivate
+@implements(["java.util.Iterator"])
 automaton HashMap_ValueIterator: int
 (
     var index: int = 0;
@@ -930,8 +990,8 @@ automaton HashMap_ValueIterator: int
 
 
 @From("HashMap")
-@PackagePrivate
-@Implements(["java.util.Map.Entry"])
+@packageprivate
+@implements(["java.util.Map.Entry"])
 automaton HashMap_Entry: int
 (
     var index: int;
@@ -1027,8 +1087,8 @@ automaton HashMap_Entry: int
 
 
 @From("HashMap")
-@PackagePrivate
-@Extends("java.util.AbstractSet")
+@packageprivate
+@extends("java.util.AbstractSet")
 automaton HashMap_EntrySet: int
 {
     initstate Initialized;
@@ -1059,7 +1119,7 @@ automaton HashMap_EntrySet: int
     {
         assigns self.parent;
 
-        result = self.parent._clearMappings();
+        self.parent._clearMappings();
     }
 
 
@@ -1111,8 +1171,8 @@ automaton HashMap_EntrySet: int
 
 
 @From("HashMap")
-@PackagePrivate
-@Implements(["java.util.Iterator"])
+@packageprivate
+@implements(["java.util.Iterator"])
 automaton HashMap_EntryIterator: int
 (
     var index: int = 0;

@@ -35,3 +35,6 @@ annotation WrapperMeta (
     dst: string;
     forceMatchInterfaces: bool = false;
 );
+
+// Forces the body of a specified subroutine to be copy-pasted at the callsite.
+annotation AutoInline ();

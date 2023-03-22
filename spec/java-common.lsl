@@ -50,7 +50,7 @@ define action CALL(
 define action OBJECT_EQUALS(
         a: Object,
         b: Object
-    ): string;
+    ): boolean;
 
 define action OBJECT_TO_STRING(
         thing: Object
@@ -66,29 +66,33 @@ define action OBJECT_HASH_CODE(
 
 
 
-annotation Static ();
+annotation static ();
 
-annotation Final ();
+annotation final ();
 
-annotation Transient ();
+annotation transient ();
 
-annotation Private ();
+annotation private ();
 
-annotation PackagePrivate ();
+annotation packageprivate ();
 
-annotation Public ();
+annotation public ();
 
-annotation Extends (
+annotation extends (
     fullClassName: string;
 );
 
-annotation Implements (
+annotation implements (
     fullInterfaceNames: array<string>;
 );
 
-annotation Throws (
+annotation throws (
     exceptionTypes: array<string> = [];
 );
+
+annotation synchronized ();
+
+annotation varargs ();
 
 
 
