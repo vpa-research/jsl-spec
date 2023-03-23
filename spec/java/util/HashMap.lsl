@@ -220,9 +220,10 @@ automaton HashMap: int
 
         if (initialCapacity < 0)
         {
+            val initCapStr = action OBJECT_TO_STRING(initialCapacity);
             action THROW_NEW(
                 "java.lang.IllegalArgumentException",
-                ["Illegal initial capacity: " + initialCapacity]);
+                ["Illegal initial capacity: " + initCapStr]);
         }
 
         self._initLists();
@@ -248,16 +249,18 @@ automaton HashMap: int
 
         if (initialCapacity < 0)
         {
+            val initCapStr = action OBJECT_TO_STRING(initialCapacity);
             action THROW_NEW(
                 "java.lang.IllegalArgumentException",
-                ["Illegal initial capacity: " + initialCapacity]); // #problem
+                ["Illegal initial capacity: " + initCapStr]);
         }
 
         if (loadFactor <= 0 || loadFactor.isNaN)
         {
+            val loadFactorStr = action OBJECT_TO_STRING(loadFactor);
             action THROW_NEW(
                 "java.lang.IllegalArgumentException",
-                ["Illegal load factor: " + loadFactor]);
+                ["Illegal load factor: " + loadFactorStr]);
         }
 
         self._initLists();
@@ -538,8 +541,8 @@ automaton HashMap: int
         if (idx >= 0)
         {
             val value = action LIST_GET(values, idx);
-            // #problem
-            if (value == oldValue || (value != null && Objects.equals(value, oldValue)))
+            val providedValueEqToOld = action OBJECT_EQUALS(value, oldValue);
+            if (providedValueEqToOld)
             {
                 action LIST_SET(values, idx, newValue);
 

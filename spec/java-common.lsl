@@ -47,6 +47,7 @@ define action CALL(
 
 // "ad-hoc" solutions
 
+// the same as something like: return a == b || (a != null && a.equals(b))
 define action OBJECT_EQUALS(
         a: Object,
         b: Object
