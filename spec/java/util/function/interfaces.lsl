@@ -13,3 +13,6 @@ typealias BiFunction = Object;    // #problem
 
 @TypeMapping("java.util.function.Function")
 typealias Function = Object;    // #problem
+
+@TypeMapping("java.util.function.Predicate")
+typealias Predicate = Object;    // #problem

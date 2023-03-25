@@ -4,7 +4,7 @@ libsl "1.1.0";
 /// generator-specific aspects
 
 // Stores the result of a function computation as a private field inside of the generated class.
-// Something like: `private Set fun_keySet_cached = null;`
+// Something like: `private Set __cached_keySet = null;`
 annotation CacheOnce ();
 
 // The marked feature is no longer needed or required.
