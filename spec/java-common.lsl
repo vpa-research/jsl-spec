@@ -89,6 +89,7 @@ annotation implements (
 
 annotation throws (
     exceptionTypes: array<string> = [];
+    generic: bool = false;
 );
 
 annotation synchronized ();

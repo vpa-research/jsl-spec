@@ -27,6 +27,7 @@ annotation StopsControlFlow ();
 annotation TypeMapping (
     fullClassName: string = null;
     builtin: bool = false;
+    typeVariable: bool = false; // #problem
 );
 
 // General meta-data for a wrapper class generated from this automaton.
@@ -38,3 +39,13 @@ annotation WrapperMeta (
 
 // Forces the body of a specified subroutine to be copy-pasted at the callsite.
 annotation AutoInline ();
+
+// #problem
+annotation Generic (
+    typeParameters: string;
+);
+
+// #problem
+annotation GenericResult (
+    typeParameters: string;
+)

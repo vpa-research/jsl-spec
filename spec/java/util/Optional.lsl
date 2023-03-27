@@ -7,20 +7,23 @@ library "std:collections" language "Java" version "11" url "-";
 import "list-actions.lsl";
 
 import "java-common.lsl";
-import "java/lang/interfaces.lsl"
-import "java/util/interfaces.lsl"
-import "java/util/function/interfaces.lsl"
+import "java/lang/interfaces.lsl";
+import "java/util/interfaces.lsl";
+import "java/util/function/interfaces.lsl";
 
 
 // automata
+
+// #problem
+@TypeMapping(typeVariable=true) typealias T = Object;
 
 @WrapperMeta(
     src="java.util.Optional",
     dst="ru.spbpu.libsl.overrides.collections.Optional",
 )
-@public @final automaton Optional: int
+@public @final @Generic("T") automaton Optional: int
 (
-    var value: object = null;
+    var value: Object = null;
 )
 {
     initstate Allocated;
@@ -29,11 +32,9 @@ import "java/util/function/interfaces.lsl"
     // constructors
     shift Allocated -> Initialized by [
         Optional(),
-        Optional(Object),
-    ];
+        Optional(T),
 
-    // static methods
-    shift Allocated -> self by [
+        // static methods
         empty,
         of,
         ofNullable,
@@ -42,16 +43,22 @@ import "java/util/function/interfaces.lsl"
     shift Initialized -> self by [
         // read operations
         get,
-        getOrDefault,
-        containsKey,
-        containsValue,
-        size,
+        isPresent,
         isEmpty,
+        ifPresent,
+        ifPresentOrElse,
+        filter,
+        map,
+        flatMap,
+        or,
+        stream,
+        orElse,
+        orElseGet,
+        orElseThrow (),
+        orElseThrow (Supplier),
         toString,
         hashCode,
-
-        clone,
-        keySet,
+        equals,
     ];
 
 
@@ -66,7 +73,7 @@ import "java/util/function/interfaces.lsl"
     }
 
 
-    constructor Optional (obj: Object)
+    constructor Optional (obj: T)
     {
         required obj != null;
         assigns self.value;
@@ -85,6 +92,7 @@ import "java/util/function/interfaces.lsl"
     @CacheStaticOnce
     @static proc _makeEmpty (): Optional
     {
+        // #problem
         result = new Optional();
     }
 
@@ -98,21 +106,26 @@ import "java/util/function/interfaces.lsl"
 
     // methods
 
+    // #problem
+    @Generic("T")
+    @GenericResult("T")
     @static fun empty (): Optional  // #problem
     {
         result = _makeEmpty();
     }
 
 
-    // #problem
-    @static fun of (obj: Object): Optional
+    @Generic("T")
+    @GenericResult("T")
+    @static fun of (obj: T): Optional
     {
         result = new Optional(value=obj);
     }
 
 
-    // #problem
-    @static fun ofNullable (obj: Object): Optional
+    @Generic("T")
+    @GenericResult("T")
+    @static fun ofNullable (obj: T): Optional
     {
         if (obj == null)
             result = _makeEmpty();
@@ -121,7 +134,7 @@ import "java/util/function/interfaces.lsl"
     }
 
 
-    fun get (): Object
+    fun get (): T
     {
         if (value == null)
             action THROW_NEW("java.util.NoSuchElementException", []);
@@ -142,7 +155,7 @@ import "java/util/function/interfaces.lsl"
     }
 
 
-    fun ifPresent (consumer: Consumer): void
+    fun ifPresent (@Generic("T") consumer: Consumer): void
     {
         required value == null || (value != null && consumer != null);
 
@@ -156,7 +169,7 @@ import "java/util/function/interfaces.lsl"
     }
 
 
-    fun ifPresentOrElse (consumer: Consumer, emptyAction: Runnable): void
+    fun ifPresentOrElse (@Generic("T") consumer: Consumer, emptyAction: Runnable): void
     {
         required value == null || (value != null && consumer != null);
         required value != null || (value == null && emptyAction != null);
@@ -178,7 +191,8 @@ import "java/util/function/interfaces.lsl"
     }
 
 
-    fun filter (predicate: Predicate): Optional
+    @GenericResult("T")
+    fun filter (@Generic("T") predicate: Predicate): Optional
     {
         required predicate != null;
 
@@ -201,7 +215,9 @@ import "java/util/function/interfaces.lsl"
     }
 
 
-    fun map (mapper: Function): Optional
+    @Generic("U")
+    @GenericResult("U")
+    fun map (@Generic("? super T, ? extends U") mapper: Function): Optional
     {
         required mapper != null;
 
@@ -224,7 +240,10 @@ import "java/util/function/interfaces.lsl"
     }
 
 
-    fun flatMap (mapper: Function): Optional
+    @Generic("U")
+    @GenericResult("U")
+    // #problem
+    fun flatMap (@Generic("? super T, ? extends Optional<? extends U>") mapper: Function): Optional
     {
         required mapper != null;
 
@@ -245,9 +264,104 @@ import "java/util/function/interfaces.lsl"
     }
 
 
-    fun toString (): string
+    @GenericResult("T")
+    fun or (@Generic("? extends Optional<? extends T>") supplier: Supplier): string
+    {
+        required supplier != null;
+
+        if (supplier == null)
+            self._throwNPE();
+
+        if (value == null)
+        {
+            result = action CALL(supplier, []);
+
+            if (result == null)
+                self._throwNPE();
+        }
+        else
+        {
+            result = self;
+        }
+    }
+
+
+    @GenericResult("T")
+    fun stream (): Stream
     {
         action NOT_IMPLEMENTED();
+
+        /*
+        if (value == null)
+            result = Stream.empty(); // #problem
+        else
+            result = Stream.of(value); // #problem
+        */
+    }
+
+
+    fun orElse (other: T): T
+    {
+        if (value == null)
+            result = other;
+        else
+            result = value;
+    }
+
+
+    fun orElseGet (@Generic("? extends T") supplier: Supplier): T
+    {
+        required supplier != null;
+
+        if (supplier == null)
+            self._throwNPE();
+
+        if (value == null)
+            result = action CALL(supplier, []);
+        else
+            result = value;
+    }
+
+
+    fun orElseThrow (): T
+    {
+        if (value == null)
+            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
+
+        result = value;
+    }
+
+
+    @Generic("X extends Throwable")
+    @throws("X", generic=true)
+    fun orElseThrow(@Generic("? extends X") exceptionSupplier: Supplier): T
+    {
+        required exceptionSupplier != null;
+
+        if (exceptionSupplier == null)
+            self._throwNPE();
+
+        if (value == null)
+        {
+            val exception = action CALL(exceptionSupplier, []);
+            action THROW_VALUE(exception);
+        }
+        else
+        {
+            result = value;
+        }
+    }
+
+
+    fun toString (): string
+    {
+        if (value == null)
+            result = "Optional.empty";
+        else
+        {
+            val valueStr = action OBJECT_TO_STRING(value);
+            result = "Optional[" + valueStr + "]";
+        }
     }
 
 
@@ -259,8 +373,24 @@ import "java/util/function/interfaces.lsl"
 
     fun equals (other: Object): boolean
     {
-        // #problem
-        action NOT_IMPLEMENTED();
+        if (other == self)
+        {
+            result = true;
+        }
+        else
+        {
+            val isSameType = action OBJECT_SAME_TYPE(self, other);
+            if (isSameType)
+            {
+                // #problem
+                val otherValue = Optional(other).value;
+                result = self.value == otherValue;
+            }
+            else
+            {
+                result = false;
+            }
+        }
     }
 
 }
