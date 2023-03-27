@@ -27,12 +27,10 @@ include java.util.stream.Stream;
     dest="org.utbot.engine.overrides.collections.UtArrayList",
     matchInterface=true)
 automaton ArrayList: int (
-    @Private @Final serialVersionUID: long = 8683452581122892189,
-    @Private @Final serialVersion DEFAULT_CAPACITY: int = 10,
-    @Transient storage: List<Object>,
-    @Private length: int,
-    @Private @Static @Final DEFAULT_CAPACITY: int = 10,
-    @Private @Transient modCount: int = 0
+    @Private @Static @Final var serialVersionUID: long = 8683452581122892189,
+    @Transient var storage: List<Object>,
+    var length: int,
+    @Transient var modCount: int = 0
 ) {
 
     initstate Allocated;
@@ -507,9 +505,9 @@ automaton ArrayList: int (
     dest="org.utbot.engine.overrides.collections.ArrayList$Itr",
     matchInterface=true)
 automaton Itr: int (
-    cursor: int,
-    lastRet: int = -1,
-    expectedModCount: int
+    var cursor: int,
+    var lastRet: int = -1,
+    var expectedModCount: int
 ) {
 
     initstate Initialized;
@@ -603,9 +601,9 @@ automaton Itr: int (
     dest="org.utbot.engine.overrides.collections.ArrayList$ListItr",
     matchInterface=true)
 automaton ListItr: int (
-    cursor: int,
-    lastRet: int = -1,
-    expectedModCount: int
+    var cursor: int,
+    var lastRet: int = -1,
+    var expectedModCount: int
 ) {
 
     initstate Initialized;
@@ -772,9 +770,9 @@ automaton ListItr: int (
     matchInterfaces=true,
 )
 automaton ArrayListSpliterator: int(
-    index: int,
-    fence: int,
-    expectedModCount: int
+    var index: int,
+    var fence: int,
+    var expectedModCount: int
 )
 {
 
@@ -852,9 +850,9 @@ automaton ArrayListSpliterator: int(
     matchInterfaces=true,
 )
 automaton SubList: int(
-    @Final index: offset,
-    length: int,
-    @Transient modCount: int,
+    @Private @Final var index: offset,
+    @Private var length: int,
+    @Transient var modCount: int,
 
 )
 {
@@ -1131,9 +1129,9 @@ automaton SubList: int(
     dest="org.utbot.engine.overrides.collections.UtArrayList$SubList$1",
     matchInterface=true)
 automaton ListItr: int (
-    cursor: int,
-    lastRet: int = -1,
-    expectedModCount: int
+    var cursor: int,
+    var lastRet: int = -1,
+    var expectedModCount: int
 ) {
 
 
