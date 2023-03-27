@@ -20,17 +20,17 @@ include java.util.function.Predicate;
 include java.util.function.UnaryOperator;
 include java.util.stream.Stream;
 
-@Extends("java.util.AbstractList")
-@Implements(["java.util.List", "java.util.RandomAccess","java.lang.Cloneable","java.io.Serializable"])
+@extends("java.util.AbstractList")
+@implements(["java.util.List", "java.util.RandomAccess","java.lang.Cloneable","java.io.Serializable"])
 @WrapperMeta(
     src="java.util.ArrayList",
     dest="org.utbot.engine.overrides.collections.UtArrayList",
     matchInterface=true)
 automaton ArrayList: int (
-    @Private @Static @Final var serialVersionUID: long = 8683452581122892189,
-    @Transient var storage: List<Object>,
+    @private @static @final var serialVersionUID: long = 8683452581122892189,
+    @transient var storage: List<Object>,
     var length: int,
-    @Transient var modCount: int = 0
+    @transient var modCount: int = 0
 ) {
 
     initstate Allocated;
@@ -406,14 +406,14 @@ automaton ArrayList: int (
     }
 
 
-    @Private
+    @private
     fun writeObject (s: ObjectOutputStream): void
     {
         action NOT_IMPLEMENTED();
     }
 
 
-    @Private
+    @private
     fun readObject (s: ObjectInputStream): void
     {
         action NOT_IMPLEMENTED();
@@ -497,8 +497,8 @@ automaton ArrayList: int (
 
 
 
-@PackagePrivate
-@Implements("java.util.Iterator")
+@packagePrivate
+@implements("java.util.Iterator")
 @WrapperMeta(
     src="java.util.ArrayList$Itr",
     //Maybe will be another name of the dest class
@@ -592,9 +592,9 @@ automaton Itr: int (
 
 
 
-@PackagePrivate
-@Extends("java.util.ArrayList$Itr")
-@Implements("java.util.Iterator")
+@packagePrivate
+@extends("java.util.ArrayList$Itr")
+@implements("java.util.Iterator")
 @WrapperMeta(
     src="java.util.ArrayList$ListItr",
     //Maybe will be another name of the dest class
@@ -762,8 +762,8 @@ automaton ListItr: int (
 
 
 
-@Final
-@Implements("java.util.Spliterator")
+@final
+@implements("java.util.Spliterator")
 @WrapperMeta(
     src="java.util.ArrayList$ArrayListSpliterator",
     dst="org.utbot.engine.overrides.collections.ArrayList$UtArrayListSpliterator",
@@ -840,19 +840,19 @@ automaton ArrayListSpliterator: int(
 
 
 
-@Private
-@Static
-@Extends("java.util.AbstractList")
-@Implements("java.util.RandomAccess")
+@private
+@static
+@extends("java.util.AbstractList")
+@implements("java.util.RandomAccess")
 @WrapperMeta(
     src="java.util.ArrayList$SubList",
     dst="org.utbot.engine.overrides.collections.ArrayList$UtSubList",
     matchInterfaces=true,
 )
 automaton SubList: int(
-    @Private @Final var index: offset,
-    @Private var length: int,
-    @Transient var modCount: int,
+    @private @final var index: offset,
+    @private var length: int,
+    @transient var modCount: int,
 
 )
 {
@@ -880,7 +880,7 @@ automaton SubList: int(
     }
 
 
-    @Private
+    @private
     constructor SubList(parentList: SubList, startIndex: int, endIndex: int)
     {
         //Problem
@@ -1120,9 +1120,9 @@ automaton SubList: int(
 
 
 
-@PackagePrivate
-@Extends("java.util.ArrayList$Itr")
-@Implements("java.util.Iterator")
+@packagePrivate
+@extends("java.util.ArrayList$Itr")
+@implements("java.util.Iterator")
 @WrapperMeta(
     src="java.util.ArrayList$SubList$1",
     //Maybe will be another name of the dest class
