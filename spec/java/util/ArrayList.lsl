@@ -24,8 +24,8 @@ include java.util.stream.Stream;
 @implements(["java.util.List", "java.util.RandomAccess","java.lang.Cloneable","java.io.Serializable"])
 @WrapperMeta(
     src="java.util.ArrayList",
-    dest="org.utbot.engine.overrides.collections.UtArrayList",
-    matchInterface=true)
+    dst="ru.spbpu.libsl.overrides.collections.ArrayList",
+    forceMatchInterfaces=true)
 automaton ArrayList: int (
     @private @static @final var serialVersionUID: long = 8683452581122892189,
     @transient var storage: List<Object>,
@@ -501,9 +501,9 @@ automaton ArrayList: int (
 @implements("java.util.Iterator")
 @WrapperMeta(
     src="java.util.ArrayList$Itr",
-    //Maybe will be another name of the dest class
-    dest="org.utbot.engine.overrides.collections.ArrayList$Itr",
-    matchInterface=true)
+    //Maybe will be another name of the dst class
+    dst="ru.spbpu.libsl.overrides.collections.ArrayList_Itr",
+    forceMatchInterfaces=true)
 automaton Itr: int (
     var cursor: int,
     var lastRet: int = -1,
@@ -597,9 +597,9 @@ automaton Itr: int (
 @implements("java.util.Iterator")
 @WrapperMeta(
     src="java.util.ArrayList$ListItr",
-    //Maybe will be another name of the dest class
-    dest="org.utbot.engine.overrides.collections.ArrayList$ListItr",
-    matchInterface=true)
+    //Maybe will be another name of the dst class
+    dst="ru.spbpu.libsl.overrides.collections.ArrayList_ListItr",
+    forceMatchInterfaces=true)
 automaton ListItr: int (
     var cursor: int,
     var lastRet: int = -1,
@@ -767,7 +767,7 @@ automaton ListItr: int (
 @WrapperMeta(
     src="java.util.ArrayList$ArrayListSpliterator",
     dst="org.utbot.engine.overrides.collections.ArrayList$UtArrayListSpliterator",
-    matchInterfaces=true,
+    forceMatchInterfaces=true,
 )
 automaton ArrayListSpliterator: int(
     var index: int,
@@ -846,8 +846,8 @@ automaton ArrayListSpliterator: int(
 @implements("java.util.RandomAccess")
 @WrapperMeta(
     src="java.util.ArrayList$SubList",
-    dst="org.utbot.engine.overrides.collections.ArrayList$UtSubList",
-    matchInterfaces=true,
+    dst="org.utbot.engine.overrides.collections.ArrayList_SubList",
+    forceMatchInterfaces=true,
 )
 automaton SubList: int(
     @private @final var index: offset,
@@ -1125,9 +1125,9 @@ automaton SubList: int(
 @implements("java.util.Iterator")
 @WrapperMeta(
     src="java.util.ArrayList$SubList$1",
-    //Maybe will be another name of the dest class
-    dest="org.utbot.engine.overrides.collections.UtArrayList$SubList$1",
-    matchInterface=true)
+    //Maybe will be another name of the dst class
+    dst="ru.spbpu.libsl.overrides.collections.ArrayList_SubList_Itr",
+    forceMatchInterfaces=true)
 automaton ListItr: int (
     var cursor: int,
     var lastRet: int = -1,
