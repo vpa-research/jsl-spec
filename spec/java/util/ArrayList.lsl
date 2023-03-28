@@ -4,6 +4,8 @@ library "std:collections" language "Java" version "11" url "-";
 
 import "java-common.lsl";
 import "list-actions.lsl";
+import "java/util/interfaces.lsl"
+import "java/util/function/interfaces.lsl"
 
 //For generation this imports are needed:
 include java.util.AbstractList;
@@ -20,6 +22,8 @@ include java.util.function.Predicate;
 include java.util.function.UnaryOperator;
 include java.util.stream.Stream;
 
+// automata
+
 @extends("java.util.AbstractList")
 @implements(["java.util.List", "java.util.RandomAccess","java.lang.Cloneable","java.io.Serializable"])
 @WrapperMeta(
@@ -28,8 +32,8 @@ include java.util.stream.Stream;
     forceMatchInterfaces=true)
 automaton ArrayList: int (
     @private @static @final var serialVersionUID: long = 8683452581122892189,
-    @transient var storage: List<Object>,
-    var length: int,
+    @transient var storage: List<Object> = null,
+    var length: int = 0,
     @transient var modCount: int = 0
 ) {
 
@@ -81,7 +85,7 @@ automaton ArrayList: int (
         set,
         sort,
         trimToSize
-        ];
+    ];
 
     //constructors
 
@@ -93,8 +97,7 @@ automaton ArrayList: int (
         }
         else
         {
-            //We are thinking about this action: "TO_STRING"
-            var message = "Illegal Capacity: "+ action TO_STRING(initialCapacity);
+            var message = "Illegal Capacity: " + action OBJECT_TO_STRING(initialCapacity);
             action THROW_NEW("java.lang.NoSuchElementException", [message]);
         }
     }
@@ -110,12 +113,13 @@ automaton ArrayList: int (
     {
         //I suppose that "c" is another automaton and it has "toArray" sub (or with another sub name).
         //That's why we can invoke this.
-        action ARRAY_TO_LIST(c.toArray(), storage);
-        //Problem:
+        //action ARRAY_TO_LIST(c.toArray(), storage);
+        // #problem:
         //In the next code of the original class can be such situation:  https://bugs.openjdk.java.net/browse/JDK-6260652
         //(you can see at the original class); But as a understand, this bug can be reproduced only
         //in jdk 1.5; We must think about this ? Or we don't have to do anything with it ?
         //It wasn't reproduced in JDK  11.0.1
+
         action NOT_IMPLEMENTED();
     }
 
@@ -126,7 +130,7 @@ automaton ArrayList: int (
     {
         if (index < 0 || index >= length)
         {
-            var message = "Index "+ action TO_STRING(index) + " out of bounds for length "+ action TO_STRING(length);
+            var message = "Index "+ action OBJECT_TO_STRING(index) + " out of bounds for length "+ action OBJECT_TO_STRING(length);
             action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
         }
     }
@@ -136,7 +140,7 @@ automaton ArrayList: int (
     {
         if (index < 0 || index > length)
         {
-            var message = "Index: " + action TO_STRING(index) + ", Size: " + action TO_STRING(length);
+            var message = "Index: " + action OBJECT_TO_STRING(index) + ", Size: " + action OBJECT_TO_STRING(length);
             action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
         }
     }
@@ -146,30 +150,32 @@ automaton ArrayList: int (
     {
         modCount = modCount + 1;
 
-        //problem:
-        //we don't know how to avoid cycle i this method
+        // #problem:
+        //we don't know how to avoid cycle in this method;
+        //for e in c:
+        //   storage.add(e);
         action NOT_IMPLEMENTED();
 
-        length = length + c.length;
+        length = length + c.size();
     }
 
     proc _subListRangeCheck (int fromIndex, int toIndex, int size): void
     {
         if (fromIndex < 0)
         {
-            var message: String = "fromIndex = " + action TO_STRING(fromIndex);
+            var message: String = "fromIndex = " + action OBJECT_TO_STRING(fromIndex);
             action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
         }
 
         if (toIndex > size)
         {
-            var message: String = "toIndex = " + action TO_STRING(toIndex);
+            var message: String = "toIndex = " + action OBJECT_TO_STRING(toIndex);
             action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
         }
 
         if (fromIndex > toIndex)
         {
-            var message: String = "fromIndex(" + action TO_STRING(fromIndex) + ") > toIndex(" + action TO_STRING(toIndex) + ")";
+            var message: String = "fromIndex(" + action OBJECT_TO_STRING(fromIndex) + ") > toIndex(" + action OBJECT_TO_STRING(toIndex) + ")";
             action THROW_NEW("java.lang.IllegalArgumentException", [message]);
         }
     }
@@ -202,7 +208,7 @@ automaton ArrayList: int (
     }
 
 
-    proc _setElement (index: int, e: Object): void
+    proc _setElement (index: int, e: Object): Object
     {
         _checkValidIndex(index, length);
         result = action LIST_GET(storage, index);
@@ -240,21 +246,20 @@ automaton ArrayList: int (
 
     fun contains (o: Object): boolean
     {
-        result = action LIST_FIND(storage, o) >= 0;
+        result = action LIST_FIND(storage, o, 0, length, +1) >= 0;
     }
 
 
     fun indexOf (o: Object): int
     {
-        result = action LIST_FIND(storage, o);
+        result = action LIST_FIND(storage, o, 0, length, +1);
     }
 
 
 
     fun lastIndexOf (o: Object): int
     {
-        //I must think about this new action.
-        action NOT_IMPLEMENTED();
+        result = action LIST_FIND(storage, o, 0, length, -1);
     }
 
 
@@ -268,8 +273,8 @@ automaton ArrayList: int (
 
     fun toArray (): array<Object>
     {
-        //Problem
-        //How set size of the array ?
+        // #problem
+        //How to create a new array correctly ?
         var a: array<int>;
         result = action LIST_TO_ARRAY(storage, a, 0, length);
     }
@@ -290,7 +295,7 @@ automaton ArrayList: int (
 
     fun set (index: int, element: Object): Object
     {
-        _setElement(index, element);
+        result = _setElement(index, element);
     }
 
 
@@ -299,6 +304,7 @@ automaton ArrayList: int (
         modCount = modCount + 1;
         action LIST_INSERT_AT(storage, length, e);
         length = length + 1;
+        result = true;
     }
 
 
@@ -314,11 +320,18 @@ automaton ArrayList: int (
     }
 
 
-    fun equals (o: Object): boolean
+    fun equals (other: Object): boolean
     {
-        //Problem
-        //We don't know at this moment how create this method.
-        action NOT_IMPLEMENTED();
+        if (other == self)
+        {
+            result = true;
+        }
+        else
+        {
+            // #problem
+            //We don't know at this moment how create this method.
+            action NOT_IMPLEMENTED();
+        }
     }
 
 
@@ -332,7 +345,7 @@ automaton ArrayList: int (
 
     fun remove (o: Object): boolean
     {
-        var index = action LIST_FIND(storage, o);
+        var index = action LIST_FIND(storage, o, 0, length, +1);
         if (index == -1)
         {
             result = false;
@@ -362,13 +375,14 @@ automaton ArrayList: int (
 
     fun addAll (index: int, c: Collection): boolean
     {
-        result = _addAllElements(length, c);
+        _rangeCheckForAdd(index, length);
+        result = _addAllElements(index, c);
     }
 
 
     fun removeAll (c: Collection): boolean
     {
-        //Problem.
+        // #problem.
         //I want to create such action:
 
         //define action SUBTRACTING_SETS(
@@ -388,7 +402,7 @@ automaton ArrayList: int (
 
     fun retainAll (c: Collection): boolean
     {
-        //Problem.
+        // #problem.
         //I want to create such action:
 
         //define action INTERSECTION(
@@ -407,15 +421,28 @@ automaton ArrayList: int (
 
 
     @private
+    @throws(["java.io.IOException"])
     fun writeObject (s: ObjectOutputStream): void
     {
+        var expectedModCount = modCount;
+
+        // #problem
+        //Here is cycle and some operations with ObjectOutputStream.
         action NOT_IMPLEMENTED();
+
+        if (modCount != expectedModCount)
+        {
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+        }
     }
 
 
     @private
+    @throws(["java.io.IOException", "java.lang.ClassNotFoundException"])
     fun readObject (s: ObjectInputStream): void
     {
+        // #problem
+        //Here is cycle and some operations with ObjectInputStream.
         action NOT_IMPLEMENTED();
     }
 
@@ -433,7 +460,7 @@ automaton ArrayList: int (
     fun listIterator (): ListIterator
     {
         result = new ListItr(state=Created,
-            cursor=index,
+            cursor=0,
             expectedModCount=modCount);
     }
 
@@ -448,9 +475,11 @@ automaton ArrayList: int (
     fun subList (fromIndex: int, toIndex: int): List
     {
         _subListRangeCheck(fromIndex, toIndex, length);
+
+        // #problem
+        //We don't have decision about sublists.
+        //TODO
         result = new SubList(state=Created,
-            //Think about THIS !
-            //TODO
             startIndex=fromIndex,
             endIndex=toIndex);
     }
@@ -477,6 +506,7 @@ automaton ArrayList: int (
     fun removeIf (filter: Predicate): boolean
     {
         // #problem
+        //We don't know how to work with lambda.
         action NOT_IMPLEMENTED();
     }
 
@@ -490,8 +520,18 @@ automaton ArrayList: int (
 
     fun sort (c: Comparator): void
     {
+        var expectedModCount = modCount;
+
         // #problem
+        //We don't know what to do with sorting of the List.
         action NOT_IMPLEMENTED();
+
+        if (modCount != expectedModCount)
+        {
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+        }
+
+        modCount = modCount + 1;
     }
 }
 
@@ -555,7 +595,7 @@ automaton Itr: int (
             action THROW_NEW("java.util.NoSuchElementException", []);
         }
 
-        //Problem
+        // #problem
         //I don't know what to do with ConcurrentModificationException(); ?
 
         cursor = i + 1;
@@ -573,7 +613,7 @@ automaton Itr: int (
 
         self.parent._checkForComodification(expectedModCount);
 
-        //Problem
+        // #problem
         //What i must to do with try-catch in this method ?
 
         self.parent._deleteElement(lastRet);
@@ -633,7 +673,7 @@ automaton ListItr: int (
 
     constructor ListItr(index: int)
     {
-        //Problem
+        // #problem
         //How invoke super() ??
         cursor = index;
     }
@@ -676,7 +716,7 @@ automaton ListItr: int (
             action THROW_NEW("java.util.NoSuchElementException", []);
         }
 
-        //Problem
+        // #problem
         //I don't know what to do with ConcurrentModificationException(); ?
 
         cursor = i + 1;
@@ -695,7 +735,7 @@ automaton ListItr: int (
             action THROW_NEW("java.util.NoSuchElementException", []);
         }
 
-        //Problem
+        // #problem
         //I don't know what to do with ConcurrentModificationException(); ?
 
         cursor = i;
@@ -713,7 +753,7 @@ automaton ListItr: int (
 
         self.parent._checkForComodification(expectedModCount);
 
-        //Problem
+        // #problem
         //What i must to do with try-catch in this method ?
 
         self.parent._deleteElement(lastRet);
@@ -731,7 +771,7 @@ automaton ListItr: int (
 
         self.parent._checkForComodification(expectedModCount);
 
-        //Problem
+        // #problem
         //What i must to do with try-catch in this method ?
 
         self.parent._setElement(lastRet, e);
@@ -742,7 +782,7 @@ automaton ListItr: int (
     {
         self.parent._checkForComodification(expectedModCount);
 
-        //Problem
+        // #problem
         //What i must to do with try-catch in this method ?
 
         var i = cursor;
@@ -883,7 +923,7 @@ automaton SubList: int(
     @private
     constructor SubList(parentList: SubList, startIndex: int, endIndex: int)
     {
-        //Problem
+        // #problem
         //???
         offset = startIndex;
         length = endIndex - startIndex;
@@ -921,7 +961,7 @@ automaton SubList: int(
 
     proc _updateSizeAndModCount (sizeChange: int): void
     {
-        //Problem
+        // #problem
         //Here is cycle
         action NOT_IMPLEMENTED();
     }
@@ -1043,7 +1083,7 @@ automaton SubList: int(
 
     fun toArray (): array<Object>
     {
-        //Problem
+        // #problem
         //How set size of the array ?
         var a: array<int>;
 

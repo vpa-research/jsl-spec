@@ -10,6 +10,13 @@ define action LIST_COPY(
         to: int
     ): list<any>;
 
+define action LIST_TO_ARRAY(
+        srcList: list<any>,
+        destArray: array<any>,
+        from: int,
+        to: int
+    ): array<any>
+
 define action LIST_FIND(
         aList: list<any>,
         value: any,
