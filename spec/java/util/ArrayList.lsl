@@ -569,8 +569,6 @@ automaton Itr: int (
 
     // constructors
 
-
-    //Maybe here is needed @DefaultModifier ?
     constructor Itr()
     {
     }
@@ -880,328 +878,328 @@ automaton ArrayListSpliterator: int(
 
 
 
-@private
-@static
-@extends("java.util.AbstractList")
-@implements("java.util.RandomAccess")
-@WrapperMeta(
-    src="java.util.ArrayList$SubList",
-    dst="org.utbot.engine.overrides.collections.ArrayList_SubList",
-    forceMatchInterfaces=true,
-)
-automaton SubList: int(
-    @private @final var index: offset,
-    @private var length: int,
-    @transient var modCount: int,
+//@private
+//@static
+//@extends("java.util.AbstractList")
+//@implements("java.util.RandomAccess")
+//@WrapperMeta(
+//    src="java.util.ArrayList$SubList",
+//    dst="org.utbot.engine.overrides.collections.ArrayList_SubList",
+//    forceMatchInterfaces=true,
+//)
+//automaton SubList: int(
+//    @private @final var index: offset,
+//    @private var length: int,
+//    @transient var modCount: int,
 
-)
-{
+//)
+//{
 
-    initstate Initialized;
+//    initstate Initialized;
 
-    shift Allocated -> Initialized by [
-    ];
+//    shift Allocated -> Initialized by [
+//    ];
 
-    shift Initialized -> self by [
-       // read operations
+//    shift Initialized -> self by [
+//       // read operations
 
-       // write operations
-    ]
+//       // write operations
+//    ]
 
 
-    //constructors
+//    //constructors
 
 
-    constructor SubList(startIndex: int, endIndex: int)
-    {
-        offset = startIndex;
-        length = endIndex - startIndex;
-        modCount = self.parent.modCount;
-    }
+//    constructor SubList(startIndex: int, endIndex: int)
+//    {
+//        offset = startIndex;
+//        length = endIndex - startIndex;
+//        modCount = self.parent.modCount;
+//    }
 
 
-    @private
-    constructor SubList(parentList: SubList, startIndex: int, endIndex: int)
-    {
-        // #problem
-        //???
-        offset = startIndex;
-        length = endIndex - startIndex;
-        modCount = self.parent.modCount;
-    }
+//    @private
+//    constructor SubList(parentList: SubList, startIndex: int, endIndex: int)
+//    {
+//        // #problem
+//        //???
+//        offset = startIndex;
+//        length = endIndex - startIndex;
+//        modCount = self.parent.modCount;
+//    }
 
 
-    //subs
+//    //subs
 
-    proc _addAllElements (index:int, c:Collection): boolean
-    {
-        self.parent._rangeCheckForAdd(index, length);
+//    proc _addAllElements (index:int, c:Collection): boolean
+//    {
+//        self.parent._rangeCheckForAdd(index, length);
 
-        //I use suppose that Collection interface will have size sub or analog
-        var collectionSize = c.size();
+//        //I use suppose that Collection interface will have size sub or analog
+//        var collectionSize = c.size();
 
-        if (collectionSize == 0)
-        {
-            result = false;
-        }
-        else
-        {
-            self.parent._checkForComodification(modCount);
+//        if (collectionSize == 0)
+//        {
+//            result = false;
+//        }
+//        else
+//        {
+//            self.parent._checkForComodification(modCount);
 
-            var curIndex = offset + index;
+//            var curIndex = offset + index;
 
-            self.parent._addAllElements(index, c);
+//            self.parent._addAllElements(index, c);
 
-            _updateSizeAndModCount(collectionSize);
+//            _updateSizeAndModCount(collectionSize);
 
-            result = true;
-        }
-    }
+//            result = true;
+//        }
+//    }
 
 
-    proc _updateSizeAndModCount (sizeChange: int): void
-    {
-        // #problem
-        //Here is cycle
-        action NOT_IMPLEMENTED();
-    }
+//    proc _updateSizeAndModCount (sizeChange: int): void
+//    {
+//        // #problem
+//        //Here is cycle
+//        action NOT_IMPLEMENTED();
+//    }
 
 
-    proc _indexOfElement (o: Object): int
-    {
-        var index = action LIST_FIND(self.parent.storage, o);
-        self.parent._checkForComodification(modCount);
+//    proc _indexOfElement (o: Object): int
+//    {
+//        var index = action LIST_FIND(self.parent.storage, o);
+//        self.parent._checkForComodification(modCount);
 
-        if (index >= 0)
-        {
-            result = index - offset;
-        }
-        else
-        {
-            result = -1;
-        }
-    }
+//        if (index >= 0)
+//        {
+//            result = index - offset;
+//        }
+//        else
+//        {
+//            result = -1;
+//        }
+//    }
 
 
-    //methods
+//    //methods
 
 
-    fun set (index: int, element: Object): void
-    {
-        self.parent._checkValidIndex(index, length);
-        self.parent._checkForComodification(modCount);
+//     fun set (index: int, element: Object): void
+//     {
+//         self.parent._checkValidIndex(index, length);
+//         self.parent._checkForComodification(modCount);
 
-        var curIndex = offset + index;
+//         var curIndex = offset + index;
 
-        result = action LIST_GET(self.parent.storage, curIndex);
-        action LIST_SET(self.parent.storage, curIndex, element);
-    }
+//         result = action LIST_GET(self.parent.storage, curIndex);
+//         action LIST_SET(self.parent.storage, curIndex, element);
+//     }
 
 
-    fun get (index: int): Object
-    {
-        self.parent._checkValidIndex(index, length);
-        self.parent._checkForComodification(modCount);
+//     fun get (index: int): Object
+//     {
+//         self.parent._checkValidIndex(index, length);
+//         self.parent._checkForComodification(modCount);
 
-        var curIndex = offset + index;
+//         var curIndex = offset + index;
 
-        result = action LIST_GET(self.parent.storage, curIndex);
-    }
+//         result = action LIST_GET(self.parent.storage, curIndex);
+//     }
 
 
-    fun size (): int
-    {
-        self.parent._checkForComodification(modCount);
-        result = length;
-    }
+//     fun size (): int
+//     {
+//         self.parent._checkForComodification(modCount);
+//         result = length;
+//     }
 
 
-    fun add (index: int, element: Object): void
-    {
-        self.parent._rangeCheckForAdd(index, length);
-        self.parent._checkForComodification(modCount);
+//     fun add (index: int, element: Object): void
+//     {
+//         self.parent._rangeCheckForAdd(index, length);
+//         self.parent._checkForComodification(modCount);
 
-        var curIndex = offset + index;
-        self.parent._addElement(curIndex, element);
+//         var curIndex = offset + index;
+//         self.parent._addElement(curIndex, element);
 
-        _updateSizeAndModCount(1);
-    }
+//         _updateSizeAndModCount(1);
+//     }
 
 
-    fun remove (index: int): Object
-    {
-        self.parent._checkValidIndex(index, length);
-        self.parent._checkForComodification(modCount);
+//     fun remove (index: int): Object
+//     {
+//         self.parent._checkValidIndex(index, length);
+//         self.parent._checkForComodification(modCount);
 
-        var curIndex = offset + index;
+//         var curIndex = offset + index;
 
-        result = self.parent._deleteElement(curIndex);
+//         result = self.parent._deleteElement(curIndex);
 
-        _updateSizeAndModCount(-1);
-    }
+//         _updateSizeAndModCount(-1);
+//     }
 
 
-    fun addAll (c: Collection): boolean
-    {
-        _addAllElements(length, c);
-    }
+//     fun addAll (c: Collection): boolean
+//     {
+//         _addAllElements(length, c);
+//     }
 
 
-    fun addAll (index: int, c: Collection): boolean
-    {
-        _addAllElements(index, c);
-    }
+//     fun addAll (index: int, c: Collection): boolean
+//     {
+//         _addAllElements(index, c);
+//     }
 
 
-    fun replaceAll (operator: UnaryOperator): void
-    {
-        // #problem
-        action NOT_IMPLEMENTED();
-    }
+//     fun replaceAll (operator: UnaryOperator): void
+//     {
+//         // #problem
+//         action NOT_IMPLEMENTED();
+//     }
 
 
-    fun removeAll (c: Collection): boolean
-    {
-        // #problem
-        action NOT_IMPLEMENTED();
-    }
+//     fun removeAll (c: Collection): boolean
+//     {
+//         // #problem
+//         action NOT_IMPLEMENTED();
+//     }
 
 
-    fun retainAll (c: Collection): boolean
-    {
-        // #problem
-        action NOT_IMPLEMENTED();
-    }
+//     fun retainAll (c: Collection): boolean
+//     {
+//         // #problem
+//         action NOT_IMPLEMENTED();
+//     }
 
 
-    fun removeIf (filter: Predicate): boolean
-    {
-        // #problem
-        action NOT_IMPLEMENTED();
-    }
+//     fun removeIf (filter: Predicate): boolean
+//     {
+//         // #problem
+//         action NOT_IMPLEMENTED();
+//     }
 
 
-    fun toArray (): array<Object>
-    {
-        // #problem
-        //How set size of the array ?
-        var a: array<int>;
+//     fun toArray (): array<Object>
+//     {
+//         // #problem
+//         //How set size of the array ?
+//         var a: array<int>;
 
-        var end = offset + length;
-        result = action LIST_TO_ARRAY(storage, a, offset, end);
-    }
+//         var end = offset + length;
+//         result = action LIST_TO_ARRAY(storage, a, offset, end);
+//     }
 
 
-    fun toArray (a: list<Object>): array<Object>
-    {
-        var end = offset + length;
-        result = action LIST_TO_ARRAY(storage, a, offset, end);
-    }
+//     fun toArray (a: list<Object>): array<Object>
+//     {
+//         var end = offset + length;
+//         result = action LIST_TO_ARRAY(storage, a, offset, end);
+//     }
 
 
-    fun equals (o: Object): boolean
-    {
-        // #problem
-        action NOT_IMPLEMENTED();
-    }
+//     fun equals (o: Object): boolean
+//     {
+//         // #problem
+//         action NOT_IMPLEMENTED();
+//     }
 
 
-    fun hashCode (): int
-    {
-        // result = action OBJECT_HASH_CODE(self);
-        // #problem
-        action NOT_IMPLEMENTED();
-    }
+//     fun hashCode (): int
+//     {
+//         // result = action OBJECT_HASH_CODE(self);
+//         // #problem
+//         action NOT_IMPLEMENTED();
+//     }
 
 
-    fun indexOf (o: Object): int
-    {
-        result = _indexOfElement(o);
-    }
+//     fun indexOf (o: Object): int
+//     {
+//         result = _indexOfElement(o);
+//     }
 
 
-    fun lastIndexOf (o: Object): int
-    {
-        //I must think about this new action.
-        action NOT_IMPLEMENTED();
-    }
+//     fun lastIndexOf (o: Object): int
+//     {
+//         //I must think about this new action.
+//         action NOT_IMPLEMENTED();
+//     }
 
 
-    fun contains (o: Object): boolean
-    {
-        result = _indexOfElement(o) >= 0;
-    }
+//     fun contains (o: Object): boolean
+//     {
+//         result = _indexOfElement(o) >= 0;
+//     }
 
 
-    fun subList (fromIndex: int, toIndex: int): List
-    {
-        self.parent._subListRangeCheck(fromIndex, toIndex, length);
-        result = new SubList(state=Created,
-            //Think about THIS !
-            //TODO
-            parentList = self,
-            startIndex=fromIndex,
-            endIndex=toIndex);
-    }
+//     fun subList (fromIndex: int, toIndex: int): List
+//     {
+//         self.parent._subListRangeCheck(fromIndex, toIndex, length);
+//         result = new SubList(state=Created,
+//             //Think about THIS !
+//             //TODO
+//             parentList = self,
+//             startIndex=fromIndex,
+//             endIndex=toIndex);
+//     }
 
 
-    fun iterator (): Iterator
-    {
+//     fun iterator (): Iterator
+//     {
 
-    }
+//     }
 
 
-    fun spliterator (): Spliterator
-    {
-        action NOT_IMPLEMENTED();
-    }
+//     fun spliterator (): Spliterator
+//     {
+//         action NOT_IMPLEMENTED();
+//     }
 
-}
+// }
 
 
 
-@packagePrivate
-@extends("java.util.ArrayList$Itr")
-@implements("java.util.Iterator")
-@WrapperMeta(
-    src="java.util.ArrayList$SubList$1",
-    //Maybe will be another name of the dst class
-    dst="ru.spbpu.libsl.overrides.collections.ArrayList_SubList_Itr",
-    forceMatchInterfaces=true)
-automaton ListItr: int (
-    var cursor: int,
-    var lastRet: int = -1,
-    var expectedModCount: int
-) {
+// @packagePrivate
+// @extends("java.util.ArrayList$Itr")
+// @implements("java.util.Iterator")
+// @WrapperMeta(
+//     src="java.util.ArrayList$SubList$1",
+//     //Maybe will be another name of the dst class
+//     dst="ru.spbpu.libsl.overrides.collections.ArrayList_SubList_Itr",
+//     forceMatchInterfaces=true)
+// automaton ListItr: int (
+//     var cursor: int,
+//     var lastRet: int = -1,
+//     var expectedModCount: int
+// ) {
 
 
-    //subs
+//     //subs
 
 
-    proc _checkForComodification (expectedModCount: int): void
-    {
-        if (modCount != expectedModCount)
-        {
-            action THROW_NEW("java.util.ConcurrentModificationException", []);
-        }
-    }
+//     proc _checkForComodification (expectedModCount: int): void
+//     {
+//         if (modCount != expectedModCount)
+//         {
+//             action THROW_NEW("java.util.ConcurrentModificationException", []);
+//         }
+//     }
 
 
-    //methods
+//     //methods
 
 
-    fun hasNext(): boolean
-    {
-        result = cursor != self.parent.length;
-    }
+//     fun hasNext(): boolean
+//     {
+//         result = cursor != self.parent.length;
+//     }
 
 
-    fun next(): Object
-    {
-        _checkForComodification(self.parent.modCount);
+//     fun next(): Object
+//     {
+//         _checkForComodification(self.parent.modCount);
 
-    }
+//     }
 
 
-}
+// }
 
