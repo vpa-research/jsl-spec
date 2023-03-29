@@ -10,6 +10,7 @@ import "java-common.lsl";
 import "java/lang/interfaces.lsl";
 import "java/util/interfaces.lsl";
 import "java/util/function/interfaces.lsl";
+import "java/util/stream/interfaces.lsl";
 
 
 // automata
@@ -29,10 +30,10 @@ import "java/util/function/interfaces.lsl";
     initstate Allocated;
     state Initialized;
 
-    // constructors
     shift Allocated -> Initialized by [
-        Optional(),
-        Optional(T),
+        // constructors
+        Optional (),
+        Optional (T),
 
         // static methods
         empty,
@@ -88,12 +89,11 @@ import "java/util/function/interfaces.lsl";
 
     // utilities
 
-
     @CacheStaticOnce
     @static proc _makeEmpty (): Optional
     {
         // #problem
-        result = new Optional();
+        result = new Optional(state=Initialized);
     }
 
 
@@ -119,7 +119,10 @@ import "java/util/function/interfaces.lsl";
     @GenericResult("T")
     @static fun of (obj: T): Optional
     {
-        result = new Optional(value=obj);
+        if (obj == null)
+            self._throwNPE();
+
+        result = new Optional(state=Initialized, value=obj);
     }
 
 
@@ -130,14 +133,14 @@ import "java/util/function/interfaces.lsl";
         if (obj == null)
             result = _makeEmpty();
         else
-            result = new Optional(obj);
+            result = new Optional(state=Initialized, value=obj);
     }
 
 
     fun get (): T
     {
         if (value == null)
-            action THROW_NEW("java.util.NoSuchElementException", []);
+            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
 
         result = value;
     }
@@ -265,7 +268,7 @@ import "java/util/function/interfaces.lsl";
 
 
     @GenericResult("T")
-    fun or (@Generic("? extends Optional<? extends T>") supplier: Supplier): string
+    fun or (@Generic("? extends Optional<? extends T>") supplier: Supplier): Optional
     {
         required supplier != null;
 

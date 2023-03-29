@@ -31,7 +31,7 @@ automaton HashMap: int
     @transient var length: int = 0;
     @transient var modCounter: int = 0;
 
-    @private @static @final serialVersionUID: long = 362498820763181265;
+    @private @static @final var serialVersionUID: long = 362498820763181265;
 )
 {
     initstate Allocated;

@@ -14,5 +14,14 @@ typealias BiFunction = Object;    // #problem
 @TypeMapping("java.util.function.Function")
 typealias Function = Object;    // #problem
 
+@TypeMapping("java.util.function.IntConsumer")
+typealias IntConsumer = Object;    // #problem
+
+@TypeMapping("java.util.function.IntSupplier")
+typealias IntSupplier = Object;    // #problem
+
 @TypeMapping("java.util.function.Predicate")
 typealias Predicate = Object;    // #problem
+
+@TypeMapping("java.util.function.Supplier")
+typealias Supplier = Object;    // #problem
