@@ -214,6 +214,12 @@ automaton ArrayList: int (
     }
 
 
+    proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
     //methods
 
     fun trimToSize (): void
@@ -324,9 +330,17 @@ automaton ArrayList: int (
         }
         else
         {
-            // #problem
-            //We don't know at this moment how create this method.
-            action NOT_IMPLEMENTED();
+            val isSameType = action OBJECT_SAME_TYPE(self, other);
+            if (isSameType)
+            {
+                // #problem
+                //We don't know at this moment how create this method, because it has cycle.
+                action NOT_IMPLEMENTED();
+            }
+            else
+            {
+                result = false;
+            }
         }
     }
 
@@ -470,16 +484,49 @@ automaton ArrayList: int (
 
     fun removeIf (filter: Predicate): boolean
     {
-        // #problem
-        //We don't know how to work with lambda.
-        action NOT_IMPLEMENTED();
+        if (consumer == null)
+        {
+            self._throwNPE();
+        }
+
+        var expectedModCount = modCount;
+        var res = action CALL(filter, [storage]);
+        if (res == null)
+        {
+            result = false;
+            if (modCount != expectedModCount)
+            {
+                action THROW_NEW("java.util.ConcurrentModificationException", []);
+            }
+        }
+        else
+        {
+            result = true;
+            if (modCount != expectedModCount)
+            {
+                action THROW_NEW("java.util.ConcurrentModificationException", []);
+            }
+            modCount = modCount + 1;
+        }
     }
 
 
     fun replaceAll (operator: UnaryOperator): void
     {
-        // #problem
-        action NOT_IMPLEMENTED();
+        if (consumer == null)
+        {
+            self._throwNPE();
+        }
+
+        var expectedModCount = modCount;
+        action CALL(operator, [storage]);
+
+        if (modCount != expectedModCount)
+        {
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+        }
+
+        modCount = modCount + 1;
     }
 
 
