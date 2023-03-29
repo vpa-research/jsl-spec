@@ -433,7 +433,8 @@ automaton ArrayList: int (
 
     fun iterator (): Iterator
     {
-        result = new Itr(state=Created,
+        result = new ListItr(state=Created,
+            cursor=0,
             expectedModCount=modCount);
     }
 
@@ -500,100 +501,7 @@ automaton ArrayList: int (
 }
 
 
-
 @packagePrivate
-@implements(["java.util.Iterator"])
-automaton Itr: int (
-    var cursor: int,
-    var lastRet: int = -1,
-    var expectedModCount: int
-) {
-
-    initstate Initialized;
-    state Allocated;
-
-    shift Allocated -> Initialized by [
-        Itr()
-    ];
-
-    shift Initialized -> self by [
-        // read operations
-        hasNext,
-
-        // write operations
-        next,
-        remove,
-        forEachRemaining
-    ]
-
-
-    // constructors
-
-    constructor Itr()
-    {
-    }
-
-
-    // methods
-
-
-    fun hasNext (): boolean
-    {
-        result = cursor != self.parent.length;
-    }
-
-
-    fun next (): Object
-    {
-        self.parent._checkForComodification(expectedModCount);
-        var i = cursor;
-
-        if (i >= parent.length)
-        {
-            action THROW_NEW("java.util.NoSuchElementException", []);
-        }
-
-        // #problem
-        //I don't know what to do with ConcurrentModificationException(); ?
-        action NOT_IMPLEMENTED();
-
-        cursor = i + 1;
-        lastRet = i;
-        result = action LIST_GET(self.parent.storage, lastRet);
-    }
-
-
-    fun remove (): void
-    {
-        if (lastRet < 0)
-        {
-            action THROW_NEW("java.lang.IllegalStateException", []);
-        }
-
-        self.parent._checkForComodification(expectedModCount);
-
-        // #problem
-        //What i must to do with try-catch in this method ?
-        action NOT_IMPLEMENTED();
-
-        self.parent._deleteElement(lastRet);
-        cursor = lastRet;
-        lastRet = -1;
-        expectedModCount = self.parent.modCount;
-    }
-
-
-    fun forEachRemaining (action: Consumer): void
-    {
-        action NOT_IMPLEMENTED();
-    }
-
-}
-
-
-
-@packagePrivate
-@extends("java.util.ArrayList$Itr")
 @implements(["java.util.ListIterator"])
 automaton ListItr: int (
     var cursor: int,
@@ -718,6 +626,7 @@ automaton ListItr: int (
         lastRet = -1;
         expectedModCount = self.parent.modCount;
     }
+
 
     fun set (e: Object): void
     {
