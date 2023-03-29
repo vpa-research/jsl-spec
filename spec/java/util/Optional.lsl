@@ -13,20 +13,26 @@ import "java/util/function/interfaces.lsl";
 import "java/util/stream/interfaces.lsl";
 
 
-// automata
+// local semantic types
 
 // #problem
 @TypeMapping(typeVariable=true) typealias T = Object;
 
+
+// automata
+
+@Generic("T")
 @WrapperMeta(
     src="java.util.Optional",
     dst="ru.spbpu.libsl.overrides.collections.Optional",
 )
-@public @final @Generic("T") automaton Optional: int
+@public @final automaton Optional: int
 (
     var value: Object = null;
 )
 {
+    // states and shifts
+
     initstate Allocated;
     state Initialized;
 
@@ -104,7 +110,7 @@ import "java/util/stream/interfaces.lsl";
     }
 
 
-    // methods
+    // static methods
 
     // #problem
     @Generic("T")
@@ -137,65 +143,33 @@ import "java/util/stream/interfaces.lsl";
     }
 
 
-    fun get (): T
+    // methods
+
+    fun equals (other: Object): boolean
     {
-        if (value == null)
-            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
-
-        result = value;
-    }
-
-
-    fun isPresent (): boolean
-    {
-        result = value != null;
-    }
-
-
-    fun isEmpty (): boolean
-    {
-        result = value == null;
-    }
-
-
-    fun ifPresent (@Generic("T") consumer: Consumer): void
-    {
-        required value == null || (value != null && consumer != null);
-
-        if (value != null)
+        if (other == self)
         {
-            if (consumer == null)
-                self._throwNPE();
-
-            action CALL(consumer, [value]);
-        }
-    }
-
-
-    fun ifPresentOrElse (@Generic("T") consumer: Consumer, emptyAction: Runnable): void
-    {
-        required value == null || (value != null && consumer != null);
-        required value != null || (value == null && emptyAction != null);
-
-        if (value != null)
-        {
-            if (consumer == null)
-                self._throwNPE();
-
-            action CALL(consumer, [value]);
+            result = true;
         }
         else
         {
-            if (emptyAction == null)
-                self._throwNPE();
-
-            action CALL(emptyAction, []);
+            val isSameType = action OBJECT_SAME_TYPE(self, other);
+            if (isSameType)
+            {
+                // #problem
+                val otherValue = Optional(other).value;
+                result = self.value == otherValue;
+            }
+            else
+            {
+                result = false;
+            }
         }
     }
 
 
     @GenericResult("T")
-    fun filter (@Generic("T") predicate: Predicate): Optional
+    fun filter (@Generic("? super T") predicate: Predicate): Optional
     {
         required predicate != null;
 
@@ -214,31 +188,6 @@ import "java/util/stream/interfaces.lsl";
                 result = self; // #problem
             else
                 result = _makeEmpty();
-        }
-    }
-
-
-    @Generic("U")
-    @GenericResult("U")
-    fun map (@Generic("? super T, ? extends U") mapper: Function): Optional
-    {
-        required mapper != null;
-
-        if (mapper == null)
-            self._throwNPE();
-
-        if (value == null)
-        {
-            result = _makeEmpty();
-        }
-        else
-        {
-            val mappedValue = action CALL(mapper, [value]);
-
-            if (mappedValue == null)
-                result = _makeEmpty();
-            else
-                result = new Optional(value=mappedValue);
         }
     }
 
@@ -267,6 +216,94 @@ import "java/util/stream/interfaces.lsl";
     }
 
 
+    fun get (): T
+    {
+        if (value == null)
+            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
+
+        result = value;
+    }
+
+
+    fun hashCode (): int
+    {
+        result = action OBJECT_HASH_CODE(value);
+    }
+
+
+    fun ifPresent (@Generic("? super T") consumer: Consumer): void
+    {
+        required value == null || (value != null && consumer != null);
+
+        if (value != null)
+        {
+            if (consumer == null)
+                self._throwNPE();
+
+            action CALL(consumer, [value]);
+        }
+    }
+
+
+    fun ifPresentOrElse (@Generic("? super T") consumer: Consumer, emptyAction: Runnable): void
+    {
+        required value == null || (value != null && consumer != null);
+        required value != null || (value == null && emptyAction != null);
+
+        if (value != null)
+        {
+            if (consumer == null)
+                self._throwNPE();
+
+            action CALL(consumer, [value]);
+        }
+        else
+        {
+            if (emptyAction == null)
+                self._throwNPE();
+
+            action CALL(emptyAction, []);
+        }
+    }
+
+
+    fun isEmpty (): boolean
+    {
+        result = value == null;
+    }
+
+
+    fun isPresent (): boolean
+    {
+        result = value != null;
+    }
+
+
+    @Generic("U")
+    @GenericResult("U")
+    fun map (@Generic("? super T, ? extends U") mapper: Function): Optional
+    {
+        required mapper != null;
+
+        if (mapper == null)
+            self._throwNPE();
+
+        if (value == null)
+        {
+            result = _makeEmpty();
+        }
+        else
+        {
+            val mappedValue = action CALL(mapper, [value]);
+
+            if (mappedValue == null)
+                result = _makeEmpty();
+            else
+                result = new Optional(value=mappedValue);
+        }
+    }
+
+
     @GenericResult("T")
     fun or (@Generic("? extends Optional<? extends T>") supplier: Supplier): Optional
     {
@@ -286,20 +323,6 @@ import "java/util/stream/interfaces.lsl";
         {
             result = self;
         }
-    }
-
-
-    @GenericResult("T")
-    fun stream (): Stream
-    {
-        action NOT_IMPLEMENTED();
-
-        /*
-        if (value == null)
-            result = Stream.empty(); // #problem
-        else
-            result = Stream.of(value); // #problem
-        */
     }
 
 
@@ -336,8 +359,8 @@ import "java/util/stream/interfaces.lsl";
 
 
     @Generic("X extends Throwable")
-    @throws("X", generic=true)
-    fun orElseThrow(@Generic("? extends X") exceptionSupplier: Supplier): T
+    @throws(["X"], generic=true)
+    fun orElseThrow (@Generic("? extends X") exceptionSupplier: Supplier): T
     {
         required exceptionSupplier != null;
 
@@ -356,6 +379,20 @@ import "java/util/stream/interfaces.lsl";
     }
 
 
+    @GenericResult("T")
+    fun stream (): Stream
+    {
+        action NOT_IMPLEMENTED();
+
+        /*
+        if (value == null)
+            result = Stream.empty(); // #problem
+        else
+            result = Stream.of(value); // #problem
+        */
+    }
+
+
     fun toString (): string
     {
         if (value == null)
@@ -367,34 +404,4 @@ import "java/util/stream/interfaces.lsl";
         }
     }
 
-
-    fun hashCode (): int
-    {
-        result = action OBJECT_HASH_CODE(value);
-    }
-
-
-    fun equals (other: Object): boolean
-    {
-        if (other == self)
-        {
-            result = true;
-        }
-        else
-        {
-            val isSameType = action OBJECT_SAME_TYPE(self, other);
-            if (isSameType)
-            {
-                // #problem
-                val otherValue = Optional(other).value;
-                result = self.value == otherValue;
-            }
-            else
-            {
-                result = false;
-            }
-        }
-    }
-
 }
-
