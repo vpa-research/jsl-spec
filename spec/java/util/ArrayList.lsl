@@ -29,7 +29,7 @@ include java.util.stream.Stream;
 @WrapperMeta(
     src="java.util.ArrayList",
     dst="ru.spbpu.libsl.overrides.collections.ArrayList",
-    forceMatchInterfaces=true)
+    forceMatchInterfaces=false)
 automaton ArrayList: int (
     @private @static @final var serialVersionUID: long = 8683452581122892189,
     @transient var storage: List<Object> = null,
@@ -91,13 +91,10 @@ automaton ArrayList: int (
 
     constructor ArrayList (initialCapacity: int)
     {
-        if (initialCapacity >= 0)
+        if (initialCapacity < 0)
         {
-            action LIST_RESIZE(storage, initialCapacity);
-        }
-        else
-        {
-            var message = "Illegal Capacity: " + action OBJECT_TO_STRING(initialCapacity);
+            var initCapacity = action OBJECT_TO_STRING(initialCapacity);
+            var message = "Illegal Capacity: " + initCapacity;
             action THROW_NEW("java.lang.NoSuchElementException", [message]);
         }
     }
@@ -111,15 +108,6 @@ automaton ArrayList: int (
 
     constructor ArrayList (c: Collection)
     {
-        //I suppose that "c" is another automaton and it has "toArray" sub (or with another sub name).
-        //That's why we can invoke this.
-        //action ARRAY_TO_LIST(c.toArray(), storage);
-        // #problem:
-        //In the next code of the original class can be such situation:  https://bugs.openjdk.java.net/browse/JDK-6260652
-        //(you can see at the original class); But as a understand, this bug can be reproduced only
-        //in jdk 1.5; We must think about this ? Or we don't have to do anything with it ?
-        //It wasn't reproduced in JDK  11.0.1
-
         action NOT_IMPLEMENTED();
     }
 
@@ -130,7 +118,9 @@ automaton ArrayList: int (
     {
         if (index < 0 || index >= length)
         {
-            var message = "Index "+ action OBJECT_TO_STRING(index) + " out of bounds for length "+ action OBJECT_TO_STRING(length);
+            var idx = action OBJECT_TO_STRING(index);
+            var len = action OBJECT_TO_STRING(length);
+            var message = "Index "+ idx + " out of bounds for length "+ len;
             action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
         }
     }
@@ -140,7 +130,9 @@ automaton ArrayList: int (
     {
         if (index < 0 || index > length)
         {
-            var message = "Index: " + action OBJECT_TO_STRING(index) + ", Size: " + action OBJECT_TO_STRING(length);
+            var idx = action OBJECT_TO_STRING(index);
+            var len = action OBJECT_TO_STRING(length);
+            var message = "Index: " + idx + ", Size: " + len;
             action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
         }
     }
@@ -159,23 +151,29 @@ automaton ArrayList: int (
         length = length + c.size();
     }
 
-    proc _subListRangeCheck (int fromIndex, int toIndex, int size): void
+
+    // checks range [from, to) against [0, size)
+    proc _subListRangeCheck (fromIndex: int, toIndex: int, size: int): void
     {
         if (fromIndex < 0)
         {
-            var message: String = "fromIndex = " + action OBJECT_TO_STRING(fromIndex);
+            var from = action OBJECT_TO_STRING(fromIndex);
+            var message: String = "fromIndex = " + from;
             action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
         }
 
         if (toIndex > size)
         {
-            var message: String = "toIndex = " + action OBJECT_TO_STRING(toIndex);
+            var to = action OBJECT_TO_STRING(toIndex);
+            var message: String = "toIndex = " + to;
             action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
         }
 
         if (fromIndex > toIndex)
         {
-            var message: String = "fromIndex(" + action OBJECT_TO_STRING(fromIndex) + ") > toIndex(" + action OBJECT_TO_STRING(toIndex) + ")";
+            var from = action OBJECT_TO_STRING(fromIndex);
+            var to = action OBJECT_TO_STRING(toIndex);
+            var message: String = "fromIndex(" + from + ") > toIndex(" + to + ")";
             action THROW_NEW("java.lang.IllegalArgumentException", [message]);
         }
     }
@@ -221,14 +219,12 @@ automaton ArrayList: int (
     fun trimToSize (): void
     {
         modCount = modCount + 1;
-        //As we work with List we mustn't resize it... Or not ?
     }
 
 
     fun ensureCapacity (minCapacity: int): void
     {
         modCount = modCount + 1;
-        //As we work with List we mustn't resize it... Or not ?
     }
 
 
@@ -259,13 +255,13 @@ automaton ArrayList: int (
 
     fun lastIndexOf (o: Object): int
     {
-        result = action LIST_FIND(storage, o, 0, length, -1);
+        result = action LIST_FIND(storage, o, length-1, -1, -1);
     }
 
 
     fun clone (): Object
     {
-        storageCopy = action LIST_DUP(storage);
+        var storageCopy = action LIST_DUP(storage);
         result = new ArrayList(
             state=self.state, storage=storageCopy, length=self.length);
     }
@@ -337,9 +333,7 @@ automaton ArrayList: int (
 
     fun hashCode (): int
     {
-        // result = action OBJECT_HASH_CODE(self);
-        // #problem
-        action NOT_IMPLEMENTED();
+         result = action OBJECT_HASH_CODE(storage);
     }
 
 
@@ -382,40 +376,12 @@ automaton ArrayList: int (
 
     fun removeAll (c: Collection): boolean
     {
-        // #problem.
-        //I want to create such action:
-
-        //define action SUBTRACTING_SETS(
-        //        aListSubtracting: array<any>,
-        //        aListDeductible: array<any>
-        //    ): list<any>;
-
-        //But Collection isn't List.
-        //But it has method: toArray();
-        //Maybe we must have two arrays as params ?
-
-        //storage = action SUBTRACTING_SETS(storage, c);
-
         action NOT_IMPLEMENTED();
     }
 
 
     fun retainAll (c: Collection): boolean
     {
-        // #problem.
-        //I want to create such action:
-
-        //define action INTERSECTION(
-        //        aListSubtracting: array<any>,
-        //        aListDeductible: array<any>
-        //    ): list<any>;
-
-        //But Collection isn't List.
-        //But it has method: toArray();
-        //Maybe we must have two arrays as params ?
-
-        //storage = action INTERSECTION(storage, c);
-
         action NOT_IMPLEMENTED();
     }
 
@@ -495,8 +461,6 @@ automaton ArrayList: int (
     fun spliterator (): Spliterator
     {
         result = new ArrayListSpliterator(state=Initialized,
-            //This is right ? "parent=self"
-            parent=self,
             origin = 0,
             est=-1,
             expectedModCount=0);
@@ -538,12 +502,7 @@ automaton ArrayList: int (
 
 
 @packagePrivate
-@implements("java.util.Iterator")
-@WrapperMeta(
-    src="java.util.ArrayList$Itr",
-    //Maybe will be another name of the dst class
-    dst="ru.spbpu.libsl.overrides.collections.ArrayList_Itr",
-    forceMatchInterfaces=true)
+@implements(["java.util.Iterator"])
 automaton Itr: int (
     var cursor: int,
     var lastRet: int = -1,
@@ -551,6 +510,7 @@ automaton Itr: int (
 ) {
 
     initstate Initialized;
+    state Allocated;
 
     shift Allocated -> Initialized by [
         Itr()
@@ -595,6 +555,7 @@ automaton Itr: int (
 
         // #problem
         //I don't know what to do with ConcurrentModificationException(); ?
+        action NOT_IMPLEMENTED();
 
         cursor = i + 1;
         lastRet = i;
@@ -613,6 +574,7 @@ automaton Itr: int (
 
         // #problem
         //What i must to do with try-catch in this method ?
+        action NOT_IMPLEMENTED();
 
         self.parent._deleteElement(lastRet);
         cursor = lastRet;
@@ -632,12 +594,7 @@ automaton Itr: int (
 
 @packagePrivate
 @extends("java.util.ArrayList$Itr")
-@implements("java.util.Iterator")
-@WrapperMeta(
-    src="java.util.ArrayList$ListItr",
-    //Maybe will be another name of the dst class
-    dst="ru.spbpu.libsl.overrides.collections.ArrayList_ListItr",
-    forceMatchInterfaces=true)
+@implements(["java.util.ListIterator"])
 automaton ListItr: int (
     var cursor: int,
     var lastRet: int = -1,
@@ -645,6 +602,7 @@ automaton ListItr: int (
 ) {
 
     initstate Initialized;
+    state Allocated;
 
     shift Allocated -> Initialized by [
         ListItr(int)
@@ -671,8 +629,6 @@ automaton ListItr: int (
 
     constructor ListItr(index: int)
     {
-        // #problem
-        //How invoke super() ??
         cursor = index;
     }
 
@@ -716,6 +672,7 @@ automaton ListItr: int (
 
         // #problem
         //I don't know what to do with ConcurrentModificationException(); ?
+        action NOT_IMPLEMENTED();
 
         cursor = i + 1;
         lastRet = i;
@@ -735,6 +692,7 @@ automaton ListItr: int (
 
         // #problem
         //I don't know what to do with ConcurrentModificationException(); ?
+        action NOT_IMPLEMENTED();
 
         cursor = i;
         lastRet = i;
@@ -753,6 +711,7 @@ automaton ListItr: int (
 
         // #problem
         //What i must to do with try-catch in this method ?
+        action NOT_IMPLEMENTED();
 
         self.parent._deleteElement(lastRet);
         cursor = lastRet;
@@ -771,6 +730,7 @@ automaton ListItr: int (
 
         // #problem
         //What i must to do with try-catch in this method ?
+        action NOT_IMPLEMENTED();
 
         self.parent._setElement(lastRet, e);
     }
@@ -782,6 +742,7 @@ automaton ListItr: int (
 
         // #problem
         //What i must to do with try-catch in this method ?
+        action NOT_IMPLEMENTED();
 
         var i = cursor;
         self.parent._addElement(self.parent.length, e);
@@ -801,12 +762,7 @@ automaton ListItr: int (
 
 
 @final
-@implements("java.util.Spliterator")
-@WrapperMeta(
-    src="java.util.ArrayList$ArrayListSpliterator",
-    dst="org.utbot.engine.overrides.collections.ArrayList$UtArrayListSpliterator",
-    forceMatchInterfaces=true,
-)
+@implements(["java.util.Spliterator"])
 automaton ArrayListSpliterator: int(
     var index: int,
     var fence: int,
@@ -815,6 +771,7 @@ automaton ArrayListSpliterator: int(
 {
 
     initstate Initialized;
+    state Allocated;
 
     shift Allocated -> Initialized by [
         ArrayListSpliterator(int, int, int)
