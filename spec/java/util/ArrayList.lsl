@@ -344,7 +344,7 @@ automaton ArrayList: int (
                 val res1 = action OBJECT_EQUALS(storage, otherStorage);
                 val res2 = action OBJECT_EQUALS(length, otherLength);
 
-                result = res1 && res2 && res3;
+                result = res1 && res2;
 
                 other._checkForComodification(otherExpectedModCount);
                 _checkForComodification(expectedModCount);
