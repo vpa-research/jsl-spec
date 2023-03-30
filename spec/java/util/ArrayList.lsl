@@ -32,7 +32,7 @@ include java.util.stream.Stream;
     forceMatchInterfaces=false)
 automaton ArrayList: int (
     @private @static @final var serialVersionUID: long = 8683452581122892189,
-    @transient var storage: List<Object> = null,
+    var storage: List<Object> = null,
     var length: int = 0,
     @transient var modCount: int = 0
 ) {
@@ -95,7 +95,7 @@ automaton ArrayList: int (
         {
             var initCapacity = action OBJECT_TO_STRING(initialCapacity);
             var message = "Illegal Capacity: " + initCapacity;
-            action THROW_NEW("java.lang.NoSuchElementException", [message]);
+            action THROW_NEW("java.lang.IllegalArgumentException", [message]);
         }
     }
 
@@ -148,7 +148,8 @@ automaton ArrayList: int (
         //   storage.add(e);
         action NOT_IMPLEMENTED();
 
-        length = length + c.size();
+        //At this moment we can't work with Collection, because this is interface.
+        //length = length + c.size();
     }
 
 
@@ -333,9 +334,9 @@ automaton ArrayList: int (
             val isSameType = action OBJECT_SAME_TYPE(self, other);
             if (isSameType)
             {
-                // #problem
-                //We don't know at this moment how create this method, because it has cycle.
-                action NOT_IMPLEMENTED();
+                var expectedModCount = modCount;
+                result = action OBJECT_EQUALS(self, other);
+                _checkForComodification(expectedModCount);
             }
             else
             {
@@ -584,7 +585,7 @@ automaton ListItr: int (
 
     constructor ListItr(index: int)
     {
-        cursor = index;
+        action ERROR("Dangerous behavior, IDK");
     }
 
 
@@ -749,9 +750,7 @@ automaton ArrayListSpliterator: int(
 
     constructor ArrayListSpliterator (origin: int, fence: int, expectedModCount: int)
     {
-        self.index = origin;
-        self.fence = fence;
-        self.expectedModCount = expectedModCount;
+        action ERROR("Dangerous behavior, IDK");
     }
 
 

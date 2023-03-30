@@ -10,6 +10,9 @@ define action LIST_COPY(
         to: int
     ): list<any>;
 
+// Copies contents of the list into the provided array. Allows auto-resizing.
+// Example behavior from Java: String[] x = arrList.toArray(new String[0]);
+
 define action LIST_TO_ARRAY(
         srcList: list<any>,
         destArray: array<any>,
