@@ -335,17 +335,18 @@ automaton ArrayList: int (
             if (isSameType)
             {
                 var expectedModCount = modCount;
+                val otherExpectedModCount = ArrayList(other).modCount;
 
                 val otherStorage = ArrayList(other).storage;
                 val otherLength = ArrayList(other).length;
-                val otherModCount = ArrayList(other).modCount;
 
-                res1 = action OBJECT_EQUALS(storage, otherStorage);
-                res2 = action OBJECT_EQUALS(length, otherLength);
-                res3 = action OBJECT_EQUALS(modCount, otherModCount);
+
+                val res1 = action OBJECT_EQUALS(storage, otherStorage);
+                val res2 = action OBJECT_EQUALS(length, otherLength);
 
                 result = res1 && res2 && res3;
 
+                other._checkForComodification(otherExpectedModCount);
                 _checkForComodification(expectedModCount);
             }
             else
