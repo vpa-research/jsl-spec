@@ -96,6 +96,10 @@ annotation synchronized ();
 
 annotation varargs ();
 
+annotation volatile ();
+
+annotation strict ();
+
 
 
 // === CONSTANTS ===
