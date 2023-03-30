@@ -1,6 +1,9 @@
 libsl "1.1.0";
 
-library "std:collections" language "Java" version "11" url "-";
+library "std:collections"
+    version "11"
+    language "Java"
+    url "-";
 
 // imports
 
