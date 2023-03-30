@@ -335,7 +335,17 @@ automaton ArrayList: int (
             if (isSameType)
             {
                 var expectedModCount = modCount;
-                result = action OBJECT_EQUALS(self, other);
+
+                val otherStorage = ArrayList(other).storage;
+                val otherLength = ArrayList(other).length;
+                val otherModCount = ArrayList(other).modCount;
+
+                res1 = action OBJECT_EQUALS(storage, otherStorage);
+                res2 = action OBJECT_EQUALS(length, otherLength);
+                res3 = action OBJECT_EQUALS(modCount, otherModCount);
+
+                result = res1 && res2 && res3;
+
                 _checkForComodification(expectedModCount);
             }
             else
@@ -491,24 +501,29 @@ automaton ArrayList: int (
         }
 
         var expectedModCount = modCount;
-        var res = action CALL(filter, [storage]);
-        if (res == null)
-        {
-            result = false;
-            if (modCount != expectedModCount)
-            {
-                action THROW_NEW("java.util.ConcurrentModificationException", []);
-            }
-        }
-        else
-        {
-            result = true;
-            if (modCount != expectedModCount)
-            {
-                action THROW_NEW("java.util.ConcurrentModificationException", []);
-            }
-            modCount = modCount + 1;
-        }
+
+        // #problem
+        // Action CALL can't work with cycles.
+        action NOT_IMPLEMENTED();
+
+        //var res = action CALL(filter, [storage]);
+        // if (res == null)
+        // {
+        //     result = false;
+        //     if (modCount != expectedModCount)
+        //     {
+        //         action THROW_NEW("java.util.ConcurrentModificationException", []);
+        //     }
+        // }
+        // else
+        // {
+        //     result = true;
+        //     if (modCount != expectedModCount)
+        //     {
+        //         action THROW_NEW("java.util.ConcurrentModificationException", []);
+        //     }
+        //     modCount = modCount + 1;
+        // }
     }
 
 
@@ -520,7 +535,12 @@ automaton ArrayList: int (
         }
 
         var expectedModCount = modCount;
-        action CALL(operator, [storage]);
+
+        // #problem
+        // Action CALL can't work with cycles.
+        // action CALL(operator, [storage]);
+
+        action NOT_IMPLEMENTED();
 
         if (modCount != expectedModCount)
         {
