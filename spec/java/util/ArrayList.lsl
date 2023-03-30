@@ -340,11 +340,14 @@ automaton ArrayList: int (
                 val otherStorage = ArrayList(other).storage;
                 val otherLength = ArrayList(other).length;
 
-
-                val res1 = action OBJECT_EQUALS(storage, otherStorage);
-                val res2 = action OBJECT_EQUALS(length, otherLength);
-
-                result = res1 && res2;
+                if (length == otherLength)
+                {
+                    result = action OBJECT_EQUALS(storage, otherStorage);
+                }
+                else
+                {
+                    result = false;
+                }
 
                 other._checkForComodification(otherExpectedModCount);
                 _checkForComodification(expectedModCount);
