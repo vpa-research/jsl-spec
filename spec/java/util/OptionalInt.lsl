@@ -1,6 +1,9 @@
 libsl "1.1.0";
 
-library "std:collections" language "Java" version "11" url "-";
+library "std:collections"
+    version "11"
+    language "Java"
+    url "-";
 
 // imports
 
@@ -12,6 +15,9 @@ import "java/util/interfaces.lsl";
 import "java/util/function/interfaces.lsl";
 import "java/util/stream/interfaces.lsl";
 
+// local semantic types
+
+
 
 // automata
 
@@ -19,12 +25,14 @@ import "java/util/stream/interfaces.lsl";
     src="java.util.OptionalInt",
     dst="ru.spbpu.libsl.overrides.collections.OptionalInt",
 )
-@public @final automaton OptionalInt: int
+@public automaton OptionalInt: int
 (
     var value: int = 0;
     var present: boolean = false;
 )
 {
+    // states and shifts
+
     initstate Allocated;
     state Initialized;
 
@@ -63,27 +71,15 @@ import "java/util/stream/interfaces.lsl";
 
     // constructors
 
-    constructor OptionalInt ()
+    @private constructor OptionalInt ()
     {
-        assigns self.value;
-        assigns self.present;
-        ensures self.value == 0;
-        ensures self.present == false;
-
-        value = 0;
-        present = false;
+        action ERROR("Private constructor call");
     }
 
 
-    constructor OptionalInt (obj: int)
+    @private constructor OptionalInt (obj: int)
     {
-        assigns self.value;
-        assigns self.present;
-        ensures self.value == obj;
-        ensures self.present == true;
-
-        value = obj;
-        present = true;
+        action ERROR("Private constructor call");
     }
 
 
@@ -104,17 +100,42 @@ import "java/util/stream/interfaces.lsl";
     }
 
 
-    // methods
+    // static methods
 
-    @static fun empty (): OptionalInt  // #problem
+    @static fun empty (): OptionalInt
     {
         result = _makeEmpty();
     }
 
 
-    @static fun of (obj: int): OptionalInt
+    @static fun of (x: int): OptionalInt
     {
-        result = new OptionalInt(state=Initialized, value=obj, present=true);
+        result = new OptionalInt(state=Initialized, value=x, present=true);
+    }
+
+
+    // methods
+
+    fun equals (other: Object): boolean
+    {
+        if (other == self)
+        {
+            result = true;
+        }
+        else
+        {
+            val isSameType = action OBJECT_SAME_TYPE(self, other);
+            if (isSameType)
+            {
+                val otherValue = OptionalInt(other).value;
+                val otherPresent = OptionalInt(other).present;
+                result = self.value == otherValue && self.present == otherPresent;
+            }
+            else
+            {
+                result = false;
+            }
+        }
     }
 
 
@@ -127,15 +148,9 @@ import "java/util/stream/interfaces.lsl";
     }
 
 
-    fun isPresent (): boolean
+    fun hashCode (): int
     {
-        result = present == true;
-    }
-
-
-    fun isEmpty (): boolean
-    {
-        result = present == false;
+        result = action OBJECT_HASH_CODE(value);
     }
 
 
@@ -175,38 +190,15 @@ import "java/util/stream/interfaces.lsl";
     }
 
 
-    fun or (@Generic("? extends OptionalInt") supplier: Supplier): OptionalInt
+    fun isEmpty (): boolean
     {
-        required supplier != null;
-
-        if (supplier == null)
-            self._throwNPE();
-
-        if (present)
-        {
-            result = self;
-        }
-        else
-        {
-            result = action CALL(supplier, []);
-
-            if (result == null)
-                self._throwNPE();
-        }
+        result = present == false;
     }
 
 
-    @GenericResult("T")
-    fun stream (): IntStream
+    fun isPresent (): boolean
     {
-        action NOT_IMPLEMENTED();
-
-        /*
-        if (present)
-            result = IntStream.of(value); // #problem
-        else
-            result = IntStream.empty(); // #problem
-        */
+        result = present == true;
     }
 
 
@@ -243,7 +235,7 @@ import "java/util/stream/interfaces.lsl";
 
 
     @Generic("X extends Throwable")
-    @throws("X", generic=true)
+    @throws(["X"], generic=true)
     fun orElseThrow(@Generic("? extends X") exceptionSupplier: Supplier): T
     {
         required exceptionSupplier != null;
@@ -263,7 +255,20 @@ import "java/util/stream/interfaces.lsl";
     }
 
 
-    fun toString (): string
+    fun stream (): IntStream
+    {
+        action NOT_IMPLEMENTED();
+
+        /*
+        if (present)
+            result = IntStream.of(value); // #problem
+        else
+            result = IntStream.empty(); // #problem
+        */
+    }
+
+
+    fun toString (): String
     {
         if (present)
         {
@@ -276,34 +281,4 @@ import "java/util/stream/interfaces.lsl";
         }
     }
 
-
-    fun hashCode (): int
-    {
-        result = action OBJECT_HASH_CODE(value);
-    }
-
-
-    fun equals (other: Object): boolean
-    {
-        if (other == self)
-        {
-            result = true;
-        }
-        else
-        {
-            val isSameType = action OBJECT_SAME_TYPE(self, other);
-            if (isSameType)
-            {
-                // #problem
-                val otherValue = OptionalInt(other).value;
-                result = self.value == otherValue;
-            }
-            else
-            {
-                result = false;
-            }
-        }
-    }
-
 }
-
