@@ -37,7 +37,7 @@ import "java/util/stream/_interfaces.lsl";
     shift Allocated -> Initialized by [
         // constructors
         OptionalDouble (),
-        OptionalDouble (int),
+        OptionalDouble (double),
 
         // static methods
         empty,
@@ -127,6 +127,7 @@ import "java/util/stream/_interfaces.lsl";
             {
                 val otherValue = OptionalDouble(other).value;
                 val otherPresent = OptionalDouble(other).present;
+                // #problem
                 result = self.value == otherValue && self.present == otherPresent;
             }
             else
@@ -234,7 +235,7 @@ import "java/util/stream/_interfaces.lsl";
 
     @Generic("X extends Throwable")
     @throws(["X"], generic=true)
-    fun orElseThrow(@Generic("? extends X") exceptionSupplier: Supplier): double
+    fun orElseThrow (@Generic("? extends X") exceptionSupplier: Supplier): double
     {
         required exceptionSupplier != null;
 

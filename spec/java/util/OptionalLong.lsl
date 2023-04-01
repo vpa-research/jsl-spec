@@ -37,7 +37,7 @@ import "java/util/stream/_interfaces.lsl";
     shift Allocated -> Initialized by [
         // constructors
         OptionalLong (),
-        OptionalLong (int),
+        OptionalLong (long),
 
         // static methods
         empty,
