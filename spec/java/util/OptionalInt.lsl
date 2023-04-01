@@ -7,13 +7,11 @@ library "std:collections"
 
 // imports
 
-import "list-actions.lsl";
-
 import "java-common.lsl";
-import "java/lang/interfaces.lsl";
-import "java/util/interfaces.lsl";
-import "java/util/function/interfaces.lsl";
-import "java/util/stream/interfaces.lsl";
+import "java/lang/_interfaces.lsl";
+import "java/util/function/_interfaces.lsl";
+import "java/util/stream/_interfaces.lsl";
+
 
 // local semantic types
 
@@ -77,7 +75,7 @@ import "java/util/stream/interfaces.lsl";
     }
 
 
-    @private constructor OptionalInt (obj: int)
+    @private constructor OptionalInt (x: int)
     {
         action ERROR("Private constructor call");
     }

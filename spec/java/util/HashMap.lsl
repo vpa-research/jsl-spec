@@ -7,8 +7,8 @@ library "std:collections" language "Java" version "11" url "-";
 import "list-actions.lsl";
 
 import "java-common.lsl";
-import "java/util/interfaces.lsl";
-import "java/util/function/interfaces.lsl";
+import "java/util/_interfaces.lsl";
+import "java/util/function/_interfaces.lsl";
 
 
 @TypeMapping("java.util.ObjectInputStream")
