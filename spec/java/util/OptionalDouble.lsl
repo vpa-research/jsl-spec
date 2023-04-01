@@ -20,12 +20,12 @@ import "java/util/stream/_interfaces.lsl";
 // automata
 
 @WrapperMeta(
-    src="java.util.OptionalInt",
-    dst="ru.spbpu.libsl.overrides.collections.OptionalInt",
+    src="java.util.OptionalDouble",
+    dst="ru.spbpu.libsl.overrides.collections.OptionalDouble",
 )
-@public automaton OptionalInt: int
+@public automaton OptionalDouble: double
 (
-    var value: int = 0;
+    var value: double = 0;
     var present: boolean = false;
 )
 {
@@ -36,8 +36,8 @@ import "java/util/stream/_interfaces.lsl";
 
     shift Allocated -> Initialized by [
         // constructors
-        OptionalInt (),
-        OptionalInt (int),
+        OptionalDouble (),
+        OptionalDouble (int),
 
         // static methods
         empty,
@@ -47,7 +47,7 @@ import "java/util/stream/_interfaces.lsl";
 
     shift Initialized -> self by [
         // read operations
-        getAsInt,
+        getAsDouble,
         isPresent,
         isEmpty,
         ifPresent,
@@ -69,13 +69,13 @@ import "java/util/stream/_interfaces.lsl";
 
     // constructors
 
-    @private constructor OptionalInt ()
+    @private constructor OptionalDouble ()
     {
         action ERROR("Private constructor call");
     }
 
 
-    @private constructor OptionalInt (x: int)
+    @private constructor OptionalDouble (x: double)
     {
         action ERROR("Private constructor call");
     }
@@ -84,10 +84,10 @@ import "java/util/stream/_interfaces.lsl";
     // utilities
 
     @CacheStaticOnce
-    @static proc _makeEmpty (): OptionalInt
+    @static proc _makeEmpty (): OptionalDouble
     {
         // #problem
-        result = new OptionalInt(state=Initialized);
+        result = new OptionalDouble(state=Initialized);
     }
 
 
@@ -100,15 +100,15 @@ import "java/util/stream/_interfaces.lsl";
 
     // static methods
 
-    @static fun empty (): OptionalInt
+    @static fun empty (): OptionalDouble
     {
         result = _makeEmpty();
     }
 
 
-    @static fun of (x: int): OptionalInt
+    @static fun of (x: double): OptionalDouble
     {
-        result = new OptionalInt(state=Initialized, value=x, present=true);
+        result = new OptionalDouble(state=Initialized, value=x, present=true);
     }
 
 
@@ -125,8 +125,8 @@ import "java/util/stream/_interfaces.lsl";
             val isSameType = action OBJECT_SAME_TYPE(self, other);
             if (isSameType)
             {
-                val otherValue = OptionalInt(other).value;
-                val otherPresent = OptionalInt(other).present;
+                val otherValue = OptionalDouble(other).value;
+                val otherPresent = OptionalDouble(other).present;
                 result = self.value == otherValue && self.present == otherPresent;
             }
             else
@@ -137,7 +137,7 @@ import "java/util/stream/_interfaces.lsl";
     }
 
 
-    fun getAsInt (): int
+    fun getAsDouble (): double
     {
         if (!present)
             action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
@@ -152,7 +152,7 @@ import "java/util/stream/_interfaces.lsl";
     }
 
 
-    fun ifPresent (consumer: IntConsumer): void
+    fun ifPresent (consumer: DoubleConsumer): void
     {
         required !present || (present && consumer != null);
 
@@ -166,7 +166,7 @@ import "java/util/stream/_interfaces.lsl";
     }
 
 
-    fun ifPresentOrElse (consumer: IntConsumer, emptyAction: Runnable): void
+    fun ifPresentOrElse (consumer: DoubleConsumer, emptyAction: Runnable): void
     {
         required !present || (present  && consumer != null);
         required present  || (!present && emptyAction != null);
@@ -200,7 +200,7 @@ import "java/util/stream/_interfaces.lsl";
     }
 
 
-    fun orElse (other: int): int
+    fun orElse (other: double): double
     {
         if (present)
             result = value;
@@ -209,7 +209,7 @@ import "java/util/stream/_interfaces.lsl";
     }
 
 
-    fun orElseGet (supplier: IntSupplier): int
+    fun orElseGet (supplier: DoubleSupplier): double
     {
         required supplier != null;
 
@@ -223,7 +223,7 @@ import "java/util/stream/_interfaces.lsl";
     }
 
 
-    fun orElseThrow (): int
+    fun orElseThrow (): double
     {
         if (!present)
             action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
@@ -234,7 +234,7 @@ import "java/util/stream/_interfaces.lsl";
 
     @Generic("X extends Throwable")
     @throws(["X"], generic=true)
-    fun orElseThrow(@Generic("? extends X") exceptionSupplier: Supplier): int
+    fun orElseThrow(@Generic("? extends X") exceptionSupplier: Supplier): double
     {
         required exceptionSupplier != null;
 
@@ -253,15 +253,15 @@ import "java/util/stream/_interfaces.lsl";
     }
 
 
-    fun stream (): IntStream
+    fun stream (): DoubleStream
     {
         action NOT_IMPLEMENTED();
 
         /*
         if (present)
-            result = IntStream.of(value); // #problem
+            result = DoubleStream.of(value); // #problem
         else
-            result = IntStream.empty(); // #problem
+            result = DoubleStream.empty(); // #problem
         */
     }
 
