@@ -1,0 +1,7 @@
+{
+    "editor.tabSize": 4,
+    "files.trimTrailingWhitespace": true,
+    "files.associations": {
+        "*.lsl": "dart"
+    }
+}
