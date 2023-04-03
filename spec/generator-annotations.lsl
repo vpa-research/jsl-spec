@@ -7,6 +7,10 @@ libsl "1.1.0";
 // Something like: `private Set __cached_keySet = null;`
 annotation CacheOnce ();
 
+// Stores the result of a function computation as a private static field inside of the generated class.
+// Something like: `private static Set __cached_keySet = null;`
+annotation CacheStaticOnce ();
+
 // The marked feature is no longer needed or required.
 annotation Deprecated (
     hint: string = "";
