@@ -42,7 +42,6 @@ import "java/util/stream/_interfaces.lsl";
         // static methods
         empty,
         of,
-        ofNullable,
     ];
 
     shift Initialized -> self by [
@@ -52,10 +51,6 @@ import "java/util/stream/_interfaces.lsl";
         isEmpty,
         ifPresent,
         ifPresentOrElse,
-        filter,
-        map,
-        flatMap,
-        or,
         stream,
         orElse,
         orElseGet,

@@ -23,7 +23,7 @@ import "java/util/stream/_interfaces.lsl";
     src="java.util.OptionalInt",
     dst="ru.spbpu.libsl.overrides.collections.OptionalInt",
 )
-@public automaton OptionalInt: int
+@public @final automaton OptionalInt: int
 (
     var value: int = 0;
     var present: boolean = false;
@@ -42,7 +42,6 @@ import "java/util/stream/_interfaces.lsl";
         // static methods
         empty,
         of,
-        ofNullable,
     ];
 
     shift Initialized -> self by [
@@ -52,10 +51,6 @@ import "java/util/stream/_interfaces.lsl";
         isEmpty,
         ifPresent,
         ifPresentOrElse,
-        filter,
-        map,
-        flatMap,
-        or,
         stream,
         orElse,
         orElseGet,
