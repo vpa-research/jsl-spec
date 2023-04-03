@@ -144,7 +144,10 @@ import "java/util/stream/_interfaces.lsl";
 
     fun hashCode (): int
     {
-        result = action OBJECT_HASH_CODE(value);
+        if (present)
+            result = action OBJECT_HASH_CODE(value);
+        else
+            result = 0;
     }
 
 
