@@ -73,23 +73,25 @@ import "java/util/stream/_interfaces.lsl";
 
     @private constructor Optional ()
     {
-        assigns self.value;
+        action ERROR("Private constructor call");
+        /*assigns self.value;
         ensures self.value == null;
 
-        value = null;
+        value = null;*/
     }
 
 
     @private constructor Optional (obj: T)
     {
-        required obj != null;
+        action ERROR("Private constructor call");
+        /*required obj != null;
         assigns self.value;
         ensures self.value == obj;
 
         if (obj == null)
             self._throwNPE();
 
-        value = obj;
+        value = obj;*/
     }
 
 
@@ -158,8 +160,7 @@ import "java/util/stream/_interfaces.lsl";
             val isSameType = action OBJECT_SAME_TYPE(self, other);
             if (isSameType)
             {
-                // #problem
-                val otherValue = Optional(other).value;
+                val otherValue = Optional(other).value;  // #problem
                 result = self.value == otherValue;
             }
             else
@@ -353,6 +354,8 @@ import "java/util/stream/_interfaces.lsl";
 
     fun orElseThrow (): T
     {
+        required value != null;
+
         if (value == null)
             action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
 
@@ -360,7 +363,7 @@ import "java/util/stream/_interfaces.lsl";
     }
 
 
-    @Generic("X extends Throwable")
+    @Generic("X extends java.lang.Throwable")
     @throws(["X"], generic=true)
     fun orElseThrow (@Generic("? extends X") exceptionSupplier: Supplier): T
     {

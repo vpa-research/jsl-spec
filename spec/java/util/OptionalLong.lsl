@@ -23,7 +23,7 @@ import "java/util/stream/_interfaces.lsl";
     src="java.util.OptionalLong",
     dst="ru.spbpu.libsl.overrides.collections.OptionalLong",
 )
-@public @final automaton OptionalLong: long
+@public @final automaton OptionalLong: int
 (
     var value: long = 0;
     var present: boolean = false;
@@ -122,7 +122,11 @@ import "java/util/stream/_interfaces.lsl";
             {
                 val otherValue = OptionalLong(other).value;
                 val otherPresent = OptionalLong(other).present;
-                result = self.value == otherValue && self.present == otherPresent;
+
+                if (self.present && otherPresent)
+                    result = self.value == otherValue;
+                else
+                    result = self.present == otherPresent;
             }
             else
             {
@@ -223,6 +227,8 @@ import "java/util/stream/_interfaces.lsl";
 
     fun orElseThrow (): long
     {
+        required present;
+
         if (!present)
             action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
 
@@ -230,7 +236,7 @@ import "java/util/stream/_interfaces.lsl";
     }
 
 
-    @Generic("X extends Throwable")
+    @Generic("X extends java.lang.Throwable")
     @throws(["X"], generic=true)
     fun orElseThrow(@Generic("? extends X") exceptionSupplier: Supplier): long
     {
@@ -269,11 +275,11 @@ import "java/util/stream/_interfaces.lsl";
         if (present)
         {
             val valueStr = action OBJECT_TO_STRING(value);
-            result = "Optional[" + valueStr + "]";
+            result = "OptionalLong[" + valueStr + "]";
         }
         else
         {
-            result = "Optional.empty";
+            result = "OptionalLong.empty";
         }
     }
 

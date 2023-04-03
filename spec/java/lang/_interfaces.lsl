@@ -8,6 +8,9 @@ import "java-common.lsl";
 @TypeMapping("java.lang.Runnable")
 typealias Runnable = Object;    // #problem
 
+@TypeMapping("java.lang.Throwable")
+typealias Throwable = Object;    // #problem
+
 
 // built-in types / boxing
 

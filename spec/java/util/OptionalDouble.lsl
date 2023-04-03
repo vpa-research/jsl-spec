@@ -23,7 +23,7 @@ import "java/util/stream/_interfaces.lsl";
     src="java.util.OptionalDouble",
     dst="ru.spbpu.libsl.overrides.collections.OptionalDouble",
 )
-@public @final automaton OptionalDouble: double
+@public @final automaton OptionalDouble: int
 (
     var value: double = 0;
     var present: boolean = false;
@@ -122,8 +122,11 @@ import "java/util/stream/_interfaces.lsl";
             {
                 val otherValue = OptionalDouble(other).value;
                 val otherPresent = OptionalDouble(other).present;
-                // #problem
-                result = self.value == otherValue && self.present == otherPresent;
+
+                if (self.present && otherPresent)
+                    result = self.value == otherValue;  // #problem
+                else
+                    result = self.present == otherPresent;
             }
             else
             {
@@ -224,6 +227,8 @@ import "java/util/stream/_interfaces.lsl";
 
     fun orElseThrow (): double
     {
+        required present;
+
         if (!present)
             action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
 
@@ -231,7 +236,7 @@ import "java/util/stream/_interfaces.lsl";
     }
 
 
-    @Generic("X extends Throwable")
+    @Generic("X extends java.lang.Throwable")
     @throws(["X"], generic=true)
     fun orElseThrow (@Generic("? extends X") exceptionSupplier: Supplier): double
     {
@@ -270,11 +275,11 @@ import "java/util/stream/_interfaces.lsl";
         if (present)
         {
             val valueStr = action OBJECT_TO_STRING(value);
-            result = "Optional[" + valueStr + "]";
+            result = "OptionalDouble[" + valueStr + "]";
         }
         else
         {
-            result = "Optional.empty";
+            result = "OptionalDouble.empty";
         }
     }
 
