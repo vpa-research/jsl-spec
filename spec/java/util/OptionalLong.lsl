@@ -23,7 +23,7 @@ import "java/util/stream/_interfaces.lsl";
     src="java.util.OptionalLong",
     dst="ru.spbpu.libsl.overrides.collections.OptionalLong",
 )
-@public automaton OptionalLong: long
+@public @final automaton OptionalLong: long
 (
     var value: long = 0;
     var present: boolean = false;

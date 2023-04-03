@@ -23,7 +23,7 @@ import "java/util/stream/_interfaces.lsl";
     src="java.util.OptionalDouble",
     dst="ru.spbpu.libsl.overrides.collections.OptionalDouble",
 )
-@public automaton OptionalDouble: double
+@public @final automaton OptionalDouble: double
 (
     var value: double = 0;
     var present: boolean = false;

@@ -71,7 +71,7 @@ import "java/util/stream/_interfaces.lsl";
 
     // constructors
 
-    constructor Optional ()
+    @private constructor Optional ()
     {
         assigns self.value;
         ensures self.value == null;
@@ -80,7 +80,7 @@ import "java/util/stream/_interfaces.lsl";
     }
 
 
-    constructor Optional (obj: T)
+    @private constructor Optional (obj: T)
     {
         required obj != null;
         assigns self.value;
@@ -125,6 +125,8 @@ import "java/util/stream/_interfaces.lsl";
     @GenericResult("T")
     @static fun of (obj: T): Optional
     {
+        required obj != null;
+
         if (obj == null)
             self._throwNPE();
 
