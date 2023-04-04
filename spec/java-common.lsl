@@ -89,11 +89,16 @@ annotation implements (
 
 annotation throws (
     exceptionTypes: array<string> = [];
+    generic: bool = false;
 );
 
 annotation synchronized ();
 
 annotation varargs ();
+
+annotation volatile ();
+
+annotation strict ();
 
 
 

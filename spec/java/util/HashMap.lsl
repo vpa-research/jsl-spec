@@ -7,8 +7,8 @@ library "std:collections" language "Java" version "11" url "-";
 import "list-actions.lsl";
 
 import "java-common.lsl";
-import "java/util/interfaces.lsl"
-import "java/util/function/interfaces.lsl"
+import "java/util/_interfaces.lsl";
+import "java/util/function/_interfaces.lsl";
 
 
 @TypeMapping("java.util.ObjectInputStream")
@@ -31,7 +31,7 @@ automaton HashMap: int
     @transient var length: int = 0;
     @transient var modCounter: int = 0;
 
-    @private @static @final serialVersionUID: long = 362498820763181265;
+    @private @static @final var serialVersionUID: long = 362498820763181265;
 )
 {
     initstate Allocated;

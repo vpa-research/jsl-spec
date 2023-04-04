@@ -4,8 +4,12 @@ libsl "1.1.0";
 /// generator-specific aspects
 
 // Stores the result of a function computation as a private field inside of the generated class.
-// Something like: `private Set fun_keySet_cached = null;`
+// Something like: `private Set __cached_keySet = null;`
 annotation CacheOnce ();
+
+// Stores the result of a function computation as a private static field inside of the generated class.
+// Something like: `private static Set __cached_keySet = null;`
+annotation CacheStaticOnce ();
 
 // The marked feature is no longer needed or required.
 annotation Deprecated (
@@ -27,6 +31,7 @@ annotation StopsControlFlow ();
 annotation TypeMapping (
     fullClassName: string = null;
     builtin: bool = false;
+    typeVariable: bool = false; // #problem
 );
 
 // General meta-data for a wrapper class generated from this automaton.
@@ -38,3 +43,13 @@ annotation WrapperMeta (
 
 // Forces the body of a specified subroutine to be copy-pasted at the callsite.
 annotation AutoInline ();
+
+// #problem
+annotation Generic (
+    typeParameters: string;
+);
+
+// #problem
+annotation GenericResult (
+    typeParameters: string;
+)
