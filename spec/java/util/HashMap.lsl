@@ -24,7 +24,7 @@ typealias ObjectInputStream = Object;  // #problem
     dst="ru.spbpu.libsl.overrides.collections.HashMap",
     forceMatchInterfaces=true,
 )
-automaton HashMap: int
+automaton HashMap // : int
 (
     var keys: list<Object> = null;
     var values: list<Object> = null;
@@ -32,18 +32,18 @@ automaton HashMap: int
     @transient var modCounter: int = 0;
 
     @private @static @final var serialVersionUID: long = 362498820763181265;
-)
+): int
 {
     initstate Allocated;
     state Initialized;
 
     // constructors
-    shift Allocated -> Initialized by [
+    shift Allocated -> Initialized by (
         HashMap(),
         HashMap(int),
         HashMap(int, float),
         HashMap(Map)
-    ];
+    );
 
     shift Initialized -> self by [
         // read operations
@@ -121,7 +121,7 @@ automaton HashMap: int
         assigns self.values;
         ensures self.length' >= self.length;
 
-        val idx = action LIST_FIND(keys, key, 0, length, +1);
+        val idx: int = action LIST_FIND(keys, key, 0, length, +1);
         if (idx >= 0)
         {
             result = action LIST_GET(values, idx);
@@ -289,7 +289,7 @@ automaton HashMap: int
         if (otherSize > 0)
         {
             // #problem
-            //for e in other.entrySet():
+            // for e in other.entrySet():
             //   m.put(e.getKey(), e.getValue());
             action NOT_IMPLEMENTED();
         }
@@ -560,8 +560,8 @@ automaton HashMap: int
 
     fun clone (): Object
     {
-        val cKeys   = action LIST_COPY(keys, 0, length);
-        val cValues = action LIST_COPY(values, 0, length);
+        val cKeys: list<Object>   = action LIST_COPY(keys, 0, length);
+        val cValues: list<Object> = action LIST_COPY(values, 0, length);
 
         result = new HashMap(
             state=self.state, keys=cKeys, values=cValues, length=self.length);

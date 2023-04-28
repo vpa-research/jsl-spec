@@ -1,16 +1,16 @@
 libsl "1.1.0";
 
-library "std:collections"
+library `std:collections`
     version "11"
     language "Java"
     url "-";
 
 // imports
 
-import "java-common.lsl";
-import "java/lang/_interfaces.lsl";
-import "java/util/function/_interfaces.lsl";
-import "java/util/stream/_interfaces.lsl";
+// import java-common;
+// import java/lang/_interfaces;
+// import java/util/function/_interfaces;
+// import java/util/stream/_interfaces;
 
 
 // local semantic types
@@ -19,16 +19,13 @@ import "java/util/stream/_interfaces.lsl";
 
 // automata
 
-@WrapperMeta(
-    src="java.util.OptionalDouble",
-    dst="ru.spbpu.libsl.overrides.collections.OptionalDouble",
-)
+// @WrapperMeta(src="java.util.OptionalDouble", dst="ru.spbpu.libsl.overrides.collections.OptionalDouble")
 @public @final automaton OptionalDouble: int
-(
+{ // (
     var value: double = 0;
     var present: boolean = false;
-)
-{
+// )
+// {
     // states and shifts
 
     initstate Allocated;
@@ -111,22 +108,22 @@ import "java/util/stream/_interfaces.lsl";
 
     fun equals (other: Object): boolean
     {
-        if (other == self)
+        if (other == this)
         {
             result = true;
         }
         else
         {
-            val isSameType = action OBJECT_SAME_TYPE(self, other);
-            if (isSameType)
+            val isSameType: boolean = action OBJECT_SAME_TYPE(this, other);
+            if (isSameType == true)
             {
-                val otherValue = OptionalDouble(other).value;
-                val otherPresent = OptionalDouble(other).present;
+                val otherValue: double = OptionalDouble(other).value;
+                val otherPresent: boolean = OptionalDouble(other).present;
 
-                if (self.present && otherPresent)
-                    result = self.value == otherValue;  // #problem
+                if (this.present == true && otherPresent == true)
+                    {result = this.value == otherValue;}  // #problem
                 else
-                    result = self.present == otherPresent;
+                    {result = this.present == otherPresent;}
             }
             else
             {
@@ -138,52 +135,52 @@ import "java/util/stream/_interfaces.lsl";
 
     fun getAsDouble (): double
     {
-        if (!present)
-            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
+        if (this.present == false)
+            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
 
-        result = value;
+        result = this.value;
     }
 
 
     fun hashCode (): int
     {
-        if (present)
-            result = action OBJECT_HASH_CODE(value);
+        if (this.present == true)
+            {result = action OBJECT_HASH_CODE(this.value);}
         else
-            result = 0;
+            {result = 0;}
     }
 
 
     fun ifPresent (consumer: DoubleConsumer): void
     {
-        required !present || (present && consumer != null);
+        requires !this.present || (this.present && consumer != null);
 
-        if (present)
+        if (this.present == true)
         {
             if (consumer == null)
-                self._throwNPE();
+                {_throwNPE();}
 
-            action CALL(consumer, [value]);
+            action CALL(consumer, [this.value]);
         }
     }
 
 
     fun ifPresentOrElse (consumer: DoubleConsumer, emptyAction: Runnable): void
     {
-        required !present || (present  && consumer != null);
-        required present  || (!present && emptyAction != null);
+        requires !this.present || (this.present  && consumer != null);
+        requires this.present  || (!this.present && emptyAction != null);
 
-        if (present)
+        if (this.present == true)
         {
             if (consumer == null)
-                self._throwNPE();
+                {_throwNPE();}
 
-            action CALL(consumer, [value]);
+            action CALL(consumer, [this.value]);
         }
         else
         {
             if (emptyAction == null)
-                self._throwNPE();
+                {_throwNPE();}
 
             action CALL(emptyAction, []);
         }
@@ -192,67 +189,67 @@ import "java/util/stream/_interfaces.lsl";
 
     fun isEmpty (): boolean
     {
-        result = present == false;
+        result = this.present == false;
     }
 
 
     fun isPresent (): boolean
     {
-        result = present == true;
+        result = this.present == true;
     }
 
 
     fun orElse (other: double): double
     {
-        if (present)
-            result = value;
+        if (this.present == true)
+            {result = this.value;}
         else
-            result = other;
+            {result = other;}
     }
 
 
     fun orElseGet (supplier: DoubleSupplier): double
     {
-        required supplier != null;
+        requires supplier != null;
 
         if (supplier == null)
-            self._throwNPE();
+            {_throwNPE();}
 
-        if (present)
-            result = value;
+        if (this.present == true)
+            {result = this.value;}
         else
-            result = action CALL(supplier, []);
+            {result = action CALL(supplier, []);}
     }
 
 
     fun orElseThrow (): double
     {
-        required present;
+        requires this.present == true;
 
-        if (!present)
-            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
+        if (this.present == false)
+            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
 
-        result = value;
+        result = this.value;
     }
 
 
-    @Generic("X extends java.lang.Throwable")
-    @throws(["X"], generic=true)
-    fun orElseThrow (@Generic("? extends X") exceptionSupplier: Supplier): double
+    @Parametrized("X extends java.lang.Throwable")
+    //@throws(generic=true)
+    fun orElseThrow (@Parametrized("? extends X") exceptionSupplier: Supplier): double
     {
-        required exceptionSupplier != null;
+        requires exceptionSupplier != null;
 
         if (exceptionSupplier == null)
-            self._throwNPE();
+            {_throwNPE();}
 
-        if (!present)
+        if (this.present == false)
         {
-            val exception = action CALL(exceptionSupplier, []);
+            val exception: Object = action CALL(exceptionSupplier, []);
             action THROW_VALUE(exception);
         }
         else
         {
-            result = value;
+            result = this.value;
         }
     }
 
@@ -262,8 +259,8 @@ import "java/util/stream/_interfaces.lsl";
         action NOT_IMPLEMENTED();
 
         /*
-        if (present)
-            result = DoubleStream.of(value); // #problem
+        if (this.present == true)
+            result = DoubleStream.of(this.value); // #problem
         else
             result = DoubleStream.empty(); // #problem
         */
@@ -272,9 +269,9 @@ import "java/util/stream/_interfaces.lsl";
 
     fun toString (): String
     {
-        if (present)
+        if (this.present == true)
         {
-            val valueStr = action OBJECT_TO_STRING(value);
+            val valueStr: string = action OBJECT_TO_STRING(this.value);
             result = "OptionalDouble[" + valueStr + "]";
         }
         else
