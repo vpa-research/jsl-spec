@@ -115,12 +115,12 @@ library `std:collections`
         else
         {
             val isSameType: boolean = action OBJECT_SAME_TYPE(this, other);
-            if (isSameType == true)
+            if (isSameType)
             {
                 val otherValue: double = OptionalDouble(other).value;
                 val otherPresent: boolean = OptionalDouble(other).present;
 
-                if (this.present == true && otherPresent == true)
+                if (this.present && otherPresent)
                     {result = this.value == otherValue;}  // #problem
                 else
                     {result = this.present == otherPresent;}
@@ -135,7 +135,7 @@ library `std:collections`
 
     fun getAsDouble (): double
     {
-        if (this.present == false)
+        if (!this.present)
             {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
 
         result = this.value;
@@ -144,7 +144,7 @@ library `std:collections`
 
     fun hashCode (): int
     {
-        if (this.present == true)
+        if (this.present)
             {result = action OBJECT_HASH_CODE(this.value);}
         else
             {result = 0;}
@@ -155,7 +155,7 @@ library `std:collections`
     {
         requires !this.present || (this.present && consumer != null);
 
-        if (this.present == true)
+        if (this.present)
         {
             if (consumer == null)
                 {_throwNPE();}
@@ -170,7 +170,7 @@ library `std:collections`
         requires !this.present || (this.present  && consumer != null);
         requires this.present  || (!this.present && emptyAction != null);
 
-        if (this.present == true)
+        if (this.present)
         {
             if (consumer == null)
                 {_throwNPE();}
@@ -201,7 +201,7 @@ library `std:collections`
 
     fun orElse (other: double): double
     {
-        if (this.present == true)
+        if (this.present)
             {result = this.value;}
         else
             {result = other;}
@@ -215,7 +215,7 @@ library `std:collections`
         if (supplier == null)
             {_throwNPE();}
 
-        if (this.present == true)
+        if (this.present)
             {result = this.value;}
         else
             {result = action CALL(supplier, []);}
@@ -224,9 +224,9 @@ library `std:collections`
 
     fun orElseThrow (): double
     {
-        requires this.present == true;
+        requires this.present;
 
-        if (this.present == false)
+        if (!this.present)
             {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
 
         result = this.value;
@@ -242,7 +242,7 @@ library `std:collections`
         if (exceptionSupplier == null)
             {_throwNPE();}
 
-        if (this.present == false)
+        if (!this.present)
         {
             val exception: Object = action CALL(exceptionSupplier, []);
             action THROW_VALUE(exception);
@@ -259,7 +259,7 @@ library `std:collections`
         action NOT_IMPLEMENTED();
 
         /*
-        if (this.present == true)
+        if (this.present)
             result = DoubleStream.of(this.value); // #problem
         else
             result = DoubleStream.empty(); // #problem
@@ -269,7 +269,7 @@ library `std:collections`
 
     fun toString (): String
     {
-        if (this.present == true)
+        if (this.present)
         {
             val valueStr: string = action OBJECT_TO_STRING(this.value);
             result = "OptionalDouble[" + valueStr + "]";
