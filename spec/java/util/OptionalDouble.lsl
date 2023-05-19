@@ -15,17 +15,21 @@ library `std:collections`
 
 // local semantic types
 
+// also an Object
+type OptionalDouble {
+    value: double;
+    present: boolean;
+}
 
 
 // automata
 
-// @WrapperMeta(src="java.util.OptionalDouble", dst="ru.spbpu.libsl.overrides.collections.OptionalDouble")
-@public @final automaton OptionalDouble: int
-{ // (
-    var value: double = 0;
-    var present: boolean = false;
-// )
-// {
+// @WrapperMeta(package="ru.spbpu.libsl.overrides.collections")
+@public @final automaton OptionalDoubleAutomaton(
+    var value: double,
+    var present: boolean
+): OptionalDouble
+{
     // states and shifts
 
     initstate Allocated;
@@ -33,41 +37,41 @@ library `std:collections`
 
     shift Allocated -> Initialized by [
         // constructors
-        OptionalDouble (),
-        OptionalDouble (double),
+        `OptionalDouble.OptionalDouble` (OptionalDouble), // #problem: reference to self in constructor
+        `OptionalDouble.OptionalDouble` (OptionalDouble, double),
 
         // static methods
-        empty,
-        of,
+        `OptionalDouble.empty`,
+        `OptionalDouble.of`,
     ];
 
     shift Initialized -> self by [
         // read operations
-        getAsDouble,
-        isPresent,
-        isEmpty,
-        ifPresent,
-        ifPresentOrElse,
-        stream,
-        orElse,
-        orElseGet,
-        orElseThrow (),
-        orElseThrow (Supplier),
-        toString,
-        hashCode,
-        equals,
+        `OptionalDouble.getAsDouble`,
+        `OptionalDouble.isPresent`,
+        `OptionalDouble.isEmpty`,
+        `OptionalDouble.ifPresent`,
+        `OptionalDouble.ifPresentOrElse`,
+        `OptionalDouble.stream`,
+        `OptionalDouble.orElse`,
+        `OptionalDouble.orElseGet`,
+        `OptionalDouble.orElseThrow` (OptionalDouble),
+        `OptionalDouble.orElseThrow` (OptionalDouble, Supplier),
+        `OptionalDouble.toString`,
+        `OptionalDouble.hashCode`,
+        `OptionalDouble.equals`,
     ];
 
 
     // constructors
 
-    @private constructor OptionalDouble ()
+    @private constructor `OptionalDouble.OptionalDouble` (@target self: OptionalDouble)
     {
         action ERROR("Private constructor call");
     }
 
 
-    @private constructor OptionalDouble (x: double)
+    @private constructor `OptionalDouble.OptionalDouble` (@target self: OptionalDouble, x: double)
     {
         action ERROR("Private constructor call");
     }
@@ -79,12 +83,12 @@ library `std:collections`
     @static proc _makeEmpty (): OptionalDouble
     {
         // #problem
-        result = new OptionalDouble(state=Initialized);
+        result = new OptionalDoubleAutomaton(state=Initialized); // OptionalDoubleAutomaton -> OptionalDouble(secret)
     }
 
 
     @AutoInline
-    proc _throwNPE (): void
+    @static proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
     }
@@ -92,21 +96,22 @@ library `std:collections`
 
     // static methods
 
-    @static fun empty (): OptionalDouble
+    @static fun `OptionalDouble.empty` (): OptionalDouble
     {
         result = _makeEmpty();
     }
 
 
-    @static fun of (x: double): OptionalDouble
+    @static fun `OptionalDouble.of` (x: double): OptionalDouble
     {
-        result = new OptionalDouble(state=Initialized, value=x, present=true);
+        result = new OptionalDoubleAutomaton(state=Initialized, value=x, present=true);
     }
 
 
     // methods
 
-    fun equals (other: Object): boolean
+    @AnnotatedWith("java.lang.Override", [])
+    fun `OptionalDouble.equals` (@target self: OptionalDouble, other: Object): boolean
     {
         if (other == this)
         {
@@ -117,8 +122,8 @@ library `std:collections`
             val isSameType: boolean = action OBJECT_SAME_TYPE(this, other);
             if (isSameType)
             {
-                val otherValue: double = OptionalDouble(other).value;
-                val otherPresent: boolean = OptionalDouble(other).present;
+                val otherValue: double = OptionalDoubleAutomaton(other).value;
+                val otherPresent: boolean = OptionalDoubleAutomaton(other).present;
 
                 if (this.present && otherPresent)
                     {result = this.value == otherValue;}  // #problem
@@ -133,7 +138,7 @@ library `std:collections`
     }
 
 
-    fun getAsDouble (): double
+    fun `OptionalDouble.getAsDouble` (@target self: OptionalDouble): double
     {
         if (!this.present)
             {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
@@ -142,7 +147,8 @@ library `std:collections`
     }
 
 
-    fun hashCode (): int
+    @AnnotatedWith("java.lang.Override", [])
+    fun `OptionalDouble.hashCode` (@target self: OptionalDouble): int
     {
         if (this.present)
             {result = action OBJECT_HASH_CODE(this.value);}
@@ -151,7 +157,7 @@ library `std:collections`
     }
 
 
-    fun ifPresent (consumer: DoubleConsumer): void
+    fun `OptionalDouble.ifPresent` (@target self: OptionalDouble, consumer: DoubleConsumer): void
     {
         requires !this.present || (this.present && consumer != null);
 
@@ -165,7 +171,7 @@ library `std:collections`
     }
 
 
-    fun ifPresentOrElse (consumer: DoubleConsumer, emptyAction: Runnable): void
+    fun `OptionalDouble.ifPresentOrElse` (@target self: OptionalDouble, consumer: DoubleConsumer, emptyAction: Runnable): void
     {
         requires !this.present || (this.present  && consumer != null);
         requires this.present  || (!this.present && emptyAction != null);
@@ -187,19 +193,19 @@ library `std:collections`
     }
 
 
-    fun isEmpty (): boolean
+    fun `OptionalDouble.isEmpty` (@target self: OptionalDouble): boolean
     {
         result = this.present == false;
     }
 
 
-    fun isPresent (): boolean
+    fun `OptionalDouble.isPresent` (@target self: OptionalDouble): boolean
     {
         result = this.present == true;
     }
 
 
-    fun orElse (other: double): double
+    fun `OptionalDouble.orElse` (@target self: OptionalDouble, other: double): double
     {
         if (this.present)
             {result = this.value;}
@@ -208,7 +214,7 @@ library `std:collections`
     }
 
 
-    fun orElseGet (supplier: DoubleSupplier): double
+    fun `OptionalDouble.orElseGet` (@target self: OptionalDouble, supplier: DoubleSupplier): double
     {
         requires supplier != null;
 
@@ -222,7 +228,7 @@ library `std:collections`
     }
 
 
-    fun orElseThrow (): double
+    fun `OptionalDouble.orElseThrow` (@target self: OptionalDouble): double
     {
         requires this.present;
 
@@ -233,9 +239,9 @@ library `std:collections`
     }
 
 
-    @Parametrized("X extends java.lang.Throwable")
-    //@throws(generic=true)
-    fun orElseThrow (@Parametrized("? extends X") exceptionSupplier: Supplier): double
+    @Parametrized(["X extends java.lang.Throwable"])
+    @throws(["X"])
+    fun `OptionalDouble.orElseThrow` (@target self: OptionalDouble, @Parametrized(["? extends X"]) exceptionSupplier: Supplier): double
     {
         requires exceptionSupplier != null;
 
@@ -254,7 +260,7 @@ library `std:collections`
     }
 
 
-    fun stream (): DoubleStream
+    fun `OptionalDouble.stream` (@target self: OptionalDouble): DoubleStream
     {
         action NOT_IMPLEMENTED();
 
@@ -267,7 +273,8 @@ library `std:collections`
     }
 
 
-    fun toString (): String
+    @AnnotatedWith("java.lang.Override", [])
+    fun `OptionalDouble.toString` (@target self: OptionalDouble): string
     {
         if (this.present)
         {
