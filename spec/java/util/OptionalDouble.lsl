@@ -16,7 +16,7 @@ library `std:collections`
 // local semantic types
 
 // also an Object
-type OptionalDouble {
+@public @final type OptionalDouble {
     value: double;
     present: boolean;
 }
@@ -25,7 +25,7 @@ type OptionalDouble {
 // automata
 
 // @WrapperMeta(package="ru.spbpu.libsl.overrides.collections")
-@public @final automaton OptionalDoubleAutomaton(
+automaton OptionalDoubleAutomaton(
     var value: double,
     var present: boolean
 ): OptionalDouble

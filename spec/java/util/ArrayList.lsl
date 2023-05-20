@@ -1,3 +1,4 @@
+//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library "std:collections" language "Java" version "11" url "-";
@@ -93,8 +94,8 @@ automaton ArrayList: int (
     {
         if (initialCapacity < 0)
         {
-            var initCapacity = action OBJECT_TO_STRING(initialCapacity);
-            var message = "Illegal Capacity: " + initCapacity;
+            var initCapacity: string = action OBJECT_TO_STRING(initialCapacity);
+            var message: string = "Illegal Capacity: " + initCapacity;
             action THROW_NEW("java.lang.IllegalArgumentException", [message]);
         }
     }
@@ -102,12 +103,13 @@ automaton ArrayList: int (
 
     constructor ArrayList ()
     {
-        action LIST_RESIZE(storage, 0);
+        action LIST_RESIZE(this.storage, 0);
     }
 
 
     constructor ArrayList (c: Collection)
     {
+        // TODO: interface calls
         action NOT_IMPLEMENTED();
     }
 
@@ -140,7 +142,7 @@ automaton ArrayList: int (
 
     proc _addAllElements (index:int, c:Collection): boolean
     {
-        modCount = modCount + 1;
+        this.modCount += 1;
 
         // #problem:
         //we don't know how to avoid cycle in this method;
@@ -149,7 +151,7 @@ automaton ArrayList: int (
         action NOT_IMPLEMENTED();
 
         //At this moment we can't work with Collection, because this is interface.
-        //length = length + c.size();
+        //this.length = this.length + c.size();
     }
 
 
@@ -182,7 +184,7 @@ automaton ArrayList: int (
 
     proc _checkForComodification (expectedModCount: int): void
     {
-        if (modCount != expectedModCount)
+        if (this.modCount != expectedModCount)
         {
             action THROW_NEW("java.util.ConcurrentModificationException", []);
         }
@@ -190,28 +192,28 @@ automaton ArrayList: int (
 
     proc _deleteElement (index: int): Object
     {
-        _checkValidIndex(index, length);
-        result = action LIST_GET(storage, index);
-        action LIST_REMOVE(storage, index, 1);
-        modCount = modCount + 1;
-        length = length - 1;
+        this._checkValidIndex(index, this.length);
+        result = action LIST_GET(this.storage, index);
+        action LIST_REMOVE(this.storage, index, 1);
+        this.modCount += 1;
+        this.length -= 1;
     }
 
 
     proc _addElement (index: int, e: Object): void
     {
-        _rangeCheckForAdd(index, length);
-        modCount = modCount + 1;
-        action LIST_INSERT_AT(storage, index, e);
-        length = length + 1;
+        this._rangeCheckForAdd(index, this.length);
+        this.modCount += 1;
+        action LIST_INSERT_AT(this.storage, index, e);
+        this.length += 1;
     }
 
 
     proc _setElement (index: int, e: Object): Object
     {
-        _checkValidIndex(index, length);
-        result = action LIST_GET(storage, index);
-        action LIST_SET(storage, index, element);
+        this._checkValidIndex(index, this.length);
+        result = action LIST_GET(this.storage, index);
+        action LIST_SET(this.storage, index, element);
     }
 
 
@@ -225,52 +227,52 @@ automaton ArrayList: int (
 
     fun trimToSize (): void
     {
-        modCount = modCount + 1;
+        this.modCount += 1;
     }
 
 
     fun ensureCapacity (minCapacity: int): void
     {
-        modCount = modCount + 1;
+        this.modCount += 1;
     }
 
 
     fun size (): int
     {
-        result = length;
+        result = this.length;
     }
 
 
     fun isEmpty (): boolean
     {
-        result = length == 0;
+        result = this.length == 0;
     }
 
 
     fun contains (o: Object): boolean
     {
-        result = action LIST_FIND(storage, o, 0, length, +1) >= 0;
+        result = action LIST_FIND(this.storage, o, 0, this.length, +1) >= 0;
     }
 
 
     fun indexOf (o: Object): int
     {
-        result = action LIST_FIND(storage, o, 0, length, +1);
+        result = action LIST_FIND(this.storage, o, 0, this.length, +1);
     }
 
 
 
     fun lastIndexOf (o: Object): int
     {
-        result = action LIST_FIND(storage, o, length-1, -1, -1);
+        result = action LIST_FIND(this.storage, o, this.length-1, -1, -1);
     }
 
 
     fun clone (): Object
     {
-        var storageCopy = action LIST_DUP(storage);
+        var storageCopy = action LIST_DUP(this.storage);
         result = new ArrayList(
-            state=self.state, storage=storageCopy, length=self.length);
+            state=this.state, storage=storageCopy, length=this.length);
     }
 
 
@@ -279,20 +281,20 @@ automaton ArrayList: int (
         // #problem
         //How to create a new array correctly ?
         var a: array<int>;
-        result = action LIST_TO_ARRAY(storage, a, 0, length);
+        result = action LIST_TO_ARRAY(this.storage, a, 0, this.length);
     }
 
 
     fun toArray (a: list<Object>): array<Object>
     {
-        result = action LIST_TO_ARRAY(storage, a, 0, length);
+        result = action LIST_TO_ARRAY(this.storage, a, 0, this.length);
     }
 
 
     fun get (index: int): Object
     {
-        _checkValidIndex(index, length);
-        result = action LIST_GET(storage, index);
+        this._checkValidIndex(index, this.length);
+        result = action LIST_GET(this.storage, index);
     }
 
 
@@ -304,45 +306,45 @@ automaton ArrayList: int (
 
     fun add (e: Object): boolean
     {
-        modCount = modCount + 1;
-        action LIST_INSERT_AT(storage, length, e);
-        length = length + 1;
+        this.modCount += 1;
+        action LIST_INSERT_AT(this.storage, this.length, e);
+        this.length += 1;
         result = true;
     }
 
 
     fun add (index: int, element: Object): void
     {
-        _addElement(index, e);
+        this._addElement(index, e);
     }
 
 
     fun remove (index: int): Object
     {
-        result = _deleteElement(index);
+        result = this._deleteElement(index);
     }
 
 
     fun equals (other: Object): boolean
     {
-        if (other == self)
+        if (other == this)
         {
             result = true;
         }
         else
         {
-            val isSameType = action OBJECT_SAME_TYPE(self, other);
+            val isSameType: boolean = action OBJECT_SAME_TYPE(this, other);
             if (isSameType)
             {
-                var expectedModCount = modCount;
-                val otherExpectedModCount = ArrayList(other).modCount;
+                var expectedModCount: int = this.modCount;
+                val otherExpectedModCount: int = ArrayList(other).modCount;
 
-                val otherStorage = ArrayList(other).storage;
-                val otherLength = ArrayList(other).length;
+                val otherStorage: list<any> = ArrayList(other).storage;
+                val otherLength: int = ArrayList(other).length;
 
-                if (length == otherLength)
+                if (this.length == otherLength)
                 {
-                    result = action OBJECT_EQUALS(storage, otherStorage);
+                    result = action OBJECT_EQUALS(this.storage, otherStorage);
                 }
                 else
                 {
@@ -350,7 +352,7 @@ automaton ArrayList: int (
                 }
 
                 other._checkForComodification(otherExpectedModCount);
-                _checkForComodification(expectedModCount);
+                this._checkForComodification(expectedModCount);
             }
             else
             {
@@ -362,20 +364,20 @@ automaton ArrayList: int (
 
     fun hashCode (): int
     {
-         result = action OBJECT_HASH_CODE(storage);
+         result = action OBJECT_HASH_CODE(this.storage);
     }
 
 
     fun remove (o: Object): boolean
     {
-        var index = action LIST_FIND(storage, o, 0, length, +1);
+        var index: int = action LIST_FIND(this.storage, o, 0, this.length, +1);
         if (index == -1)
         {
             result = false;
         }
         else
         {
-            action LIST_REMOVE(storage, index, 1);
+            action LIST_REMOVE(this.storage, index, 1);
             result = true;
         }
     }
@@ -383,34 +385,36 @@ automaton ArrayList: int (
 
     fun clear (): void
     {
-        action LIST_RESIZE(storage, 0);
-        length = 0;
-        modCount = modCount + 1;
+        action LIST_RESIZE(this.storage, 0);
+        this.length = 0;
+        this.modCount += 1;
     }
 
 
     fun addAll (c: Collection): boolean
     {
-        result = _addAllElements(length, c);
+        result = this._addAllElements(this.length, c);
     }
 
 
 
     fun addAll (index: int, c: Collection): boolean
     {
-        _rangeCheckForAdd(index, length);
-        result = _addAllElements(index, c);
+        this._rangeCheckForAdd(index, this.length);
+        result = this._addAllElements(index, c);
     }
 
 
     fun removeAll (c: Collection): boolean
     {
+        // TODO: interface call
         action NOT_IMPLEMENTED();
     }
 
 
     fun retainAll (c: Collection): boolean
     {
+        // TODO: interface call
         action NOT_IMPLEMENTED();
     }
 
@@ -419,13 +423,13 @@ automaton ArrayList: int (
     @throws(["java.io.IOException"])
     fun writeObject (s: ObjectOutputStream): void
     {
-        var expectedModCount = modCount;
+        var expectedModCount: int = this.modCount;
 
         // #problem
         //Here is cycle and some operations with ObjectOutputStream.
         action NOT_IMPLEMENTED();
 
-        if (modCount != expectedModCount)
+        if (this.modCount != expectedModCount)
         {
             action THROW_NEW("java.util.ConcurrentModificationException", []);
         }
@@ -444,11 +448,11 @@ automaton ArrayList: int (
 
     fun listIterator (index: int): ListIterator
     {
-        _rangeCheckForAdd(index, length);
+        this._rangeCheckForAdd(index, this.length);
 
         result = new ListItr(state=Created,
             cursor=index,
-            expectedModCount=modCount);
+            expectedModCount=this.modCount);
     }
 
 
@@ -456,7 +460,7 @@ automaton ArrayList: int (
     {
         result = new ListItr(state=Created,
             cursor=0,
-            expectedModCount=modCount);
+            expectedModCount=this.modCount);
     }
 
 
@@ -464,13 +468,13 @@ automaton ArrayList: int (
     {
         result = new ListItr(state=Created,
             cursor=0,
-            expectedModCount=modCount);
+            expectedModCount=this.modCount);
     }
 
 
     fun subList (fromIndex: int, toIndex: int): List
     {
-        _subListRangeCheck(fromIndex, toIndex, length);
+        this._subListRangeCheck(fromIndex, toIndex, length);
 
         // #problem
         //We don't have decision about sublists.
@@ -501,10 +505,10 @@ automaton ArrayList: int (
     {
         if (consumer == null)
         {
-            self._throwNPE();
+            this._throwNPE();
         }
 
-        var expectedModCount = modCount;
+        var expectedModCount: int = modCount;
 
         // #problem
         // Action CALL can't work with cycles.
@@ -535,10 +539,10 @@ automaton ArrayList: int (
     {
         if (consumer == null)
         {
-            self._throwNPE();
+            this._throwNPE();
         }
 
-        var expectedModCount = modCount;
+        var expectedModCount: int = modCount;
 
         // #problem
         // Action CALL can't work with cycles.
@@ -546,29 +550,29 @@ automaton ArrayList: int (
 
         action NOT_IMPLEMENTED();
 
-        if (modCount != expectedModCount)
+        if (this.modCount != expectedModCount)
         {
             action THROW_NEW("java.util.ConcurrentModificationException", []);
         }
 
-        modCount = modCount + 1;
+        this.modCount += 1;
     }
 
 
     fun sort (c: Comparator): void
     {
-        var expectedModCount = modCount;
+        var expectedModCount: int = modCount;
 
         // #problem
         //We don't know what to do with sorting of the List.
         action NOT_IMPLEMENTED();
 
-        if (modCount != expectedModCount)
+        if (this.modCount != expectedModCount)
         {
             action THROW_NEW("java.util.ConcurrentModificationException", []);
         }
 
-        modCount = modCount + 1;
+        this.modCount += 1;
     }
 }
 
@@ -618,34 +622,34 @@ automaton ListItr: int (
 
     fun hasPrevious (): boolean
     {
-        result = cursor != 0;
+        result = this.cursor != 0;
     }
 
 
     fun nextIndex (): int
     {
-        result = cursor;
+        result = this.cursor;
     }
 
 
     fun previousIndex (): int
     {
-        result = cursor - 1;
+        result = this.cursor - 1;
     }
 
 
     fun hasNext (): boolean
     {
-        result = cursor != self.parent.length;
+        result = this.cursor != this.parent.length;
     }
 
 
     fun next (): Object
     {
-        self.parent._checkForComodification(expectedModCount);
-        var i = cursor;
+        this.parent._checkForComodification(expectedModCount);
+        var i: int = this.cursor;
 
-        if (i >= parent.length)
+        if (i >= this.parent.length)
         {
             action THROW_NEW("java.util.NoSuchElementException", []);
         }
@@ -654,16 +658,16 @@ automaton ListItr: int (
         //I don't know what to do with ConcurrentModificationException(); ?
         action NOT_IMPLEMENTED();
 
-        cursor = i + 1;
-        lastRet = i;
-        result = action LIST_GET(self.parent.storage, lastRet);
+        this.cursor = i + 1;
+        this.lastRet = i;
+        result = action LIST_GET(this.parent.storage, this.lastRet);
     }
 
 
     fun previous (): Object
     {
-        self.parent._checkForComodification(expectedModCount);
-        var i = cursor - 1;
+        this.parent._checkForComodification(expectedModCount);
+        var i: int = this.cursor - 1;
 
         if (i < 0)
         {
@@ -674,67 +678,68 @@ automaton ListItr: int (
         //I don't know what to do with ConcurrentModificationException(); ?
         action NOT_IMPLEMENTED();
 
-        cursor = i;
-        lastRet = i;
-        result = action LIST_GET(self.parent.storage, lastRet);
+        this.cursor = i;
+        this.lastRet = i;
+        result = action LIST_GET(this.parent.storage, this.lastRet);
     }
 
 
     fun remove (): void
     {
-        if (lastRet < 0)
+        if (this.lastRet < 0)
         {
             action THROW_NEW("java.lang.IllegalStateException", []);
         }
 
-        self.parent._checkForComodification(expectedModCount);
+        this.parent._checkForComodification(this.expectedModCount);
 
         // #problem
         //What i must to do with try-catch in this method ?
         action NOT_IMPLEMENTED();
 
-        self.parent._deleteElement(lastRet);
-        cursor = lastRet;
-        lastRet = -1;
-        expectedModCount = self.parent.modCount;
+        this.parent._deleteElement(this.lastRet);
+        this.cursor = this.lastRet;
+        this.lastRet = -1;
+        this.expectedModCount = this.parent.modCount;
     }
 
 
     fun set (e: Object): void
     {
-        if (lastRet < 0)
+        if (this.lastRet < 0)
         {
             action THROW_NEW("java.lang.IllegalStateException", []);
         }
 
-        self.parent._checkForComodification(expectedModCount);
+        this.parent._checkForComodification(this.expectedModCount);
 
         // #problem
         //What i must to do with try-catch in this method ?
         action NOT_IMPLEMENTED();
 
-        self.parent._setElement(lastRet, e);
+        this.parent._setElement(this.lastRet, e);
     }
 
 
     fun add (e: Object): void
     {
-        self.parent._checkForComodification(expectedModCount);
+        this.parent._checkForComodification(this.expectedModCount);
 
         // #problem
         //What i must to do with try-catch in this method ?
         action NOT_IMPLEMENTED();
 
-        var i = cursor;
-        self.parent._addElement(self.parent.length, e);
-        cursor = i + 1;
-        lastRet = -1;
-        expectedModCount = self.parent.modCount;
+        var i: int = this.cursor;
+        this.parent._addElement(this.parent.length, e);
+        this.cursor = i + 1;
+        this.lastRet = -1;
+        this.expectedModCount = this.parent.modCount;
     }
 
 
     fun forEachRemaining (action: Consumer): void
     {
+        // TODO: loops and interface calls
         action NOT_IMPLEMENTED();
     }
 
@@ -774,7 +779,7 @@ automaton ArrayListSpliterator: int(
 
     constructor ArrayListSpliterator (origin: int, fence: int, expectedModCount: int)
     {
-        action ERROR("Dangerous behavior, IDK");
+        action ERROR("Dangerous behavior");
     }
 
 
@@ -850,7 +855,7 @@ automaton ArrayListSpliterator: int(
 //    {
 //        offset = startIndex;
 //        length = endIndex - startIndex;
-//        modCount = self.parent.modCount;
+//        modCount = this.parent.modCount;
 //    }
 
 
@@ -861,7 +866,7 @@ automaton ArrayListSpliterator: int(
 //        //???
 //        offset = startIndex;
 //        length = endIndex - startIndex;
-//        modCount = self.parent.modCount;
+//        modCount = this.parent.modCount;
 //    }
 
 
@@ -869,7 +874,7 @@ automaton ArrayListSpliterator: int(
 
 //    proc _addAllElements (index:int, c:Collection): boolean
 //    {
-//        self.parent._rangeCheckForAdd(index, length);
+//        this.parent._rangeCheckForAdd(index, length);
 
 //        //I use suppose that Collection interface will have size sub or analog
 //        var collectionSize = c.size();
@@ -880,11 +885,11 @@ automaton ArrayListSpliterator: int(
 //        }
 //        else
 //        {
-//            self.parent._checkForComodification(modCount);
+//            this.parent._checkForComodification(modCount);
 
 //            var curIndex = offset + index;
 
-//            self.parent._addAllElements(index, c);
+//            this.parent._addAllElements(index, c);
 
 //            _updateSizeAndModCount(collectionSize);
 
@@ -903,8 +908,8 @@ automaton ArrayListSpliterator: int(
 
 //    proc _indexOfElement (o: Object): int
 //    {
-//        var index = action LIST_FIND(self.parent.storage, o);
-//        self.parent._checkForComodification(modCount);
+//        var index = action LIST_FIND(this.parent.storage, o);
+//        this.parent._checkForComodification(modCount);
 
 //        if (index >= 0)
 //        {
@@ -922,41 +927,41 @@ automaton ArrayListSpliterator: int(
 
 //     fun set (index: int, element: Object): void
 //     {
-//         self.parent._checkValidIndex(index, length);
-//         self.parent._checkForComodification(modCount);
+//         this.parent._checkValidIndex(index, length);
+//         this.parent._checkForComodification(modCount);
 
 //         var curIndex = offset + index;
 
-//         result = action LIST_GET(self.parent.storage, curIndex);
-//         action LIST_SET(self.parent.storage, curIndex, element);
+//         result = action LIST_GET(this.parent.storage, curIndex);
+//         action LIST_SET(this.parent.storage, curIndex, element);
 //     }
 
 
 //     fun get (index: int): Object
 //     {
-//         self.parent._checkValidIndex(index, length);
-//         self.parent._checkForComodification(modCount);
+//         this.parent._checkValidIndex(index, length);
+//         this.parent._checkForComodification(modCount);
 
 //         var curIndex = offset + index;
 
-//         result = action LIST_GET(self.parent.storage, curIndex);
+//         result = action LIST_GET(this.parent.storage, curIndex);
 //     }
 
 
 //     fun size (): int
 //     {
-//         self.parent._checkForComodification(modCount);
+//         this.parent._checkForComodification(modCount);
 //         result = length;
 //     }
 
 
 //     fun add (index: int, element: Object): void
 //     {
-//         self.parent._rangeCheckForAdd(index, length);
-//         self.parent._checkForComodification(modCount);
+//         this.parent._rangeCheckForAdd(index, length);
+//         this.parent._checkForComodification(modCount);
 
 //         var curIndex = offset + index;
-//         self.parent._addElement(curIndex, element);
+//         this.parent._addElement(curIndex, element);
 
 //         _updateSizeAndModCount(1);
 //     }
@@ -964,12 +969,12 @@ automaton ArrayListSpliterator: int(
 
 //     fun remove (index: int): Object
 //     {
-//         self.parent._checkValidIndex(index, length);
-//         self.parent._checkForComodification(modCount);
+//         this.parent._checkValidIndex(index, length);
+//         this.parent._checkForComodification(modCount);
 
 //         var curIndex = offset + index;
 
-//         result = self.parent._deleteElement(curIndex);
+//         result = this.parent._deleteElement(curIndex);
 
 //         _updateSizeAndModCount(-1);
 //     }
@@ -1069,7 +1074,7 @@ automaton ArrayListSpliterator: int(
 
 //     fun subList (fromIndex: int, toIndex: int): List
 //     {
-//         self.parent._subListRangeCheck(fromIndex, toIndex, length);
+//         this.parent._subListRangeCheck(fromIndex, toIndex, length);
 //         result = new SubList(state=Created,
 //             //Think about THIS !
 //             //TODO
@@ -1126,13 +1131,13 @@ automaton ArrayListSpliterator: int(
 
 //     fun hasNext(): boolean
 //     {
-//         result = cursor != self.parent.length;
+//         result = cursor != this.parent.length;
 //     }
 
 
 //     fun next(): Object
 //     {
-//         _checkForComodification(self.parent.modCount);
+//         _checkForComodification(this.parent.modCount);
 
 //     }
 

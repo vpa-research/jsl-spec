@@ -1,29 +1,30 @@
+//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library "std:collections" language "Java" version "11" url "-";
 
 // imports
 
-import "list-actions.lsl";
+//import "list-actions.lsl";
 
-import "java-common.lsl";
-import "java/util/_interfaces.lsl";
-import "java/util/function/_interfaces.lsl";
+//import "java-common.lsl";
+//import "java/util/_interfaces.lsl";
+//import "java/util/function/_interfaces.lsl";
 
 
-@TypeMapping("java.util.ObjectInputStream")
-typealias ObjectInputStream = Object;  // #problem
+//@TypeMapping("java.util.ObjectInputStream")
+//typealias ObjectInputStream = Object;  // #problem
 
 
 // automata
 
 @public
 @extends("java.util.AbstractMap")
-@WrapperMeta(
+/*@WrapperMeta(
     src="java.util.HashMap",
     dst="ru.spbpu.libsl.overrides.collections.HashMap",
     forceMatchInterfaces=true,
-)
+)*/
 automaton HashMap // : int
 (
     var keys: list<Object> = null;
@@ -45,7 +46,7 @@ automaton HashMap // : int
         HashMap(Map)
     );
 
-    shift Initialized -> self by [
+    shift Initialized -> this by [
         // read operations
         get,
         getOrDefault,
@@ -73,28 +74,28 @@ automaton HashMap // : int
 
     proc _initLists(): void
     {
-        assigns self.keys;
-        assigns self.values;
-        ensures self.keys != null;
-        ensures self.values != null;
+        assigns this.keys;
+        assigns this.values;
+        ensures this.keys != null;
+        ensures this.values != null;
 
-        keys = new list(); // #problem: can we use LIST_RESIZE to also allocate this object?
-        values = new list();
+        this.keys = action LIST_NEW(); // #problem: can we use LIST_RESIZE to also allocate this object?
+        this.values = action LIST_NEW();
     }
 
 
     proc _updateModifications(): void
     {
-        assigns self.modCounter;
-        ensures self.modCounter' > self.modCounter;
+        assigns this.modCounter;
+        ensures this.modCounter' > this.modCounter;
 
-        self.modCounter += 1;
+        this.modCounter += 1;
     }
 
 
     proc _checkForModifications(lastMods: int): void
     {
-        if (modCounter != lastMods)
+        if (this.modCounter != lastMods)
         {
             action THROW_NEW("java.util.ConcurrentModificationException", []);
         }
@@ -103,10 +104,10 @@ automaton HashMap // : int
 
     proc _getMappingOrDefault (key: Object, defaultValue: Object): Object
     {
-        val idx = action LIST_FIND(keys, key, 0, length, +1);
+        val idx: int = action LIST_FIND(this.keys, key, 0, this.length, +1);
         if (idx >= 0)
         {
-            result = action LIST_GET(values, idx);
+            result = action LIST_GET(this.values, idx);
         }
         else
         {
@@ -117,62 +118,62 @@ automaton HashMap // : int
 
     proc _setMapping (key: Object, value: Object): Object
     {
-        assigns self.keys;
-        assigns self.values;
-        ensures self.length' >= self.length;
+        assigns this.keys;
+        assigns this.values;
+        ensures this.length' >= this.length;
 
-        val idx: int = action LIST_FIND(keys, key, 0, length, +1);
+        val idx: int = action LIST_FIND(this.keys, key, 0, this.length, +1);
         if (idx >= 0)
         {
-            result = action LIST_GET(values, idx);
+            result = action LIST_GET(this.values, idx);
 
-            action LIST_SET(values, idx, value);
+            action LIST_SET(this.values, idx, value);
         }
         else
         {
-            val newLength = length + 1;
-            action LIST_RESIZE(keys, newLength);
-            action LIST_RESIZE(values, newLength);
+            val newLength: int = this.length + 1;
+            action LIST_RESIZE(this.keys, newLength);
+            action LIST_RESIZE(this.values, newLength);
 
-            val newIdx = length;
-            action LIST_SET(keys, newIdx, key);
-            action LIST_SET(values, newIdx, value);
+            val newIdx: int = this.length;
+            action LIST_SET(this.keys, newIdx, key);
+            action LIST_SET(this.values, newIdx, value);
 
-            length = newLength;
+            this.length = newLength;
 
             result = null;
         }
 
-        self._updateModifications();
+        this._updateModifications();
     }
 
 
     proc _removeMapping (index: int): Object
     {
-        requires index >= 0 && index < self.length;
-        assigns self.keys;
-        assigns self.values;
-        ensures self.length' < self.length;
+        requires index >= 0 && index < this.length;
+        assigns this.keys;
+        assigns this.values;
+        ensures this.length' < this.length;
 
-        result = action LIST_GET(values, index);
+        result = action LIST_GET(this.values, index);
 
-        action LIST_REMOVE(keys, index);
-        action LIST_REMOVE(values, index);
+        action LIST_REMOVE(this.keys, index);
+        action LIST_REMOVE(this.values, index);
 
-        length -= 1;
-        self._updateModifications();
+        this.length -= 1;
+        this._updateModifications();
     }
 
 
     proc _removeMapping (key: Object): Object
     {
         // side effects should be inferred from calls to other subroutines
-        ensures self.length' <= self.length;
+        ensures this.length' <= this.length;
 
-        val idx = action LIST_FIND(keys, key, 0, length, +1);
+        val idx: int = action LIST_FIND(this.keys, key, 0, this.length, +1);
         if (idx >= 0)
         {
-            result = self._removeMapping(idx);
+            result = this._removeMapping(idx);
         }
         else
         {
@@ -192,46 +193,42 @@ automaton HashMap // : int
 
     constructor HashMap ()
     {
-        assigns self.keys;
-        assigns self.values;
-        assigns self.length;
-        assigns self.modCounter;
-        ensures self.length == 0;
-        ensures self.modCounter == 0;
+        assigns this.keys;
+        assigns this.values;
+        assigns this.length;
+        assigns this.modCounter;
+        ensures this.length == 0;
+        ensures this.modCounter == 0;
 
-        self._initLists();
+        this._initLists();
 
-        length = 0;
-        modCounter = 0;
-        action LIST_RESIZE(keys, 0);
-        action LIST_RESIZE(values, 0);
+        this.length = 0;
+        this.modCounter = 0;
     }
 
 
     constructor HashMap (initialCapacity: int)
     {
         requires initialCapacity >= 0;
-        assigns self.keys;
-        assigns self.values;
-        assigns self.length;
-        assigns self.modCounter;
-        ensures self.length == 0;
-        ensures self.modCounter == 0;
+        assigns this.keys;
+        assigns this.values;
+        assigns this.length;
+        assigns this.modCounter;
+        ensures this.length == 0;
+        ensures this.modCounter == 0;
 
         if (initialCapacity < 0)
         {
-            val initCapStr = action OBJECT_TO_STRING(initialCapacity);
+            val initCapStr: string = action OBJECT_TO_STRING(initialCapacity);
             action THROW_NEW(
                 "java.lang.IllegalArgumentException",
                 ["Illegal initial capacity: " + initCapStr]);
         }
 
-        self._initLists();
+        this._initLists();
 
-        length = 0;
-        modCounter = 0;
-        action LIST_RESIZE(keys, 0);
-        action LIST_RESIZE(values, 0);
+        this.length = 0;
+        this.modCounter = 0;
     }
 
 
@@ -240,52 +237,50 @@ automaton HashMap // : int
         requires initialCapacity >= 0;
         requires loadFactor > 0;
         requires !loadFactor.isNaN;  // #problem
-        assigns self.keys;
-        assigns self.values;
-        assigns self.length;
-        assigns self.modCounter;
-        ensures self.length == 0;
-        ensures self.modCounter == 0;
+        assigns this.keys;
+        assigns this.values;
+        assigns this.length;
+        assigns this.modCounter;
+        ensures this.length == 0;
+        ensures this.modCounter == 0;
 
         if (initialCapacity < 0)
         {
-            val initCapStr = action OBJECT_TO_STRING(initialCapacity);
+            val initCapStr: string = action OBJECT_TO_STRING(initialCapacity);
             action THROW_NEW(
                 "java.lang.IllegalArgumentException",
                 ["Illegal initial capacity: " + initCapStr]);
         }
 
-        if (loadFactor <= 0 || loadFactor.isNaN)
+        if (loadFactor <= 0 || loadFactor.isNaN) // #problem
         {
-            val loadFactorStr = action OBJECT_TO_STRING(loadFactor);
+            val loadFactorStr: string = action OBJECT_TO_STRING(loadFactor);
             action THROW_NEW(
                 "java.lang.IllegalArgumentException",
                 ["Illegal load factor: " + loadFactorStr]);
         }
 
-        self._initLists();
+        this._initLists();
 
-        length = 0;
-        modCounter = 0;
-        action LIST_RESIZE(keys, 0);
-        action LIST_RESIZE(values, 0);
+        this.length = 0;
+        this.modCounter = 0;
     }
 
 
     constructor HashMap (other: Map)
     {
         requires other != null;
-        assigns self.keys;
-        assigns self.values;
-        assigns self.length;
-        assigns self.modCounter;
-        ensures self.length >= 0;
-        ensures self.modCounter == 0;
+        assigns this.keys;
+        assigns this.values;
+        assigns this.length;
+        assigns this.modCounter;
+        ensures this.length >= 0;
+        ensures this.modCounter == 0;
 
-        self._initLists();
-        modCounter = 0;
+        this._initLists();
+        this.modCounter = 0;
 
-        val otherSize = other.size();
+        val otherSize: int = other.size();
         if (otherSize > 0)
         {
             // #problem
@@ -295,25 +290,25 @@ automaton HashMap // : int
         }
         else
         {
-            length = 0;
-            action LIST_RESIZE(keys, 0);
-            action LIST_RESIZE(values, 0);
+            this.length = 0;
+            action LIST_RESIZE(this.keys, 0);
+            action LIST_RESIZE(this.values, 0);
         }
     }
 
 
     proc _clearMappings (): void
     {
-        assigns self.keys;
-        assigns self.values;
-        assigns self.length;
-        ensures self.length == 0;
+        assigns this.keys;
+        assigns this.values;
+        assigns this.length;
+        ensures this.length == 0;
 
-        length = 0;
-        action LIST_RESIZE(keys, 0);
-        action LIST_RESIZE(values, 0);
+        this.length = 0;
+        this.keys = action LIST_NEW();
+        this.values = action LIST_NEW();
 
-        self._updateModifications();
+        this._updateModifications();
     }
 
 
@@ -321,13 +316,13 @@ automaton HashMap // : int
 
     fun containsKey (key: Object): boolean
     {
-        if (length == 0)
+        if (this.length == 0)
         {
             result = false;
         }
         else
         {
-            val idx = action LIST_FIND(keys, key, 0, length, +1);
+            val idx: int = action LIST_FIND(this.keys, key, 0, this.length, +1);
             result = idx >= 0;
         }
     }
@@ -335,13 +330,13 @@ automaton HashMap // : int
 
     fun containsValue (value: Object): boolean
     {
-        if (length == 0)
+        if (this.length == 0)
         {
             result = false;
         }
         else
         {
-            val idx = action LIST_FIND(values, value, 0, length, +1);
+            val idx: int = action LIST_FIND(this.values, value, 0, this.length, +1);
             result = idx >= 0;
         }
     }
@@ -349,25 +344,25 @@ automaton HashMap // : int
 
     fun size (): int
     {
-        result = length;
+        result = this.length;
     }
 
 
     fun isEmpty (): boolean
     {
-        result = length == 0;
+        result = this.length == 0;
     }
 
 
     fun get (key: Object): Object
     {
-        result = self._getMappingOrDefault(key, null);
+        result = this._getMappingOrDefault(key, null);
     }
 
 
     fun getOrDefault (key: Object, defaultValue: Object): Object
     {
-        result = self._getMappingOrDefault(key, defaultValue);
+        result = this._getMappingOrDefault(key, defaultValue);
     }
 
 
@@ -378,22 +373,22 @@ automaton HashMap // : int
 
         if (remappingFunction == null)
         {
-            self._throwNPE();
+            this._throwNPE();
         }
 
-        val oldValue = self._getMappingOrDefault(key, null);
+        val oldValue: Object = this._getMappingOrDefault(key, null);
 
-        val mc = modCounter;
-        val newValue = action CALL(remappingFunction, [key, oldValue]);
-        self._checkForModifications(mc);
+        val mc: int = this.modCounter;
+        val newValue: Object = action CALL(remappingFunction, [key, oldValue]);
+        this._checkForModifications(mc);
 
         if (newValue == null)
         {
-            self._removeMapping(key);
+            this._removeMapping(key);
         }
         else
         {
-            self._setMapping(key, newValue);
+            this._setMapping(key, newValue);
         }
 
         result = newValue;
@@ -407,23 +402,23 @@ automaton HashMap // : int
 
         if (mappingFunction == null)
         {
-            self._throwNPE();
+            this._throwNPE();
         }
 
-        val oldValue = self._getMappingOrDefault(key, null);
+        val oldValue: Object = this._getMappingOrDefault(key, null);
         if (oldValue != null)
         {
             result = oldValue;
         }
         else
         {
-            val mc = modCounter;
-            val newValue = action CALL(mappingFunction, [key]);
-            self._checkForModifications(mc);
+            val mc: int = this.modCounter;
+            val newValue: Object = action CALL(mappingFunction, [key]);
+            this._checkForModifications(mc);
 
             if (newValue != null)
             {
-                self._setMapping(key, newValue);
+                this._setMapping(key, newValue);
             }
 
             result = newValue;
@@ -438,23 +433,23 @@ automaton HashMap // : int
 
         if (remappingFunction == null)
         {
-            self._throwNPE();
+            this._throwNPE();
         }
 
-        val oldValue = self._getMappingOrDefault(key, null);
+        val oldValue: Object = this._getMappingOrDefault(key, null);
         if (oldValue != null)
         {
-            val mc = modCounter;
-            val newValue = action CALL(remappingFunction, [key, oldValue]);
-            self._checkForModifications(mc);
+            val mc: int = this.modCounter;
+            val newValue: Object = action CALL(remappingFunction, [key, oldValue]);
+            this._checkForModifications(mc);
 
             if (newValue == null)
             {
-                self._removeMapping(key);
+                this._removeMapping(key);
             }
             else
             {
-                self._setMapping(key, newValue);
+                this._setMapping(key, newValue);
             }
 
             result = newValue;
@@ -470,7 +465,7 @@ automaton HashMap // : int
     {
         // side effects should be inferred from calls to other subroutines
 
-        result = self._setMapping(key, value);
+        result = this._setMapping(key, value);
     }
 
 
@@ -478,10 +473,10 @@ automaton HashMap // : int
     {
         // side effects should be inferred from calls to other subroutines
 
-        val oldValue = self._getMappingOrDefault(key, null);
+        val oldValue: Object = this._getMappingOrDefault(key, null);
         if (oldValue == null)
         {
-            self._setMapping(key, value);
+            this._setMapping(key, value);
         }
 
         result = oldValue;
@@ -490,7 +485,7 @@ automaton HashMap // : int
 
     fun remove (key: Object): Object
     {
-        result = self._removeMapping(key);
+        result = this._removeMapping(key);
     }
 
 
@@ -500,15 +495,15 @@ automaton HashMap // : int
 
         result = false;
 
-        val idx = action LIST_FIND(keys, key, 0, length, +1);
+        val idx: int = action LIST_FIND(this.keys, key, 0, this.length, +1);
         if (idx >= 0)
         {
-            val oldValue = action LIST_GET(values, idx);
+            val oldValue: Object = action LIST_GET(this.values, idx);
 
-            val isEqualValues = action OBJECT_EQUALS(value, oldValue);
+            val isEqualValues: boolean = action OBJECT_EQUALS(value, oldValue);
             if (isEqualValues)
             {
-                self._removeMapping(idx);
+                this._removeMapping(idx);
 
                 result = true;
             }
@@ -520,11 +515,11 @@ automaton HashMap // : int
     {
         // side effects should be inferred from calls to other subroutines
 
-        val oldValue = self._getMappingOrDefault(key, null);
+        val oldValue: Object = this._getMappingOrDefault(key, null);
         if (oldValue != null)
         {
-            val idx = action LIST_FIND(keys, key, 0, length, +1);
-            action LIST_SET(values, idx, newValue);
+            val idx: int = action LIST_FIND(this.keys, key, 0, this.length, +1);
+            action LIST_SET(this.values, idx, newValue);
         }
 
         result = oldValue;
@@ -533,18 +528,18 @@ automaton HashMap // : int
 
     fun replace (key: Object, oldValue: Object, newValue: Object): boolean
     {
-        assigns self.values;
+        assigns this.values;
 
         result = false;
 
-        val idx = action LIST_FIND(keys, key, 0, length, +1);
+        val idx: int = action LIST_FIND(this.keys, key, 0, this.length, +1);
         if (idx >= 0)
         {
-            val value = action LIST_GET(values, idx);
-            val providedValueEqToOld = action OBJECT_EQUALS(value, oldValue);
+            val value: Object = action LIST_GET(this.values, idx);
+            val providedValueEqToOld: boolean = action OBJECT_EQUALS(value, oldValue);
             if (providedValueEqToOld)
             {
-                action LIST_SET(values, idx, newValue);
+                action LIST_SET(this.values, idx, newValue);
 
                 result = true;
             }
@@ -554,17 +549,17 @@ automaton HashMap // : int
 
     fun clear (): void
     {
-        self._clearMappings();
+        this._clearMappings();
     }
 
 
     fun clone (): Object
     {
-        val cKeys: list<Object>   = action LIST_COPY(keys, 0, length);
-        val cValues: list<Object> = action LIST_COPY(values, 0, length);
+        val cKeys: list<Object>   = action LIST_COPY(this.keys, 0, this.length);
+        val cValues: list<Object> = action LIST_COPY(this.values, 0, this.length);
 
         result = new HashMap(
-            state=self.state, keys=cKeys, values=cValues, length=self.length);
+            state=this.state, keys=cKeys, values=cValues, length=this.length);
     }
 
 
@@ -590,30 +585,30 @@ automaton HashMap // : int
 
         if (value == null || remappingFunction == null)
         {
-            self._throwNPE();
+            this._throwNPE();
         }
 
-        val oldValue = self._getMappingOrDefault(key, null);
+        val oldValue: Object = this._getMappingOrDefault(key, null);
         if (oldValue != null)
         {
-            val mc = modCounter;
-            val newValue = action CALL(remappingFunction, [oldValue, value]);
-            self._checkForModifications(mc);
+            val mc: int = this.modCounter;
+            val newValue: Object = action CALL(remappingFunction, [oldValue, value]);
+            this._checkForModifications(mc);
 
             if (newValue == null)
             {
-                self._removeMapping(key);
+                this._removeMapping(key);
             }
             else
             {
-                self._setMapping(key, newValue);
+                this._setMapping(key, newValue);
             }
 
             result = newValue;
         }
         else
         {
-            self._setMapping(key, value);
+            this._setMapping(key, value);
 
             result = value;
         }
@@ -623,7 +618,7 @@ automaton HashMap // : int
     @CacheOnce
     fun entrySet (): Set
     {
-        result = new HashMap_EntrySet(state=Initialized); // parent will be implicitly set to self
+        result = new HashMap_EntrySet(state=Initialized); // parent will be implicitly set to this
     }
 
 
@@ -631,14 +626,14 @@ automaton HashMap // : int
 
 //    fun toString (): string
 //    {
-//        // result = action OBJECT_TO_STRING(self);
+//        // result = action OBJECT_TO_STRING(this);
 //        // #problem
 //        action NOT_IMPLEMENTED();
 //    }
 
 //    fun hashCode (): int
 //    {
-//        // result = action OBJECT_HASH_CODE(self);
+//        // result = action OBJECT_HASH_CODE(this);
 //        // #problem
 //        action NOT_IMPLEMENTED();
 //    }
@@ -655,7 +650,7 @@ automaton HashMap // : int
 
         if (consumer == null)
         {
-            self._throwNPE();
+            this._throwNPE();
         }
 
         // #problem
@@ -676,7 +671,7 @@ automaton HashMap // : int
 
         if (mapper == null)
         {
-            self._throwNPE();
+            this._throwNPE();
         }
 
         // #problem
@@ -691,7 +686,7 @@ automaton HashMap // : int
 
         action NOT_IMPLEMENTED();
 
-//        val size = s.readInt();
+//        val size: int = s.readInt();
 
 //        // #problem
 //        val buff = new int[size];
@@ -699,7 +694,7 @@ automaton HashMap // : int
 //        s.readFully(buff);
 
 //        // #problem
-//        action FROM_BYTES(self, bytes);
+//        action FROM_BYTES(this, bytes);
     }
 }
 
@@ -713,7 +708,7 @@ automaton HashMap_Values: int
 {
     initstate Initialized;
 
-    shift Initialized -> self by [
+    shift Initialized -> this by [
         // read operations
         size,
         contains,
@@ -731,19 +726,19 @@ automaton HashMap_Values: int
 
     fun size(): int
     {
-        result = self.parent.length;
+        result = this.parent.length;
     }
 
 
     fun contains(value: Object): boolean
     {
-        if (self.parent.length == 0)
+        if (this.parent.length == 0)
         {
             result = false;
         }
         else
         {
-            val idx = action LIST_FIND(self.parent.values, value, 0, self.parent.length, +1);
+            val idx = action LIST_FIND(this.parent.values, value, 0, this.parent.length, +1);
             result = idx >= 0;
         }
     }
@@ -752,22 +747,22 @@ automaton HashMap_Values: int
     fun iterator(): Iterator
     {
         result = new HashMap_ValueIterator(
-            state=Initialized, parent=self.parent, expectedModCount=self.parent.modCounter);
+            state=Initialized, parent=this.parent, expectedModCount=this.parent.modCounter);
     }
 
 
 // #todo
 //    fun spliterator(): Spliterator
 //    {
-//        result = new HashMap_ValueSpliterator(state=Initialized, parent=self.parent);
+//        result = new HashMap_ValueSpliterator(state=Initialized, parent=this.parent);
 //    }
 
 
     fun clear(): void
     {
-        assigns self.parent;
+        assigns this.parent;
 
-        self.parent._clearMappings();
+        this.parent._clearMappings();
     }
 
 
@@ -788,7 +783,7 @@ automaton HashMap_KeySet: int
 {
     initstate Initialized;
 
-    shift Initialized -> self by [
+    shift Initialized -> this by [
         // read operations
         size,
         contains,
@@ -806,41 +801,41 @@ automaton HashMap_KeySet: int
 
     fun size (): int
     {
-        result = self.parent.length;
+        result = this.parent.length;
     }
 
 
     fun clear (): void
     {
-        assigns self.parent;
+        assigns this.parent;
 
-        self.parent._clearMappings();
+        this.parent._clearMappings();
     }
 
 
     fun iterator (): Iterator
     {
         result = new HashMap_KeyIterator(
-            state=Initialized, parent=self.parent, expectedModCount=self.parent.modCounter);
+            state=Initialized, parent=this.parent, expectedModCount=this.parent.modCounter);
     }
 
 
 // #todo
 //    fun spliterator (): Spliterator
 //    {
-//        result = new HashMap_KeySpliterator(state=Initialized, parent=self.parent);
+//        result = new HashMap_KeySpliterator(state=Initialized, parent=this.parent);
 //    }
 
 
     fun contains (key: Object): boolean
     {
-        if (self.parent.length == 0)
+        if (this.parent.length == 0)
         {
             result = false;
         }
         else
         {
-            val idx = action LIST_FIND(self.parent.keys, key, 0, self.parent.length, +1);
+            val idx = action LIST_FIND(this.parent.keys, key, 0, this.parent.length, +1);
             result = idx >= 0;
         }
     }
@@ -848,9 +843,9 @@ automaton HashMap_KeySet: int
 
     fun remove (key: Object): boolean
     {
-        assigns self.parent;
+        assigns this.parent;
 
-        val oldValue = self.parent._removeMapping(key);
+        val oldValue = this.parent._removeMapping(key);
         result = oldValue != null;
     }
 }
@@ -870,7 +865,7 @@ automaton HashMap_KeyIterator: int
 {
     initstate Initialized;
 
-    shift Initialized -> self by [
+    shift Initialized -> this by [
         // read operations
         hasNext,
 
@@ -884,21 +879,21 @@ automaton HashMap_KeyIterator: int
 
     fun hasNext (): boolean
     {
-        result = index < self.parent.length;
+        result = index < this.parent.length;
     }
 
 
     fun next (): Object
     {
-        self.parent._checkForModifications(expectedModCount);
+        this.parent._checkForModifications(expectedModCount);
 
-        val atValidPosition = index < self.parent.length;
+        val atValidPosition = index < this.parent.length;
         if (!atValidPosition)
         {
             action THROW_NEW("java.util.NoSuchElementException", []);
         }
 
-        result = action LIST_GET(self.parent.keys, index);
+        result = action LIST_GET(this.parent.keys, index);
 
         index += 1;
         nextWasCalled = true;
@@ -907,18 +902,18 @@ automaton HashMap_KeyIterator: int
 
     fun remove (): void
     {
-        val atValidPosition = index < self.parent.length;
+        val atValidPosition = index < this.parent.length;
         if (!atValidPosition || !nextWasCalled)
         {
             action THROW_NEW("java.lang.IllegalStateException", []);
         }
         nextWasCalled = false;
 
-        self.parent._checkForModifications(expectedModCount);
+        this.parent._checkForModifications(expectedModCount);
 
-        self.parent._removeMapping(index);
+        this.parent._removeMapping(index);
 
-        expectedModCount = self.parent.modCounter;
+        expectedModCount = this.parent.modCounter;
     }
 }
 
@@ -937,7 +932,7 @@ automaton HashMap_ValueIterator: int
 {
     initstate Initialized;
 
-    shift Initialized -> self by [
+    shift Initialized -> this by [
         // read operations
         hasNext,
 
@@ -951,21 +946,21 @@ automaton HashMap_ValueIterator: int
 
     fun hasNext (): boolean
     {
-        result = index < self.parent.length;
+        result = index < this.parent.length;
     }
 
 
     fun next (): Object
     {
-        self.parent._checkForModifications(expectedModCount);
+        this.parent._checkForModifications(expectedModCount);
 
-        val atValidPosition = index < self.parent.length;
+        val atValidPosition = index < this.parent.length;
         if (!atValidPosition)
         {
             action THROW_NEW("java.util.NoSuchElementException", []);
         }
 
-        result = action LIST_GET(self.parent.values, index);
+        result = action LIST_GET(this.parent.values, index);
 
         index += 1;
         nextWasCalled = true;
@@ -974,18 +969,18 @@ automaton HashMap_ValueIterator: int
 
     fun remove (): void
     {
-        val atValidPosition = index < self.parent.length;
+        val atValidPosition = index < this.parent.length;
         if (!atValidPosition || !nextWasCalled)
         {
             action THROW_NEW("java.lang.IllegalStateException", []);
         }
         nextWasCalled = false;
 
-        self.parent._checkForModifications(expectedModCount);
+        this.parent._checkForModifications(expectedModCount);
 
-        self.parent._removeMapping(index);
+        this.parent._removeMapping(index);
 
-        expectedModCount = self.parent.modCounter;
+        expectedModCount = this.parent.modCounter;
     }
 }
 
@@ -1002,7 +997,7 @@ automaton HashMap_Entry: int
 {
     initstate Initialized;
 
-    shift Initialized -> self by [
+    shift Initialized -> this by [
         // read operations
 
         getKey,
@@ -1024,27 +1019,27 @@ automaton HashMap_Entry: int
     fun getKey (): Object
     {
         // we do not have references to arbitrary types, so 'action' it is
-        result = action LIST_GET(self.parent.keys, index);
+        result = action LIST_GET(this.parent.keys, index);
     }
 
 
     fun getValue (): Object
     {
-        result = action LIST_GET(self.parent.values, index);
+        result = action LIST_GET(this.parent.values, index);
     }
 
 
     fun setValue (newValue: Object): Object
     {
-        result = action LIST_GET(self.parent.values, index);
+        result = action LIST_GET(this.parent.values, index);
 
-        action LIST_SET(self.parent.values, index, newValue);
+        action LIST_SET(this.parent.values, index, newValue);
     }
 
 
     fun equals (other: Object): Object
     {
-        if (other == self)
+        if (other == this)
         {
             result = true;
         }
@@ -1063,8 +1058,8 @@ automaton HashMap_Entry: int
 
     fun toString (): string
     {
-        val key   = action LIST_GET(self.parent.keys, index);
-        val value = action LIST_GET(self.parent.values, index);
+        val key   = action LIST_GET(this.parent.keys, index);
+        val value = action LIST_GET(this.parent.values, index);
 
         val sKey   = action OBJECT_TO_STRING(key);
         val sValue = action OBJECT_TO_STRING(value);
@@ -1075,8 +1070,8 @@ automaton HashMap_Entry: int
 
     fun hashCode (): int
     {
-        val key   = action LIST_GET(self.parent.keys, index);
-        val value = action LIST_GET(self.parent.values, index);
+        val key   = action LIST_GET(this.parent.keys, index);
+        val value = action LIST_GET(this.parent.values, index);
 
         val hKey   = action OBJECT_HASH_CODE(key);
         val hValue = action OBJECT_HASH_CODE(value);
@@ -1096,7 +1091,7 @@ automaton HashMap_EntrySet: int
 {
     initstate Initialized;
 
-    shift Initialized -> self by [
+    shift Initialized -> this by [
         // read operations
         size,
         contains,
@@ -1114,34 +1109,34 @@ automaton HashMap_EntrySet: int
 
     fun size (): int
     {
-        result = self.parent.length;
+        result = this.parent.length;
     }
 
 
     fun clear (): void
     {
-        assigns self.parent;
+        assigns this.parent;
 
-        self.parent._clearMappings();
+        this.parent._clearMappings();
     }
 
 
     fun iterator (): Iterator
     {
         result = new HashMap_EntryIterator(
-            state=Initialized, parent=self.parent, expectedModCount=self.parent.modCounter);
+            state=Initialized, parent=this.parent, expectedModCount=this.parent.modCounter);
     }
 
 
     fun spliterator (): Spliterator
     {
-        result = new HashMap_EntrySpliterator(state=Initialized, parent=self.parent);
+        result = new HashMap_EntrySpliterator(state=Initialized, parent=this.parent);
     }
 
 
     fun contains (e: Object): boolean
     {
-        if (self.parent.length == 0)
+        if (this.parent.length == 0)
         {
             result = false;
         }
@@ -1160,12 +1155,12 @@ automaton HashMap_EntrySet: int
 
     fun remove (e: Object): boolean
     {
-        assigns self.parent;
+        assigns this.parent;
 
         // #problem
         // val key = action CALL_INTERFACE(e, "getKey():java.lang.Object", []);
 
-        val oldValue = self.parent._removeMapping(key);
+        val oldValue = this.parent._removeMapping(key);
         result = oldValue != null;
     }
 }
@@ -1185,7 +1180,7 @@ automaton HashMap_EntryIterator: int
 {
     initstate Initialized;
 
-    shift Initialized -> self by [
+    shift Initialized -> this by [
         // read operations
         hasNext,
 
@@ -1199,21 +1194,21 @@ automaton HashMap_EntryIterator: int
 
     fun hasNext (): boolean
     {
-        result = index < self.parent.length;
+        result = index < this.parent.length;
     }
 
 
     fun next (): Object
     {
-        self.parent._checkForModifications(expectedModCount);
+        this.parent._checkForModifications(expectedModCount);
 
-        val atValidPosition = index < self.parent.length;
+        val atValidPosition = index < this.parent.length;
         if (!atValidPosition)
         {
             action THROW_NEW("java.util.NoSuchElementException", []);
         }
 
-        result = new HashMap_Entry(index=self.index);
+        result = new HashMap_Entry(index=this.index);
 
         index += 1;
         nextWasCalled = true;
@@ -1222,18 +1217,18 @@ automaton HashMap_EntryIterator: int
 
     fun remove (): void
     {
-        val atValidPosition = index < self.parent.length;
+        val atValidPosition = index < this.parent.length;
         if (!atValidPosition || !nextWasCalled)
         {
             action THROW_NEW("java.lang.IllegalStateException", []);
         }
         nextWasCalled = false;
 
-        self.parent._checkForModifications(expectedModCount);
+        this.parent._checkForModifications(expectedModCount);
 
-        self.parent._removeMapping(index);
+        this.parent._removeMapping(index);
 
-        expectedModCount = self.parent.modCounter;
+        expectedModCount = this.parent.modCounter;
     }
 }
 
