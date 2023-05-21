@@ -37,41 +37,41 @@ automaton OptionalDoubleAutomaton(
 
     shift Allocated -> Initialized by [
         // constructors
-        `OptionalDouble.OptionalDouble` (OptionalDouble), // #problem: reference to self in constructor
-        `OptionalDouble.OptionalDouble` (OptionalDouble, double),
+        `OptionalDouble` (OptionalDouble), // #problem: reference to self in constructor
+        `OptionalDouble` (OptionalDouble, double),
 
         // static methods
-        `OptionalDouble.empty`,
-        `OptionalDouble.of`,
+        `empty`,
+        `of`,
     ];
 
     shift Initialized -> self by [
         // read operations
-        `OptionalDouble.getAsDouble`,
-        `OptionalDouble.isPresent`,
-        `OptionalDouble.isEmpty`,
-        `OptionalDouble.ifPresent`,
-        `OptionalDouble.ifPresentOrElse`,
-        `OptionalDouble.stream`,
-        `OptionalDouble.orElse`,
-        `OptionalDouble.orElseGet`,
-        `OptionalDouble.orElseThrow` (OptionalDouble),
-        `OptionalDouble.orElseThrow` (OptionalDouble, Supplier),
-        `OptionalDouble.toString`,
-        `OptionalDouble.hashCode`,
-        `OptionalDouble.equals`,
+        `getAsDouble`,
+        `isPresent`,
+        `isEmpty`,
+        `ifPresent`,
+        `ifPresentOrElse`,
+        `stream`,
+        `orElse`,
+        `orElseGet`,
+        `orElseThrow` (OptionalDouble),
+        `orElseThrow` (OptionalDouble, Supplier),
+        `toString`,
+        `hashCode`,
+        `equals`,
     ];
 
 
     // constructors
 
-    @private constructor `OptionalDouble.OptionalDouble` (@target self: OptionalDouble)
+    @private constructor `OptionalDouble` (@target self: OptionalDouble)
     {
         action ERROR("Private constructor call");
     }
 
 
-    @private constructor `OptionalDouble.OptionalDouble` (@target self: OptionalDouble, x: double)
+    @private constructor `OptionalDouble` (@target self: OptionalDouble, x: double)
     {
         action ERROR("Private constructor call");
     }
@@ -96,13 +96,13 @@ automaton OptionalDoubleAutomaton(
 
     // static methods
 
-    @static fun `OptionalDouble.empty` (): OptionalDouble
+    @static fun `empty` (): OptionalDouble
     {
         result = _makeEmpty();
     }
 
 
-    @static fun `OptionalDouble.of` (x: double): OptionalDouble
+    @static fun `of` (x: double): OptionalDouble
     {
         result = new OptionalDoubleAutomaton(state=Initialized, value=x, present=true);
     }
@@ -111,7 +111,7 @@ automaton OptionalDoubleAutomaton(
     // methods
 
     @AnnotatedWith("java.lang.Override", [])
-    fun `OptionalDouble.equals` (@target self: OptionalDouble, other: Object): boolean
+    fun `equals` (@target self: OptionalDouble, other: Object): boolean
     {
         if (other == this)
         {
@@ -119,7 +119,7 @@ automaton OptionalDoubleAutomaton(
         }
         else
         {
-            val isSameType: boolean = action OBJECT_SAME_TYPE(this, other);
+            val isSameType: boolean = action OBJECT_SAME_TYPE(self, other);
             if (isSameType)
             {
                 val otherValue: double = OptionalDoubleAutomaton(other).value;
@@ -138,7 +138,7 @@ automaton OptionalDoubleAutomaton(
     }
 
 
-    fun `OptionalDouble.getAsDouble` (@target self: OptionalDouble): double
+    fun `getAsDouble` (@target self: OptionalDouble): double
     {
         if (!this.present)
             {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
@@ -148,7 +148,7 @@ automaton OptionalDoubleAutomaton(
 
 
     @AnnotatedWith("java.lang.Override", [])
-    fun `OptionalDouble.hashCode` (@target self: OptionalDouble): int
+    fun `hashCode` (@target self: OptionalDouble): int
     {
         if (this.present)
             {result = action OBJECT_HASH_CODE(this.value);}
@@ -157,7 +157,7 @@ automaton OptionalDoubleAutomaton(
     }
 
 
-    fun `OptionalDouble.ifPresent` (@target self: OptionalDouble, consumer: DoubleConsumer): void
+    fun `ifPresent` (@target self: OptionalDouble, consumer: DoubleConsumer): void
     {
         requires !this.present || (this.present && consumer != null);
 
@@ -171,7 +171,7 @@ automaton OptionalDoubleAutomaton(
     }
 
 
-    fun `OptionalDouble.ifPresentOrElse` (@target self: OptionalDouble, consumer: DoubleConsumer, emptyAction: Runnable): void
+    fun `ifPresentOrElse` (@target self: OptionalDouble, consumer: DoubleConsumer, emptyAction: Runnable): void
     {
         requires !this.present || (this.present  && consumer != null);
         requires this.present  || (!this.present && emptyAction != null);
@@ -193,19 +193,19 @@ automaton OptionalDoubleAutomaton(
     }
 
 
-    fun `OptionalDouble.isEmpty` (@target self: OptionalDouble): boolean
+    fun `isEmpty` (@target self: OptionalDouble): boolean
     {
         result = this.present == false;
     }
 
 
-    fun `OptionalDouble.isPresent` (@target self: OptionalDouble): boolean
+    fun `isPresent` (@target self: OptionalDouble): boolean
     {
         result = this.present == true;
     }
 
 
-    fun `OptionalDouble.orElse` (@target self: OptionalDouble, other: double): double
+    fun `orElse` (@target self: OptionalDouble, other: double): double
     {
         if (this.present)
             {result = this.value;}
@@ -214,7 +214,7 @@ automaton OptionalDoubleAutomaton(
     }
 
 
-    fun `OptionalDouble.orElseGet` (@target self: OptionalDouble, supplier: DoubleSupplier): double
+    fun `orElseGet` (@target self: OptionalDouble, supplier: DoubleSupplier): double
     {
         requires supplier != null;
 
@@ -228,7 +228,7 @@ automaton OptionalDoubleAutomaton(
     }
 
 
-    fun `OptionalDouble.orElseThrow` (@target self: OptionalDouble): double
+    fun `orElseThrow` (@target self: OptionalDouble): double
     {
         requires this.present;
 
@@ -241,7 +241,7 @@ automaton OptionalDoubleAutomaton(
 
     @Parametrized(["X extends java.lang.Throwable"])
     @throws(["X"])
-    fun `OptionalDouble.orElseThrow` (@target self: OptionalDouble, @Parametrized(["? extends X"]) exceptionSupplier: Supplier): double
+    fun `orElseThrow` (@target self: OptionalDouble, @Parametrized(["? extends X"]) exceptionSupplier: Supplier): double
     {
         requires exceptionSupplier != null;
 
@@ -260,7 +260,7 @@ automaton OptionalDoubleAutomaton(
     }
 
 
-    fun `OptionalDouble.stream` (@target self: OptionalDouble): DoubleStream
+    fun `stream` (@target self: OptionalDouble): DoubleStream
     {
         action NOT_IMPLEMENTED();
 
@@ -274,7 +274,7 @@ automaton OptionalDoubleAutomaton(
 
 
     @AnnotatedWith("java.lang.Override", [])
-    fun `OptionalDouble.toString` (@target self: OptionalDouble): string
+    fun `toString` (@target self: OptionalDouble): string
     {
         if (this.present)
         {

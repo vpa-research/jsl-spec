@@ -14,12 +14,12 @@ annotation CacheStaticOnce ();
 
 // The marked feature is no longer needed or required.
 annotation Deprecated (
-    hint: string = "";
+    hint: string = "",
 );
 
 // Specifies expected parent automaton and a class-container.
 annotation From (
-    parentAutomatonName: string;
+    parentAutomatonName: string,
 );
 
 // The merked method does not return to normal execution.
@@ -30,27 +30,27 @@ annotation StopsControlFlow ();
 
 // Associates the type on the LEFT side of typealias with the specified type.
 annotation TypeMapping (
-    fullClassName: string = null;
-    builtin: bool = false;
-    typeVariable: bool = false; // #problem
+    fullClassName: string = null,
+    builtin: bool = false,
+    typeVariable: bool = false, // #problem
 );
 
 // General meta-data for a wrapper class generated from this automaton.
 annotation WrapperMeta (
-    src: string;
-    dst: string;
-    forceMatchInterfaces: bool = false;
+    src: string,
+    dst: string,
+    forceMatchInterfaces: bool = false,
 );
 
 // Forces the body of a specified subroutine to be copy-pasted at the callsite.
 annotation AutoInline ();
 
 // #problem
-annotation Generic (
-    typeParameters: string;
+annotation Parametrized (
+    typeParameters: string,
 );
 
 // #problem
-annotation GenericResult (
-    typeParameters: string;
+annotation ParametrizedResult (
+    typeParameters: string,
 )
