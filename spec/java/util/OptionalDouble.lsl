@@ -16,10 +16,12 @@ library `std:collections`
 // local semantic types
 
 // also an Object
-@public @final type OptionalDouble {
+@public @final type java.util.OptionalDouble {
     value: double;
     present: boolean;
 }
+
+typealias OptionalDouble = java.util.OptionalDouble;
 
 
 // automata
