@@ -17,8 +17,6 @@ library `std:collections`
 
 // also an Object
 @public @final type java.util.OptionalDouble {
-    value: double;
-    present: boolean;
 }
 
 typealias OptionalDouble = java.util.OptionalDouble;
