@@ -110,10 +110,10 @@ automaton OptionalDoubleAutomaton(
 
     // methods
 
-    @AnnotatedWith("java.lang.Override", [])
+    @AnnotatedWith("java.lang.Override")
     fun `equals` (@target self: OptionalDouble, other: Object): boolean
     {
-        if (other == this)
+        if (other == self)
         {
             result = true;
         }
@@ -147,7 +147,7 @@ automaton OptionalDoubleAutomaton(
     }
 
 
-    @AnnotatedWith("java.lang.Override", [])
+    @AnnotatedWith("java.lang.Override")
     fun `hashCode` (@target self: OptionalDouble): int
     {
         if (this.present)
