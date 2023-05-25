@@ -7,6 +7,9 @@ library `std:collections`
 
 // imports
 
+// TODO: remove debug code
+import generator-annotations;
+
 // import java-common;
 // import java/lang/_interfaces;
 // import java/util/function/_interfaces;
