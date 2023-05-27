@@ -1,13 +1,17 @@
 //#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library "std:collections" language "Java" version "11" url "-";
+library `std:collections`
+    version "11"
+    language "Java"
+    url "-";
 
-import "java-common.lsl";
+import java-common;
 
 
-@TypeMapping("java.lang.Runnable")
-typealias Runnable = Object;    // #problem
+type Runnable is java.lang.Runnable for Object {
+    fun run (): void;
+}
 
 @TypeMapping("java.lang.Throwable")
 typealias Throwable = Object;    // #problem

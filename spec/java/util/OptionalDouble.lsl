@@ -7,22 +7,44 @@ library `std:collections`
 
 // imports
 
-// TODO: remove debug code
-import generator-annotations;
+import java-common;
+import java/lang/_interfaces;
+import java/util/function/_interfaces;
+import java/util/stream/_interfaces;
 
-// import java-common;
-// import java/lang/_interfaces;
-// import java/util/function/_interfaces;
-// import java/util/stream/_interfaces;
+
+/// TODO: remove duplicate types
+
+type Runnable is java.lang.Runnable for Object {
+    fun run (): void;
+}
+
+type DoubleConsumer is java.util.function.DoubleConsumer for Object {
+    fun accept (x: double): void;
+}
+
+type DoubleSupplier is java.util.function.DoubleSupplier for Object {
+    fun get (): double;
+}
+
+@Parametrized(["T"])
+type Supplier is java.util.function.Supplier for Object {
+    fun get (): Object;
+}
+
+type DoubleStream is java.util.stream.DoubleStream for Object {
+    // ???
+}
+
+/// TODO: remove duplicate types
+
 
 
 // local semantic types
 
-// also an Object
-@public @final type java.util.OptionalDouble {
+@public @final
+type OptionalDouble is java.util.OptionalDouble for Object {
 }
-
-typealias OptionalDouble = java.util.OptionalDouble;
 
 
 // automata
