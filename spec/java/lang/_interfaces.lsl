@@ -6,7 +6,7 @@ library `std:collections`
     language "Java"
     url "-";
 
-import java-common;
+import java.common;
 
 
 type Runnable is java.lang.Runnable for Object {

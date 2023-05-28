@@ -1,34 +1,58 @@
-//#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library "std:collections"
+library `std:collections`
     version "11"
     language "Java"
     url "-";
 
 // imports
 
-import "java-common.lsl";
-import "java/lang/_interfaces.lsl";
-import "java/util/function/_interfaces.lsl";
-import "java/util/stream/_interfaces.lsl";
+import java.common;
+import java/lang/_interfaces;
+import java/util/function/_interfaces;
+import java/util/stream/_interfaces;
+
+
+/// TODO: remove duplicate types
+
+type Runnable is java.lang.Runnable for Object {
+    fun run (): void;
+}
+
+type IntConsumer is java.util.function.IntConsumer for Object {
+    fun accept (x: int): void;
+}
+
+type IntSupplier is java.util.function.IntSupplier for Object {
+    fun get (): int;
+}
+
+@Parametrized(["T"])
+type Supplier is java.util.function.Supplier for Object {
+    fun get (): Object;
+}
+
+type IntStream is java.util.stream.IntStream for Object {
+    // ???
+}
+
+/// TODO: remove duplicate types
+
 
 
 // local semantic types
 
+@public @final
+type OptionalInt is java.util.OptionalInt for Object {
+}
 
 
 // automata
 
-@WrapperMeta(
-    src="java.util.OptionalInt",
-    dst="ru.spbpu.libsl.overrides.collections.OptionalInt",
-)
-@public @final automaton OptionalInt: int
-(
-    var value: int = 0;
-    var present: boolean = false;
-)
+automaton OptionalIntAutomaton (
+    var value: int,
+    var present: boolean
+): OptionalInt
 {
     // states and shifts
 
@@ -37,8 +61,8 @@ import "java/util/stream/_interfaces.lsl";
 
     shift Allocated -> Initialized by [
         // constructors
-        OptionalInt (),
-        OptionalInt (int),
+        OptionalInt (OptionalInt),
+        OptionalInt (OptionalInt, int),
 
         // static methods
         empty,
@@ -55,8 +79,8 @@ import "java/util/stream/_interfaces.lsl";
         stream,
         orElse,
         orElseGet,
-        orElseThrow (),
-        orElseThrow (Supplier),
+        orElseThrow (OptionalInt),
+        orElseThrow (OptionalInt, Supplier),
         toString,
         hashCode,
         equals,
@@ -65,13 +89,13 @@ import "java/util/stream/_interfaces.lsl";
 
     // constructors
 
-    @private constructor OptionalInt ()
+    @private constructor OptionalInt (@target self: OptionalInt)
     {
         action ERROR("Private constructor call");
     }
 
 
-    @private constructor OptionalInt (x: int)
+    @private constructor OptionalInt (@target self: OptionalInt, x: int)
     {
         action ERROR("Private constructor call");
     }
@@ -83,12 +107,12 @@ import "java/util/stream/_interfaces.lsl";
     @static proc _makeEmpty (): OptionalInt
     {
         // #problem
-        result = new OptionalInt(state=Initialized);
+        result = new OptionalIntAutomaton(state=Initialized);
     }
 
 
     @AutoInline
-    proc _throwNPE (): void
+    @static proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
     }
@@ -104,13 +128,14 @@ import "java/util/stream/_interfaces.lsl";
 
     @static fun of (x: int): OptionalInt
     {
-        result = new OptionalInt(state=Initialized, value=x, present=true);
+        result = new OptionalIntAutomaton(state=Initialized, value=x, present=true);
     }
 
 
     // methods
 
-    fun equals (other: Object): boolean
+    @AnnotatedWith("java.lang.Override")
+    fun equals (@target self: OptionalInt, other: Object): boolean
     {
         if (other == self)
         {
@@ -118,16 +143,16 @@ import "java/util/stream/_interfaces.lsl";
         }
         else
         {
-            val isSameType = action OBJECT_SAME_TYPE(self, other);
+            val isSameType: boolean = action OBJECT_SAME_TYPE(self, other);
             if (isSameType)
             {
-                val otherValue = OptionalInt(other).value;
-                val otherPresent = OptionalInt(other).present;
+                val otherValue: int = OptionalIntAutomaton(other).value;
+                val otherPresent: boolean = OptionalIntAutomaton(other).present;
 
-                if (self.present && otherPresent)
-                    result = self.value == otherValue;
+                if (this.present && otherPresent)
+                    {result = this.value == otherValue;}
                 else
-                    result = self.present == otherPresent;
+                    {result = this.present == otherPresent;}
             }
             else
             {
@@ -137,145 +162,147 @@ import "java/util/stream/_interfaces.lsl";
     }
 
 
-    fun getAsInt (): int
+    fun getAsInt (@target self: OptionalInt): int
     {
-        if (!present)
-            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
+        if (!this.present)
+            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
 
-        result = value;
+        result = this.value;
     }
 
 
-    fun hashCode (): int
+    @AnnotatedWith("java.lang.Override")
+    fun hashCode (@target self: OptionalInt): int
     {
-        if (present)
-            result = action OBJECT_HASH_CODE(value);
+        if (this.present)
+            {result = action OBJECT_HASH_CODE(this.value);}
         else
-            result = 0;
+            {result = 0;}
     }
 
 
-    fun ifPresent (consumer: IntConsumer): void
+    fun ifPresent (@target self: OptionalInt, consumer: IntConsumer): void
     {
-        required !present || (present && consumer != null);
+        requires !this.present || (this.present && consumer != null);
 
-        if (present)
+        if (this.present)
         {
             if (consumer == null)
-                self._throwNPE();
+                {_throwNPE();}
 
-            action CALL(consumer, [value]);
+            action CALL(consumer, [this.value]);
         }
     }
 
 
-    fun ifPresentOrElse (consumer: IntConsumer, emptyAction: Runnable): void
+    fun ifPresentOrElse (@target self: OptionalInt, consumer: IntConsumer, emptyAction: Runnable): void
     {
-        required !present || (present  && consumer != null);
-        required present  || (!present && emptyAction != null);
+        requires !this.present || (this.present  && consumer != null);
+        requires this.present  || (!this.present && emptyAction != null);
 
-        if (present)
+        if (this.present)
         {
             if (consumer == null)
-                self._throwNPE();
+                {_throwNPE();}
 
-            action CALL(consumer, [value]);
+            action CALL(consumer, [this.value]);
         }
         else
         {
             if (emptyAction == null)
-                self._throwNPE();
+                {_throwNPE();}
 
             action CALL(emptyAction, []);
         }
     }
 
 
-    fun isEmpty (): boolean
+    fun isEmpty (@target self: OptionalInt): boolean
     {
-        result = present == false;
+        result = this.present == false;
     }
 
 
-    fun isPresent (): boolean
+    fun isPresent (@target self: OptionalInt): boolean
     {
-        result = present == true;
+        result = this.present == true;
     }
 
 
-    fun orElse (other: int): int
+    fun orElse (@target self: OptionalInt, other: int): int
     {
-        if (present)
-            result = value;
+        if (this.present)
+            {result = this.value;}
         else
-            result = other;
+            {result = other;}
     }
 
 
-    fun orElseGet (supplier: IntSupplier): int
+    fun orElseGet (@target self: OptionalInt, supplier: IntSupplier): int
     {
-        required supplier != null;
+        requires supplier != null;
 
         if (supplier == null)
-            self._throwNPE();
+            {_throwNPE();}
 
-        if (present)
-            result = value;
+        if (this.present)
+            {result = this.value;}
         else
-            result = action CALL(supplier, []);
+            {result = action CALL(supplier, []);}
     }
 
 
-    fun orElseThrow (): int
+    fun orElseThrow (@target self: OptionalInt): int
     {
-        required present;
+        requires this.present;
 
-        if (!present)
-            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
+        if (!this.present)
+            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
 
-        result = value;
+        result = this.value;
     }
 
 
-    @Generic("X extends java.lang.Throwable")
-    @throws(["X"], generic=true)
-    fun orElseThrow(@Generic("? extends X") exceptionSupplier: Supplier): int
+    @Parametrized(["X extends java.lang.Throwable"])
+    @throws(["X"])
+    fun orElseThrow(@target self: OptionalInt, @Parametrized(["? extends X"]) exceptionSupplier: Supplier): int
     {
-        required exceptionSupplier != null;
+        requires exceptionSupplier != null;
 
         if (exceptionSupplier == null)
-            self._throwNPE();
+            {_throwNPE();}
 
-        if (!present)
+        if (!this.present)
         {
-            val exception = action CALL(exceptionSupplier, []);
+            val exception: Object = action CALL(exceptionSupplier, []);
             action THROW_VALUE(exception);
         }
         else
         {
-            result = value;
+            result = this.value;
         }
     }
 
 
-    fun stream (): IntStream
+    fun stream (@target self: OptionalInt): IntStream
     {
         action NOT_IMPLEMENTED();
 
         /*
-        if (present)
-            result = IntStream.of(value); // #problem
+        if (this.present)
+            result = IntStream.of(this.value); // #problem
         else
             result = IntStream.empty(); // #problem
         */
     }
 
 
-    fun toString (): String
+    @AnnotatedWith("java.lang.Override", [])
+    fun toString (@target self: OptionalInt): String
     {
-        if (present)
+        if (this.present)
         {
-            val valueStr = action OBJECT_TO_STRING(value);
+            val valueStr: string = action OBJECT_TO_STRING(this.value);
             result = "OptionalInt[" + valueStr + "]";
         }
         else

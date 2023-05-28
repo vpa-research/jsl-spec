@@ -7,7 +7,7 @@ library `std:collections`
     url "-";
 
 // DO NOT REMOVE!
-import generator-annotations;
+import generator.annotations;
 
 
 

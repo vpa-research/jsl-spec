@@ -6,18 +6,20 @@ library `std:collections`
     language "Java"
     url "-";
 
-import java-common;
+import java.common;
 
 
 type DoubleStream is java.util.stream.DoubleStream for Object {
     // ???
 }
 
-@TypeMapping("java.util.stream.IntStream")
-typealias IntStream = Object;    // #problem
+type IntStream is java.util.stream.IntStream for Object {
+    // ???
+}
 
-@TypeMapping("java.util.stream.LongStream")
-typealias LongStream = Object;    // #problem
+type LongStream is java.util.stream.LongStream for Object {
+    // ???
+}
 
 @TypeMapping("java.util.stream.Stream")
 typealias Stream = Object;    // #problem

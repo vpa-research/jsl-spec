@@ -6,7 +6,7 @@ library `std:collections`
     language "Java"
     url "-";
 
-import java-common;
+import java.common;
 
 @TypeMapping("java.util.Collection")
 typealias Collection = Object;    // #problem

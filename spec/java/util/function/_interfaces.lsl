@@ -6,7 +6,7 @@ library `std:collections`
     language "Java"
     url "-";
 
-// import java-common;
+import java.common;
 
 
 @TypeMapping("java.util.function.BiConsumer")
@@ -63,8 +63,11 @@ typealias Function = Object;    // #problem
 @TypeMapping("java.util.function.IntBinaryOperator")
 typealias IntBinaryOperator = Object;    // #problem
 
-@TypeMapping("java.util.function.IntConsumer")
-typealias IntConsumer = Object;    // #problem
+
+type IntConsumer is java.util.function.IntConsumer for Object {
+    fun accept (x: int): void;
+}
+
 
 @TypeMapping("java.util.function.IntFunction")
 typealias IntFunction = Object;    // #problem
@@ -72,8 +75,11 @@ typealias IntFunction = Object;    // #problem
 @TypeMapping("java.util.function.IntPredicate")
 typealias IntPredicate = Object;    // #problem
 
-@TypeMapping("java.util.function.IntSupplier")
-typealias IntSupplier = Object;    // #problem
+
+type IntSupplier is java.util.function.IntSupplier for Object {
+    fun get (): int;
+}
+
 
 @TypeMapping("java.util.function.IntToDoubleFunction")
 typealias IntToDoubleFunction = Object;    // #problem
