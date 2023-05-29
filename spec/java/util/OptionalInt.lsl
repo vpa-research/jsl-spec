@@ -27,7 +27,7 @@ type IntSupplier is java.util.function.IntSupplier for Object {
     fun get (): int;
 }
 
-@Parametrized(["T"])
+@Parameterized(["T"])
 type Supplier is java.util.function.Supplier for Object {
     fun get (): Object;
 }
@@ -263,9 +263,9 @@ automaton OptionalIntAutomaton (
     }
 
 
-    @Parametrized(["X extends java.lang.Throwable"])
+    @Parameterized(["X extends java.lang.Throwable"])
     @throws(["X"])
-    fun orElseThrow(@target self: OptionalInt, @Parametrized(["? extends X"]) exceptionSupplier: Supplier): int
+    fun orElseThrow(@target self: OptionalInt, @Parameterized(["? extends X"]) exceptionSupplier: Supplier): int
     {
         requires exceptionSupplier != null;
 

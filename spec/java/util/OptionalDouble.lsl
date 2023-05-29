@@ -15,24 +15,29 @@ import java/util/stream/_interfaces;
 
 /// TODO: remove duplicate types
 
-type Runnable is java.lang.Runnable for Object {
+type Runnable is java.lang.Runnable for Object
+{
     fun run (): void;
 }
 
-type DoubleConsumer is java.util.function.DoubleConsumer for Object {
+type DoubleConsumer is java.util.function.DoubleConsumer for Object
+{
     fun accept (x: double): void;
 }
 
-type DoubleSupplier is java.util.function.DoubleSupplier for Object {
+type DoubleSupplier is java.util.function.DoubleSupplier for Object
+{
     fun get (): double;
 }
 
-@Parametrized(["T"])
-type Supplier is java.util.function.Supplier for Object {
+@Parameterized(["T"])
+type Supplier is java.util.function.Supplier for Object
+{
     fun get (): Object;
 }
 
-type DoubleStream is java.util.stream.DoubleStream for Object {
+type DoubleStream is java.util.stream.DoubleStream for Object
+{
     // ???
 }
 
@@ -42,8 +47,8 @@ type DoubleStream is java.util.stream.DoubleStream for Object {
 
 // local semantic types
 
-@public @final
-type OptionalDouble is java.util.OptionalDouble for Object {
+@public @final type OptionalDouble is java.util.OptionalDouble for Object
+{
 }
 
 
@@ -263,9 +268,9 @@ automaton OptionalDoubleAutomaton (
     }
 
 
-    @Parametrized(["X extends java.lang.Throwable"])
+    @Parameterized(["X extends java.lang.Throwable"])
     @throws(["X"])
-    fun orElseThrow (@target self: OptionalDouble, @Parametrized(["? extends X"]) exceptionSupplier: Supplier): double
+    fun orElseThrow (@target self: OptionalDouble, @Parameterized(["? extends X"]) exceptionSupplier: Supplier): double
     {
         requires exceptionSupplier != null;
 

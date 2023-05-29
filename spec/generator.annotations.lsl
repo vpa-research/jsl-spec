@@ -49,13 +49,13 @@ annotation NoReturn;
 
 
 // #problem
-annotation Parametrized (
+annotation Parameterized (
     typeParameters: string,
 );
 
 
 // #problem
-annotation ParametrizedResult (
+annotation ParameterizedResult (
     typeParameters: string,
 );
 

@@ -127,7 +127,7 @@ typealias ObjLongConsumer = Object;    // #problem
 typealias Predicate = Object;    // #problem
 
 
-@Parametrized(["T"])
+@Parameterized(["T"])
 type Supplier is java.util.function.Supplier for Object {
     fun get (): Object;
 }
