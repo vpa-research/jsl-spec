@@ -1,3 +1,4 @@
+//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library `std:collections`
@@ -42,8 +43,7 @@ type IntStream is java.util.stream.IntStream for Object {
 
 // local semantic types
 
-@public @final
-type OptionalInt is java.util.OptionalInt for Object {
+@public @final type OptionalInt is java.util.OptionalInt for Object {
 }
 
 
