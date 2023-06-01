@@ -20,12 +20,7 @@ library "std:collections" language "Java" version "11" url "-";
 
 @public
 @extends("java.util.AbstractMap")
-/*@WrapperMeta(
-    src="java.util.HashMap",
-    dst="ru.spbpu.libsl.overrides.collections.HashMap",
-    forceMatchInterfaces=true,
-)*/
-automaton HashMap // : int
+automaton HashMap
 (
     var keys: list<Object> = null;
     var values: list<Object> = null;
@@ -738,7 +733,7 @@ automaton HashMap_Values: int
         }
         else
         {
-            val idx = action LIST_FIND(this.parent.values, value, 0, this.parent.length, +1);
+            val idx: int = action LIST_FIND(this.parent.values, value, 0, this.parent.length, +1);
             result = idx >= 0;
         }
     }
@@ -835,7 +830,7 @@ automaton HashMap_KeySet: int
         }
         else
         {
-            val idx = action LIST_FIND(this.parent.keys, key, 0, this.parent.length, +1);
+            val idx: int = action LIST_FIND(this.parent.keys, key, 0, this.parent.length, +1);
             result = idx >= 0;
         }
     }
@@ -845,7 +840,7 @@ automaton HashMap_KeySet: int
     {
         assigns this.parent;
 
-        val oldValue = this.parent._removeMapping(key);
+        val oldValue: Object = this.parent._removeMapping(key);
         result = oldValue != null;
     }
 }
@@ -879,41 +874,41 @@ automaton HashMap_KeyIterator: int
 
     fun hasNext (): boolean
     {
-        result = index < this.parent.length;
+        result = this.index < this.parent.length;
     }
 
 
     fun next (): Object
     {
-        this.parent._checkForModifications(expectedModCount);
+        this.parent._checkForModifications(this.expectedModCount);
 
-        val atValidPosition = index < this.parent.length;
+        val atValidPosition: boolean = this.index < this.parent.length;
         if (!atValidPosition)
         {
             action THROW_NEW("java.util.NoSuchElementException", []);
         }
 
-        result = action LIST_GET(this.parent.keys, index);
+        result = action LIST_GET(this.parent.keys, this.index);
 
-        index += 1;
-        nextWasCalled = true;
+        this.index += 1;
+        this.nextWasCalled = true;
     }
 
 
     fun remove (): void
     {
-        val atValidPosition = index < this.parent.length;
-        if (!atValidPosition || !nextWasCalled)
+        val atValidPosition: boolean = this.index < this.parent.length;
+        if (!atValidPosition || !this.nextWasCalled)
         {
             action THROW_NEW("java.lang.IllegalStateException", []);
         }
-        nextWasCalled = false;
+        this.nextWasCalled = false;
 
-        this.parent._checkForModifications(expectedModCount);
+        this.parent._checkForModifications(this.expectedModCount);
 
-        this.parent._removeMapping(index);
+        this.parent._removeMapping(this.index);
 
-        expectedModCount = this.parent.modCounter;
+        this.expectedModCount = this.parent.modCounter;
     }
 }
 
@@ -946,7 +941,7 @@ automaton HashMap_ValueIterator: int
 
     fun hasNext (): boolean
     {
-        result = index < this.parent.length;
+        result = this.index < this.parent.length;
     }
 
 
@@ -954,33 +949,33 @@ automaton HashMap_ValueIterator: int
     {
         this.parent._checkForModifications(expectedModCount);
 
-        val atValidPosition = index < this.parent.length;
+        val atValidPosition: boolean = this.index < this.parent.length;
         if (!atValidPosition)
         {
             action THROW_NEW("java.util.NoSuchElementException", []);
         }
 
-        result = action LIST_GET(this.parent.values, index);
+        result = action LIST_GET(this.parent.values, this.index);
 
-        index += 1;
-        nextWasCalled = true;
+        this.index += 1;
+        this.nextWasCalled = true;
     }
 
 
     fun remove (): void
     {
-        val atValidPosition = index < this.parent.length;
-        if (!atValidPosition || !nextWasCalled)
+        val atValidPosition: boolean = this.index < this.parent.length;
+        if (!atValidPosition || !this.nextWasCalled)
         {
             action THROW_NEW("java.lang.IllegalStateException", []);
         }
-        nextWasCalled = false;
+        this.nextWasCalled = false;
 
-        this.parent._checkForModifications(expectedModCount);
+        this.parent._checkForModifications(this.expectedModCount);
 
-        this.parent._removeMapping(index);
+        this.parent._removeMapping(this.index);
 
-        expectedModCount = this.parent.modCounter;
+        this.expectedModCount = this.parent.modCounter;
     }
 }
 
@@ -1019,21 +1014,21 @@ automaton HashMap_Entry: int
     fun getKey (): Object
     {
         // we do not have references to arbitrary types, so 'action' it is
-        result = action LIST_GET(this.parent.keys, index);
+        result = action LIST_GET(this.parent.keys, this.index);
     }
 
 
     fun getValue (): Object
     {
-        result = action LIST_GET(this.parent.values, index);
+        result = action LIST_GET(this.parent.values, this.index);
     }
 
 
     fun setValue (newValue: Object): Object
     {
-        result = action LIST_GET(this.parent.values, index);
+        result = action LIST_GET(this.parent.values, this.index);
 
-        action LIST_SET(this.parent.values, index, newValue);
+        action LIST_SET(this.parent.values, this.index, newValue);
     }
 
 
@@ -1058,11 +1053,11 @@ automaton HashMap_Entry: int
 
     fun toString (): string
     {
-        val key   = action LIST_GET(this.parent.keys, index);
-        val value = action LIST_GET(this.parent.values, index);
+        val key: Object   = action LIST_GET(this.parent.keys, this.index);
+        val value: Object = action LIST_GET(this.parent.values, this.index);
 
-        val sKey   = action OBJECT_TO_STRING(key);
-        val sValue = action OBJECT_TO_STRING(value);
+        val sKey: string   = action OBJECT_TO_STRING(key);
+        val sValue: string = action OBJECT_TO_STRING(value);
 
         result = sKey + "=" + sValue;
     }
@@ -1070,11 +1065,11 @@ automaton HashMap_Entry: int
 
     fun hashCode (): int
     {
-        val key   = action LIST_GET(this.parent.keys, index);
-        val value = action LIST_GET(this.parent.values, index);
+        val key: Object   = action LIST_GET(this.parent.keys, this.index);
+        val value: Object = action LIST_GET(this.parent.values, this.index);
 
-        val hKey   = action OBJECT_HASH_CODE(key);
-        val hValue = action OBJECT_HASH_CODE(value);
+        val hKey: string   = action OBJECT_HASH_CODE(key);
+        val hValue: string = action OBJECT_HASH_CODE(value);
 
         result = hKey ^ hValue;
     }
@@ -1194,15 +1189,15 @@ automaton HashMap_EntryIterator: int
 
     fun hasNext (): boolean
     {
-        result = index < this.parent.length;
+        result = this.index < this.parent.length;
     }
 
 
     fun next (): Object
     {
-        this.parent._checkForModifications(expectedModCount);
+        this.parent._checkForModifications(this.expectedModCount);
 
-        val atValidPosition = index < this.parent.length;
+        val atValidPosition: boolean = this.index < this.parent.length;
         if (!atValidPosition)
         {
             action THROW_NEW("java.util.NoSuchElementException", []);
@@ -1210,25 +1205,25 @@ automaton HashMap_EntryIterator: int
 
         result = new HashMap_Entry(index=this.index);
 
-        index += 1;
-        nextWasCalled = true;
+        this.index += 1;
+        this.nextWasCalled = true;
     }
 
 
     fun remove (): void
     {
-        val atValidPosition = index < this.parent.length;
-        if (!atValidPosition || !nextWasCalled)
+        val atValidPosition: boolean = this.index < this.parent.length;
+        if (!atValidPosition || !this.nextWasCalled)
         {
             action THROW_NEW("java.lang.IllegalStateException", []);
         }
-        nextWasCalled = false;
+        this.nextWasCalled = false;
 
-        this.parent._checkForModifications(expectedModCount);
+        this.parent._checkForModifications(this.expectedModCount);
 
-        this.parent._removeMapping(index);
+        this.parent._removeMapping(this.index);
 
-        expectedModCount = this.parent.modCounter;
+        this.expectedModCount = this.parent.modCounter;
     }
 }
 

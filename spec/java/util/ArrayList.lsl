@@ -474,7 +474,7 @@ automaton ArrayList: int (
 
     fun subList (fromIndex: int, toIndex: int): List
     {
-        this._subListRangeCheck(fromIndex, toIndex, length);
+        this._subListRangeCheck(fromIndex, toIndex, this.length);
 
         // #problem
         //We don't have decision about sublists.
@@ -646,7 +646,7 @@ automaton ListItr: int (
 
     fun next (): Object
     {
-        this.parent._checkForComodification(expectedModCount);
+        this.parent._checkForComodification(this.expectedModCount);
         var i: int = this.cursor;
 
         if (i >= this.parent.length)
@@ -666,7 +666,7 @@ automaton ListItr: int (
 
     fun previous (): Object
     {
-        this.parent._checkForComodification(expectedModCount);
+        this.parent._checkForComodification(this.expectedModCount);
         var i: int = this.cursor - 1;
 
         if (i < 0)
