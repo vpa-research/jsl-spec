@@ -1155,7 +1155,7 @@ automaton HashMap_EntrySet: int
         // #problem
         // val key = action CALL_INTERFACE(e, "getKey():java.lang.Object", []);
 
-        val oldValue = this.parent._removeMapping(key);
+        val oldValue: Object = this.parent._removeMapping(key);
         result = oldValue != null;
     }
 }
