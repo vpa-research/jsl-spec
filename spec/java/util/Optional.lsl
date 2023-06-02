@@ -1,35 +1,74 @@
+//#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library "std:collections"
+library `std:collections`
     version "11"
     language "Java"
     url "-";
 
 // imports
 
-import "java-common.lsl";
-import "java/lang/_interfaces.lsl";
-import "java/util/function/_interfaces.lsl";
-import "java/util/stream/_interfaces.lsl";
+import java.common;
+import java/lang/_interfaces;
+import java/util/function/_interfaces;
+import java/util/stream/_interfaces;
+
+
+/// TODO: remove duplicate types
+
+type Runnable is java.lang.Runnable for Object {
+    fun run (): void;
+}
+
+@Parameterized(["T"])
+type Consumer is java.util.function.Consumer for Object {
+    fun accept (x: Object): void;
+}
+
+@Parameterized(["T"])
+type Supplier is java.util.function.Supplier for Object {
+    fun get (): Object;
+}
+
+@Parameterized(["T"])
+type Predicate is java.util.function.Predicate for Object {
+    fun test (x: Object): boolean;
+}
+
+@Parameterized(["I", "O"])
+type Function is java.util.function.Function for Object {
+    fun apply (x: Object): Object;
+}
+
+@Parameterized(["T"])
+type Stream is java.util.stream.Stream for Object {
+    // ???
+}
+
+/// TODO: remove duplicate types
+
 
 
 // local semantic types
 
-// #problem
-@TypeMapping(typeVariable=true) typealias T = Object;
+// # problem
+type T is java.lang.Object for Object
+{
+}
+
+@Parameterized(["T"])
+@public @final type Optional is java.util.Optional for Object
+{
+    var value: T;
+}
 
 
 // automata
 
-@Generic("T")
-@WrapperMeta(
-    src="java.util.Optional",
-    dst="ru.spbpu.libsl.overrides.collections.Optional",
-)
-@public @final automaton Optional: int
-(
-    var value: Object = null;
-)
+@Parameterized(["T"])
+automaton OptionalAutomaton (
+    var value: Object
+): Optional
 {
     // states and shifts
 
@@ -38,8 +77,8 @@ import "java/util/stream/_interfaces.lsl";
 
     shift Allocated -> Initialized by [
         // constructors
-        Optional (),
-        Optional (T),
+        Optional (Optional),
+        Optional (Optional, T),
 
         // static methods
         empty,
@@ -61,8 +100,8 @@ import "java/util/stream/_interfaces.lsl";
         stream,
         orElse,
         orElseGet,
-        orElseThrow (),
-        orElseThrow (Supplier),
+        orElseThrow (Optional),
+        orElseThrow (Optional, Supplier),
         toString,
         hashCode,
         equals,
@@ -71,27 +110,27 @@ import "java/util/stream/_interfaces.lsl";
 
     // constructors
 
-    @private constructor Optional ()
+    @private constructor Optional (@target @Parameterized(["T"]) self: Optional)
     {
         action ERROR("Private constructor call");
-        /*assigns self.value;
-        ensures self.value == null;
+        /*assigns this.value;
+        ensures this.value == null;
 
-        value = null;*/
+        this.value = null;*/
     }
 
 
-    @private constructor Optional (obj: T)
+    @private constructor Optional (@target @Parameterized(["T"]) self: Optional, obj: T)
     {
         action ERROR("Private constructor call");
-        /*required obj != null;
-        assigns self.value;
-        ensures self.value == obj;
+        /*requires obj != null;
+        assigns this.value;
+        ensures this.value == obj;
 
         if (obj == null)
-            self._throwNPE();
+            {_throwNPE();}
 
-        value = obj;*/
+        this.value = obj;*/
     }
 
 
@@ -100,13 +139,12 @@ import "java/util/stream/_interfaces.lsl";
     @CacheStaticOnce
     @static proc _makeEmpty (): Optional
     {
-        // #problem
-        result = new Optional(state=Initialized);
+        result = new OptionalAutomaton(state=Initialized, value=null);
     }
 
 
     @AutoInline
-    proc _throwNPE (): void
+    @static proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
     }
@@ -115,41 +153,46 @@ import "java/util/stream/_interfaces.lsl";
     // static methods
 
     // #problem
-    @Generic("T")
-    @GenericResult("T")
+    @Parameterized(["T"])
+    @ParameterizedResult(["T"])
     @static fun empty (): Optional  // #problem
     {
         result = _makeEmpty();
     }
 
 
-    @Generic("T")
-    @GenericResult("T")
+    @Parameterized(["T"])
+    @ParameterizedResult(["T"])
     @static fun of (obj: T): Optional
     {
-        required obj != null;
+        requires obj != null;
 
         if (obj == null)
-            self._throwNPE();
+            {_throwNPE();}
 
-        result = new Optional(state=Initialized, value=obj);
+        result = new OptionalAutomaton(state=Initialized, value=obj);
     }
 
 
-    @Generic("T")
-    @GenericResult("T")
+    @Parameterized(["T"])
+    @ParameterizedResult(["T"])
     @static fun ofNullable (obj: T): Optional
     {
         if (obj == null)
+        {
             result = _makeEmpty();
+        }
         else
-            result = new Optional(state=Initialized, value=obj);
+        {
+            result = new OptionalAutomaton(state=Initialized, value=obj);
+        }
     }
 
 
     // methods
 
-    fun equals (other: Object): boolean
+    @AnnotatedWith("java.lang.Override")
+    fun equals (@target @Parameterized(["T"]) self: Optional, other: Object): boolean
     {
         if (other == self)
         {
@@ -157,11 +200,11 @@ import "java/util/stream/_interfaces.lsl";
         }
         else
         {
-            val isSameType = action OBJECT_SAME_TYPE(self, other);
+            val isSameType: boolean = action OBJECT_SAME_TYPE(self, other);
             if (isSameType)
             {
-                val otherValue = Optional(other).value;  // #problem
-                result = self.value == otherValue;
+                val otherValue: Object = OptionalAutomaton(other).value;  // #problem
+                result = action OBJECT_EQUALS(this.value, otherValue);
             }
             else
             {
@@ -171,156 +214,166 @@ import "java/util/stream/_interfaces.lsl";
     }
 
 
-    @GenericResult("T")
-    fun filter (@Generic("? super T") predicate: Predicate): Optional
+    @ParameterizedResult(["T"])
+    fun filter (@target @Parameterized(["T"]) self: Optional,
+                @Parameterized(["? super T"]) predicate: Predicate): Optional
     {
-        required predicate != null;
+        requires predicate != null;
 
         if (predicate == null)
-            self._throwNPE();
+            {_throwNPE();}
 
-        if (value == null)
+        if (this.value == null)
         {
-            result = self; // #problem
+            result = self;
         }
         else
         {
-            val sat: boolean = action CALL(predicate, [value]);
+            val sat: boolean = action CALL(predicate, [this.value]);
 
             if (sat)
-                result = self; // #problem
+                {result = self;}
             else
-                result = _makeEmpty();
+                {result = _makeEmpty();}
         }
     }
 
 
-    @Generic("U")
-    @GenericResult("U")
+    @Parameterized(["U"])
+    @ParameterizedResult(["U"])
     // #problem
-    fun flatMap (@Generic("? super T, ? extends Optional<? extends U>") mapper: Function): Optional
+    fun flatMap (@target @Parameterized(["T"]) self: Optional,
+                 @Parameterized(["? super T", "? extends Optional<? extends U>"]) mapper: Function): Optional
     {
-        required mapper != null;
+        requires mapper != null;
 
         if (mapper == null)
-            self._throwNPE();
+            {_throwNPE();}
 
-        if (value == null)
+        if (this.value == null)
         {
             result = _makeEmpty();
         }
         else
         {
-            result = action CALL(mapper, [value]);
+            result = action CALL(mapper, [this.value]);
 
             if (result == null)
-                self._throwNPE();
+                {_throwNPE();}
         }
     }
 
 
-    fun get (): T
+    fun get (@target @Parameterized(["T"]) self: Optional): T
     {
-        if (value == null)
-            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
+        if (this.value == null)
+            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
 
-        result = value;
+        result = this.value;
     }
 
 
-    fun hashCode (): int
+    @AnnotatedWith("java.lang.Override")
+    fun hashCode (@target @Parameterized(["T"]) self: Optional): int
     {
-        result = action OBJECT_HASH_CODE(value);
+        result = action OBJECT_HASH_CODE(this.value);
     }
 
 
-    fun ifPresent (@Generic("? super T") consumer: Consumer): void
+    fun ifPresent (@target @Parameterized(["T"]) self: Optional,
+                   @Parameterized(["? super T"]) consumer: Consumer): void
     {
-        required value == null || (value != null && consumer != null);
+        requires this.value == null || (this.value != null && consumer != null);
 
-        if (value != null)
+        if (this.value != null)
         {
             if (consumer == null)
-                self._throwNPE();
+                {_throwNPE();}
 
-            action CALL(consumer, [value]);
+            action CALL(consumer, [this.value]);
         }
     }
 
 
-    fun ifPresentOrElse (@Generic("? super T") consumer: Consumer, emptyAction: Runnable): void
+    fun ifPresentOrElse (@target @Parameterized(["T"]) self: Optional,
+                         @Parameterized(["? super T"]) consumer: Consumer,
+                         emptyAction: Runnable): void
     {
-        required value == null || (value != null && consumer != null);
-        required value != null || (value == null && emptyAction != null);
+        requires this.value == null || (this.value != null && consumer != null);
+        requires this.value != null || (this.value == null && emptyAction != null);
 
-        if (value != null)
+        if (this.value != null)
         {
             if (consumer == null)
-                self._throwNPE();
+                {_throwNPE();}
 
-            action CALL(consumer, [value]);
+            action CALL(consumer, [this.value]);
         }
         else
         {
             if (emptyAction == null)
-                self._throwNPE();
+                {_throwNPE();}
 
             action CALL(emptyAction, []);
         }
     }
 
 
-    fun isEmpty (): boolean
+    fun isEmpty (@target @Parameterized(["T"]) self: Optional): boolean
     {
-        result = value == null;
+        result = this.value == null;
     }
 
 
-    fun isPresent (): boolean
+    fun isPresent (@target @Parameterized(["T"]) self: Optional): boolean
     {
-        result = value != null;
+        result = this.value != null;
     }
 
 
-    @Generic("U")
-    @GenericResult("U")
-    fun map (@Generic("? super T, ? extends U") mapper: Function): Optional
+    @Parameterized(["U"])
+    @ParameterizedResult(["U"])
+    fun map (@target @Parameterized(["T"]) self: Optional,
+             @Parameterized(["? super T", "? extends U"]) mapper: Function): Optional
     {
-        required mapper != null;
+        requires mapper != null;
 
         if (mapper == null)
-            self._throwNPE();
+            {_throwNPE();}
 
-        if (value == null)
+        if (this.value == null)
         {
             result = _makeEmpty();
         }
         else
         {
-            val mappedValue = action CALL(mapper, [value]);
+            // #problem: where is type U ?
+            val mappedValue: Object = action CALL(mapper, [this.value]);
 
             if (mappedValue == null)
-                result = _makeEmpty();
+                {result = _makeEmpty();}
             else
-                result = new Optional(value=mappedValue);
+                // #problem: how to parameterize the result?
+                {result = new OptionalAutomaton(state=Initialized, value=mappedValue);}
         }
     }
 
 
-    @GenericResult("T")
-    fun or (@Generic("? extends Optional<? extends T>") supplier: Supplier): Optional
+    @ParameterizedResult(["T"])
+    fun or (@target @Parameterized(["T"]) self: Optional,
+            @Parameterized(["? extends Optional<? extends T>"]) supplier: Supplier): Optional
     {
-        required supplier != null;
+        requires supplier != null;
 
         if (supplier == null)
-            self._throwNPE();
+            {_throwNPE();}
 
-        if (value == null)
+        if (this.value == null)
         {
             result = action CALL(supplier, []);
 
             if (result == null)
-                self._throwNPE();
+                {_throwNPE();}
         }
         else
         {
@@ -329,82 +382,87 @@ import "java/util/stream/_interfaces.lsl";
     }
 
 
-    fun orElse (other: T): T
+    fun orElse (@target @Parameterized(["T"]) self: Optional, other: T): T
     {
-        if (value == null)
-            result = other;
+        if (this.value == null)
+            {result = other;}
         else
-            result = value;
+            {result = this.value;}
     }
 
 
-    fun orElseGet (@Generic("? extends T") supplier: Supplier): T
+    fun orElseGet (@target @Parameterized(["T"]) self: Optional,
+                   @Parameterized(["? extends T"]) supplier: Supplier): T
     {
-        required supplier != null;
+        requires supplier != null;
 
         if (supplier == null)
-            self._throwNPE();
+            {_throwNPE();}
 
-        if (value == null)
-            result = action CALL(supplier, []);
+        if (this.value == null)
+            {result = action CALL(supplier, []);}
         else
-            result = value;
+            {result = this.value;}
     }
 
 
-    fun orElseThrow (): T
+    fun orElseThrow (@target @Parameterized(["T"]) self: Optional): T
     {
-        required value != null;
+        requires this.value != null;
 
-        if (value == null)
-            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
+        if (this.value == null)
+            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
 
-        result = value;
+        result = this.value;
     }
 
 
-    @Generic("X extends java.lang.Throwable")
-    @throws(["X"], generic=true)
-    fun orElseThrow (@Generic("? extends X") exceptionSupplier: Supplier): T
+    @Parameterized(["X extends java.lang.Throwable"])
+    @throws(["X"])
+    fun orElseThrow (@target @Parameterized(["T"]) self: Optional,
+                     @Parameterized(["? extends X"]) exceptionSupplier: Supplier): T
     {
-        required exceptionSupplier != null;
+        requires exceptionSupplier != null;
 
         if (exceptionSupplier == null)
-            self._throwNPE();
+            {_throwNPE();}
 
-        if (value == null)
+        if (this.value == null)
         {
-            val exception = action CALL(exceptionSupplier, []);
+            val exception: Object = action CALL(exceptionSupplier, []);
             action THROW_VALUE(exception);
         }
         else
         {
-            result = value;
+            result = this.value;
         }
     }
 
 
-    @GenericResult("T")
-    fun stream (): Stream
+    @ParameterizedResult(["T"])
+    fun stream (@target @Parameterized(["T"]) self: Optional): Stream
     {
         action NOT_IMPLEMENTED();
 
         /*
-        if (value == null)
+        if (this.value == null)
             result = Stream.empty(); // #problem
         else
-            result = Stream.of(value); // #problem
+            result = Stream.of(this.value); // #problem
         */
     }
 
 
-    fun toString (): string
+    @AnnotatedWith("java.lang.Override")
+    fun toString (@target @Parameterized(["T"]) self: Optional): string
     {
-        if (value == null)
+        if (this.value == null)
+        {
             result = "Optional.empty";
+        }
         else
         {
-            val valueStr = action OBJECT_TO_STRING(value);
+            val valueStr: string = action OBJECT_TO_STRING(this.value);
             result = "Optional[" + valueStr + "]";
         }
     }

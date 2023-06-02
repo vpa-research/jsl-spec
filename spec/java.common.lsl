@@ -1,9 +1,13 @@
+//#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library "std" language "Java" version "11" url "-";
+library `std:collections`
+    version "11"
+    language "Java"
+    url "-";
 
 // DO NOT REMOVE!
-import "generator-annotations.lsl";
+import generator.annotations;
 
 
 
@@ -80,16 +84,16 @@ annotation packageprivate ();
 annotation public ();
 
 annotation extends (
-    fullClassName: string;
+    fullClassName: string,
 );
 
 annotation implements (
-    fullInterfaceNames: array<string>;
+    fullInterfaceNames: array<string>,
 );
 
 annotation throws (
-    exceptionTypes: array<string> = [];
-    generic: bool = false;
+    exceptionTypes: array<string> = [],
+    generic: bool = false,
 );
 
 annotation synchronized ();
@@ -116,11 +120,11 @@ annotation strict ();
 // === TYPES ===
 
 
-
+/*
 @TypeMapping(builtin=true) typealias boolean = bool;
 @TypeMapping(builtin=true) typealias int     = int32;
 @TypeMapping(builtin=true) typealias long    = int64;
 @TypeMapping(builtin=true) typealias float   = float32;
 @TypeMapping(builtin=true) typealias double  = float64;
 @TypeMapping(builtin=true) typealias Object  = *void;
-
+*/

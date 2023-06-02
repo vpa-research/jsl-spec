@@ -1,33 +1,63 @@
 libsl "1.1.0";
 
-library "std:collections"
+library `std:collections`
     version "11"
     language "Java"
     url "-";
 
 // imports
 
-import "java-common.lsl";
-import "java/lang/_interfaces.lsl";
-import "java/util/function/_interfaces.lsl";
-import "java/util/stream/_interfaces.lsl";
+import java.common;
+import java/lang/_interfaces;
+import java/util/function/_interfaces;
+import java/util/stream/_interfaces;
+
+
+/// TODO: remove duplicate types
+
+type Runnable is java.lang.Runnable for Object
+{
+    fun run (): void;
+}
+
+type DoubleConsumer is java.util.function.DoubleConsumer for Object
+{
+    fun accept (x: double): void;
+}
+
+type DoubleSupplier is java.util.function.DoubleSupplier for Object
+{
+    fun get (): double;
+}
+
+@Parameterized(["T"])
+type Supplier is java.util.function.Supplier for Object
+{
+    fun get (): Object;
+}
+
+type DoubleStream is java.util.stream.DoubleStream for Object
+{
+    // ???
+}
+
+/// TODO: remove duplicate types
+
 
 
 // local semantic types
 
+@public @final type OptionalDouble is java.util.OptionalDouble for Object
+{
+}
 
 
 // automata
 
-@WrapperMeta(
-    src="java.util.OptionalDouble",
-    dst="ru.spbpu.libsl.overrides.collections.OptionalDouble",
-)
-@public @final automaton OptionalDouble: int
-(
-    var value: double = 0;
-    var present: boolean = false;
-)
+automaton OptionalDoubleAutomaton (
+    var value: double,
+    var present: boolean
+): OptionalDouble
 {
     // states and shifts
 
@@ -36,8 +66,8 @@ import "java/util/stream/_interfaces.lsl";
 
     shift Allocated -> Initialized by [
         // constructors
-        OptionalDouble (),
-        OptionalDouble (double),
+        OptionalDouble (OptionalDouble), // #problem: reference to self in constructor
+        OptionalDouble (OptionalDouble, double),
 
         // static methods
         empty,
@@ -54,8 +84,8 @@ import "java/util/stream/_interfaces.lsl";
         stream,
         orElse,
         orElseGet,
-        orElseThrow (),
-        orElseThrow (Supplier),
+        orElseThrow (OptionalDouble),
+        orElseThrow (OptionalDouble, Supplier),
         toString,
         hashCode,
         equals,
@@ -64,13 +94,13 @@ import "java/util/stream/_interfaces.lsl";
 
     // constructors
 
-    @private constructor OptionalDouble ()
+    @private constructor OptionalDouble (@target self: OptionalDouble)
     {
         action ERROR("Private constructor call");
     }
 
 
-    @private constructor OptionalDouble (x: double)
+    @private constructor OptionalDouble (@target self: OptionalDouble, x: double)
     {
         action ERROR("Private constructor call");
     }
@@ -81,13 +111,12 @@ import "java/util/stream/_interfaces.lsl";
     @CacheStaticOnce
     @static proc _makeEmpty (): OptionalDouble
     {
-        // #problem
-        result = new OptionalDouble(state=Initialized);
+        result = new OptionalDoubleAutomaton(state=Initialized);
     }
 
 
     @AutoInline
-    proc _throwNPE (): void
+    @static proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
     }
@@ -103,13 +132,14 @@ import "java/util/stream/_interfaces.lsl";
 
     @static fun of (x: double): OptionalDouble
     {
-        result = new OptionalDouble(state=Initialized, value=x, present=true);
+        result = new OptionalDoubleAutomaton(state=Initialized, value=x, present=true);
     }
 
 
     // methods
 
-    fun equals (other: Object): boolean
+    @AnnotatedWith("java.lang.Override")
+    fun equals (@target self: OptionalDouble, other: Object): boolean
     {
         if (other == self)
         {
@@ -117,16 +147,16 @@ import "java/util/stream/_interfaces.lsl";
         }
         else
         {
-            val isSameType = action OBJECT_SAME_TYPE(self, other);
+            val isSameType: boolean = action OBJECT_SAME_TYPE(self, other);
             if (isSameType)
             {
-                val otherValue = OptionalDouble(other).value;
-                val otherPresent = OptionalDouble(other).present;
+                val otherValue: double = OptionalDoubleAutomaton(other).value;
+                val otherPresent: boolean = OptionalDoubleAutomaton(other).present;
 
-                if (self.present && otherPresent)
-                    result = self.value == otherValue;  // #problem
+                if (this.present && otherPresent)
+                    {result = this.value == otherValue;}  // #problem
                 else
-                    result = self.present == otherPresent;
+                    {result = this.present == otherPresent;}
             }
             else
             {
@@ -136,145 +166,147 @@ import "java/util/stream/_interfaces.lsl";
     }
 
 
-    fun getAsDouble (): double
+    fun getAsDouble (@target self: OptionalDouble): double
     {
-        if (!present)
-            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
+        if (!this.present)
+            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
 
-        result = value;
+        result = this.value;
     }
 
 
-    fun hashCode (): int
+    @AnnotatedWith("java.lang.Override")
+    fun hashCode (@target self: OptionalDouble): int
     {
-        if (present)
-            result = action OBJECT_HASH_CODE(value);
+        if (this.present)
+            {result = action OBJECT_HASH_CODE(this.value);}
         else
-            result = 0;
+            {result = 0;}
     }
 
 
-    fun ifPresent (consumer: DoubleConsumer): void
+    fun ifPresent (@target self: OptionalDouble, consumer: DoubleConsumer): void
     {
-        required !present || (present && consumer != null);
+        requires !this.present || (this.present && consumer != null);
 
-        if (present)
+        if (this.present)
         {
             if (consumer == null)
-                self._throwNPE();
+                {_throwNPE();}
 
-            action CALL(consumer, [value]);
+            action CALL(consumer, [this.value]);
         }
     }
 
 
-    fun ifPresentOrElse (consumer: DoubleConsumer, emptyAction: Runnable): void
+    fun ifPresentOrElse (@target self: OptionalDouble, consumer: DoubleConsumer, emptyAction: Runnable): void
     {
-        required !present || (present  && consumer != null);
-        required present  || (!present && emptyAction != null);
+        requires !this.present || (this.present  && consumer != null);
+        requires this.present  || (!this.present && emptyAction != null);
 
-        if (present)
+        if (this.present)
         {
             if (consumer == null)
-                self._throwNPE();
+                {_throwNPE();}
 
-            action CALL(consumer, [value]);
+            action CALL(consumer, [this.value]);
         }
         else
         {
             if (emptyAction == null)
-                self._throwNPE();
+                {_throwNPE();}
 
             action CALL(emptyAction, []);
         }
     }
 
 
-    fun isEmpty (): boolean
+    fun isEmpty (@target self: OptionalDouble): boolean
     {
-        result = present == false;
+        result = this.present == false;
     }
 
 
-    fun isPresent (): boolean
+    fun isPresent (@target self: OptionalDouble): boolean
     {
-        result = present == true;
+        result = this.present == true;
     }
 
 
-    fun orElse (other: double): double
+    fun orElse (@target self: OptionalDouble, other: double): double
     {
-        if (present)
-            result = value;
+        if (this.present)
+            {result = this.value;}
         else
-            result = other;
+            {result = other;}
     }
 
 
-    fun orElseGet (supplier: DoubleSupplier): double
+    fun orElseGet (@target self: OptionalDouble, supplier: DoubleSupplier): double
     {
-        required supplier != null;
+        requires supplier != null;
 
         if (supplier == null)
-            self._throwNPE();
+            {_throwNPE();}
 
-        if (present)
-            result = value;
+        if (this.present)
+            {result = this.value;}
         else
-            result = action CALL(supplier, []);
+            {result = action CALL(supplier, []);}
     }
 
 
-    fun orElseThrow (): double
+    fun orElseThrow (@target self: OptionalDouble): double
     {
-        required present;
+        requires this.present;
 
-        if (!present)
-            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
+        if (!this.present)
+            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
 
-        result = value;
+        result = this.value;
     }
 
 
-    @Generic("X extends java.lang.Throwable")
-    @throws(["X"], generic=true)
-    fun orElseThrow (@Generic("? extends X") exceptionSupplier: Supplier): double
+    @Parameterized(["X extends java.lang.Throwable"])
+    @throws(["X"])
+    fun orElseThrow (@target self: OptionalDouble, @Parameterized(["? extends X"]) exceptionSupplier: Supplier): double
     {
-        required exceptionSupplier != null;
+        requires exceptionSupplier != null;
 
         if (exceptionSupplier == null)
-            self._throwNPE();
+            {_throwNPE();}
 
-        if (!present)
+        if (!this.present)
         {
-            val exception = action CALL(exceptionSupplier, []);
+            val exception: Object = action CALL(exceptionSupplier, []);
             action THROW_VALUE(exception);
         }
         else
         {
-            result = value;
+            result = this.value;
         }
     }
 
 
-    fun stream (): DoubleStream
+    fun stream (@target self: OptionalDouble): DoubleStream
     {
         action NOT_IMPLEMENTED();
 
         /*
-        if (present)
-            result = DoubleStream.of(value); // #problem
+        if (this.present)
+            result = DoubleStream.of(this.value); // #problem
         else
             result = DoubleStream.empty(); // #problem
         */
     }
 
 
-    fun toString (): String
+    @AnnotatedWith("java.lang.Override", [])
+    fun toString (@target self: OptionalDouble): string
     {
-        if (present)
+        if (this.present)
         {
-            val valueStr = action OBJECT_TO_STRING(value);
+            val valueStr: string = action OBJECT_TO_STRING(this.value);
             result = "OptionalDouble[" + valueStr + "]";
         }
         else

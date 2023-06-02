@@ -1,8 +1,12 @@
+//#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library "std:collections" language "Java" version "11" url "-";
+library `std:collections`
+    version "11"
+    language "Java"
+    url "-";
 
-import "java-common.lsl";
+import java.common;
 
 
 @TypeMapping("java.util.function.BiConsumer")
@@ -26,8 +30,11 @@ typealias Consumer = Object;    // #problem
 @TypeMapping("java.util.function.DoubleBinaryOperator")
 typealias DoubleBinaryOperator = Object;    // #problem
 
-@TypeMapping("java.util.function.DoubleConsumer")
-typealias DoubleConsumer = Object;    // #problem
+
+type DoubleConsumer is java.util.function.DoubleConsumer for Object {
+    fun accept (x: double): void;
+}
+
 
 @TypeMapping("java.util.function.DoubleFunction")
 typealias DoubleFunction = Object;    // #problem
@@ -35,8 +42,11 @@ typealias DoubleFunction = Object;    // #problem
 @TypeMapping("java.util.function.DoublePredicate")
 typealias DoublePredicate = Object;    // #problem
 
-@TypeMapping("java.util.function.DoubleSupplier")
-typealias DoubleSupplier = Object;    // #problem
+
+type DoubleSupplier is java.util.function.DoubleSupplier for Object {
+    fun get (): double;
+}
+
 
 @TypeMapping("java.util.function.DoubleToIntFunction")
 typealias DoubleToIntFunction = Object;    // #problem
@@ -53,8 +63,11 @@ typealias Function = Object;    // #problem
 @TypeMapping("java.util.function.IntBinaryOperator")
 typealias IntBinaryOperator = Object;    // #problem
 
-@TypeMapping("java.util.function.IntConsumer")
-typealias IntConsumer = Object;    // #problem
+
+type IntConsumer is java.util.function.IntConsumer for Object {
+    fun accept (x: int): void;
+}
+
 
 @TypeMapping("java.util.function.IntFunction")
 typealias IntFunction = Object;    // #problem
@@ -62,8 +75,11 @@ typealias IntFunction = Object;    // #problem
 @TypeMapping("java.util.function.IntPredicate")
 typealias IntPredicate = Object;    // #problem
 
-@TypeMapping("java.util.function.IntSupplier")
-typealias IntSupplier = Object;    // #problem
+
+type IntSupplier is java.util.function.IntSupplier for Object {
+    fun get (): int;
+}
+
 
 @TypeMapping("java.util.function.IntToDoubleFunction")
 typealias IntToDoubleFunction = Object;    // #problem
@@ -110,8 +126,12 @@ typealias ObjLongConsumer = Object;    // #problem
 @TypeMapping("java.util.function.Predicate")
 typealias Predicate = Object;    // #problem
 
-@TypeMapping("java.util.function.Supplier")
-typealias Supplier = Object;    // #problem
+
+@Parameterized(["T"])
+type Supplier is java.util.function.Supplier for Object {
+    fun get (): Object;
+}
+
 
 @TypeMapping("java.util.function.ToDoubleBiFunction")
 typealias ToDoubleBiFunction = Object;    // #problem

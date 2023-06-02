@@ -1,33 +1,58 @@
+//#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library "std:collections"
+library `std:collections`
     version "11"
     language "Java"
     url "-";
 
 // imports
 
-import "java-common.lsl";
-import "java/lang/_interfaces.lsl";
-import "java/util/function/_interfaces.lsl";
-import "java/util/stream/_interfaces.lsl";
+import java.common;
+import java/lang/_interfaces;
+import java/util/function/_interfaces;
+import java/util/stream/_interfaces;
+
+
+/// TODO: remove duplicate types
+
+type Runnable is java.lang.Runnable for Object {
+    fun run (): void;
+}
+
+type LongConsumer is java.util.function.LongConsumer for Object {
+    fun accept (x: long): void;
+}
+
+type LongSupplier is java.util.function.LongSupplier for Object {
+    fun get (): long;
+}
+
+@Parameterized(["T"])
+type Supplier is java.util.function.Supplier for Object {
+    fun get (): Object;
+}
+
+type LongStream is java.util.stream.LongStream for Object {
+    // ???
+}
+
+/// TODO: remove duplicate types
+
 
 
 // local semantic types
 
+@public @final type OptionalLong is java.util.OptionalLong for Object {
+}
 
 
 // automata
 
-@WrapperMeta(
-    src="java.util.OptionalLong",
-    dst="ru.spbpu.libsl.overrides.collections.OptionalLong",
-)
-@public @final automaton OptionalLong: int
-(
-    var value: long = 0;
-    var present: boolean = false;
-)
+automaton OptionalLongAutomaton (
+    var value: long,
+    var present: boolean,
+): OptionalLong
 {
     // states and shifts
 
@@ -36,8 +61,8 @@ import "java/util/stream/_interfaces.lsl";
 
     shift Allocated -> Initialized by [
         // constructors
-        OptionalLong (),
-        OptionalLong (long),
+        OptionalLong (OptionalLong),
+        OptionalLong (OptionalLong, long),
 
         // static methods
         empty,
@@ -54,8 +79,8 @@ import "java/util/stream/_interfaces.lsl";
         stream,
         orElse,
         orElseGet,
-        orElseThrow (),
-        orElseThrow (Supplier),
+        orElseThrow (OptionalLong),
+        orElseThrow (OptionalLong, Supplier),
         toString,
         hashCode,
         equals,
@@ -64,13 +89,13 @@ import "java/util/stream/_interfaces.lsl";
 
     // constructors
 
-    @private constructor OptionalLong ()
+    @private constructor OptionalLong (@target self: OptionalLong)
     {
         action ERROR("Private constructor call");
     }
 
 
-    @private constructor OptionalLong (x: long)
+    @private constructor OptionalLong (@target self: OptionalLong, x: long)
     {
         action ERROR("Private constructor call");
     }
@@ -81,13 +106,12 @@ import "java/util/stream/_interfaces.lsl";
     @CacheStaticOnce
     @static proc _makeEmpty (): OptionalLong
     {
-        // #problem
-        result = new OptionalLong(state=Initialized);
+        result = new OptionalLongAutomaton(state=Initialized);
     }
 
 
     @AutoInline
-    proc _throwNPE (): void
+    @static proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
     }
@@ -103,13 +127,14 @@ import "java/util/stream/_interfaces.lsl";
 
     @static fun of (x: long): OptionalLong
     {
-        result = new OptionalLong(state=Initialized, value=x, present=true);
+        result = new OptionalLongAutomaton(state=Initialized, value=x, present=true);
     }
 
 
     // methods
 
-    fun equals (other: Object): boolean
+    @AnnotatedWith("java.lang.Override")
+    fun equals (@target self: OptionalLong, other: Object): boolean
     {
         if (other == self)
         {
@@ -117,16 +142,16 @@ import "java/util/stream/_interfaces.lsl";
         }
         else
         {
-            val isSameType = action OBJECT_SAME_TYPE(self, other);
+            val isSameType: boolean = action OBJECT_SAME_TYPE(self, other);
             if (isSameType)
             {
-                val otherValue = OptionalLong(other).value;
-                val otherPresent = OptionalLong(other).present;
+                val otherValue: long = OptionalLongAutomaton(other).value;
+                val otherPresent: boolean = OptionalLongAutomaton(other).present;
 
-                if (self.present && otherPresent)
-                    result = self.value == otherValue;
+                if (this.present && otherPresent)
+                    {result = this.value == otherValue;}
                 else
-                    result = self.present == otherPresent;
+                    {result = this.present == otherPresent;}
             }
             else
             {
@@ -136,145 +161,147 @@ import "java/util/stream/_interfaces.lsl";
     }
 
 
-    fun getAsLong (): long
+    fun getAsLong (@target self: OptionalLong): long
     {
-        if (!present)
-            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
+        if (!this.present)
+            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
 
-        result = value;
+        result = this.value;
     }
 
 
-    fun hashCode (): int
+    @AnnotatedWith("java.lang.Override")
+    fun hashCode (@target self: OptionalLong): int
     {
-        if (present)
-            result = action OBJECT_HASH_CODE(value);
+        if (this.present)
+            {result = action OBJECT_HASH_CODE(this.value);}
         else
-            result = 0;
+            {result = 0;}
     }
 
 
-    fun ifPresent (consumer: LongConsumer): void
+    fun ifPresent (@target self: OptionalLong, consumer: LongConsumer): void
     {
-        required !present || (present && consumer != null);
+        requires !this.present || (this.present && consumer != null);
 
-        if (present)
+        if (this.present)
         {
             if (consumer == null)
-                self._throwNPE();
+                {_throwNPE();}
 
-            action CALL(consumer, [value]);
+            action CALL(consumer, [this.value]);
         }
     }
 
 
-    fun ifPresentOrElse (consumer: LongConsumer, emptyAction: Runnable): void
+    fun ifPresentOrElse (@target self: OptionalLong, consumer: LongConsumer, emptyAction: Runnable): void
     {
-        required !present || (present  && consumer != null);
-        required present  || (!present && emptyAction != null);
+        requires !this.present || (this.present  && consumer != null);
+        requires this.present  || (!this.present && emptyAction != null);
 
-        if (present)
+        if (this.present)
         {
             if (consumer == null)
-                self._throwNPE();
+                {_throwNPE();}
 
-            action CALL(consumer, [value]);
+            action CALL(consumer, [this.value]);
         }
         else
         {
             if (emptyAction == null)
-                self._throwNPE();
+                {_throwNPE();}
 
             action CALL(emptyAction, []);
         }
     }
 
 
-    fun isEmpty (): boolean
+    fun isEmpty (@target self: OptionalLong): boolean
     {
-        result = present == false;
+        result = this.present == false;
     }
 
 
-    fun isPresent (): boolean
+    fun isPresent (@target self: OptionalLong): boolean
     {
-        result = present == true;
+        result = this.present == true;
     }
 
 
-    fun orElse (other: long): long
+    fun orElse (@target self: OptionalLong, other: long): long
     {
-        if (present)
-            result = value;
+        if (this.present)
+            {result = this.value;}
         else
-            result = other;
+            {result = other;}
     }
 
 
-    fun orElseGet (supplier: LongSupplier): long
+    fun orElseGet (@target self: OptionalLong, supplier: LongSupplier): long
     {
-        required supplier != null;
+        requires supplier != null;
 
         if (supplier == null)
-            self._throwNPE();
+            {_throwNPE();}
 
-        if (present)
-            result = value;
+        if (this.present)
+            {result = this.value;}
         else
-            result = action CALL(supplier, []);
+            {result = action CALL(supplier, []);}
     }
 
 
-    fun orElseThrow (): long
+    fun orElseThrow (@target self: OptionalLong): long
     {
-        required present;
+        requires this.present;
 
-        if (!present)
-            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
+        if (!this.present)
+            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
 
-        result = value;
+        result = this.value;
     }
 
 
-    @Generic("X extends java.lang.Throwable")
-    @throws(["X"], generic=true)
-    fun orElseThrow(@Generic("? extends X") exceptionSupplier: Supplier): long
+    @Parameterized(["X extends java.lang.Throwable"])
+    @throws(["X"])
+    fun orElseThrow(@target self: OptionalLong, @Parameterized(["? extends X"]) exceptionSupplier: Supplier): long
     {
-        required exceptionSupplier != null;
+        requires exceptionSupplier != null;
 
         if (exceptionSupplier == null)
-            self._throwNPE();
+            {_throwNPE();}
 
-        if (!present)
+        if (!this.present)
         {
-            val exception = action CALL(exceptionSupplier, []);
+            val exception: Object = action CALL(exceptionSupplier, []);
             action THROW_VALUE(exception);
         }
         else
         {
-            result = value;
+            result = this.value;
         }
     }
 
 
-    fun stream (): LongStream
+    fun stream (@target self: OptionalLong): LongStream
     {
         action NOT_IMPLEMENTED();
 
         /*
-        if (present)
-            result = LongStream.of(value); // #problem
+        if (this.present)
+            result = LongStream.of(this.value); // #problem
         else
             result = LongStream.empty(); // #problem
         */
     }
 
 
-    fun toString (): String
+    @AnnotatedWith("java.lang.Override")
+    fun toString (@target self: OptionalLong): String
     {
-        if (present)
+        if (this.present)
         {
-            val valueStr = action OBJECT_TO_STRING(value);
+            val valueStr: string = action OBJECT_TO_STRING(this.value);
             result = "OptionalLong[" + valueStr + "]";
         }
         else

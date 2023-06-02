@@ -1,55 +1,80 @@
+//#! pragma: non-synthesizable
 libsl "1.1.0";
+
+// TODO: remove debug code
+library `std:collections`
+    version "11"
+    language "Java"
+    url "-";
 
 
 /// generator-specific aspects
 
+
+// Adds an annotation to on specified element in the output code
+annotation AnnotatedWith (
+    annotationClassName: string,
+    annotationParameters: array<any> = [],
+);
+
+
+// Forces the body of a specified subroutine to be copy-pasted at the callsite.
+annotation AutoInline;
+
+
 // Stores the result of a function computation as a private field inside of the generated class.
 // Something like: `private Set __cached_keySet = null;`
-annotation CacheOnce ();
+annotation CacheOnce;
+
 
 // Stores the result of a function computation as a private static field inside of the generated class.
 // Something like: `private static Set __cached_keySet = null;`
-annotation CacheStaticOnce ();
+annotation CacheStaticOnce;
+
 
 // The marked feature is no longer needed or required.
 annotation Deprecated (
-    hint: string = "";
+    hint: string = "",
 );
+
 
 // Specifies expected parent automaton and a class-container.
 annotation From (
-    parentAutomatonName: string;
+    parentAutomatonName: string,
 );
 
+
 // The merked method does not return to normal execution.
-annotation NoReturn ();
+annotation NoReturn;
+
+
+// #problem
+annotation Parameterized (
+    typeParameters: string,
+);
+
+
+// #problem
+annotation ParameterizedResult (
+    typeParameters: string,
+);
+
 
 // The marked action stops execution of current control flow by throwing exception or other means.
-annotation StopsControlFlow ();
+annotation StopsControlFlow;
+
 
 // Associates the type on the LEFT side of typealias with the specified type.
 annotation TypeMapping (
-    fullClassName: string = null;
-    builtin: bool = false;
-    typeVariable: bool = false; // #problem
+    fullClassName: string = null,
+    builtin: bool = false,
+    typeVariable: bool = false, // #problem
 );
+
 
 // General meta-data for a wrapper class generated from this automaton.
 annotation WrapperMeta (
-    src: string;
-    dst: string;
-    forceMatchInterfaces: bool = false;
+    src: string,
+    dst: string,
+    forceMatchInterfaces: bool = false,
 );
-
-// Forces the body of a specified subroutine to be copy-pasted at the callsite.
-annotation AutoInline ();
-
-// #problem
-annotation Generic (
-    typeParameters: string;
-);
-
-// #problem
-annotation GenericResult (
-    typeParameters: string;
-)
