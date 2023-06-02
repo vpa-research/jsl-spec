@@ -139,7 +139,6 @@ automaton OptionalAutomaton (
     @CacheStaticOnce
     @static proc _makeEmpty (): Optional
     {
-        // #problem
         result = new OptionalAutomaton(state=Initialized, value=null);
     }
 

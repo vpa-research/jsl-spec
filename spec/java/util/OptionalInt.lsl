@@ -106,7 +106,6 @@ automaton OptionalIntAutomaton (
     @CacheStaticOnce
     @static proc _makeEmpty (): OptionalInt
     {
-        // #problem
         result = new OptionalIntAutomaton(state=Initialized);
     }
 

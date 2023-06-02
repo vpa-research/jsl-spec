@@ -106,7 +106,6 @@ automaton OptionalLongAutomaton (
     @CacheStaticOnce
     @static proc _makeEmpty (): OptionalLong
     {
-        // #problem
         result = new OptionalLongAutomaton(state=Initialized);
     }
 

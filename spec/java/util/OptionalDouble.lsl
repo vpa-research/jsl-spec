@@ -111,8 +111,7 @@ automaton OptionalDoubleAutomaton (
     @CacheStaticOnce
     @static proc _makeEmpty (): OptionalDouble
     {
-        // #problem
-        result = new OptionalDoubleAutomaton(state=Initialized); // OptionalDoubleAutomaton -> OptionalDouble(secret)
+        result = new OptionalDoubleAutomaton(state=Initialized);
     }
 
 
