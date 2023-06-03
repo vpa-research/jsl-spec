@@ -8,23 +8,11 @@ library `std:collections`
 
 // DO NOT REMOVE!
 import generator.annotations;
+import generator.actions;
 
 
 
 // === ACTIONS ===
-
-
-
-// specification development -related actions
-
-@NoReturn
-define action TODO(): void;
-
-@NoReturn
-define action NOT_IMPLEMENTED(): void;
-
-@NoReturn
-define action ERROR(message: string): void;
 
 
 // language-specific features

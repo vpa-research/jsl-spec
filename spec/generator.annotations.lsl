@@ -2,7 +2,7 @@
 libsl "1.1.0";
 
 // TODO: remove debug code
-library `std:collections`
+library `?`
     version "11"
     language "Java"
     url "-";
