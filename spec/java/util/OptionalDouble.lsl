@@ -54,10 +54,16 @@ type DoubleStream is java.util.stream.DoubleStream for Object
 
 // automata
 
+automaton concept MyConcept
+{
+    var value: double;
+}
+
 automaton OptionalDoubleAutomaton (
     var value: double,
     var present: boolean
 ): OptionalDouble
+    implements MyConcept
 {
     // states and shifts
 
@@ -66,7 +72,7 @@ automaton OptionalDoubleAutomaton (
 
     shift Allocated -> Initialized by [
         // constructors
-        OptionalDouble (OptionalDouble), // #problem: reference to self in constructor
+        OptionalDouble (OptionalDouble),
         OptionalDouble (OptionalDouble, double),
 
         // static methods
@@ -108,13 +114,6 @@ automaton OptionalDoubleAutomaton (
 
     // utilities
 
-    @CacheStaticOnce
-    @static proc _makeEmpty (): OptionalDouble
-    {
-        result = new OptionalDoubleAutomaton(state=Initialized);
-    }
-
-
     @AutoInline
     @static proc _throwNPE (): void
     {
@@ -126,7 +125,7 @@ automaton OptionalDoubleAutomaton (
 
     @static fun empty (): OptionalDouble
     {
-        result = _makeEmpty();
+        result = EMPTY_OPTIONAL_DOUBLE;
     }
 
 
@@ -154,7 +153,8 @@ automaton OptionalDoubleAutomaton (
                 val otherPresent: boolean = OptionalDoubleAutomaton(other).present;
 
                 if (this.present && otherPresent)
-                    {result = this.value == otherValue;}  // #problem
+                    // #problem: need `Double.compare(this.value, other.value) == 0`
+                    {result = this.value == otherValue;}
                 else
                     {result = this.present == otherPresent;}
             }
@@ -316,3 +316,9 @@ automaton OptionalDoubleAutomaton (
     }
 
 }
+
+
+// globals
+
+val EMPTY_OPTIONAL_DOUBLE: OptionalDouble = new OptionalDoubleAutomaton(state=Initialized, value=0.0d, present=false);
+
