@@ -54,7 +54,7 @@ type DoubleStream is java.util.stream.DoubleStream for Object
 
 // automata
 
-automaton concept MyConcept
+automaton concept MyConcept: Object
 {
     var value: double;
 }
