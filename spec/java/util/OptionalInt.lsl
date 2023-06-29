@@ -103,13 +103,6 @@ automaton OptionalIntAutomaton (
 
     // utilities
 
-    @CacheStaticOnce
-    @static proc _makeEmpty (): OptionalInt
-    {
-        result = new OptionalIntAutomaton(state=Initialized);
-    }
-
-
     @AutoInline
     @static proc _throwNPE (): void
     {
@@ -121,7 +114,7 @@ automaton OptionalIntAutomaton (
 
     @static fun empty (): OptionalInt
     {
-        result = _makeEmpty();
+        result = EMPTY_OPTIONAL_INT;
     }
 
 
@@ -311,3 +304,9 @@ automaton OptionalIntAutomaton (
     }
 
 }
+
+
+// globals
+
+val EMPTY_OPTIONAL_INT: OptionalInt = new OptionalIntAutomaton(state=Initialized, value=0, present=false);
+

@@ -103,13 +103,6 @@ automaton OptionalLongAutomaton (
 
     // utilities
 
-    @CacheStaticOnce
-    @static proc _makeEmpty (): OptionalLong
-    {
-        result = new OptionalLongAutomaton(state=Initialized);
-    }
-
-
     @AutoInline
     @static proc _throwNPE (): void
     {
@@ -121,7 +114,7 @@ automaton OptionalLongAutomaton (
 
     @static fun empty (): OptionalLong
     {
-        result = _makeEmpty();
+        result = EMPTY_OPTIONAL_LONG;
     }
 
 
@@ -311,3 +304,10 @@ automaton OptionalLongAutomaton (
     }
 
 }
+
+
+// globals
+
+// #problem: "0" should be int64
+val EMPTY_OPTIONAL_LONG: OptionalLong = new OptionalLongAutomaton(state=Initialized, value=0, present=false);
+

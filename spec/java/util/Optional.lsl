@@ -59,7 +59,7 @@ type T is java.lang.Object for Object
 @Parameterized(["T"])
 @public @final type Optional is java.util.Optional for Object
 {
-    var value: T;
+    //var value: T;
 }
 
 
@@ -139,7 +139,8 @@ automaton OptionalAutomaton (
     @CacheStaticOnce
     @static proc _makeEmpty (): Optional
     {
-        result = new OptionalAutomaton(state=Initialized, value=null);
+        // #problem: not parameterized; missing type cast
+        result = EMPTY_OPTIONAL;
     }
 
 
@@ -468,3 +469,10 @@ automaton OptionalAutomaton (
     }
 
 }
+
+
+// globals
+
+// #problem: type parameter is missing
+val EMPTY_OPTIONAL: Optional = new OptionalAutomaton(state=Initialized, value=null);
+
