@@ -59,7 +59,7 @@ define action OBJECT_HASH_CODE(
 
 
 
-annotation static ();
+//annotation static ();
 
 annotation final ();
 
@@ -72,11 +72,11 @@ annotation packageprivate ();
 annotation public ();
 
 annotation extends (
-    fullClassName: string,
+    canonicalClassName: string,
 );
 
 annotation implements (
-    fullInterfaceNames: array<string>,
+    canonicalInterfaceName: string,
 );
 
 annotation throws (
@@ -108,11 +108,11 @@ annotation strict ();
 // === TYPES ===
 
 
-/*
-@TypeMapping(builtin=true) typealias boolean = bool;
-@TypeMapping(builtin=true) typealias int     = int32;
-@TypeMapping(builtin=true) typealias long    = int64;
-@TypeMapping(builtin=true) typealias float   = float32;
-@TypeMapping(builtin=true) typealias double  = float64;
-@TypeMapping(builtin=true) typealias Object  = *void;
-*/
+/*@TypeMapping(builtin=true)*/ typealias boolean = bool;
+/*@TypeMapping(builtin=true)*/ typealias byte    = int8;
+/*@TypeMapping(builtin=true)*/ typealias short   = int16;
+/*@TypeMapping(builtin=true)*/ typealias int     = int32;
+/*@TypeMapping(builtin=true)*/ typealias long    = int64;
+/*@TypeMapping(builtin=true)*/ typealias float   = float32;
+/*@TypeMapping(builtin=true)*/ typealias double  = float64;
+/*@TypeMapping(builtin=true)*/ //typealias Object  = *void;

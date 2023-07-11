@@ -14,33 +14,6 @@ import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
 
 
-/// TODO: remove duplicate types
-
-type Runnable is java.lang.Runnable for Object {
-    fun run (): void;
-}
-
-type IntConsumer is java.util.function.IntConsumer for Object {
-    fun accept (x: int): void;
-}
-
-type IntSupplier is java.util.function.IntSupplier for Object {
-    fun get (): int;
-}
-
-@Parameterized(["T"])
-type Supplier is java.util.function.Supplier for Object {
-    fun get (): Object;
-}
-
-type IntStream is java.util.stream.IntStream for Object {
-    // ???
-}
-
-/// TODO: remove duplicate types
-
-
-
 // local semantic types
 
 @public @final type OptionalInt is java.util.OptionalInt for Object {

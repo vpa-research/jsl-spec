@@ -14,33 +14,6 @@ import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
 
 
-/// TODO: remove duplicate types
-
-type Runnable is java.lang.Runnable for Object {
-    fun run (): void;
-}
-
-type LongConsumer is java.util.function.LongConsumer for Object {
-    fun accept (x: long): void;
-}
-
-type LongSupplier is java.util.function.LongSupplier for Object {
-    fun get (): long;
-}
-
-@Parameterized(["T"])
-type Supplier is java.util.function.Supplier for Object {
-    fun get (): Object;
-}
-
-type LongStream is java.util.stream.LongStream for Object {
-    // ???
-}
-
-/// TODO: remove duplicate types
-
-
-
 // local semantic types
 
 @public @final type OptionalLong is java.util.OptionalLong for Object {

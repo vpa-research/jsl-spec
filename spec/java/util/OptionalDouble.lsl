@@ -1,3 +1,4 @@
+//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library `std:collections`
@@ -11,38 +12,6 @@ import java.common;
 import java/lang/_interfaces;
 import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
-
-
-/// TODO: remove duplicate types
-
-type Runnable is java.lang.Runnable for Object
-{
-    fun run (): void;
-}
-
-type DoubleConsumer is java.util.function.DoubleConsumer for Object
-{
-    fun accept (x: double): void;
-}
-
-type DoubleSupplier is java.util.function.DoubleSupplier for Object
-{
-    fun get (): double;
-}
-
-@Parameterized(["T"])
-type Supplier is java.util.function.Supplier for Object
-{
-    fun get (): Object;
-}
-
-type DoubleStream is java.util.stream.DoubleStream for Object
-{
-    // ???
-}
-
-/// TODO: remove duplicate types
-
 
 
 // local semantic types
@@ -115,7 +84,7 @@ automaton OptionalDoubleAutomaton (
     // utilities
 
     @AutoInline
-    @static proc _throwNPE (): void
+    @Static proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
     }
@@ -123,13 +92,13 @@ automaton OptionalDoubleAutomaton (
 
     // static methods
 
-    @static fun empty (): OptionalDouble
+    static fun empty (): OptionalDouble
     {
         result = EMPTY_OPTIONAL_DOUBLE;
     }
 
 
-    @static fun of (x: double): OptionalDouble
+    static fun of (x: double): OptionalDouble
     {
         result = new OptionalDoubleAutomaton(state=Initialized, value=x, present=true);
     }

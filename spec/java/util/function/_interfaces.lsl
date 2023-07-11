@@ -24,27 +24,34 @@ typealias BiPredicate = Object;    // #problem
 @TypeMapping("java.util.function.BooleanSupplier")
 typealias BooleanSupplier = Object;    // #problem
 
-@TypeMapping("java.util.function.Consumer")
-typealias Consumer = Object;    // #problem
+
+// #problem: type parameter?
+@Parameterized(["T"])
+type Consumer is java.util.function.Consumer for Object {
+    fun accept(x: Object): void;
+}
+
 
 @TypeMapping("java.util.function.DoubleBinaryOperator")
 typealias DoubleBinaryOperator = Object;    // #problem
 
 
 type DoubleConsumer is java.util.function.DoubleConsumer for Object {
-    fun accept (x: double): void;
+    fun accept(x: double): void;
 }
 
 
 @TypeMapping("java.util.function.DoubleFunction")
 typealias DoubleFunction = Object;    // #problem
 
-@TypeMapping("java.util.function.DoublePredicate")
-typealias DoublePredicate = Object;    // #problem
+
+type DoublePredicate is java.util.function.DoublePredicate for Object {
+    fun test(t: double): boolean;
+}
 
 
 type DoubleSupplier is java.util.function.DoubleSupplier for Object {
-    fun get (): double;
+    fun get(): double;
 }
 
 
@@ -57,27 +64,33 @@ typealias DoubleToLongFunction = Object;    // #problem
 @TypeMapping("java.util.function.DoubleUnaryOperator")
 typealias DoubleUnaryOperator = Object;    // #problem
 
-@TypeMapping("java.util.function.Function")
-typealias Function = Object;    // #problem
+
+// #problem: type parameters?
+type Function is java.util.function.Function for Object {
+    fun apply(o: Object): Object;
+}
+
 
 @TypeMapping("java.util.function.IntBinaryOperator")
 typealias IntBinaryOperator = Object;    // #problem
 
 
 type IntConsumer is java.util.function.IntConsumer for Object {
-    fun accept (x: int): void;
+    fun accept(x: int): void;
 }
 
 
 @TypeMapping("java.util.function.IntFunction")
 typealias IntFunction = Object;    // #problem
 
-@TypeMapping("java.util.function.IntPredicate")
-typealias IntPredicate = Object;    // #problem
+
+type IntPredicate is java.util.function.IntPredicate for Object {
+    fun test(t: int): boolean;
+}
 
 
 type IntSupplier is java.util.function.IntSupplier for Object {
-    fun get (): int;
+    fun get(): int;
 }
 
 
@@ -93,17 +106,25 @@ typealias IntUnaryOperator = Object;    // #problem
 @TypeMapping("java.util.function.LongBinaryOperator")
 typealias LongBinaryOperator = Object;    // #problem
 
-@TypeMapping("java.util.function.LongConsumer")
-typealias LongConsumer = Object;    // #problem
+
+type LongConsumer is java.util.function.LongConsumer for Object {
+    fun accept(x: long): void;
+}
+
 
 @TypeMapping("java.util.function.LongFunction")
 typealias LongFunction = Object;    // #problem
 
-@TypeMapping("java.util.function.LongPredicate")
-typealias LongPredicate = Object;    // #problem
 
-@TypeMapping("java.util.function.LongSupplier")
-typealias LongSupplier = Object;    // #problem
+type LongPredicate is java.util.function.LongPredicate for Object {
+    fun test(t: long): boolean;
+}
+
+
+type LongSupplier is java.util.function.LongSupplier for Object {
+    fun get(): long;
+}
+
 
 @TypeMapping("java.util.function.LongToDoubleFunction")
 typealias LongToDoubleFunction = Object;    // #problem
@@ -123,13 +144,18 @@ typealias ObjIntConsumer = Object;    // #problem
 @TypeMapping("java.util.function.ObjLongConsumer")
 typealias ObjLongConsumer = Object;    // #problem
 
-@TypeMapping("java.util.function.Predicate")
-typealias Predicate = Object;    // #problem
+
+// #problem: type parameter?
+type Predicate is java.util.function.Predicate for Object {
+    // #problem: type parameter?
+    fun test(t: Object): boolean;
+}
 
 
+// #problem: type parameter?
 @Parameterized(["T"])
 type Supplier is java.util.function.Supplier for Object {
-    fun get (): Object;
+    fun get(): Object;
 }
 
 

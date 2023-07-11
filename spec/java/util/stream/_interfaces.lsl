@@ -21,5 +21,9 @@ type LongStream is java.util.stream.LongStream for Object {
     // ???
 }
 
-@TypeMapping("java.util.stream.Stream")
-typealias Stream = Object;    // #problem
+
+// #problem: type parameter
+@Parameterized(["T"])
+type Stream is java.util.stream.Stream for Object {
+    // ???
+}

@@ -8,6 +8,31 @@ library `std:collections`
 
 import java.common;
 
+// built-in types / boxing
+
+//@TypeMapping(builtin=true)
+type Object is java.lang.Object for Object {}
+
+//@TypeMapping(builtin=true)
+type Boolean is java.lang.Boolean for Object, bool {}
+
+//@TypeMapping(builtin=true)
+type Integer is java.lang.Integer for Object, int32 {}
+
+//@TypeMapping(builtin=true)
+type Long is java.lang.Long for Object, int64 {}
+
+//@TypeMapping(builtin=true)
+type Float is java.lang.Float for Object, float32 {}
+
+//@TypeMapping(builtin=true)
+type Double is java.lang.Double for Object, float64 {}
+
+//@TypeMapping(builtin=true)
+type String is java.lang.String for Object, string {}
+
+
+// general interfaces
 
 type Runnable is java.lang.Runnable for Object {
     fun run (): void;
@@ -17,11 +42,3 @@ type Runnable is java.lang.Runnable for Object {
 typealias Throwable = Object;    // #problem
 
 
-// built-in types / boxing
-
-@TypeMapping(builtin=true) typealias Boolean = bool;
-@TypeMapping(builtin=true) typealias Integer = int32;
-@TypeMapping(builtin=true) typealias Long    = int64;
-@TypeMapping(builtin=true) typealias Float   = float32;
-@TypeMapping(builtin=true) typealias Double  = float64;
-@TypeMapping(builtin=true) typealias String  = string;

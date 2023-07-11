@@ -50,13 +50,13 @@ annotation NoReturn;
 
 // #problem
 annotation Parameterized (
-    typeParameters: string,
+    typeParameters: array<string>,
 );
 
 
 // #problem
 annotation ParameterizedResult (
-    typeParameters: string,
+    typeParameters: array<string>,
 );
 
 
@@ -69,12 +69,4 @@ annotation TypeMapping (
     fullClassName: string = null,
     builtin: bool = false,
     typeVariable: bool = false, // #problem
-);
-
-
-// General meta-data for a wrapper class generated from this automaton.
-annotation WrapperMeta (
-    src: string,
-    dst: string,
-    forceMatchInterfaces: bool = false,
 );

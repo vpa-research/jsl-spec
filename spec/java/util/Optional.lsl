@@ -14,47 +14,14 @@ import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
 
 
-/// TODO: remove duplicate types
-
-type Runnable is java.lang.Runnable for Object {
-    fun run (): void;
-}
-
-@Parameterized(["T"])
-type Consumer is java.util.function.Consumer for Object {
-    fun accept (x: Object): void;
-}
-
-@Parameterized(["T"])
-type Supplier is java.util.function.Supplier for Object {
-    fun get (): Object;
-}
-
-@Parameterized(["T"])
-type Predicate is java.util.function.Predicate for Object {
-    fun test (x: Object): boolean;
-}
-
-@Parameterized(["I", "O"])
-type Function is java.util.function.Function for Object {
-    fun apply (x: Object): Object;
-}
-
-@Parameterized(["T"])
-type Stream is java.util.stream.Stream for Object {
-    // ???
-}
-
-/// TODO: remove duplicate types
-
-
-
 // local semantic types
 
 // # problem
-type T is java.lang.Object for Object
+/*type T is java.lang.Object for Object
 {
-}
+}*/
+@TypeMapping(typeVariable=true)
+typealias T = Object;
 
 @Parameterized(["T"])
 @public @final type Optional is java.util.Optional for Object
@@ -67,7 +34,7 @@ type T is java.lang.Object for Object
 
 @Parameterized(["T"])
 automaton OptionalAutomaton (
-    var value: Object
+    var value: T
 ): Optional
 {
     // states and shifts
@@ -136,7 +103,6 @@ automaton OptionalAutomaton (
 
     // utilities
 
-    @CacheStaticOnce
     @static proc _makeEmpty (): Optional
     {
         // #problem: not parameterized; missing type cast
