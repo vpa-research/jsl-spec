@@ -8,11 +8,14 @@ library `std:collections`
 
 import java.common;
 
-@TypeMapping("java.util.Collection")
-typealias Collection = Object;    // #problem
 
-@TypeMapping("java.util.Comparator")
-typealias Comparator = Object;    // #problem
+type Collection is java.util.Collection for Object {
+}
+
+
+type Comparator is java.util.Comparator for Object {
+}
+
 
 @TypeMapping("java.util.Deque")
 typealias Deque = Object;    // #problem

@@ -84,7 +84,7 @@ automaton OptionalDoubleAutomaton (
     // utilities
 
     @AutoInline
-    @Static proc _throwNPE (): void
+    @static proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
     }
@@ -92,13 +92,13 @@ automaton OptionalDoubleAutomaton (
 
     // static methods
 
-    static fun empty (): OptionalDouble
+    @static fun empty (): OptionalDouble
     {
         result = EMPTY_OPTIONAL_DOUBLE;
     }
 
 
-    static fun of (x: double): OptionalDouble
+    @static fun of (x: double): OptionalDouble
     {
         result = new OptionalDoubleAutomaton(state=Initialized, value=x, present=true);
     }

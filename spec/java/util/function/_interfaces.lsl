@@ -51,7 +51,7 @@ type DoublePredicate is java.util.function.DoublePredicate for Object {
 
 
 type DoubleSupplier is java.util.function.DoubleSupplier for Object {
-    fun get(): double;
+    fun getAsDouble(): double;
 }
 
 
@@ -90,7 +90,7 @@ type IntPredicate is java.util.function.IntPredicate for Object {
 
 
 type IntSupplier is java.util.function.IntSupplier for Object {
-    fun get(): int;
+    fun getAsInt(): int;
 }
 
 
@@ -122,7 +122,7 @@ type LongPredicate is java.util.function.LongPredicate for Object {
 
 
 type LongSupplier is java.util.function.LongSupplier for Object {
-    fun get(): long;
+    fun getAsLong(): long;
 }
 
 

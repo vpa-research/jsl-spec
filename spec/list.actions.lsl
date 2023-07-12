@@ -1,5 +1,10 @@
 //#! pragma: non-synthesizable
-libsl '1.1.0';
+libsl "1.1.0";
+
+library `???`
+    version "???"
+    language "???"
+    url "-";
 
 
 // === READ operations ===
@@ -19,7 +24,7 @@ define action LIST_TO_ARRAY(
         destArray: array<any>,
         from: int,
         to: int
-    ): array<any>
+    ): array<any>;
 
 define action LIST_FIND(
         aList: list<any>,
