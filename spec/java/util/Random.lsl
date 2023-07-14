@@ -165,7 +165,7 @@ automaton RandomAutomaton
 
     fun nextBoolean (@target self: Random): boolean
     {
-        result = action SUMBOLIC("boolean");
+        result = action SYMBOLIC("boolean");
     }
 
 
@@ -177,25 +177,25 @@ automaton RandomAutomaton
 
     fun nextDouble (@target self: Random): double
     {
-        result = action SUMBOLIC("double");
+        result = action SYMBOLIC("double");
     }
 
 
     fun nextFloat (@target self: Random): float
     {
-        result = action SUMBOLIC("float");
+        result = action SYMBOLIC("float");
     }
 
 
     @synchronized fun nextGaussian (@target self: Random): double
     {
-        result = action SUMBOLIC("double");
+        result = action SYMBOLIC("double");
     }
 
 
     fun nextInt (@target self: Random): int
     {
-        result = action SUMBOLIC("int");
+        result = action SYMBOLIC("int");
     }
 
 
@@ -207,7 +207,7 @@ automaton RandomAutomaton
 
     fun nextLong (@target self: Random): long
     {
-        result = action SUMBOLIC("long");
+        result = action SYMBOLIC("long");
     }
 
 
