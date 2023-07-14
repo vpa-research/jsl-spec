@@ -7,36 +7,92 @@ library `std:collections`
     url "-";
 
 import java.common;
+import java/lang/_interfaces;
 
 
-type Collection is java.util.Collection for Object {
+@Parameterized(["T"]) // #problem
+type Comparator
+    is java.util.Comparator
+    for Object
+{
+    fun compare(o1: Object, o2: Object): int;
 }
 
 
-type Comparator is java.util.Comparator for Object {
+@Parameterized(["E"]) // #problem
+type Iterator
+    is java.util.Iterator
+    for Object
+{
 }
 
 
-@TypeMapping("java.util.Deque")
-typealias Deque = Object;    // #problem
+@Parameterized(["T"]) // #problem
+type Spliterator
+    is java.util.Spliterator
+    for Object
+{
+}
 
-@TypeMapping("java.util.Iterator")
-typealias Iterator = Object;    // #problem
 
-@TypeMapping("java.util.List")
-typealias List = Object;    // #problem
+@Parameterized(["K", "V"]) // #problem
+type Map
+    is java.util.Map
+    for Object // #question: add map here?
+{
+}
 
-@TypeMapping("java.util.ListIterator")
-typealias ListIterator = Object;    // #problem
+@Parameterized(["K", "V"]) // #problem
+type MapEntry
+    is java.util.Map.Entry
+    for Object
+{
+}
 
-@TypeMapping("java.util.Map")
-typealias Map = Object;    // #problem
 
-@TypeMapping("java.util.Queue")
-typealias Queue = Object;    // #problem
+@Parameterized(["E"]) // #problem
+type Collection
+    is java.util.Collection
+    for Iterable, Object
+{
+}
 
-@TypeMapping("java.util.Set")
-typealias Set = Object;    // #problem
 
-@TypeMapping("java.util.Spliterator")
-typealias Spliterator = Object;    // #problem
+@Parameterized(["E"]) // #problem
+type List
+    is java.util.List
+    for Collection
+{
+}
+
+
+@Parameterized(["E"]) // #problem
+type Set
+    is java.util.Set
+    for Collection
+{
+}
+
+
+@Parameterized(["E"]) // #problem
+type Queue
+    is java.util.Queue
+    for Collection
+{
+}
+
+
+@Parameterized(["E"]) // #problem
+type Deque
+    is java.util.Deque
+    for Queue
+{
+}
+
+
+@Parameterized(["E"]) // #problem
+type ListIterator
+    is java.util.ListIterator
+    for Iterator
+{
+}

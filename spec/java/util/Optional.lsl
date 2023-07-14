@@ -1,7 +1,7 @@
 //#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library `std:collections`
+library `std`
     version "11"
     language "Java"
     url "-";
@@ -24,7 +24,9 @@ import java/util/stream/_interfaces;
 typealias T = Object;
 
 @Parameterized(["T"])
-@public @final type Optional is java.util.Optional for Object
+@public @final type Optional
+    is java.util.Optional
+    for Object
 {
     //var value: T;
 }
@@ -33,9 +35,11 @@ typealias T = Object;
 // automata
 
 @Parameterized(["T"])
-automaton OptionalAutomaton (
+automaton OptionalAutomaton
+(
     var value: T
-): Optional
+)
+: Optional
 {
     // states and shifts
 

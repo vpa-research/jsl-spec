@@ -42,3 +42,10 @@ type Runnable is java.lang.Runnable for Object {
 typealias Throwable = Object;    // #problem
 
 
+@Parameterized(["T"])
+type Iterable
+    is java.lang.Iterable
+    for Object
+{
+}
+

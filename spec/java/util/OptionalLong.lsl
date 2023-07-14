@@ -1,7 +1,7 @@
 //#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library `std:collections`
+library `std`
     version "11"
     language "Java"
     url "-";
@@ -16,16 +16,21 @@ import java/util/stream/_interfaces;
 
 // local semantic types
 
-@public @final type OptionalLong is java.util.OptionalLong for Object {
+@public @final type OptionalLong
+    is java.util.OptionalLong
+    for Object
+{
 }
 
 
 // automata
 
-automaton OptionalLongAutomaton (
+automaton OptionalLongAutomaton
+(
     var value: long,
     var present: boolean,
-): OptionalLong
+)
+: OptionalLong
 {
     // states and shifts
 

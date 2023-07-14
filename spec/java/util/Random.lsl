@@ -1,7 +1,7 @@
 ///#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library `std:collections`
+library `std`
     version "11"
     language "Java"
     url "-";
@@ -16,7 +16,9 @@ import java/util/stream/_interfaces;
 // local semantic types
 
 @implements("java.io.Serializable")
-@public @final type Random is java.util.Random for Object
+@public @final type Random
+    is java.util.Random
+    for Object
 {
     //@private @static val serialVersionUID: long = 1; // #problem: should be 3905348978240129619
 }
@@ -24,7 +26,10 @@ import java/util/stream/_interfaces;
 
 // automata
 
-automaton RandomAutomaton: Random
+automaton RandomAutomaton
+(
+)
+: Random
 {
     // states and shifts
 
@@ -160,7 +165,7 @@ automaton RandomAutomaton: Random
 
     fun nextBoolean (@target self: Random): boolean
     {
-        action TODO();
+        result = action SUMBOLIC("boolean");
     }
 
 
@@ -172,25 +177,25 @@ automaton RandomAutomaton: Random
 
     fun nextDouble (@target self: Random): double
     {
-        action TODO();
+        result = action SUMBOLIC("double");
     }
 
 
     fun nextFloat (@target self: Random): float
     {
-        action TODO();
+        result = action SUMBOLIC("float");
     }
 
 
     @synchronized fun nextGaussian (@target self: Random): double
     {
-        action TODO();
+        result = action SUMBOLIC("double");
     }
 
 
     fun nextInt (@target self: Random): int
     {
-        action TODO();
+        result = action SUMBOLIC("int");
     }
 
 
@@ -202,13 +207,13 @@ automaton RandomAutomaton: Random
 
     fun nextLong (@target self: Random): long
     {
-        action TODO();
+        result = action SUMBOLIC("long");
     }
 
 
-    @synchronized fun setSeed (@target self: Random, arg0: long): void
+    @synchronized fun setSeed (@target self: Random, seed: long): void
     {
-        action TODO();
+        // nothing
     }
 
 }

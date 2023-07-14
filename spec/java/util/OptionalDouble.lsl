@@ -1,7 +1,7 @@
-//#! pragma: non-synthesizable
+///#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library `std:collections`
+library `std`
     version "11"
     language "Java"
     url "-";
@@ -16,7 +16,9 @@ import java/util/stream/_interfaces;
 
 // local semantic types
 
-@public @final type OptionalDouble is java.util.OptionalDouble for Object
+@public @final type OptionalDouble
+    is java.util.OptionalDouble
+    for Object
 {
 }
 
@@ -28,10 +30,12 @@ automaton concept MyConcept: Object
     var value: double;
 }
 
-automaton OptionalDoubleAutomaton (
+automaton OptionalDoubleAutomaton
+(
     var value: double,
     var present: boolean
-): OptionalDouble
+)
+: OptionalDouble
     implements MyConcept
 {
     // states and shifts

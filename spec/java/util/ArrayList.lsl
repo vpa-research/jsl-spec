@@ -1,7 +1,7 @@
 ///#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library `std:collections`
+library `std`
     version "11"
     language "Java"
     url "-";
@@ -25,15 +25,20 @@ import list.actions;
 @implements("java.util.RandomAccess")
 @implements("java.lang.Cloneable")
 @implements("java.io.Serializable")
-@public @final type ArrayList is java.util.ArrayList for Object {
+@public @final type ArrayList
+    is java.util.ArrayList
+    for Object
+{
     //@private @static @final var serialVersionUID: long = 8683452581122892189;
 }
 
 
 // automata
 
-automaton ArrayListAutomaton (
-): ArrayList
+automaton ArrayListAutomaton
+(
+)
+: ArrayList
 {
     var storage: list<Object>;
     var length: int;
