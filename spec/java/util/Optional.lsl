@@ -425,7 +425,7 @@ automaton OptionalAutomaton
 
 
     @AnnotatedWith("java.lang.Override")
-    fun toString (@target @Parameterized(["T"]) self: Optional): string
+    fun toString (@target @Parameterized(["T"]) self: Optional): String
     {
         if (this.value == null)
         {
@@ -433,7 +433,7 @@ automaton OptionalAutomaton
         }
         else
         {
-            val valueStr: string = action OBJECT_TO_STRING(this.value);
+            val valueStr: String = action OBJECT_TO_STRING(this.value);
             result = "Optional[" + valueStr + "]";
         }
     }

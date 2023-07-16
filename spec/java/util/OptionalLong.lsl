@@ -272,7 +272,7 @@ automaton OptionalLongAutomaton
     {
         if (this.present)
         {
-            val valueStr: string = action OBJECT_TO_STRING(this.value);
+            val valueStr: String = action OBJECT_TO_STRING(this.value);
             result = "OptionalLong[" + valueStr + "]";
         }
         else

@@ -8,38 +8,38 @@ library `std:collections`
 
 import java.common;
 
-// built-in types / boxing
+// boxed built-in types
 
-//@TypeMapping(builtin=true)
-type Object is java.lang.Object for Object {}
-
-//@TypeMapping(builtin=true)
 type Boolean is java.lang.Boolean for Object, bool {}
 
-//@TypeMapping(builtin=true)
+type Byte is java.lang.Byte for Object, int8 {}
+type Short is java.lang.Short for Object, int16 {}
 type Integer is java.lang.Integer for Object, int32 {}
-
-//@TypeMapping(builtin=true)
 type Long is java.lang.Long for Object, int64 {}
 
-//@TypeMapping(builtin=true)
 type Float is java.lang.Float for Object, float32 {}
-
-//@TypeMapping(builtin=true)
 type Double is java.lang.Double for Object, float64 {}
 
-//@TypeMapping(builtin=true)
-type String is java.lang.String for Object, string {}
+type Character is java.lang.Character for Object, char {}
+type CharSequence is java.lang.CharSequence for Object, string {}
+type String is java.lang.String for CharSequence {}
 
 
 // general interfaces
 
-type Runnable is java.lang.Runnable for Object {
+type Runnable
+    is java.lang.Runnable
+    for Object
+{
     fun run (): void;
 }
 
-@TypeMapping("java.lang.Throwable")
-typealias Throwable = Object;    // #problem
+
+type Throwable
+    is java.lang.Throwable
+    for Object
+{
+}
 
 
 @Parameterized(["T"])

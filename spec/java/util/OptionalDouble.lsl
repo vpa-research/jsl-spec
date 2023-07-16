@@ -275,11 +275,11 @@ automaton OptionalDoubleAutomaton
 
 
     @AnnotatedWith("java.lang.Override", [])
-    fun toString (@target self: OptionalDouble): string
+    fun toString (@target self: OptionalDouble): String
     {
         if (this.present)
         {
-            val valueStr: string = action OBJECT_TO_STRING(this.value);
+            val valueStr: String = action OBJECT_TO_STRING(this.value);
             result = "OptionalDouble[" + valueStr + "]";
         }
         else
