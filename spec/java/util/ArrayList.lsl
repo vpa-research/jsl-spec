@@ -20,8 +20,8 @@ import list.actions;
 
 // local semantic types
 
-@extends("java.util.AbstractList<Object>")
-@implements("java.util.List<Object>")
+@extends("java.util.AbstractList")
+@implements("java.util.List")
 @implements("java.util.RandomAccess")
 @implements("java.lang.Cloneable")
 @implements("java.io.Serializable")
@@ -109,13 +109,13 @@ automaton ArrayListAutomaton
 
     constructor ArrayList (@target self: ArrayList)
     {
-        action LIST_RESIZE(this.storage, 0);
+        this.storage = action LIST_NEW();
     }
 
 
     constructor ArrayList (@target self: ArrayList, c: Collection)
     {
-        // TODO: interface calls
+        // #problem: loops, interface calls
         action NOT_IMPLEMENTED();
     }
 
@@ -146,7 +146,7 @@ automaton ArrayListAutomaton
     }
 
 
-    proc _addAllElements (index:int, c:Collection): boolean
+    proc _addAllElements (index: int, c: Collection): boolean
     {
         this.modCount += 1;
 
@@ -277,7 +277,9 @@ automaton ArrayListAutomaton
 
     fun clone (@target self: ArrayList): Object
     {
-        var storageCopy: list<Object> = action LIST_DUP(this.storage);
+        val storageCopy: list<Object> = action LIST_NEW();
+        action LIST_COPY(this.storage, storageCopy, 0, 0, this.length);
+
         result = new ArrayListAutomaton(
             state=Initialized, storage=storageCopy, length=this.length);
     }
@@ -399,7 +401,7 @@ automaton ArrayListAutomaton
 
     fun clear (@target self: ArrayList): void
     {
-        action LIST_RESIZE(this.storage, 0);
+        this.storage = action LIST_NEW();
         this.length = 0;
         this.modCount += 1;
     }
@@ -436,54 +438,43 @@ automaton ArrayListAutomaton
     @throws(["java.io.IOException"])
     @private fun writeObject (@target self: ArrayList, s: ObjectOutputStream): void
     {
-        var expectedModCount: int = this.modCount;
-
-        // #problem
-        //Here is cycle and some operations with ObjectOutputStream.
-        action NOT_IMPLEMENTED();
-
-        if (this.modCount != expectedModCount)
-        {
-            action THROW_NEW("java.util.ConcurrentModificationException", []);
-        }
+        action NOT_IMPLEMENTED(); // TODO: no serialization support yet
     }
 
 
     @throws(["java.io.IOException", "java.lang.ClassNotFoundException"])
     @private fun readObject (@target self: ArrayList, s: ObjectInputStream): void
     {
-        // #problem
-        //Here is cycle and some operations with ObjectInputStream.
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED(); // TODO: no serialization support yet
     }
 
 
     fun listIterator (@target self: ArrayList, index: int): ListIterator
     {
-        /*this._rangeCheckForAdd(index, this.length);
+        _rangeCheckForAdd(index, this.length);
 
-        result = new ListItr(state=Created,
+        result = action SYMBOLIC("java.util.ListIterator");
+        /*result = new ListItr(state=Created,
             cursor=index,
             expectedModCount=this.modCount);*/
-        action TODO();
     }
 
 
     fun listIterator (@target self: ArrayList): ListIterator
     {
+        result = action SYMBOLIC("java.util.ListIterator");
         /*result = new ListItr(state=Created,
             cursor=0,
             expectedModCount=this.modCount);*/
-        action TODO();
     }
 
 
     fun iterator (@target self: ArrayList): Iterator
     {
+        result = action SYMBOLIC("java.util.Iterator");
         /*result = new ListItr(state=Created,
             cursor=0,
             expectedModCount=this.modCount);*/
-        action TODO();
     }
 
 
@@ -493,7 +484,7 @@ automaton ArrayListAutomaton
 
         // #problem
         //We don't have decision about sublists.
-        action TODO();
+        result = action SYMBOLIC("java.util.List");
         /*result = new SubList(state=Created,
             startIndex=fromIndex,
             endIndex=toIndex);*/
@@ -502,7 +493,7 @@ automaton ArrayListAutomaton
 
     fun forEach (@target self: ArrayList, anAction: Consumer): void
     {
-        // #problem
+        // #problem: loops
         action NOT_IMPLEMENTED();
     }
 
@@ -513,7 +504,7 @@ automaton ArrayListAutomaton
             origin = 0,
             est=-1,
             expectedModCount=0);*/
-        action TODO();
+        result = action SYMBOLIC("java.util.Spliterator");
     }
 
 
@@ -526,8 +517,7 @@ automaton ArrayListAutomaton
 
         var expectedModCount: int = modCount;
 
-        // #problem
-        // Action CALL can't work with cycles.
+        // #problem: loop
         action NOT_IMPLEMENTED();
 
         //var res = action CALL(filter, [storage]);
@@ -560,10 +550,7 @@ automaton ArrayListAutomaton
 
         var expectedModCount: int = modCount;
 
-        // #problem
-        // Action CALL can't work with cycles.
-        // action CALL(op, [storage]);
-
+        // #problem: loop
         action NOT_IMPLEMENTED();
 
         if (this.modCount != expectedModCount)
@@ -579,8 +566,7 @@ automaton ArrayListAutomaton
     {
         var expectedModCount: int = modCount;
 
-        // #problem
-        //We don't know what to do with sorting of the List.
+        // #problem: loops, extremely complex
         action NOT_IMPLEMENTED();
 
         if (this.modCount != expectedModCount)

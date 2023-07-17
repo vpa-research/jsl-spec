@@ -11,14 +11,15 @@ library `???`
 
 
 define action LIST_COPY(
-        aList: list<any>,
-        from: int,
-        to: int
-    ): list<any>;
+        src: list<any>,
+        dst: list<any>,
+        srcPos: int,
+        dstPos: int,
+        len: int
+    ): void;
 
 // Copies contents of the list into the provided array. Allows auto-resizing.
 // Example behavior from Java: String[] x = arrList.toArray(new String[0]);
-
 define action LIST_TO_ARRAY(
         srcList: list<any>,
         destArray: array<any>,
