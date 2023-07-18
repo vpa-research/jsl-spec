@@ -122,24 +122,24 @@ automaton ArrayListAutomaton
 
     // subroutines
 
-    proc _checkValidIndex (index: int, length: int): void
+    proc _checkValidIndex (index: int): void
     {
-        if (index < 0 || index >= length)
+        if (index < 0 || this.length <= index)
         {
             val idx: String = action OBJECT_TO_STRING(index);
-            val len: String = action OBJECT_TO_STRING(length);
+            val len: String = action OBJECT_TO_STRING(this.length);
             val message: String = "Index "+ idx + " out of bounds for length "+ len;
             action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
         }
     }
 
 
-    proc _rangeCheckForAdd (index: int, length: int): void
+    proc _rangeCheckForAdd (index: int): void
     {
-        if (index < 0 || index > length)
+        if (index > this.length || index < 0)
         {
             val idx: String = action OBJECT_TO_STRING(index);
-            val len: String = action OBJECT_TO_STRING(length);
+            val len: String = action OBJECT_TO_STRING(this.length);
             val message: String = "Index: " + idx + ", Size: " + len;
             action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
         }
@@ -198,7 +198,7 @@ automaton ArrayListAutomaton
 
     proc _deleteElement (index: int): Object
     {
-        _checkValidIndex(index, this.length);
+        _checkValidIndex(index);
         result = action LIST_GET(this.storage, index);
         action LIST_REMOVE(this.storage, index, 1);
         this.modCount += 1;
@@ -208,7 +208,7 @@ automaton ArrayListAutomaton
 
     proc _addElement (index: int, element: Object): void
     {
-        _rangeCheckForAdd(index, this.length);
+        _rangeCheckForAdd(index);
         this.modCount += 1;
         action LIST_INSERT_AT(this.storage, index, element);
         this.length += 1;
@@ -217,7 +217,7 @@ automaton ArrayListAutomaton
 
     proc _setElement (index: int, element: Object): Object
     {
-        _checkValidIndex(index, this.length);
+        _checkValidIndex(index);
         result = action LIST_GET(this.storage, index);
         action LIST_SET(this.storage, index, element);
     }
@@ -303,7 +303,7 @@ automaton ArrayListAutomaton
 
     fun get (@target self: ArrayList, index: int): Object
     {
-        _checkValidIndex(index, this.length);
+        _checkValidIndex(index);
         result = action LIST_GET(this.storage, index);
     }
 
@@ -416,7 +416,7 @@ automaton ArrayListAutomaton
 
     fun addAll (@target self: ArrayList, index: int, c: Collection): boolean
     {
-        _rangeCheckForAdd(index, this.length);
+        _rangeCheckForAdd(index);
         result = _addAllElements(index, c);
     }
 
@@ -451,7 +451,7 @@ automaton ArrayListAutomaton
 
     fun listIterator (@target self: ArrayList, index: int): ListIterator
     {
-        _rangeCheckForAdd(index, this.length);
+        _rangeCheckForAdd(index);
 
         result = action SYMBOLIC("java.util.ListIterator");
         /*result = new ListItr(state=Created,
@@ -878,7 +878,7 @@ automaton ArrayListSpliterator: int(
 
 //    proc _addAllElements (index:int, c:Collection): boolean
 //    {
-//        this.parent._rangeCheckForAdd(index, length);
+//        this.parent._rangeCheckForAdd(index);
 
 //        //I use suppose that Collection interface will have size sub or analog
 //        var collectionSize = c.size();
@@ -931,7 +931,7 @@ automaton ArrayListSpliterator: int(
 
 //     fun set (index: int, element: Object): void
 //     {
-//         this.parent._checkValidIndex(index, length);
+//         this.parent._checkValidIndex(index);
 //         this.parent._checkForComodification(modCount);
 
 //         var curIndex = offset + index;
@@ -943,7 +943,7 @@ automaton ArrayListSpliterator: int(
 
 //     fun get (index: int): Object
 //     {
-//         this.parent._checkValidIndex(index, length);
+//         this.parent._checkValidIndex(index);
 //         this.parent._checkForComodification(modCount);
 
 //         var curIndex = offset + index;
@@ -961,7 +961,7 @@ automaton ArrayListSpliterator: int(
 
 //     fun add (index: int, element: Object): void
 //     {
-//         this.parent._rangeCheckForAdd(index, length);
+//         this.parent._rangeCheckForAdd(index);
 //         this.parent._checkForComodification(modCount);
 
 //         var curIndex = offset + index;
@@ -973,7 +973,7 @@ automaton ArrayListSpliterator: int(
 
 //     fun remove (index: int): Object
 //     {
-//         this.parent._checkValidIndex(index, length);
+//         this.parent._checkValidIndex(index);
 //         this.parent._checkForComodification(modCount);
 
 //         var curIndex = offset + index;
