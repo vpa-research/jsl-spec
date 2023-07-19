@@ -178,18 +178,21 @@ automaton RandomAutomaton
     fun nextDouble (@target self: Random): double
     {
         result = action SYMBOLIC("double");
+        action ASSUME(0.0d <= result && result < 1.0d);
     }
 
 
     fun nextFloat (@target self: Random): float
     {
         result = action SYMBOLIC("float");
+        action ASSUME(0.0f <= result && result < 1.0f);
     }
 
 
     @synchronized fun nextGaussian (@target self: Random): double
     {
         result = action SYMBOLIC("double");
+        action ASSUME(-1.0d <= result && result < 1.0d);
     }
 
 
@@ -199,9 +202,15 @@ automaton RandomAutomaton
     }
 
 
-    fun nextInt (@target self: Random, arg0: int): int
+    fun nextInt (@target self: Random, bound: int): int
     {
-        action TODO();
+        if (bound <= 0)
+        {
+            action THROW_NEW("java.lang.IllegalArgumentException", ["bound must be positive"]);
+        }
+
+        result = action SYMBOLIC("int");
+        action ASSUME(0 <= result && result < bound);
     }
 
 

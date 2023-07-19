@@ -271,7 +271,9 @@ automaton ArrayListAutomaton
 
     fun lastIndexOf (@target self: ArrayList, o: Object): int
     {
-        result = action LIST_FIND(this.storage, o, this.length-1, -1, -1);
+        // #problem: counting backwards?
+        // result = action LIST_FIND(this.storage, o, this.length-1, -1, -1);
+        action NOT_IMPLEMENTED();
     }
 
 
@@ -454,6 +456,7 @@ automaton ArrayListAutomaton
         _rangeCheckForAdd(index);
 
         result = action SYMBOLIC("java.util.ListIterator");
+        action ASSUME(result != null);
         /*result = new ListItr(state=Created,
             cursor=index,
             expectedModCount=this.modCount);*/
@@ -463,6 +466,7 @@ automaton ArrayListAutomaton
     fun listIterator (@target self: ArrayList): ListIterator
     {
         result = action SYMBOLIC("java.util.ListIterator");
+        action ASSUME(result != null);
         /*result = new ListItr(state=Created,
             cursor=0,
             expectedModCount=this.modCount);*/
@@ -472,6 +476,7 @@ automaton ArrayListAutomaton
     fun iterator (@target self: ArrayList): Iterator
     {
         result = action SYMBOLIC("java.util.Iterator");
+        action ASSUME(result != null);
         /*result = new ListItr(state=Created,
             cursor=0,
             expectedModCount=this.modCount);*/
@@ -485,6 +490,7 @@ automaton ArrayListAutomaton
         // #problem
         //We don't have decision about sublists.
         result = action SYMBOLIC("java.util.List");
+        action ASSUME(result != null);
         /*result = new SubList(state=Created,
             startIndex=fromIndex,
             endIndex=toIndex);*/
@@ -505,6 +511,7 @@ automaton ArrayListAutomaton
             est=-1,
             expectedModCount=0);*/
         result = action SYMBOLIC("java.util.Spliterator");
+        action ASSUME(result != null);
     }
 
 
