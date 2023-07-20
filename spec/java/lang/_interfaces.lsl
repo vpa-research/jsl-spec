@@ -20,18 +20,30 @@ type Long is java.lang.Long for Object, int64 {}
 type Float is java.lang.Float for Object, float32 {}
 type Double is java.lang.Double for Object, float64 {}
 
+
+type CharSequence
+    is java.lang.CharSequence
+    for Object
+{
+    fun length(): int;
+
+    fun charAt(index: int): char;
+
+    fun toString(): string; // #problem
+}
+
 type Character is java.lang.Character for Object, char {}
-type CharSequence is java.lang.CharSequence for Object, string {}
 type String is java.lang.String for CharSequence {}
 
 
 // general interfaces
 
+
 type Runnable
     is java.lang.Runnable
     for Object
 {
-    fun run (): void;
+    fun run(): void;
 }
 
 
