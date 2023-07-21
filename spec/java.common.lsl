@@ -1,14 +1,14 @@
 //#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library `std:collections`
+library std
     version "11"
     language "Java"
     url "-";
 
 // DO NOT REMOVE!
-import generator.annotations;
-import generator.actions;
+import translator.annotations;
+import translator.actions;
 
 
 
@@ -16,7 +16,7 @@ import generator.actions;
 
 
 
-//annotation static ();
+annotation static ();
 
 annotation final ();
 

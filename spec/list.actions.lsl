@@ -1,67 +1,64 @@
 //#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library `???`
-    version "???"
-    language "???"
+library any
+    version "*"
+    language "any"
     url "-";
 
 
 // === READ operations ===
 
 
-define action LIST_COPY(
-        src: list<any>,
-        dst: list<any>,
-        srcPos: int,
-        dstPos: int,
-        len: int
-    ): void;
+define action LIST_NEW(
+    ): list<any>;
 
 // Copies contents of the list into the provided array. Allows auto-resizing.
 // Example behavior from Java: String[] x = arrList.toArray(new String[0]);
 define action LIST_TO_ARRAY(
         srcList: list<any>,
         destArray: array<any>,
-        from: int,
-        to: int
+        from: int32,
+        to: int32
     ): array<any>;
 
 define action LIST_FIND(
         aList: list<any>,
         value: any,
-        from: int,
-        to: int,
-        direction: int
-    ): int;
+        from: int32,
+        to: int32
+    ): int32;
 
 define action LIST_GET(
         aList: list<any>,
-        index: int
+        itemIndex: int32
     ): any;
 
 define action LIST_SIZE(
         aList: list<any>
-    ): int;
+    ): int32;
 
 
 // === UPDATE operations ===
 
 
-define action LIST_INSERT_AT(
-        aList: list<any>,
-        index: int,
-        value: any
+define action LIST_COPY(
+        src: list<any>,
+        dst: list<any>,
+        srcPos: int32,
+        dstPos: int32,
+        len: int32
     ): void;
 
-define action LIST_RESIZE(
+define action LIST_INSERT_AT(
         aList: list<any>,
-        newSize: int
+        itemIndex: int32,
+        value: any
     ): void;
 
 define action LIST_SET(
         aList: list<any>,
-        index: int,
+        itemIndex: int32,
         value: any
     ): void;
 
@@ -69,8 +66,11 @@ define action LIST_SET(
 // === DELETE operations
 
 
+define action LIST_FREE(
+        aList: list<any>
+    ): void;
+
 define action LIST_REMOVE(
         aList: list<any>,
-        index: int,
-        count: int
+        itemIndex: int32
     ): void;

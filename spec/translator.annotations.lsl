@@ -2,8 +2,8 @@
 libsl "1.1.0";
 
 // TODO: remove debug code
-library `?`
-    version "11"
+library any
+    version "*"
     language "Java"
     url "-";
 
@@ -13,7 +13,7 @@ library `?`
 
 // Adds an annotation to on specified element in the output code
 annotation AnnotatedWith (
-    annotationClassName: string,
+    annotationTypeName: string,
     annotationParameters: array<any> = [],
 );
 
@@ -35,6 +35,7 @@ annotation CacheStaticOnce;
 // The marked feature is no longer needed or required.
 annotation Deprecated (
     hint: string = "",
+    forRemoval: bool = false,
 );
 
 
@@ -65,6 +66,7 @@ annotation StopsControlFlow;
 
 
 // Associates the type on the LEFT side of typealias with the specified type.
+//@Deprecated
 annotation TypeMapping (
     fullClassName: string = null,
     builtin: bool = false,

@@ -2,12 +2,14 @@
 libsl "1.1.0";
 
 // TODO: remove debug code
-library `?`
+library any
     version "11"
     language "Java"
     url "-";
 
-import generator.annotations;
+import translator.annotations;
+import list.actions;
+//import map.actions;
 
 
 /// generator-specific actions

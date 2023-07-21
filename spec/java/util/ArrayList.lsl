@@ -1,7 +1,7 @@
 ///#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library `std`
+library std
     version "11"
     language "Java"
     url "-";
@@ -15,8 +15,6 @@ import java/util/_interfaces;
 import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
 
-import list.actions;
-
 
 // local semantic types
 
@@ -27,7 +25,7 @@ import list.actions;
 @implements("java.io.Serializable")
 @public @final type ArrayList
     is java.util.ArrayList
-    for Object
+    for List
 {
     //@private @static @final var serialVersionUID: long = 8683452581122892189;
 }
@@ -200,7 +198,7 @@ automaton ArrayListAutomaton
     {
         _checkValidIndex(index);
         result = action LIST_GET(this.storage, index);
-        action LIST_REMOVE(this.storage, index, 1);
+        action LIST_REMOVE(this.storage, index);
         this.modCount += 1;
         this.length -= 1;
     }
@@ -258,13 +256,13 @@ automaton ArrayListAutomaton
 
     fun contains (@target self: ArrayList, o: Object): boolean
     {
-        result = action LIST_FIND(this.storage, o, 0, this.length, +1) >= 0;
+        result = action LIST_FIND(this.storage, o, 0, this.length) >= 0;
     }
 
 
     fun indexOf (@target self: ArrayList, o: Object): int
     {
-        result = action LIST_FIND(this.storage, o, 0, this.length, +1);
+        result = action LIST_FIND(this.storage, o, 0, this.length);
     }
 
 
@@ -272,7 +270,7 @@ automaton ArrayListAutomaton
     fun lastIndexOf (@target self: ArrayList, o: Object): int
     {
         // #problem: counting backwards?
-        // result = action LIST_FIND(this.storage, o, this.length-1, -1, -1);
+        // result = action LIST_FIND_BACKWARDS(this.storage, o, 0, this.length);
         action NOT_IMPLEMENTED();
     }
 
@@ -388,14 +386,14 @@ automaton ArrayListAutomaton
 
     fun remove (@target self: ArrayList, o: Object): boolean
     {
-        var index: int = action LIST_FIND(this.storage, o, 0, this.length, +1);
+        var index: int = action LIST_FIND(this.storage, o, 0, this.length);
         if (index == -1)
         {
             result = false;
         }
         else
         {
-            action LIST_REMOVE(this.storage, index, 1);
+            action LIST_REMOVE(this.storage, index);
             result = true;
         }
     }
@@ -919,7 +917,7 @@ automaton ArrayListSpliterator: int(
 
 //    proc _indexOfElement (o: Object): int
 //    {
-//        var index = action LIST_FIND(this.parent.storage, o);
+//        var index = action LIST_FIND(this.parent.storage, o, 0, this.parent.length);
 //        this.parent._checkForComodification(modCount);
 
 //        if (index >= 0)

@@ -1,35 +1,63 @@
 //#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library "std:???"
+library std
     version "11"
     language "Java"
     url "-";
 
 // imports
 
-import "java-common.lsl";
-import "java/lang/StringBuffer.lsl";
-import "java/lang/StringBuilder.lsl";
-import "java/lang/_interfaces.lsl";
-import "java/util/function/_interfaces.lsl";
-import "java/util/regex/Pattern.lsl";
-import "java/util/regex/_interfaces.lsl";
-import "java/util/stream/_interfaces.lsl";
-
-import "list-actions.lsl";
+import java.common;
+import java/lang/_interfaces;
+import java/util/function/_interfaces;
+import java/util/stream/_interfaces;
 
 
 // local semantic types
+
+type MatchResult
+    is java.util.regex.MatchResult
+    for Object
+{
+}
+
+
+@implements("java.util.regex.MatchResult")
+@final type Matcher
+    is java.util.regex.Matcher
+    for MatchResult
+{
+}
+
+
+@implements("java.io.Serializable")
+type Pattern
+    is java.util.regex.Pattern
+    for Object
+{
+    @private @static val serialVersionUID: long = 1; // #problem: should be 5073258162644648461
+
+    @public @static val CANON_EQ: int = 128;
+    @public @static val CASE_INSENSITIVE: int = 2;
+    @public @static val COMMENTS: int = 4;
+    @public @static val DOTALL: int = 32;
+    @public @static val LITERAL: int = 16;
+    @public @static val MULTILINE: int = 8;
+    @public @static val UNICODE_CASE: int = 64;
+    @public @static val UNICODE_CHARACTER_CLASS: int = 256;
+    @public @static val UNIX_LINES: int = 1;
+}
 
 
 
 // automata
 
-@implements(["java.util.regex.MatchResult"])
-@public @final automaton Matcher: int
+automaton MatcherAutomaton
 (
+    var pattern: Pattern,
 )
+: Matcher
 {
     // states and shifts
 
@@ -38,13 +66,13 @@ import "list-actions.lsl";
 
     // constructors
 
-    @`package-private` constructor Matcher (@target self: Matcher)
+    /*@packagePrivate*/ constructor Matcher (@target self: Matcher)
     {
         action TODO();
     }
 
 
-    @`package-private` constructor Matcher (@target self: Matcher, arg0: Pattern, arg1: CharSequence)
+    /*@packagePrivate*/ constructor Matcher (@target self: Matcher, arg0: Pattern, arg1: CharSequence)
     {
         action TODO();
     }
@@ -286,6 +314,117 @@ import "list-actions.lsl";
 
 
     fun useTransparentBounds (@target self: Matcher, arg0: boolean): Matcher
+    {
+        action TODO();
+    }
+
+}
+
+
+
+
+automaton PatternAutomaton
+: Pattern
+{
+    // states and shifts
+
+    initstate Initialized;
+
+
+    // constructors
+
+    @private constructor Pattern (@target self: Pattern, arg0: String, arg1: int)
+    {
+        action TODO();
+    }
+
+
+    // utilities
+
+    // static methods
+
+    @static fun compile (arg0: String): Pattern
+    {
+        action TODO();
+    }
+
+
+    @static fun compile (arg0: String, arg1: int): Pattern
+    {
+        action TODO();
+    }
+
+
+    @static fun matches (arg0: String, arg1: CharSequence): boolean
+    {
+        action TODO();
+    }
+
+
+    @static fun quote (arg0: String): String
+    {
+        action TODO();
+    }
+
+
+    // methods
+
+    @ParameterizedResult("java.lang.String")
+    fun asMatchPredicate (@target self: Pattern): Predicate
+    {
+        // #problem: a lambda object should be returned here
+        // #solution: a new type with automaton with a single method
+        action NOT_IMPLEMENTED();
+    }
+
+
+    @ParameterizedResult("java.lang.String")
+    fun asPredicate (@target self: Pattern): Predicate
+    {
+        // #problem: a lambda object should be returned here
+        // #solution: a new type with automaton with a single method
+        action NOT_IMPLEMENTED();
+    }
+
+
+    fun flags (@target self: Pattern): int
+    {
+        action TODO();
+    }
+
+
+    fun matcher (@target self: Pattern, arg0: CharSequence): Matcher
+    {
+        action TODO();
+    }
+
+
+    fun pattern (@target self: Pattern): String
+    {
+        action TODO();
+    }
+
+
+    fun split (@target self: Pattern, arg0: CharSequence): array<String>
+    {
+        action TODO();
+    }
+
+
+    fun split (@target self: Pattern, arg0: CharSequence, arg1: int): array<String>
+    {
+        action TODO();
+    }
+
+
+    @ParameterizedResult("java.lang.String")
+    fun splitAsStream (@target self: Pattern, arg0: CharSequence): Stream
+    {
+        action TODO();
+    }
+
+
+    fun toString (@target self: Pattern): String
     {
         action TODO();
     }

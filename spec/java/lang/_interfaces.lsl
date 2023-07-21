@@ -1,7 +1,7 @@
 //#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library `std:collections`
+library std
     version "11"
     language "Java"
     url "-";
@@ -61,3 +61,9 @@ type Iterable
 {
 }
 
+
+
+// !!! temporary definitions
+
+type StringBuffer is java.lang.StringBuffer for Object {}
+type StringBuilder is java.lang.StringBuilder for Object {}
