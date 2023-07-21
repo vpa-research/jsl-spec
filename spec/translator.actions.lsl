@@ -8,8 +8,9 @@ library any
     url "-";
 
 import translator.annotations;
-import list.actions;
-//import map.actions;
+import actions.array;
+import actions.list;
+//import actions.map; // #problem: types with multiple generic parameters
 
 
 /// generator-specific actions
