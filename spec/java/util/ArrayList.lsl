@@ -102,6 +102,7 @@ automaton ArrayListAutomaton
             val message: String = "Illegal Capacity: " + initCapacity;
             action THROW_NEW("java.lang.IllegalArgumentException", [message]);
         }
+        this.storage = action LIST_NEW();
     }
 
 
@@ -113,6 +114,8 @@ automaton ArrayListAutomaton
 
     constructor ArrayList (@target self: ArrayList, c: Collection)
     {
+        this.storage = action LIST_NEW();
+
         // #problem: loops, interface calls
         action NOT_IMPLEMENTED();
     }
@@ -287,17 +290,45 @@ automaton ArrayListAutomaton
 
     fun toArray (@target self: ArrayList): array<Object>
     {
-        // #problem
-        //How to create a new array correctly ?
-        //var a: array<int> = null;
-        //result = action LIST_TO_ARRAY(this.storage, a, 0, this.length);
-        action NOT_IMPLEMENTED();
+        val size: int = this.length;
+        result = action ARRAY_NEW("java.lang.Object", size);
+
+        var i: int = 0;
+        action LOOP_FOR(i, 0, size, 0/*+1*/, _javaToArray_loop(i)); // result assignment is implicit
+    }
+
+
+    // #problem/todo: use exact parameter names
+    @LambdaComponent proc _javaToArray_loop(i: int): array<Object>
+    {
+        val item: Object = action LIST_GET(this.storage, i);
+        action ARRAY_SET(result, i, item);
+        i += 1;
     }
 
 
     fun toArray (@target self: ArrayList, a: array<Object>): array<Object>
     {
-        result = action LIST_TO_ARRAY(this.storage, a, 0, this.length);
+        val aLen: int = action ARRAY_SIZE(a);
+        val size: int = this.length;
+        var i: int = 0;
+
+        if (aLen < size)
+        {
+            // return (T[]) Arrays.copyOf(elementData, size, a.getClass());
+            // #problem: a.getClass()
+            result = action ARRAY_NEW("java.lang.Object", size);
+
+            action LOOP_FOR(i, 0, size, 0/*+1*/, _javaToArray_loop(i)); // result assignment is implicit
+        }
+        else
+        {
+            result = a;
+
+            action LOOP_WHILE(i < size, _javaToArray_loop(i)); // result assignment is implicit
+
+            if (aLen > size) { action ARRAY_SET(result, size, null); }
+        }
     }
 
 
@@ -362,7 +393,7 @@ automaton ArrayListAutomaton
                 }
 
                 action DO("other._checkForComodification(otherExpectedModCount)"); // #problem
-                action DO("this._checkForComodification(expectedModCount)");       // #problem
+                _checkForComodification(expectedModCount);
             }
             else
             {

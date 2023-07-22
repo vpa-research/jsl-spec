@@ -3,14 +3,14 @@ libsl "1.1.0";
 
 // TODO: remove debug code
 library any
-    version "11"
-    language "Java"
+    version "*"
+    language "any"
     url "-";
 
 import translator.annotations;
 import actions.array;
 import actions.list;
-//import actions.map; // #problem: types with multiple generic parameters
+//import actions.map; // #problem: types with multiple type parameters
 
 
 /// generator-specific actions
@@ -18,33 +18,44 @@ import actions.list;
 
 define action ASSUME (predicate: bool): void;
 
+define action SYMBOLIC(
+        valueType: string // literal!
+    ): any;
 
-define action ARRAY_LENGTH(arr: array<any>): int32;
+define action SYMBOLIC_ARRAY (
+        elementType: string, // literal!
+        size: int32
+    ): array<any>;
 
-define action ARRAY_GET(arr: array<any>, index: int32): any;
+define action DO (
+        code: string // literal!
+    ): any;
 
-define action ARRAY_SET(arr: array<any>, index: int32, value: any): void;
 
-
-// usage example: action FOR(0, 10, +1, "loop_1", [list, x, y]);
-define action FOR(
-    lowerBound: int,
-    upperBound: int,
-    step: int,
-    bodyProcName: string,
-    procArgs: array<any>
+// note: result variable may be shared
+// usage example: action LOOP_FOR(i, 0, 10, +1, loop_body_proc(i, list, x, y));
+define action LOOP_FOR(
+    iterator: int32,   // direct variable reference!
+    lowerBound: int32,
+    upperBound: int32,
+    step: int32,
+    bodyProc: any      // direct call to a subroutine!
 ): void;
 
-// usage example: action WHILE("loop_condition", [a, b], "loop_body", [a]);
-define action WHILE(
-    predicateProcName: string,
-    predicateArgs: array<any>,
-    bodyProcName: string,
-    bodyArgs: array<any>
+
+// note: result variable may be shared
+// usage example: action LOOP_WHILE(a < b, loop_body_proc(a));
+define action LOOP_WHILE(
+    predicate: bool,
+    bodyProc: any    // direct call to a subroutine!
 ): void;
 
-// eliminates subroutine using its body as an element for loop structure (condition or body)
-annotation LoopComponent();
+define action LOOP_BREAK();
+
+
+// disables code generation for subroutine and uses its body as an element for loop or other structure
+// should be used only on subroutines
+annotation LambdaComponent();
 
 
 // specification development -related aspects

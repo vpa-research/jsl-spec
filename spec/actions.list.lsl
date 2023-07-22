@@ -13,15 +13,6 @@ library any
 define action LIST_NEW(
     ): list<any>;
 
-// Copies contents of the list into the provided array. Allows auto-resizing.
-// Example behavior from Java: String[] x = arrList.toArray(new String[0]);
-define action LIST_TO_ARRAY(
-        srcList: list<any>,
-        destArray: array<any>,
-        from: int32,
-        to: int32
-    ): array<any>;
-
 define action LIST_FIND(
         aList: list<any>,
         value: any,

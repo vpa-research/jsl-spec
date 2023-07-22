@@ -16,6 +16,8 @@ define action ARRAY_GET(
     ): any;
 
 define action ARRAY_NEW(
+        typeName: string, // literal!
+        size: int32
     ): array<any>;
 
 define action ARRAY_SIZE(
@@ -33,10 +35,10 @@ define action ARRAY_FILL(
 
 define action ARRAY_COPY(
         src: array<any>,
-        dst: array<any>,
         srcPos: int32,
+        dst: array<any>,
         dstPos: int32,
-        len: int32
+        count: int32
     ): void;
 
 define action ARRAY_SET(
