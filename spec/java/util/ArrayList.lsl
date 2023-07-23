@@ -294,7 +294,7 @@ automaton ArrayListAutomaton
         result = action ARRAY_NEW("java.lang.Object", size);
 
         var i: int = 0;
-        action LOOP_FOR(i, 0, size, 0/*+1*/, _javaToArray_loop(i)); // result assignment is implicit
+        action LOOP_FOR(i, 0, size, +1, _javaToArray_loop(i)); // result assignment is implicit
     }
 
 
@@ -303,7 +303,8 @@ automaton ArrayListAutomaton
     {
         val item: Object = action LIST_GET(this.storage, i);
         action ARRAY_SET(result, i, item);
-        i += 1;
+        // #problem: arguments should be mutable to support WHILE action
+        //i += 1;
     }
 
 
@@ -315,17 +316,18 @@ automaton ArrayListAutomaton
 
         if (aLen < size)
         {
-            // return (T[]) Arrays.copyOf(elementData, size, a.getClass());
-            // #problem: a.getClass()
+            // #problem: a.getClass() should be called to construct type-valid array (USVM issue)
             result = action ARRAY_NEW("java.lang.Object", size);
 
-            action LOOP_FOR(i, 0, size, 0/*+1*/, _javaToArray_loop(i)); // result assignment is implicit
+            action LOOP_FOR(i, 0, size, +1, _javaToArray_loop(i)); // result assignment is implicit
         }
         else
         {
             result = a;
 
-            action LOOP_WHILE(i < size, _javaToArray_loop(i)); // result assignment is implicit
+            // #problem: immutable function arguments and incomplete implementation of FOR and WHILE actions
+            // action LOOP_WHILE(i < size, _javaToArray_loop(i)); // result assignment is implicit
+            action LOOP_FOR(i, 0, size, +1, _javaToArray_loop(i));
 
             if (aLen > size) { action ARRAY_SET(result, size, null); }
         }
@@ -392,7 +394,7 @@ automaton ArrayListAutomaton
                     result = false;
                 }
 
-                action DO("other._checkForComodification(otherExpectedModCount)"); // #problem
+                action DEBUG_DO("other._checkForComodification(otherExpectedModCount)"); // #problem
                 _checkForComodification(expectedModCount);
             }
             else

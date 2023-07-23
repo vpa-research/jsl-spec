@@ -27,7 +27,7 @@ define action SYMBOLIC_ARRAY (
         size: int32
     ): array<any>;
 
-define action DO (
+define action DEBUG_DO (
         code: string // literal!
     ): any;
 
