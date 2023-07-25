@@ -7,6 +7,20 @@ library any
     url "-";
 
 
+// === LIFE-TIME management ===
+
+
+define action ARRAY_NEW(
+        typeName: string, // literal!
+        size: int32
+    ): array<any>;
+
+// unused
+define action ARRAY_FREE(
+        arr: array<any>
+    ): void;
+
+
 // === READ operations ===
 
 
@@ -14,11 +28,6 @@ define action ARRAY_GET(
         arr: array<any>,
         itemIndex: int32
     ): any;
-
-define action ARRAY_NEW(
-        typeName: string, // literal!
-        size: int32
-    ): array<any>;
 
 define action ARRAY_SIZE(
         arr: array<any>
@@ -28,6 +37,7 @@ define action ARRAY_SIZE(
 // === UPDATE operations ===
 
 
+// #question: do we actually need this?
 define action ARRAY_FILL(
         arr: array<any>,
         value: any
@@ -51,6 +61,4 @@ define action ARRAY_SET(
 // === DELETE operations
 
 
-define action ARRAY_FREE(
-        arr: array<any>
-    ): void;
+// -

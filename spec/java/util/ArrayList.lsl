@@ -98,8 +98,7 @@ automaton ArrayListAutomaton
     {
         if (initialCapacity < 0)
         {
-            val initCapacity: String = action OBJECT_TO_STRING(initialCapacity);
-            val message: String = "Illegal Capacity: " + initCapacity;
+            val message: String = "Illegal Capacity: " + action OBJECT_TO_STRING(initialCapacity);
             action THROW_NEW("java.lang.IllegalArgumentException", [message]);
         }
         this.storage = action LIST_NEW();
@@ -167,15 +166,13 @@ automaton ArrayListAutomaton
     {
         if (fromIndex < 0)
         {
-            val from: String = action OBJECT_TO_STRING(fromIndex);
-            val message: String = "fromIndex = " + from;
+            val message: String = "fromIndex = " + action OBJECT_TO_STRING(fromIndex);
             action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
         }
 
         if (toIndex > size)
         {
-            val to: String = action OBJECT_TO_STRING(toIndex);
-            val message: String = "toIndex = " + to;
+            val message: String = "toIndex = " + action OBJECT_TO_STRING(toIndex);
             action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
         }
 
@@ -419,7 +416,7 @@ automaton ArrayListAutomaton
 
     fun remove (@target self: ArrayList, o: Object): boolean
     {
-        var index: int = action LIST_FIND(this.storage, o, 0, this.length);
+        val index: int = action LIST_FIND(this.storage, o, 0, this.length);
         if (index == -1)
         {
             result = false;
@@ -553,12 +550,12 @@ automaton ArrayListAutomaton
             _throwNPE();
         }
 
-        var expectedModCount: int = modCount;
+        val expectedModCount: int = modCount;
 
         // #problem: loop
         action NOT_IMPLEMENTED();
 
-        //var res = action CALL(filter, [storage]);
+        //val res = action CALL(filter, [storage]);
         // if (res == null)
         // {
         //     result = false;
@@ -586,7 +583,7 @@ automaton ArrayListAutomaton
             _throwNPE();
         }
 
-        var expectedModCount: int = modCount;
+        val expectedModCount: int = modCount;
 
         // #problem: loop
         action NOT_IMPLEMENTED();
@@ -602,7 +599,7 @@ automaton ArrayListAutomaton
 
     fun sort (@target self: ArrayList, c: Comparator): void
     {
-        var expectedModCount: int = modCount;
+        val expectedModCount: int = modCount;
 
         // #problem: loops, extremely complex
         action NOT_IMPLEMENTED();
@@ -688,7 +685,7 @@ automaton ListItr: int (
     fun next (): Object
     {
         this.parent._checkForComodification(this.expectedModCount);
-        var i: int = this.cursor;
+        val i: int = this.cursor;
 
         if (i >= this.parent.length)
         {
@@ -708,7 +705,7 @@ automaton ListItr: int (
     fun previous (): Object
     {
         this.parent._checkForComodification(this.expectedModCount);
-        var i: int = this.cursor - 1;
+        val i: int = this.cursor - 1;
 
         if (i < 0)
         {
@@ -770,7 +767,7 @@ automaton ListItr: int (
         //What i must to do with try-catch in this method ?
         action NOT_IMPLEMENTED();
 
-        var i: int = this.cursor;
+        val i: int = this.cursor;
         this.parent._addElement(this.parent.length, e);
         this.cursor = i + 1;
         this.lastRet = -1;
@@ -919,7 +916,7 @@ automaton ArrayListSpliterator: int(
 //        this.parent._rangeCheckForAdd(index);
 
 //        //I use suppose that Collection interface will have size sub or analog
-//        var collectionSize = c.size();
+//        val collectionSize: int = c.size();
 
 //        if (collectionSize == 0)
 //        {
@@ -929,7 +926,7 @@ automaton ArrayListSpliterator: int(
 //        {
 //            this.parent._checkForComodification(modCount);
 
-//            var curIndex = offset + index;
+//            val curIndex = offset + index;
 
 //            this.parent._addAllElements(index, c);
 
@@ -950,7 +947,7 @@ automaton ArrayListSpliterator: int(
 
 //    proc _indexOfElement (o: Object): int
 //    {
-//        var index = action LIST_FIND(this.parent.storage, o, 0, this.parent.length);
+//        val index: int = action LIST_FIND(this.parent.storage, o, 0, this.parent.length);
 //        this.parent._checkForComodification(modCount);
 
 //        if (index >= 0)
@@ -972,7 +969,7 @@ automaton ArrayListSpliterator: int(
 //         this.parent._checkValidIndex(index);
 //         this.parent._checkForComodification(modCount);
 
-//         var curIndex = offset + index;
+//         val curIndex: int = offset + index;
 
 //         result = action LIST_GET(this.parent.storage, curIndex);
 //         action LIST_SET(this.parent.storage, curIndex, element);
@@ -984,7 +981,7 @@ automaton ArrayListSpliterator: int(
 //         this.parent._checkValidIndex(index);
 //         this.parent._checkForComodification(modCount);
 
-//         var curIndex = offset + index;
+//         val curIndex: int = offset + index;
 
 //         result = action LIST_GET(this.parent.storage, curIndex);
 //     }
@@ -1002,7 +999,7 @@ automaton ArrayListSpliterator: int(
 //         this.parent._rangeCheckForAdd(index);
 //         this.parent._checkForComodification(modCount);
 
-//         var curIndex = offset + index;
+//         val curIndex: int = offset + index;
 //         this.parent._addElement(curIndex, element);
 
 //         _updateSizeAndModCount(1);
@@ -1014,7 +1011,7 @@ automaton ArrayListSpliterator: int(
 //         this.parent._checkValidIndex(index);
 //         this.parent._checkForComodification(modCount);
 
-//         var curIndex = offset + index;
+//         val curIndex: int = offset + index;
 
 //         result = this.parent._deleteElement(curIndex);
 
@@ -1064,18 +1061,16 @@ automaton ArrayListSpliterator: int(
 
 //     fun toArray (): array<Object>
 //     {
-//         // #problem
-//         //How set size of the array ?
-//         var a: array<int>;
+//         val a: array<int> = action ARRAY_NEW("java.lang.Object", this.length);
 
-//         var end = offset + length;
+//         val end: int = offset + length;
 //         result = action LIST_TO_ARRAY(storage, a, offset, end);
 //     }
 
 
 //     fun toArray (a: list<Object>): array<Object>
 //     {
-//         var end = offset + length;
+//         val end: int = offset + length;
 //         result = action LIST_TO_ARRAY(storage, a, offset, end);
 //     }
 

@@ -7,11 +7,20 @@ library any
     url "-";
 
 
-// === READ operations ===
+// === LIFE-TIME management ===
 
 
 define action LIST_NEW(
     ): list<any>;
+
+// unused
+define action LIST_FREE(
+        aList: list<any>
+    ): void;
+
+
+// === READ operations ===
+
 
 define action LIST_FIND(
         aList: list<any>,
@@ -56,10 +65,6 @@ define action LIST_SET(
 
 // === DELETE operations
 
-
-define action LIST_FREE(
-        aList: list<any>
-    ): void;
 
 define action LIST_REMOVE(
         aList: list<any>,
