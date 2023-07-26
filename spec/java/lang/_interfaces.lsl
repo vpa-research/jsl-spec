@@ -33,7 +33,7 @@ type CharSequence
 }
 
 type Character is java.lang.Character for Object, char {}
-type String is java.lang.String for CharSequence {}
+type String is java.lang.String for CharSequence, string {}
 
 
 // general interfaces

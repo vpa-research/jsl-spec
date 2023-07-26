@@ -105,14 +105,14 @@ define action CALL(
 
 // the same as something like: return a == b || (a != null && a.equals(b))
 define action OBJECT_EQUALS(
-        a: Object,
-        b: Object
+        a: any,
+        b: any
     ): boolean;
 
 define action OBJECT_TO_STRING(
-        thing: Object
+        thing: any
     ): string;
 
 define action OBJECT_HASH_CODE(
-        thing: Object
+        thing: any
     ): int;
