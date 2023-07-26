@@ -40,10 +40,20 @@ define action MAP_SIZE(
 // === UPDATE operations ===
 
 
+define action MAP_INTERSECT_WITH(
+        receiver: map<any, any>,
+        otherSource: map<any, any>
+    ): any;
+
 define action MAP_SET(
         aMap: map<any, any>,
         key: any,
         value: any
+    ): any;
+
+define action MAP_UNITE_WITH(
+        receiver: map<any, any>,
+        otherSource: map<any, any>
     ): any;
 
 
