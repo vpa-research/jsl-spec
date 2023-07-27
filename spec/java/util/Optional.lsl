@@ -1,4 +1,4 @@
-//#! pragma: non-synthesizable
+///#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library `std`
@@ -227,6 +227,7 @@ automaton OptionalAutomaton
         }
         else
         {
+            // #problem: cast action return value to Optional
             result = action CALL(mapper, [this.value]);
 
             if (result == null)
