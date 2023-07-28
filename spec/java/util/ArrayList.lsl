@@ -539,7 +539,7 @@ automaton ArrayListAutomaton
         action LOOP_WHILE(this.modCount == expectedModCount && i < size, forEach_loop(i, anAction));
 
         if (this.modCount != expectedModCount)
-            {action THROW_NEW("java.util.ConcurrentModificationException", [])}
+            {action THROW_NEW("java.util.ConcurrentModificationException", []);}
     }
 
     @LambdaComponent proc forEach_loop(i: int, anAction: Consumer): void
