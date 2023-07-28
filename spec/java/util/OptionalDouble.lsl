@@ -263,7 +263,7 @@ automaton OptionalDoubleAutomaton
 
     fun stream (@target self: OptionalDouble): DoubleStream
     {
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("no decision");
 
         /*
         if (this.present)

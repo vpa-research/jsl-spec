@@ -256,7 +256,7 @@ automaton OptionalIntAutomaton
 
     fun stream (@target self: OptionalInt): IntStream
     {
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("no decision");
 
         /*
         if (this.present)

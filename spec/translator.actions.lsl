@@ -64,7 +64,7 @@ annotation LambdaComponent();
 define action ERROR(message: string): void;
 
 @StopsControlFlow
-define action NOT_IMPLEMENTED(): void;
+define action NOT_IMPLEMENTED(reason: string): void;
 
 @StopsControlFlow
 define action TODO(): void;

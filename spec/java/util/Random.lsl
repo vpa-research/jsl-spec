@@ -16,7 +16,7 @@ import java/util/stream/_interfaces;
 // local semantic types
 
 @implements("java.io.Serializable")
-@public @final type Random
+@public type Random
     is java.util.Random
     for Object
 {
@@ -26,10 +26,7 @@ import java/util/stream/_interfaces;
 
 // automata
 
-automaton RandomAutomaton
-(
-)
-: Random
+automaton RandomAutomaton: Random
 {
     // states and shifts
 
@@ -192,7 +189,7 @@ automaton RandomAutomaton
     @synchronized fun nextGaussian (@target self: Random): double
     {
         result = action SYMBOLIC("double");
-        action ASSUME(-1.0d <= result && result < 1.0d);
+        // #problem: result cant be NaN
     }
 
 

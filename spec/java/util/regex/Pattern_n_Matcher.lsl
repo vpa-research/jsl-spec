@@ -418,7 +418,7 @@ automaton PatternAutomaton
 
 
     @ParameterizedResult("java.lang.String")
-    fun splitAsStream (@target self: Pattern, arg0: CharSequence): Stream
+    fun splitAsStream (@target self: Pattern, @final input: CharSequence): Stream
     {
         action TODO();
     }

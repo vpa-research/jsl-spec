@@ -414,7 +414,7 @@ automaton OptionalAutomaton
     @ParameterizedResult(["T"])
     fun stream (@target @Parameterized(["T"]) self: Optional): Stream
     {
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("no decision");
 
         /*
         if (this.value == null)

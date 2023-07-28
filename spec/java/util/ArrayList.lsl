@@ -23,7 +23,7 @@ import java/util/stream/_interfaces;
 @implements("java.util.RandomAccess")
 @implements("java.lang.Cloneable")
 @implements("java.io.Serializable")
-@public @final type ArrayList
+@public type ArrayList
     is java.util.ArrayList
     for List
 {
@@ -116,7 +116,7 @@ automaton ArrayListAutomaton
         this.storage = action LIST_NEW();
 
         // #problem: loops, interface calls
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("interface calls are not supported yet");
     }
 
 
@@ -154,7 +154,7 @@ automaton ArrayListAutomaton
         //we don't know how to avoid cycle in this method;
         //for e in c:
         //   storage.add(e);
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("interface call support");
 
         //At this moment we can't work with Collection, because this is interface.
         //this.length = this.length + c.size();
@@ -271,7 +271,7 @@ automaton ArrayListAutomaton
     {
         // #problem: counting backwards?
         // result = action LIST_FIND_BACKWARDS(this.storage, o, 0, this.length);
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("searching through lists backwards");
     }
 
 
@@ -404,7 +404,7 @@ automaton ArrayListAutomaton
 
     fun toString (@target self: ArrayList): String
     {
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("no concrete decision");
     }
 
 
@@ -454,28 +454,30 @@ automaton ArrayListAutomaton
     fun removeAll (@target self: ArrayList, c: Collection): boolean
     {
         // TODO: interface call
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("no support for interface calls yet");
     }
 
 
     fun retainAll (@target self: ArrayList, c: Collection): boolean
     {
         // TODO: interface call
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("no support for interface calls yet");
     }
 
 
     @throws(["java.io.IOException"])
     @private fun writeObject (@target self: ArrayList, s: ObjectOutputStream): void
     {
-        action NOT_IMPLEMENTED(); // TODO: no serialization support yet
+        // #question: do we actually need this method?
+        action NOT_IMPLEMENTED("no serialization support yet");
     }
 
 
     @throws(["java.io.IOException", "java.lang.ClassNotFoundException"])
     @private fun readObject (@target self: ArrayList, s: ObjectInputStream): void
     {
-        action NOT_IMPLEMENTED(); // TODO: no serialization support yet
+        // #question: do we actually need this method?
+        action NOT_IMPLEMENTED("no serialization support yet");
     }
 
 
@@ -527,8 +529,24 @@ automaton ArrayListAutomaton
 
     fun forEach (@target self: ArrayList, anAction: Consumer): void
     {
-        // #problem: loops
-        action NOT_IMPLEMENTED();
+        if (anAction == null)
+            {_throwNPE();}
+
+        val expectedModCount: int = this.modCount;
+        val size: int = this.length;
+
+        var i: int = 0;
+        action LOOP_WHILE(this.modCount == expectedModCount && i < size, forEach_loop(i, anAction));
+
+        if (this.modCount != expectedModCount)
+            {action THROW_NEW("java.util.ConcurrentModificationException", [])}
+    }
+
+    @LambdaComponent proc forEach_loop(i: int, anAction: Consumer): void
+    {
+        val item: Object = action LIST_GET(this.storage, i);
+        action CALL(anAction, [item]);
+        i += 1;
     }
 
 
@@ -552,8 +570,8 @@ automaton ArrayListAutomaton
 
         val expectedModCount: int = modCount;
 
-        // #problem: loop
-        action NOT_IMPLEMENTED();
+        // #problem: loop with interface calls
+        action NOT_IMPLEMENTED("no support for interface calls");
 
         //val res = action CALL(filter, [storage]);
         // if (res == null)
@@ -585,8 +603,8 @@ automaton ArrayListAutomaton
 
         val expectedModCount: int = modCount;
 
-        // #problem: loop
-        action NOT_IMPLEMENTED();
+        // #problem: loop with interface calls
+        action NOT_IMPLEMENTED("no support for interface calls");
 
         if (this.modCount != expectedModCount)
         {
@@ -602,7 +620,7 @@ automaton ArrayListAutomaton
         val expectedModCount: int = modCount;
 
         // #problem: loops, extremely complex
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("too complex, no decision");
 
         if (this.modCount != expectedModCount)
         {
@@ -694,7 +712,7 @@ automaton ListItr: int (
 
         // #problem
         //I don't know what to do with ConcurrentModificationException(); ?
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("exception catching with parallel execution");
 
         this.cursor = i + 1;
         this.lastRet = i;
@@ -714,7 +732,7 @@ automaton ListItr: int (
 
         // #problem
         //I don't know what to do with ConcurrentModificationException(); ?
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("exception catching with parallel execution");
 
         this.cursor = i;
         this.lastRet = i;
@@ -733,7 +751,7 @@ automaton ListItr: int (
 
         // #problem
         //What i must to do with try-catch in this method ?
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("exception catching with parallel execution");
 
         this.parent._deleteElement(this.lastRet);
         this.cursor = this.lastRet;
@@ -753,7 +771,7 @@ automaton ListItr: int (
 
         // #problem
         //What i must to do with try-catch in this method ?
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("exception catching with parallel execution");
 
         this.parent._setElement(this.lastRet, e);
     }
@@ -765,7 +783,7 @@ automaton ListItr: int (
 
         // #problem
         //What i must to do with try-catch in this method ?
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("exception catching with parallel execution");
 
         val i: int = this.cursor;
         this.parent._addElement(this.parent.length, e);
@@ -778,7 +796,7 @@ automaton ListItr: int (
     fun forEachRemaining (action: Consumer): void
     {
         // TODO: loops and interface calls
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("loops and interface calls");
     }
 
 }
@@ -827,31 +845,31 @@ automaton ArrayListSpliterator: int(
 
     fun trySplit (): ArrayListSpliterator
     {
-        action NOT_IMPLEMENTED();
+        action TODO();
     }
 
 
     fun tryAdvance (action: Consumer): void
     {
-        action NOT_IMPLEMENTED();
+        action TODO();
     }
 
 
     fun forEachRemaining (action: Consumer): void
     {
-        action NOT_IMPLEMENTED();
+        action TODO();
     }
 
 
     fun estimateSize (): long
     {
-        action NOT_IMPLEMENTED();
+        action TODO();
     }
 
 
     fun characteristics (): int
     {
-        action NOT_IMPLEMENTED();
+        action TODO();
     }
 
 }
@@ -941,7 +959,7 @@ automaton ArrayListSpliterator: int(
 //    {
 //        // #problem
 //        //Here is cycle
-//        action NOT_IMPLEMENTED();
+//        action TODO();
 //    }
 
 
@@ -1034,28 +1052,28 @@ automaton ArrayListSpliterator: int(
 //     fun replaceAll (operator: UnaryOperator): void
 //     {
 //         // #problem
-//         action NOT_IMPLEMENTED();
+//         action TODO();
 //     }
 
 
 //     fun removeAll (c: Collection): boolean
 //     {
 //         // #problem
-//         action NOT_IMPLEMENTED();
+//         action TODO();
 //     }
 
 
 //     fun retainAll (c: Collection): boolean
 //     {
 //         // #problem
-//         action NOT_IMPLEMENTED();
+//         action TODO();
 //     }
 
 
 //     fun removeIf (filter: Predicate): boolean
 //     {
 //         // #problem
-//         action NOT_IMPLEMENTED();
+//         action TODO();
 //     }
 
 
@@ -1078,7 +1096,7 @@ automaton ArrayListSpliterator: int(
 //     fun equals (o: Object): boolean
 //     {
 //         // #problem
-//         action NOT_IMPLEMENTED();
+//         action TODO();
 //     }
 
 
@@ -1086,7 +1104,7 @@ automaton ArrayListSpliterator: int(
 //     {
 //         // result = action OBJECT_HASH_CODE(self);
 //         // #problem
-//         action NOT_IMPLEMENTED();
+//         action TODO();
 //     }
 
 
@@ -1099,7 +1117,7 @@ automaton ArrayListSpliterator: int(
 //     fun lastIndexOf (o: Object): int
 //     {
 //         //I must think about this new action.
-//         action NOT_IMPLEMENTED();
+//         action TODO();
 //     }
 
 
@@ -1123,13 +1141,13 @@ automaton ArrayListSpliterator: int(
 
 //     fun iterator (): Iterator
 //     {
-
+//         action TODO();
 //     }
 
 
 //     fun spliterator (): Spliterator
 //     {
-//         action NOT_IMPLEMENTED();
+//         action TODO();
 //     }
 
 // }

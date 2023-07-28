@@ -256,7 +256,7 @@ automaton OptionalLongAutomaton
 
     fun stream (@target self: OptionalLong): LongStream
     {
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("no decision");
 
         /*
         if (this.present)
