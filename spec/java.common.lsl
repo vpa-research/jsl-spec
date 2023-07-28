@@ -110,9 +110,9 @@ define action OBJECT_EQUALS(
     ): boolean;
 
 define action OBJECT_TO_STRING(
-        thing: any
+        value: any
     ): string;
 
 define action OBJECT_HASH_CODE(
-        thing: any
+        value: any
     ): int;
