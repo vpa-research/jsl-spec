@@ -1,6 +1,7 @@
+///#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library `std:collections`
+library std
     version "11"
     language "Java"
     url "-";
@@ -13,51 +14,29 @@ import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
 
 
-/// TODO: remove duplicate types
-
-type Runnable is java.lang.Runnable for Object
-{
-    fun run (): void;
-}
-
-type DoubleConsumer is java.util.function.DoubleConsumer for Object
-{
-    fun accept (x: double): void;
-}
-
-type DoubleSupplier is java.util.function.DoubleSupplier for Object
-{
-    fun get (): double;
-}
-
-@Parameterized(["T"])
-type Supplier is java.util.function.Supplier for Object
-{
-    fun get (): Object;
-}
-
-type DoubleStream is java.util.stream.DoubleStream for Object
-{
-    // ???
-}
-
-/// TODO: remove duplicate types
-
-
-
 // local semantic types
 
-@public @final type OptionalDouble is java.util.OptionalDouble for Object
+@public @final type OptionalDouble
+    is java.util.OptionalDouble
+    for Object
 {
 }
 
 
 // automata
 
-automaton OptionalDoubleAutomaton (
+automaton concept MyConcept: Object
+{
+    var value: double;
+}
+
+automaton OptionalDoubleAutomaton
+(
     var value: double,
     var present: boolean
-): OptionalDouble
+)
+: OptionalDouble
+    implements MyConcept
 {
     // states and shifts
 
@@ -66,7 +45,7 @@ automaton OptionalDoubleAutomaton (
 
     shift Allocated -> Initialized by [
         // constructors
-        OptionalDouble (OptionalDouble), // #problem: reference to self in constructor
+        OptionalDouble (OptionalDouble),
         OptionalDouble (OptionalDouble, double),
 
         // static methods
@@ -108,13 +87,6 @@ automaton OptionalDoubleAutomaton (
 
     // utilities
 
-    @CacheStaticOnce
-    @static proc _makeEmpty (): OptionalDouble
-    {
-        result = new OptionalDoubleAutomaton(state=Initialized);
-    }
-
-
     @AutoInline
     @static proc _throwNPE (): void
     {
@@ -126,7 +98,7 @@ automaton OptionalDoubleAutomaton (
 
     @static fun empty (): OptionalDouble
     {
-        result = _makeEmpty();
+        result = EMPTY_OPTIONAL_DOUBLE;
     }
 
 
@@ -154,7 +126,8 @@ automaton OptionalDoubleAutomaton (
                 val otherPresent: boolean = OptionalDoubleAutomaton(other).present;
 
                 if (this.present && otherPresent)
-                    {result = this.value == otherValue;}  // #problem
+                    // #problem: need `Double.compare(this.value, other.value) == 0`
+                    {result = this.value == otherValue;}
                 else
                     {result = this.present == otherPresent;}
             }
@@ -290,7 +263,7 @@ automaton OptionalDoubleAutomaton (
 
     fun stream (@target self: OptionalDouble): DoubleStream
     {
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("no decision");
 
         /*
         if (this.present)
@@ -302,11 +275,11 @@ automaton OptionalDoubleAutomaton (
 
 
     @AnnotatedWith("java.lang.Override", [])
-    fun toString (@target self: OptionalDouble): string
+    fun toString (@target self: OptionalDouble): String
     {
         if (this.present)
         {
-            val valueStr: string = action OBJECT_TO_STRING(this.value);
+            val valueStr: String = action OBJECT_TO_STRING(this.value);
             result = "OptionalDouble[" + valueStr + "]";
         }
         else
@@ -316,3 +289,9 @@ automaton OptionalDoubleAutomaton (
     }
 
 }
+
+
+// globals
+
+val EMPTY_OPTIONAL_DOUBLE: OptionalDouble = new OptionalDoubleAutomaton(state=Initialized, value=0.0d, present=false);
+

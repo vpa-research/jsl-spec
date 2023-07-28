@@ -214,7 +214,7 @@ automaton HashMap
 
         if (initialCapacity < 0)
         {
-            val initCapStr: string = action OBJECT_TO_STRING(initialCapacity);
+            val initCapStr: String = action OBJECT_TO_STRING(initialCapacity);
             action THROW_NEW(
                 "java.lang.IllegalArgumentException",
                 ["Illegal initial capacity: " + initCapStr]);
@@ -241,7 +241,7 @@ automaton HashMap
 
         if (initialCapacity < 0)
         {
-            val initCapStr: string = action OBJECT_TO_STRING(initialCapacity);
+            val initCapStr: String = action OBJECT_TO_STRING(initialCapacity);
             action THROW_NEW(
                 "java.lang.IllegalArgumentException",
                 ["Illegal initial capacity: " + initCapStr]);
@@ -249,7 +249,7 @@ automaton HashMap
 
         if (loadFactor <= 0 || loadFactor.isNaN) // #problem
         {
-            val loadFactorStr: string = action OBJECT_TO_STRING(loadFactor);
+            val loadFactorStr: String = action OBJECT_TO_STRING(loadFactor);
             action THROW_NEW(
                 "java.lang.IllegalArgumentException",
                 ["Illegal load factor: " + loadFactorStr]);
@@ -281,7 +281,7 @@ automaton HashMap
             // #problem
             // for e in other.entrySet():
             //   m.put(e.getKey(), e.getValue());
-            action NOT_IMPLEMENTED();
+            action NOT_IMPLEMENTED("a loop with interface calls");
         }
         else
         {
@@ -619,24 +619,24 @@ automaton HashMap
 
     // problematic methods
 
-//    fun toString (): string
+//    fun toString (): String
 //    {
 //        // result = action OBJECT_TO_STRING(this);
 //        // #problem
-//        action NOT_IMPLEMENTED();
+//        action NOT_IMPLEMENTED("no decision");
 //    }
 
 //    fun hashCode (): int
 //    {
 //        // result = action OBJECT_HASH_CODE(this);
 //        // #problem
-//        action NOT_IMPLEMENTED();
+//        action NOT_IMPLEMENTED("no decision");
 //    }
 
 //    fun equals (other: Object): boolean
 //    {
 //        // #problem
-//        action NOT_IMPLEMENTED();
+//        action NOT_IMPLEMENTED("no decision");
 //    }
 
     fun forEach (consumer: BiConsumer): void
@@ -648,8 +648,7 @@ automaton HashMap
             this._throwNPE();
         }
 
-        // #problem
-        action NOT_IMPLEMENTED();
+        action TODO();
     }
 
     fun putAll (other: Map): void
@@ -657,7 +656,7 @@ automaton HashMap
         requires other != null;
 
         // #problem
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("a loop with interface calls");
     }
 
     fun replaceAll (mapper: BiFunction): void
@@ -670,7 +669,7 @@ automaton HashMap
         }
 
         // #problem
-        action NOT_IMPLEMENTED();
+        action TODO();
     }
 
     @private
@@ -679,7 +678,8 @@ automaton HashMap
     {
         requires s != null;
 
-        action NOT_IMPLEMENTED();
+        // #problem: do we actually need this method?
+        action NOT_IMPLEMENTED("no serialization support");
 
 //        val size: int = s.readInt();
 
@@ -763,8 +763,7 @@ automaton HashMap_Values: int
 
     fun forEach(consumer: Consumer): void
     {
-        // #problem
-        action NOT_IMPLEMENTED();
+        action TODO();
     }
 }
 
@@ -1046,18 +1045,18 @@ automaton HashMap_Entry: int
             // #problem
             // val key = action CALL_INTERFACE(other, "getKey():java.lang.Object", []);
 
-            action NOT_IMPLEMENTED();
+            action NOT_IMPLEMENTED("a loop with interface calls");
         }
     }
 
 
-    fun toString (): string
+    fun toString (): String
     {
         val key: Object   = action LIST_GET(this.parent.keys, this.index);
         val value: Object = action LIST_GET(this.parent.values, this.index);
 
-        val sKey: string   = action OBJECT_TO_STRING(key);
-        val sValue: string = action OBJECT_TO_STRING(value);
+        val sKey: String   = action OBJECT_TO_STRING(key);
+        val sValue: String = action OBJECT_TO_STRING(value);
 
         result = sKey + "=" + sValue;
     }
@@ -1068,8 +1067,8 @@ automaton HashMap_Entry: int
         val key: Object   = action LIST_GET(this.parent.keys, this.index);
         val value: Object = action LIST_GET(this.parent.values, this.index);
 
-        val hKey: string   = action OBJECT_HASH_CODE(key);
-        val hValue: string = action OBJECT_HASH_CODE(value);
+        val hKey: String   = action OBJECT_HASH_CODE(key);
+        val hValue: String = action OBJECT_HASH_CODE(value);
 
         result = hKey ^ hValue;
     }
@@ -1143,7 +1142,7 @@ automaton HashMap_EntrySet: int
             // #problem
             // val key = action CALL_INTERFACE(other, "getKey():java.lang.Object", []);
 
-            action NOT_IMPLEMENTED();
+            action NOT_IMPLEMENTED("interface calls are not supported yet");
         }
     }
 

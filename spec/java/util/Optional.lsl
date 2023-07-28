@@ -1,7 +1,7 @@
-//#! pragma: non-synthesizable
+///#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library `std:collections`
+library `std`
     version "11"
     language "Java"
     url "-";
@@ -14,61 +14,32 @@ import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
 
 
-/// TODO: remove duplicate types
-
-type Runnable is java.lang.Runnable for Object {
-    fun run (): void;
-}
-
-@Parameterized(["T"])
-type Consumer is java.util.function.Consumer for Object {
-    fun accept (x: Object): void;
-}
-
-@Parameterized(["T"])
-type Supplier is java.util.function.Supplier for Object {
-    fun get (): Object;
-}
-
-@Parameterized(["T"])
-type Predicate is java.util.function.Predicate for Object {
-    fun test (x: Object): boolean;
-}
-
-@Parameterized(["I", "O"])
-type Function is java.util.function.Function for Object {
-    fun apply (x: Object): Object;
-}
-
-@Parameterized(["T"])
-type Stream is java.util.stream.Stream for Object {
-    // ???
-}
-
-/// TODO: remove duplicate types
-
-
-
 // local semantic types
 
 // # problem
-type T is java.lang.Object for Object
+/*type T is java.lang.Object for Object
 {
-}
+}*/
+@TypeMapping(typeVariable=true)
+typealias T = Object;
 
 @Parameterized(["T"])
-@public @final type Optional is java.util.Optional for Object
+@public @final type Optional
+    is java.util.Optional
+    for Object
 {
-    var value: T;
+    //var value: T;
 }
 
 
 // automata
 
 @Parameterized(["T"])
-automaton OptionalAutomaton (
-    var value: Object
-): Optional
+automaton OptionalAutomaton
+(
+    var value: T
+)
+: Optional
 {
     // states and shifts
 
@@ -136,10 +107,10 @@ automaton OptionalAutomaton (
 
     // utilities
 
-    @CacheStaticOnce
     @static proc _makeEmpty (): Optional
     {
-        result = new OptionalAutomaton(state=Initialized, value=null);
+        // #problem: not parameterized; missing type cast
+        result = EMPTY_OPTIONAL;
     }
 
 
@@ -256,6 +227,7 @@ automaton OptionalAutomaton (
         }
         else
         {
+            // #problem: cast action return value to Optional
             result = action CALL(mapper, [this.value]);
 
             if (result == null)
@@ -442,7 +414,7 @@ automaton OptionalAutomaton (
     @ParameterizedResult(["T"])
     fun stream (@target @Parameterized(["T"]) self: Optional): Stream
     {
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("no decision");
 
         /*
         if (this.value == null)
@@ -454,7 +426,7 @@ automaton OptionalAutomaton (
 
 
     @AnnotatedWith("java.lang.Override")
-    fun toString (@target @Parameterized(["T"]) self: Optional): string
+    fun toString (@target @Parameterized(["T"]) self: Optional): String
     {
         if (this.value == null)
         {
@@ -462,9 +434,16 @@ automaton OptionalAutomaton (
         }
         else
         {
-            val valueStr: string = action OBJECT_TO_STRING(this.value);
+            val valueStr: String = action OBJECT_TO_STRING(this.value);
             result = "Optional[" + valueStr + "]";
         }
     }
 
 }
+
+
+// globals
+
+// #problem: type parameter is missing
+val EMPTY_OPTIONAL: Optional = new OptionalAutomaton(state=Initialized, value=null);
+

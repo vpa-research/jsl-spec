@@ -1,7 +1,7 @@
-//#! pragma: non-synthesizable
+///#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library `std:collections`
+library std
     version "11"
     language "Java"
     url "-";
@@ -14,45 +14,23 @@ import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
 
 
-/// TODO: remove duplicate types
-
-type Runnable is java.lang.Runnable for Object {
-    fun run (): void;
-}
-
-type IntConsumer is java.util.function.IntConsumer for Object {
-    fun accept (x: int): void;
-}
-
-type IntSupplier is java.util.function.IntSupplier for Object {
-    fun get (): int;
-}
-
-@Parameterized(["T"])
-type Supplier is java.util.function.Supplier for Object {
-    fun get (): Object;
-}
-
-type IntStream is java.util.stream.IntStream for Object {
-    // ???
-}
-
-/// TODO: remove duplicate types
-
-
-
 // local semantic types
 
-@public @final type OptionalInt is java.util.OptionalInt for Object {
+@public @final type OptionalInt
+    is java.util.OptionalInt
+    for Object
+{
 }
 
 
 // automata
 
-automaton OptionalIntAutomaton (
+automaton OptionalIntAutomaton
+(
     var value: int,
     var present: boolean
-): OptionalInt
+)
+: OptionalInt
 {
     // states and shifts
 
@@ -103,13 +81,6 @@ automaton OptionalIntAutomaton (
 
     // utilities
 
-    @CacheStaticOnce
-    @static proc _makeEmpty (): OptionalInt
-    {
-        result = new OptionalIntAutomaton(state=Initialized);
-    }
-
-
     @AutoInline
     @static proc _throwNPE (): void
     {
@@ -121,7 +92,7 @@ automaton OptionalIntAutomaton (
 
     @static fun empty (): OptionalInt
     {
-        result = _makeEmpty();
+        result = EMPTY_OPTIONAL_INT;
     }
 
 
@@ -285,7 +256,7 @@ automaton OptionalIntAutomaton (
 
     fun stream (@target self: OptionalInt): IntStream
     {
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("no decision");
 
         /*
         if (this.present)
@@ -301,7 +272,7 @@ automaton OptionalIntAutomaton (
     {
         if (this.present)
         {
-            val valueStr: string = action OBJECT_TO_STRING(this.value);
+            val valueStr: String = action OBJECT_TO_STRING(this.value);
             result = "OptionalInt[" + valueStr + "]";
         }
         else
@@ -311,3 +282,9 @@ automaton OptionalIntAutomaton (
     }
 
 }
+
+
+// globals
+
+val EMPTY_OPTIONAL_INT: OptionalInt = new OptionalIntAutomaton(state=Initialized, value=0, present=false);
+

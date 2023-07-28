@@ -1,7 +1,7 @@
-//#! pragma: non-synthesizable
+///#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library `std:collections`
+library std
     version "11"
     language "Java"
     url "-";
@@ -14,45 +14,23 @@ import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
 
 
-/// TODO: remove duplicate types
-
-type Runnable is java.lang.Runnable for Object {
-    fun run (): void;
-}
-
-type LongConsumer is java.util.function.LongConsumer for Object {
-    fun accept (x: long): void;
-}
-
-type LongSupplier is java.util.function.LongSupplier for Object {
-    fun get (): long;
-}
-
-@Parameterized(["T"])
-type Supplier is java.util.function.Supplier for Object {
-    fun get (): Object;
-}
-
-type LongStream is java.util.stream.LongStream for Object {
-    // ???
-}
-
-/// TODO: remove duplicate types
-
-
-
 // local semantic types
 
-@public @final type OptionalLong is java.util.OptionalLong for Object {
+@public @final type OptionalLong
+    is java.util.OptionalLong
+    for Object
+{
 }
 
 
 // automata
 
-automaton OptionalLongAutomaton (
+automaton OptionalLongAutomaton
+(
     var value: long,
     var present: boolean,
-): OptionalLong
+)
+: OptionalLong
 {
     // states and shifts
 
@@ -103,13 +81,6 @@ automaton OptionalLongAutomaton (
 
     // utilities
 
-    @CacheStaticOnce
-    @static proc _makeEmpty (): OptionalLong
-    {
-        result = new OptionalLongAutomaton(state=Initialized);
-    }
-
-
     @AutoInline
     @static proc _throwNPE (): void
     {
@@ -121,7 +92,7 @@ automaton OptionalLongAutomaton (
 
     @static fun empty (): OptionalLong
     {
-        result = _makeEmpty();
+        result = EMPTY_OPTIONAL_LONG;
     }
 
 
@@ -285,7 +256,7 @@ automaton OptionalLongAutomaton (
 
     fun stream (@target self: OptionalLong): LongStream
     {
-        action NOT_IMPLEMENTED();
+        action NOT_IMPLEMENTED("no decision");
 
         /*
         if (this.present)
@@ -301,7 +272,7 @@ automaton OptionalLongAutomaton (
     {
         if (this.present)
         {
-            val valueStr: string = action OBJECT_TO_STRING(this.value);
+            val valueStr: String = action OBJECT_TO_STRING(this.value);
             result = "OptionalLong[" + valueStr + "]";
         }
         else
@@ -311,3 +282,10 @@ automaton OptionalLongAutomaton (
     }
 
 }
+
+
+// globals
+
+// #problem: "0" should be int64
+val EMPTY_OPTIONAL_LONG: OptionalLong = new OptionalLongAutomaton(state=Initialized, value=0, present=false);
+

@@ -132,7 +132,7 @@ automaton LinkedList: int(
         //Do we have operator not "!" in the LibSL ?
         if (!isValidIndex(index))
         {
-            var message: string =  "Index: "+index+", Size: "+size;
+            val message: String =  "Index: "+index+", Size: "+size;
             action THROW_NEW("java.util.IndexOutOfBoundsException", [message]);
         }
     }
@@ -154,7 +154,7 @@ automaton LinkedList: int(
     {
         if (!isPositionIndex(index))
         {
-            var message: string =  "Index: "+index+", Size: "+size;
+            val message: String =  "Index: "+index+", Size: "+size;
             action THROW_NEW("java.util.IndexOutOfBoundsException", [message]);
         }
     }
@@ -531,7 +531,7 @@ automaton LinkedList: int(
     }
 
 
-    fun toString (): string
+    fun toString (): String
     {
         // result = action OBJECT_TO_STRING(self);
         // #problem
