@@ -175,14 +175,18 @@ automaton RandomAutomaton: Random
     fun nextDouble (@target self: Random): double
     {
         result = action SYMBOLIC("double");
-        action ASSUME(0.0d <= result && result < 1.0d);
+
+        action ASSUME(0.0d <= result);
+        action ASSUME(result < 1.0d);
     }
 
 
     fun nextFloat (@target self: Random): float
     {
         result = action SYMBOLIC("float");
-        action ASSUME(0.0f <= result && result < 1.0f);
+
+        action ASSUME(0.0f <= result);
+        action ASSUME(result < 1.0f);
     }
 
 
@@ -207,7 +211,9 @@ automaton RandomAutomaton: Random
         }
 
         result = action SYMBOLIC("int");
-        action ASSUME(0 <= result && result < bound);
+
+        action ASSUME(0 <= result);
+        action ASSUME(result < bound);
     }
 
 
