@@ -15,7 +15,8 @@ import "list-actions.lsl";
 
 // local semantic types
 
-@TypeMapping(typeVariable=true) typealias E = Object;
+@TypeMapping(typeVariable=true)
+typealias E = Object;
 
 
 // automata
@@ -31,35 +32,61 @@ import "list-actions.lsl";
     // states and shifts
 
     initstate Initialized;
+    state Initialized;
+
+    shift Allocated -> Initialized by [
+            // constructors
+            HashSet (HashSet),
+            HashSet (HashSet, Collection),
+            HashSet(HashSet, int, float),
+            HashSet(HashSet, int, float, boolean)
+    ];
+
+    shift Initialized -> this by [
+            // read operations
+            contains,
+            isEmpty,
+            size,
+
+            clone,
+
+            iterator,
+            spliterator,
+
+            // write operations
+            add,
+            clear,
+            remove
+    ]
 
 
     // constructors
 
-    constructor HashSet ()
+    constructor HashSet (@target @Parameterized(["E"]) self: HashSet)
     {
         action TODO();
     }
 
 
-    constructor HashSet (@Parameterized("? extends E") arg0: Collection)
+    constructor HashSet (@target @Parameterized(["E"]) self: HashSet, @Parameterized("? extends E") arg0: Collection)
     {
         action TODO();
     }
 
 
-    constructor HashSet (arg0: int)
+    constructor HashSet (@target @Parameterized(["E"]) self: HashSet, arg0: int)
     {
         action TODO();
     }
 
 
-    constructor HashSet (arg0: int, arg1: float)
+    constructor HashSet (@target @Parameterized(["E"]) self: HashSet, arg0: int, arg1: float)
     {
         action TODO();
     }
 
 
-    constructor HashSet (arg0: int, arg1: float, arg2: boolean)
+    constructor HashSet (@target @Parameterized(["E"]) self: HashSet, arg0: int, arg1: float, arg2: boolean)
     {
         action TODO();
     }
