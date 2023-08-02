@@ -30,6 +30,14 @@ import java/util/stream/_interfaces;
     //@private @static @final var serialVersionUID: long = 8683452581122892189;
 }
 
+@GenerateMe
+@implements("java.util.ListIterator")
+@public @final type ListItr
+//    is java.util.ListItr
+    for ListIterator
+{
+}
+
 
 // automata
 
@@ -41,6 +49,9 @@ automaton ArrayListAutomaton
     var storage: list<Object>;
     var length: int;
     @transient var modCount: int;
+
+
+    // states and shifts
 
     initstate Allocated;
     state Initialized;
@@ -313,7 +324,7 @@ automaton ArrayListAutomaton
 
         if (aLen < size)
         {
-            // #problem: a.getClass() should be called to construct type-valid array (USVM issue)
+            // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)
             result = action ARRAY_NEW("java.lang.Object", size);
 
             action LOOP_FOR(i, 0, size, +1, _javaToArray_loop(i)); // result assignment is implicit
@@ -485,31 +496,28 @@ automaton ArrayListAutomaton
     {
         _rangeCheckForAdd(index);
 
-        result = action SYMBOLIC("java.util.ListIterator");
-        action ASSUME(result != null);
-        /*result = new ListItr(state=Created,
+        result = new ListItrAutomaton(state=Initialized,
+            parent=self,
             cursor=index,
-            expectedModCount=this.modCount);*/
+            expectedModCount=this.modCount);
     }
 
 
     fun listIterator (@target self: ArrayList): ListIterator
     {
-        result = action SYMBOLIC("java.util.ListIterator");
-        action ASSUME(result != null);
-        /*result = new ListItr(state=Created,
+        result = new ListItrAutomaton(state=Initialized,
+            parent=self,
             cursor=0,
-            expectedModCount=this.modCount);*/
+            expectedModCount=this.modCount);
     }
 
 
     fun iterator (@target self: ArrayList): Iterator
     {
-        result = action SYMBOLIC("java.util.Iterator");
-        action ASSUME(result != null);
-        /*result = new ListItr(state=Created,
+        result = new ListItrAutomaton(state=Initialized,
+            parent=self,
             cursor=0,
-            expectedModCount=this.modCount);*/
+            expectedModCount=this.modCount);
     }
 
 
@@ -632,142 +640,161 @@ automaton ArrayListAutomaton
 }
 
 
-/*
-@packagePrivate
-@implements(["java.util.ListIterator"])
-automaton ListItr: int (
+
+
+automaton ListItrAutomaton
+(
+    var parent: ArrayList,
     var cursor: int,
-    var lastRet: int = -1,
     var expectedModCount: int
-) {
+)
+: ListItr
+{
+    // local variables
+    var lastRet: int = -1;
+
+
+    // states and shifts
 
     initstate Initialized;
-    state Allocated;
-
-    shift Allocated -> Initialized by [
-        ListItr(int)
-    ];
 
     shift Initialized -> self by [
-       // read operations
+       add,
+       forEachRemaining,
        hasNext,
        hasPrevious,
-       nextIndex,
-       previousIndex,
-
-       // write operations
        next,
-       remove,
-       forEachRemaining,
+       nextIndex,
        previous,
+       previousIndex,
+       remove,
        set,
-       add
-    ]
-
-    //constructors
+    ];
 
 
-    constructor ListItr(index: int)
+    // utilities
+
+    proc _checkForComodification(): void
     {
-        action ERROR("Dangerous behavior, IDK");
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        val modCount: int = ArrayListAutomaton(this.parent).modCount;
+        if (modCount != this.expectedModCount)
+            {action THROW_NEW("java.util.ConcurrentModificationException", []);}
     }
 
 
-    //methods
+    // methods
 
-
-    fun hasPrevious (): boolean
+    fun hasPrevious (@target self: ListItr): boolean
     {
         result = this.cursor != 0;
     }
 
 
-    fun nextIndex (): int
+    fun nextIndex (@target self: ListItr): int
     {
         result = this.cursor;
     }
 
 
-    fun previousIndex (): int
+    fun previousIndex (@target self: ListItr): int
     {
         result = this.cursor - 1;
     }
 
 
-    fun hasNext (): boolean
+    fun hasNext (@target self: ListItr): boolean
     {
-        result = this.cursor != this.parent.length;
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        result = this.cursor != ArrayListAutomaton(this.parent).length;
     }
 
 
-    fun next (): Object
+    fun next (@target self: ListItr): Object
     {
-        this.parent._checkForComodification(this.expectedModCount);
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        _checkForComodification();
+
+        val parentStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
+
         val i: int = this.cursor;
+        if (i >= ArrayListAutomaton(this.parent).length)
+            {action THROW_NEW("java.util.NoSuchElementException", []);}
 
-        if (i >= this.parent.length)
-        {
-            action THROW_NEW("java.util.NoSuchElementException", []);
-        }
-
-        // #problem
-        //I don't know what to do with ConcurrentModificationException(); ?
-        action NOT_IMPLEMENTED("exception catching with parallel execution");
+        // iterrator validity check
+        if (i >= action LIST_SIZE(parentStorage))
+            {action THROW_NEW("java.util.ConcurrentModificationException", []);}
 
         this.cursor = i + 1;
         this.lastRet = i;
-        result = action LIST_GET(this.parent.storage, this.lastRet);
+
+        result = action LIST_GET(parentStorage, i);
     }
 
 
-    fun previous (): Object
+    fun previous (@target self: ListItr): Object
     {
-        this.parent._checkForComodification(this.expectedModCount);
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        _checkForComodification();
+
+        val parentStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
+
         val i: int = this.cursor - 1;
-
         if (i < 0)
-        {
-            action THROW_NEW("java.util.NoSuchElementException", []);
-        }
+            {action THROW_NEW("java.util.NoSuchElementException", []);}
 
-        // #problem
-        //I don't know what to do with ConcurrentModificationException(); ?
-        action NOT_IMPLEMENTED("exception catching with parallel execution");
+        // iterrator validity check
+        if (i >= action LIST_SIZE(parentStorage))
+            {action THROW_NEW("java.util.ConcurrentModificationException", []);}
 
         this.cursor = i;
         this.lastRet = i;
-        result = action LIST_GET(this.parent.storage, this.lastRet);
+
+        result = action LIST_GET(parentStorage, i);
     }
 
 
-    fun remove (): void
+    fun remove (@target self: ListItr): void
     {
-        if (this.lastRet < 0)
-        {
-            action THROW_NEW("java.lang.IllegalStateException", []);
-        }
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
 
-        this.parent._checkForComodification(this.expectedModCount);
+        if (this.lastRet < 0)
+            {action THROW_NEW("java.lang.IllegalStateException", []);}
+
+        _checkForComodification();
 
         // #problem
         //What i must to do with try-catch in this method ?
         action NOT_IMPLEMENTED("exception catching with parallel execution");
 
         this.parent._deleteElement(this.lastRet);
+
         this.cursor = this.lastRet;
         this.lastRet = -1;
-        this.expectedModCount = this.parent.modCount;
+        this.expectedModCount = ArrayListAutomaton(this.parent).modCount;
     }
 
 
-    fun set (e: Object): void
+    fun set (@target self: ListItr, e: Object): void
     {
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
         if (this.lastRet < 0)
         {
             action THROW_NEW("java.lang.IllegalStateException", []);
         }
 
-        this.parent._checkForComodification(this.expectedModCount);
+        _checkForComodification();
 
         // #problem
         //What i must to do with try-catch in this method ?
@@ -777,30 +804,67 @@ automaton ListItr: int (
     }
 
 
-    fun add (e: Object): void
+    fun add (@target self: ListItr, e: Object): void
     {
-        this.parent._checkForComodification(this.expectedModCount);
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        _checkForComodification();
 
         // #problem
         //What i must to do with try-catch in this method ?
         action NOT_IMPLEMENTED("exception catching with parallel execution");
 
         val i: int = this.cursor;
-        this.parent._addElement(this.parent.length, e);
+
+        this.parent._addElement(ArrayListAutomaton(this.parent).length, e);
+
         this.cursor = i + 1;
         this.lastRet = -1;
-        this.expectedModCount = this.parent.modCount;
+        this.expectedModCount = ArrayListAutomaton(this.parent).modCount;
     }
 
 
-    fun forEachRemaining (action: Consumer): void
+    fun forEachRemaining (@target self: ListItr, userAction: Consumer): void
     {
-        // TODO: loops and interface calls
-        action NOT_IMPLEMENTED("loops and interface calls");
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        if (userAction == null)
+            {action THROW_NEW("java.lang.NullPointerException", [])}
+
+        var i: int = this.cursor;
+        val size: int = ArrayListAutomaton(this.parent).length;
+
+        if (i < size)
+        {
+            val es: list<Object> = ArrayListAutomaton(this.parent).storage;
+
+            if (i >= action LIST_SIZE(es))
+                {action THROW_NEW("java.util.ConcurrentModificationException", [])}
+
+            // using this loop form here because of coplex termination expression
+            action LOOP_WHILE(
+                i < size && ArrayListAutomaton(this.parent).modCount == this.expectedModCount,
+                forEachRemaining_loop(userAction, es, i)
+            );
+
+            // JDK NOTE: "update once at end to reduce heap write traffic"
+            this.cursor = i;
+            this.lastRet = i - 1;
+            _checkForComodification();
+        }
+    }
+
+    @LambdaComponent proc forEachRemaining_loop (userAction: Consumer, es: list<Object>, i: int): void
+    {
+        val item: Object = action LIST_GET(es, i);
+        action CALL(userAction, [item]);
+        i += 1;
     }
 
 }
-*/
+
 
 
 /*
