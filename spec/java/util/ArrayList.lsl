@@ -30,10 +30,11 @@ import java/util/stream/_interfaces;
     //@private @static @final var serialVersionUID: long = 8683452581122892189;
 }
 
+
 @GenerateMe
 @implements("java.util.ListIterator")
-@public @final type ListItr
-//    is java.util.ListItr
+@public @final type ArrayList_ListIterator
+    is java.util.ArrayList.ListItr
     for ListIterator
 {
 }
@@ -200,17 +201,19 @@ automaton ArrayListAutomaton
     proc _checkForComodification (expectedModCount: int): void
     {
         if (this.modCount != expectedModCount)
-        {
-            action THROW_NEW("java.util.ConcurrentModificationException", []);
-        }
+            {action THROW_NEW("java.util.ConcurrentModificationException", []);}
     }
 
     proc _deleteElement (index: int): Object
     {
         _checkValidIndex(index);
+
         result = action LIST_GET(this.storage, index);
-        action LIST_REMOVE(this.storage, index);
+
         this.modCount += 1;
+
+        action LIST_REMOVE(this.storage, index);
+
         this.length -= 1;
     }
 
@@ -218,8 +221,11 @@ automaton ArrayListAutomaton
     proc _addElement (index: int, element: Object): void
     {
         _rangeCheckForAdd(index);
+
         this.modCount += 1;
+
         action LIST_INSERT_AT(this.storage, index, element);
+
         this.length += 1;
     }
 
@@ -227,13 +233,14 @@ automaton ArrayListAutomaton
     proc _setElement (index: int, element: Object): Object
     {
         _checkValidIndex(index);
+
         result = action LIST_GET(this.storage, index);
+
         action LIST_SET(this.storage, index, element);
     }
 
 
-    @AutoInline
-    proc _throwNPE (): void
+    @AutoInline @LambdaComponent proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
     }
@@ -243,12 +250,14 @@ automaton ArrayListAutomaton
 
     fun trimToSize (@target self: ArrayList): void
     {
+        // method is not applicable to this approximation
         this.modCount += 1;
     }
 
 
     fun ensureCapacity (@target self: ArrayList, minCapacity: int): void
     {
+        // method is not applicable to this approximation
         this.modCount += 1;
     }
 
@@ -281,7 +290,7 @@ automaton ArrayListAutomaton
     fun lastIndexOf (@target self: ArrayList, o: Object): int
     {
         // #problem: counting backwards?
-        // result = action LIST_FIND_BACKWARDS(this.storage, o, 0, this.length);
+        // result = action LIST_FIND_LAST(this.storage, o, 0, this.length);
         action NOT_IMPLEMENTED("searching through lists backwards");
     }
 
@@ -291,8 +300,10 @@ automaton ArrayListAutomaton
         val storageCopy: list<Object> = action LIST_NEW();
         action LIST_COPY(this.storage, storageCopy, 0, 0, this.length);
 
-        result = new ArrayListAutomaton(
-            state=Initialized, storage=storageCopy, length=this.length);
+        result = new ArrayListAutomaton(state = Initialized,
+            storage = storageCopy,
+            length = this.length
+        );
     }
 
 
@@ -302,7 +313,10 @@ automaton ArrayListAutomaton
         result = action ARRAY_NEW("java.lang.Object", size);
 
         var i: int = 0;
-        action LOOP_FOR(i, 0, size, +1, _javaToArray_loop(i)); // result assignment is implicit
+        action LOOP_FOR(
+            i, 0, size, +1,
+            _javaToArray_loop(i) // result assignment is implicit
+        );
     }
 
 
@@ -327,15 +341,19 @@ automaton ArrayListAutomaton
             // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)
             result = action ARRAY_NEW("java.lang.Object", size);
 
-            action LOOP_FOR(i, 0, size, +1, _javaToArray_loop(i)); // result assignment is implicit
+            action LOOP_FOR(
+                i, 0, size, +1,
+                _javaToArray_loop(i) // result assignment is implicit
+            );
         }
         else
         {
             result = a;
 
-            // #problem: immutable function arguments and incomplete implementation of FOR and WHILE actions
-            // action LOOP_WHILE(i < size, _javaToArray_loop(i)); // result assignment is implicit
-            action LOOP_FOR(i, 0, size, +1, _javaToArray_loop(i));
+            action LOOP_FOR(
+                i, 0, size, +1,
+                _javaToArray_loop(i) // result assignment is implicit
+            );
 
             if (aLen > size) { action ARRAY_SET(result, size, null); }
         }
@@ -496,28 +514,31 @@ automaton ArrayListAutomaton
     {
         _rangeCheckForAdd(index);
 
-        result = new ListItrAutomaton(state=Initialized,
-            parent=self,
-            cursor=index,
-            expectedModCount=this.modCount);
+        result = new ArrayList_ListIteratorAutomaton(state = Initialized,
+            parent = self,
+            cursor = index,
+            expectedModCount = this.modCount
+        );
     }
 
 
     fun listIterator (@target self: ArrayList): ListIterator
     {
-        result = new ListItrAutomaton(state=Initialized,
-            parent=self,
-            cursor=0,
-            expectedModCount=this.modCount);
+        result = new ArrayList_ListIteratorAutomaton(state = Initialized,
+            parent = self,
+            cursor = 0,
+            expectedModCount = this.modCount
+        );
     }
 
 
     fun iterator (@target self: ArrayList): Iterator
     {
-        result = new ListItrAutomaton(state=Initialized,
-            parent=self,
-            cursor=0,
-            expectedModCount=this.modCount);
+        result = new ArrayList_ListIteratorAutomaton(state = Initialized,
+            parent = self,
+            cursor = 0,
+            expectedModCount = this.modCount
+        );
     }
 
 
@@ -529,9 +550,12 @@ automaton ArrayListAutomaton
         //We don't have decision about sublists.
         result = action SYMBOLIC("java.util.List");
         action ASSUME(result != null);
-        /*result = new SubList(state=Created,
-            startIndex=fromIndex,
-            endIndex=toIndex);*/
+        /*
+        result = new ArrayList_SubListAutomaton(state = Created,
+            startIndex = fromIndex,
+            endIndex = toIndex
+        );
+        */
     }
 
 
@@ -544,7 +568,10 @@ automaton ArrayListAutomaton
         val size: int = this.length;
 
         var i: int = 0;
-        action LOOP_WHILE(this.modCount == expectedModCount && i < size, forEach_loop(i, anAction));
+        action LOOP_WHILE(
+            this.modCount == expectedModCount && i < size,
+            forEach_loop(i, anAction)
+        );
 
         if (this.modCount != expectedModCount)
             {action THROW_NEW("java.util.ConcurrentModificationException", []);}
@@ -560,10 +587,13 @@ automaton ArrayListAutomaton
 
     fun spliterator (@target self: ArrayList): Spliterator
     {
-        /*result = new ArrayListSpliterator(state=Initialized,
+        /*
+        result = new ArrayList_SpliteratorAutomaton(state = Initialized,
             origin = 0,
-            est=-1,
-            expectedModCount=0);*/
+            est = -1,
+            expectedModCount = 0
+        );
+        */
         result = action SYMBOLIC("java.util.Spliterator");
         action ASSUME(result != null);
     }
@@ -642,15 +672,16 @@ automaton ArrayListAutomaton
 
 
 
-automaton ListItrAutomaton
+automaton ArrayList_ListIteratorAutomaton
 (
     var parent: ArrayList,
     var cursor: int,
     var expectedModCount: int
 )
-: ListItr
+: ArrayList_ListIterator
 {
     // local variables
+
     var lastRet: int = -1;
 
 
@@ -679,7 +710,7 @@ automaton ListItrAutomaton
         // relax state/error discovery process
         action ASSUME(this.parent != null);
 
-        val modCount: int = ArrayListAutomaton(this.parent).modCount;
+        val modCount: int = ArrayListAutomaton(parent).modCount;
         if (modCount != this.expectedModCount)
             {action THROW_NEW("java.util.ConcurrentModificationException", []);}
     }
@@ -772,11 +803,19 @@ automaton ListItrAutomaton
 
         _checkForComodification();
 
-        // #problem
-        //What i must to do with try-catch in this method ?
-        action NOT_IMPLEMENTED("exception catching with parallel execution");
+        val pStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
+        if (this.lastRet >= action LIST_SIZE(pStorage))
+        {
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+        }
+        else
+        {
+            ArrayListAutomaton(this.parent).modCount += 1;
 
-        this.parent._deleteElement(this.lastRet);
+            action LIST_REMOVE(pStorage, this.lastRet);
+
+            ArrayListAutomaton(this.parent).length -= 1;
+        }
 
         this.cursor = this.lastRet;
         this.lastRet = -1;
@@ -790,17 +829,19 @@ automaton ListItrAutomaton
         action ASSUME(this.parent != null);
 
         if (this.lastRet < 0)
-        {
-            action THROW_NEW("java.lang.IllegalStateException", []);
-        }
+            {action THROW_NEW("java.lang.IllegalStateException", []);}
 
         _checkForComodification();
 
-        // #problem
-        //What i must to do with try-catch in this method ?
-        action NOT_IMPLEMENTED("exception catching with parallel execution");
-
-        this.parent._setElement(this.lastRet, e);
+        val pStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
+        if (this.lastRet >= action LIST_SIZE(pStorage))
+        {
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+        }
+        else
+        {
+            action LIST_SET(pStorage, this.lastRet, e);
+        }
     }
 
 
@@ -811,13 +852,21 @@ automaton ListItrAutomaton
 
         _checkForComodification();
 
-        // #problem
-        //What i must to do with try-catch in this method ?
-        action NOT_IMPLEMENTED("exception catching with parallel execution");
-
         val i: int = this.cursor;
 
-        this.parent._addElement(ArrayListAutomaton(this.parent).length, e);
+        val pStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
+        if (this.lastRet > action LIST_SIZE(pStorage))
+        {
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+        }
+        else
+        {
+            ArrayListAutomaton(this.parent).modCount += 1;
+
+            action LIST_INSERT_AT(pStorage, i, e);
+
+            ArrayListAutomaton(this.parent).length += 1;
+        }
 
         this.cursor = i + 1;
         this.lastRet = -1;
@@ -831,7 +880,7 @@ automaton ListItrAutomaton
         action ASSUME(this.parent != null);
 
         if (userAction == null)
-            {action THROW_NEW("java.lang.NullPointerException", [])}
+            {action THROW_NEW("java.lang.NullPointerException", []);}
 
         var i: int = this.cursor;
         val size: int = ArrayListAutomaton(this.parent).length;
@@ -841,9 +890,9 @@ automaton ListItrAutomaton
             val es: list<Object> = ArrayListAutomaton(this.parent).storage;
 
             if (i >= action LIST_SIZE(es))
-                {action THROW_NEW("java.util.ConcurrentModificationException", [])}
+                {action THROW_NEW("java.util.ConcurrentModificationException", []);}
 
-            // using this loop form here because of coplex termination expression
+            // using this exact loop form here due to coplex termination expression
             action LOOP_WHILE(
                 i < size && ArrayListAutomaton(this.parent).modCount == this.expectedModCount,
                 forEachRemaining_loop(userAction, es, i)
@@ -864,6 +913,8 @@ automaton ListItrAutomaton
     }
 
 }
+// */
+
 
 
 
@@ -937,329 +988,278 @@ automaton ArrayListSpliterator: int(
     }
 
 }
-*/
+// */
 
 
-//@private
-//@static
-//@extends("java.util.AbstractList")
-//@implements("java.util.RandomAccess")
-//@WrapperMeta(
-//    src="java.util.ArrayList$SubList",
-//    dst="org.utbot.engine.overrides.collections.ArrayList_SubList",
-//    forceMatchInterfaces=true,
-//)
-//automaton SubList: int(
-//    @private @final var index: offset,
-//    @private var length: int,
-//    @transient var modCount: int,
 
-//)
-//{
 
-//    initstate Initialized;
+/*
+@extends("java.util.AbstractList")
+@implements("java.util.RandomAccess")
+automaton SubList: int(
+   @private @final var index: offset,
+   @private var length: int,
+   @transient var modCount: int,
 
-//    shift Allocated -> Initialized by [
-//    ];
+)
+{
 
-//    shift Initialized -> self by [
-//       // read operations
+    initstate Initialized;
 
-//       // write operations
-//    ]
+    shift Allocated -> Initialized by [
+    ];
 
+    shift Initialized -> self by [
+        // read operations
 
-//    //constructors
+        // write operations
+    ]
 
 
-//    constructor SubList(startIndex: int, endIndex: int)
-//    {
-//        offset = startIndex;
-//        length = endIndex - startIndex;
-//        modCount = this.parent.modCount;
-//    }
+    //constructors
 
 
-//    @private
-//    constructor SubList(parentList: SubList, startIndex: int, endIndex: int)
-//    {
-//        // #problem
-//        //???
-//        offset = startIndex;
-//        length = endIndex - startIndex;
-//        modCount = this.parent.modCount;
-//    }
+    constructor SubList(startIndex: int, endIndex: int)
+    {
+        offset = startIndex;
+        length = endIndex - startIndex;
+        modCount = this.parent.modCount;
+    }
 
 
-//    //subs
+    @private
+    constructor SubList(parentList: SubList, startIndex: int, endIndex: int)
+    {
+        // #problem
+        //???
+        offset = startIndex;
+        length = endIndex - startIndex;
+        modCount = this.parent.modCount;
+    }
 
-//    proc _addAllElements (index:int, c:Collection): boolean
-//    {
-//        this.parent._rangeCheckForAdd(index);
 
-//        //I use suppose that Collection interface will have size sub or analog
-//        val collectionSize: int = c.size();
+    //subs
 
-//        if (collectionSize == 0)
-//        {
-//            result = false;
-//        }
-//        else
-//        {
-//            this.parent._checkForComodification(modCount);
+    proc _addAllElements (index:int, c:Collection): boolean
+    {
+        this.parent._rangeCheckForAdd(index);
 
-//            val curIndex = offset + index;
+        //I use suppose that Collection interface will have size sub or analog
+        val collectionSize: int = c.size();
 
-//            this.parent._addAllElements(index, c);
+        if (collectionSize == 0)
+        {
+            result = false;
+        }
+        else
+        {
+            this.parent._checkForComodification(modCount);
 
-//            _updateSizeAndModCount(collectionSize);
+            val curIndex = offset + index;
 
-//            result = true;
-//        }
-//    }
+            this.parent._addAllElements(index, c);
 
+            _updateSizeAndModCount(collectionSize);
 
-//    proc _updateSizeAndModCount (sizeChange: int): void
-//    {
-//        // #problem
-//        //Here is cycle
-//        action TODO();
-//    }
+            result = true;
+        }
+    }
 
 
-//    proc _indexOfElement (o: Object): int
-//    {
-//        val index: int = action LIST_FIND(this.parent.storage, o, 0, this.parent.length);
-//        this.parent._checkForComodification(modCount);
+    proc _updateSizeAndModCount (sizeChange: int): void
+    {
+        // #problem
+        //Here is cycle
+        action TODO();
+    }
 
-//        if (index >= 0)
-//        {
-//            result = index - offset;
-//        }
-//        else
-//        {
-//            result = -1;
-//        }
-//    }
 
+    proc _indexOfElement (o: Object): int
+    {
+        val index: int = action LIST_FIND(this.parent.storage, o, 0, this.parent.length);
+        this.parent._checkForComodification(modCount);
 
-//    //methods
+        if (index >= 0)
+        {
+            result = index - offset;
+        }
+        else
+        {
+            result = -1;
+        }
+    }
 
 
-//     fun set (index: int, element: Object): void
-//     {
-//         this.parent._checkValidIndex(index);
-//         this.parent._checkForComodification(modCount);
+    //methods
 
-//         val curIndex: int = offset + index;
 
-//         result = action LIST_GET(this.parent.storage, curIndex);
-//         action LIST_SET(this.parent.storage, curIndex, element);
-//     }
+    fun set (index: int, element: Object): void
+    {
+        this.parent._checkValidIndex(index);
+        this.parent._checkForComodification(modCount);
 
+        val curIndex: int = offset + index;
 
-//     fun get (index: int): Object
-//     {
-//         this.parent._checkValidIndex(index);
-//         this.parent._checkForComodification(modCount);
+        result = action LIST_GET(this.parent.storage, curIndex);
+        action LIST_SET(this.parent.storage, curIndex, element);
+    }
 
-//         val curIndex: int = offset + index;
 
-//         result = action LIST_GET(this.parent.storage, curIndex);
-//     }
+    fun get (index: int): Object
+    {
+        this.parent._checkValidIndex(index);
+        this.parent._checkForComodification(modCount);
 
+        val curIndex: int = offset + index;
 
-//     fun size (): int
-//     {
-//         this.parent._checkForComodification(modCount);
-//         result = length;
-//     }
+        result = action LIST_GET(this.parent.storage, curIndex);
+    }
 
 
-//     fun add (index: int, element: Object): void
-//     {
-//         this.parent._rangeCheckForAdd(index);
-//         this.parent._checkForComodification(modCount);
+    fun size (): int
+    {
+        this.parent._checkForComodification(modCount);
+        result = length;
+    }
 
-//         val curIndex: int = offset + index;
-//         this.parent._addElement(curIndex, element);
 
-//         _updateSizeAndModCount(1);
-//     }
+    fun add (index: int, element: Object): void
+    {
+        this.parent._rangeCheckForAdd(index);
+        this.parent._checkForComodification(modCount);
 
+        val curIndex: int = offset + index;
+        this.parent._addElement(curIndex, element);
 
-//     fun remove (index: int): Object
-//     {
-//         this.parent._checkValidIndex(index);
-//         this.parent._checkForComodification(modCount);
+        _updateSizeAndModCount(1);
+    }
 
-//         val curIndex: int = offset + index;
 
-//         result = this.parent._deleteElement(curIndex);
+    fun remove (index: int): Object
+    {
+        this.parent._checkValidIndex(index);
+        this.parent._checkForComodification(modCount);
 
-//         _updateSizeAndModCount(-1);
-//     }
+        val curIndex: int = offset + index;
 
+        result = this.parent._deleteElement(curIndex);
 
-//     fun addAll (c: Collection): boolean
-//     {
-//         _addAllElements(length, c);
-//     }
+        _updateSizeAndModCount(-1);
+    }
 
 
-//     fun addAll (index: int, c: Collection): boolean
-//     {
-//         _addAllElements(index, c);
-//     }
+    fun addAll (c: Collection): boolean
+    {
+        _addAllElements(length, c);
+    }
 
 
-//     fun replaceAll (operator: UnaryOperator): void
-//     {
-//         // #problem
-//         action TODO();
-//     }
+    fun addAll (index: int, c: Collection): boolean
+    {
+        _addAllElements(index, c);
+    }
 
 
-//     fun removeAll (c: Collection): boolean
-//     {
-//         // #problem
-//         action TODO();
-//     }
+    fun replaceAll (operator: UnaryOperator): void
+    {
+        // #problem
+        action TODO();
+    }
 
 
-//     fun retainAll (c: Collection): boolean
-//     {
-//         // #problem
-//         action TODO();
-//     }
+    fun removeAll (c: Collection): boolean
+    {
+        // #problem
+        action TODO();
+    }
 
 
-//     fun removeIf (filter: Predicate): boolean
-//     {
-//         // #problem
-//         action TODO();
-//     }
+    fun retainAll (c: Collection): boolean
+    {
+        // #problem
+        action TODO();
+    }
 
 
-//     fun toArray (): array<Object>
-//     {
-//         val a: array<int> = action ARRAY_NEW("java.lang.Object", this.length);
+    fun removeIf (filter: Predicate): boolean
+    {
+        // #problem
+        action TODO();
+    }
 
-//         val end: int = offset + length;
-//         result = action LIST_TO_ARRAY(storage, a, offset, end);
-//     }
 
+    fun toArray (): array<Object>
+    {
+        val a: array<int> = action ARRAY_NEW("java.lang.Object", this.length);
 
-//     fun toArray (a: list<Object>): array<Object>
-//     {
-//         val end: int = offset + length;
-//         result = action LIST_TO_ARRAY(storage, a, offset, end);
-//     }
+        val end: int = offset + length;
+        result = action LIST_TO_ARRAY(storage, a, offset, end);
+    }
 
 
-//     fun equals (o: Object): boolean
-//     {
-//         // #problem
-//         action TODO();
-//     }
+    fun toArray (a: list<Object>): array<Object>
+    {
+        val end: int = offset + length;
+        result = action LIST_TO_ARRAY(storage, a, offset, end);
+    }
 
 
-//     fun hashCode (): int
-//     {
-//         // result = action OBJECT_HASH_CODE(self);
-//         // #problem
-//         action TODO();
-//     }
+    fun equals (o: Object): boolean
+    {
+        // #problem
+        action TODO();
+    }
 
 
-//     fun indexOf (o: Object): int
-//     {
-//         result = _indexOfElement(o);
-//     }
+    fun hashCode (): int
+    {
+        // result = action OBJECT_HASH_CODE(self);
+        // #problem
+        action TODO();
+    }
 
 
-//     fun lastIndexOf (o: Object): int
-//     {
-//         //I must think about this new action.
-//         action TODO();
-//     }
+    fun indexOf (o: Object): int
+    {
+        result = _indexOfElement(o);
+    }
 
 
-//     fun contains (o: Object): boolean
-//     {
-//         result = _indexOfElement(o) >= 0;
-//     }
+    fun lastIndexOf (o: Object): int
+    {
+        //I must think about this new action.
+        action TODO();
+    }
 
 
-//     fun subList (fromIndex: int, toIndex: int): List
-//     {
-//         this.parent._subListRangeCheck(fromIndex, toIndex, length);
-//         result = new SubList(state=Created,
-//             //Think about THIS !
-//             //TODO
-//             parentList = self,
-//             startIndex=fromIndex,
-//             endIndex=toIndex);
-//     }
+    fun contains (o: Object): boolean
+    {
+        result = _indexOfElement(o) >= 0;
+    }
 
 
-//     fun iterator (): Iterator
-//     {
-//         action TODO();
-//     }
+    fun subList (fromIndex: int, toIndex: int): List
+    {
+        this.parent._subListRangeCheck(fromIndex, toIndex, length);
+        result = new SubList(state=Created,
+            //Think about THIS !
+            //TODO
+            parentList = self,
+            startIndex=fromIndex,
+            endIndex=toIndex);
+    }
 
 
-//     fun spliterator (): Spliterator
-//     {
-//         action TODO();
-//     }
+    fun iterator (): Iterator
+    {
+        action TODO();
+    }
 
-// }
 
+    fun spliterator (): Spliterator
+    {
+        action TODO();
+    }
 
-
-// @packagePrivate
-// @extends("java.util.ArrayList$Itr")
-// @implements("java.util.Iterator")
-// @WrapperMeta(
-//     src="java.util.ArrayList$SubList$1",
-//     //Maybe will be another name of the dst class
-//     dst="ru.spbpu.libsl.overrides.collections.ArrayList_SubList_Itr",
-//     forceMatchInterfaces=true)
-// automaton ListItr: int (
-//     var cursor: int,
-//     var lastRet: int = -1,
-//     var expectedModCount: int
-// ) {
-
-
-//     //subs
-
-
-//     proc _checkForComodification (expectedModCount: int): void
-//     {
-//         if (modCount != expectedModCount)
-//         {
-//             action THROW_NEW("java.util.ConcurrentModificationException", []);
-//         }
-//     }
-
-
-//     //methods
-
-
-//     fun hasNext(): boolean
-//     {
-//         result = cursor != this.parent.length;
-//     }
-
-
-//     fun next(): Object
-//     {
-//         _checkForComodification(this.parent.modCount);
-
-//     }
-
-
-// }
-
+}
+// */
