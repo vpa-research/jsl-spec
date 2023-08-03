@@ -690,6 +690,38 @@ automaton ArrayList_ListIteratorAutomaton
     initstate Initialized;
 
     shift Initialized -> self by [
+       hasPrevious,
+    ];
+
+
+    // methods
+
+    fun hasPrevious (@target self: ArrayList_ListIterator): boolean
+    {
+        result = this.cursor != 0;
+    }
+}
+
+
+/*
+automaton ArrayList_ListIteratorAutomaton
+(
+    var parent: ArrayList,
+    var cursor: int,
+    var expectedModCount: int
+)
+: ArrayList_ListIterator
+{
+    // local variables
+
+    var lastRet: int = -1;
+
+
+    // states and shifts
+
+    initstate Initialized;
+
+    shift Initialized -> self by [
        add,
        forEachRemaining,
        hasNext,
@@ -718,25 +750,25 @@ automaton ArrayList_ListIteratorAutomaton
 
     // methods
 
-    fun hasPrevious (@target self: ListItr): boolean
+    fun hasPrevious (@target self: ArrayList_ListIterator): boolean
     {
         result = this.cursor != 0;
     }
 
 
-    fun nextIndex (@target self: ListItr): int
+    fun nextIndex (@target self: ArrayList_ListIterator): int
     {
         result = this.cursor;
     }
 
 
-    fun previousIndex (@target self: ListItr): int
+    fun previousIndex (@target self: ArrayList_ListIterator): int
     {
         result = this.cursor - 1;
     }
 
 
-    fun hasNext (@target self: ListItr): boolean
+    fun hasNext (@target self: ArrayList_ListIterator): boolean
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
@@ -745,7 +777,7 @@ automaton ArrayList_ListIteratorAutomaton
     }
 
 
-    fun next (@target self: ListItr): Object
+    fun next (@target self: ArrayList_ListIterator): Object
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
@@ -769,7 +801,7 @@ automaton ArrayList_ListIteratorAutomaton
     }
 
 
-    fun previous (@target self: ListItr): Object
+    fun previous (@target self: ArrayList_ListIterator): Object
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
@@ -793,7 +825,7 @@ automaton ArrayList_ListIteratorAutomaton
     }
 
 
-    fun remove (@target self: ListItr): void
+    fun remove (@target self: ArrayList_ListIterator): void
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
@@ -823,7 +855,7 @@ automaton ArrayList_ListIteratorAutomaton
     }
 
 
-    fun set (@target self: ListItr, e: Object): void
+    fun set (@target self: ArrayList_ListIterator) e: Object): void
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
@@ -845,7 +877,7 @@ automaton ArrayList_ListIteratorAutomaton
     }
 
 
-    fun add (@target self: ListItr, e: Object): void
+    fun add (@target self: ArrayList_ListIterator) e: Object): void
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
@@ -874,7 +906,7 @@ automaton ArrayList_ListIteratorAutomaton
     }
 
 
-    fun forEachRemaining (@target self: ListItr, userAction: Consumer): void
+    fun forEachRemaining (@target self: ArrayList_ListIterator) userAction: Consumer): void
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
