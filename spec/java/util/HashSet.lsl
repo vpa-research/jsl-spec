@@ -254,7 +254,10 @@ typealias E = Object;
     @ParameterizedResult("E")
     fun iterator (): Iterator
     {
-        action TODO();
+        // Problem - 1) how import KeyIterator automaton ? 2) We must change realization of this, because it uses not "map" now.
+        result = new KeyIterator(state=Initialized,
+        this.hasMap,
+        expectedModCount=this.modCount)
     }
 
 
@@ -288,7 +291,13 @@ typealias E = Object;
     @ParameterizedResult("E")
     fun spliterator (): Spliterator
     {
-        action TODO();
+        // Problem - 1) how import KeySpliterator automaton ? 2) We must change realization of this, because it uses not "map" now.
+        result = new KeySpliterator(state=Initialized,
+            this.hasMap,
+            origin = 0,
+            fence = -1,
+            est = 0
+            expectedModCount = 0)
     }
 
 }
