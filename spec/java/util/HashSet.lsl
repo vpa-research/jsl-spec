@@ -26,11 +26,12 @@ typealias E = Object;
 @implements(["java.util.Set<E>", "java.lang.Cloneable", "java.io.Serializable"])
 @public automaton HashSet: int
 (
-    var values: list<Object> = null;
+    var hashMap: map<E, Object> = null;
     @transient var length: int = 0;
     @transient var modCounter: int = 0;
 
     @static @final var serialVersionUID: long = -5024744406713321676;
+    @static @final var mockedValue: Object = Object;
 )
 {
     // states and shifts
@@ -178,12 +179,12 @@ typealias E = Object;
 
     proc _clearMappings (): void
     {
-        assigns this.values;
+        assigns this.hashMap;
         assigns this.length;
         ensures this.length == 0;
 
         this.length = 0;
-        this.values = action LIST_NEW();
+        this.hashMap = action MAP_NEW();
 
         this._updateModifications();
     }
@@ -197,21 +198,17 @@ typealias E = Object;
         assigns this.values;
         ensures this.length' >= this.length;
 
-        val idx: int = action LIST_FIND(this.values, obj, 0, this.length, +1);
+        val hasKey: boolean = action MAP_HAS_KEY(this.hashMap, obj);
 
-        if (idx >= 0)
+        if (hasKey)
         {
             result = false;
         }
         else
         {
-            val newLength: int = this.length + 1;
-            action LIST_RESIZE(this.values, newLength);
+            this.length = this.length + 1;
 
-            val newIdx: int = this.length;
-            action LIST_SET(this.values, newIdx, obj);
-
-            this.length = newLength;
+            action MAP_SET(this.hashMap, obj, mockedValue);
 
             result = true;
         }
@@ -228,10 +225,10 @@ typealias E = Object;
 
     fun clone (): Object
     {
-        val cValues: list<Object> = action LIST_COPY(this.values, 0, this.length);
+        val clonedHashMap: map<Object> = action MAP_NEW();
 
-        result = new HashSet(
-            state=this.state, values=cValues, length=this.length);
+        action MAP_UNITE_WITH(clonedHashMap, hashMap);
+        result = clonedHashMap;
     }
 
 
@@ -243,8 +240,7 @@ typealias E = Object;
         }
         else
         {
-            val idx: int = action LIST_FIND(this.values, obj, 0, this.length, +1);
-            result = idx >= 0;
+            result = action MAP_HAS_KEY(this.hashMap, obj);
         }
     }
 
@@ -264,13 +260,14 @@ typealias E = Object;
 
     fun remove (obj: Object): boolean
     {
-        assigns this.values;
+        assigns this.hashMap;
+        assigns this.length;
         ensures this.length' <= this.length;
 
-        val idx: int = action LIST_FIND(this.values, obj, 0, this.length, +1);
-        if (idx >= 0)
+        val hasKey: boolean = action MAP_HAS_KEY(this.hashMap, obj);
+        if (hasKey)
         {
-            action LIST_REMOVE(this.values, index);
+            action MAP_REMOVE(this.hashMap, obj);
             this.length -= 1;
             this._updateModifications();
             result = true;
