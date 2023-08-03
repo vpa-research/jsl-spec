@@ -68,30 +68,100 @@ typealias E = Object;
 
     constructor HashSet (@target @Parameterized(["E"]) self: HashSet)
     {
-        action TODO();
+        assigns hashMap;
+        assigns this.length;
+        assigns this.modCounter;
+        ensures this.length == 0;
+        ensures this.modCounter == 0;
+
+        hashMap = action MAP_NEW();
+
+        this.length = 0;
+        this.modCounter = 0;
     }
 
 
-    constructor HashSet (@target @Parameterized(["E"]) self: HashSet, @Parameterized("? extends E") arg0: Collection)
+    constructor HashSet (@target @Parameterized(["E"]) self: HashSet, @Parameterized("? extends E") c: Collection)
     {
-        action TODO();
+        requires c != null;
+        assigns hashMap;
+        assigns this.length;
+        assigns this.modCounter;
+        ensures this.length >= 0;
+        ensures this.modCounter == 0;
+
+        val size: int = c.size();
+
+        hashMap = action MAP_NEW();
+
+        CALL_METHOD(hashMap, "addAll", [c])
+
+        this.length = size;
+        this.modCounter = 0;
     }
 
 
-    constructor HashSet (@target @Parameterized(["E"]) self: HashSet, arg0: int)
+    constructor HashSet (@target @Parameterized(["E"]) self: HashSet, initialCapacity: int)
     {
-        action TODO();
+        requires initialCapacity >= 0;
+        assigns hashMap;
+        assigns this.length;
+        assigns this.modCounter;
+        ensures this.length == 0;
+        ensures this.modCounter == 0;
+
+        if (initialCapacity < 0)
+        {
+            val initCapStr: String = action OBJECT_TO_STRING(initialCapacity);
+            action THROW_NEW(
+                "java.lang.IllegalArgumentException",
+                ["Illegal initial capacity: " + initCapStr]);
+        }
+
+        hashMap = action MAP_NEW();
+
+        this.length = 0;
+        this.modCounter = 0;
     }
 
 
-    constructor HashSet (@target @Parameterized(["E"]) self: HashSet, arg0: int, arg1: float)
+    constructor HashSet (@target @Parameterized(["E"]) self: HashSet, initialCapacity: int, loadFactor: float)
     {
-        action TODO();
+        requires initialCapacity >= 0;
+        requires loadFactor > 0;
+        requires !loadFactor.isNaN;  // #problem
+        assigns hashMap;
+        assigns this.length;
+        assigns this.modCounter;
+        ensures this.length == 0;
+        ensures this.modCounter == 0;
+
+        if (initialCapacity < 0)
+        {
+            val initCapStr: String = action OBJECT_TO_STRING(initialCapacity);
+            action THROW_NEW(
+                "java.lang.IllegalArgumentException",
+                ["Illegal initial capacity: " + initCapStr]);
+        }
+
+        if (loadFactor <= 0 || loadFactor.isNaN) // #problem
+        {
+            val loadFactorStr: String = action OBJECT_TO_STRING(loadFactor);
+            action THROW_NEW(
+                "java.lang.IllegalArgumentException",
+                ["Illegal load factor: " + loadFactorStr]);
+        }
+
+        hashMap = action MAP_NEW();
+
+        this.length = 0;
+        this.modCounter = 0;
     }
 
 
-    constructor HashSet (@target @Parameterized(["E"]) self: HashSet, arg0: int, arg1: float, arg2: boolean)
+    constructor HashSet (@target @Parameterized(["E"]) self: HashSet, initialCapacity: int, loadFactor: float, dummy: boolean)
     {
+        // Problem; We don't have LinkedHashMap automaton at this moment !
         action TODO();
     }
 
