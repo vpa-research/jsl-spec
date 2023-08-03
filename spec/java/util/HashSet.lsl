@@ -158,7 +158,10 @@ typealias E = Object;
 
     fun clone (): Object
     {
-        action TODO();
+        val cValues: list<Object> = action LIST_COPY(this.values, 0, this.length);
+
+        result = new HashSet(
+            state=this.state, values=cValues, length=this.length);
     }
 
 
