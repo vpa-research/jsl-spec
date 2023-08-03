@@ -26,6 +26,10 @@ typealias E = Object;
 @implements(["java.util.Set<E>", "java.lang.Cloneable", "java.io.Serializable"])
 @public automaton HashSet: int
 (
+    var values: list<Object> = null;
+    @transient var length: int = 0;
+    @transient var modCounter: int = 0;
+
     @static @final var serialVersionUID: long = -5024744406713321676;
 )
 {
@@ -94,19 +98,61 @@ typealias E = Object;
 
     // utilities
 
+    proc _updateModifications(): void
+    {
+        assigns this.modCounter;
+        ensures this.modCounter' > this.modCounter;
+
+        this.modCounter += 1;
+    }
+
+    proc _clearMappings (): void
+    {
+        assigns this.values;
+        assigns this.length;
+        ensures this.length == 0;
+
+        this.length = 0;
+        this.values = action LIST_NEW();
+
+        this._updateModifications();
+    }
+
     // static methods
 
     // methods
 
-    fun add (arg0: E): boolean
+    fun add (obj: E): boolean
     {
-        action TODO();
+        assigns this.values;
+        ensures this.length' >= this.length;
+
+        val idx: int = action LIST_FIND(this.values, obj, 0, this.length, +1);
+
+        if (idx >= 0)
+        {
+            result = false;
+        }
+        else
+        {
+            val newLength: int = this.length + 1;
+            action LIST_RESIZE(this.values, newLength);
+
+            val newIdx: int = this.length;
+            action LIST_SET(this.values, newIdx, obj);
+
+            this.length = newLength;
+
+            result = true;
+        }
+
+        this._updateModifications();
     }
 
 
     fun clear (): void
     {
-        action TODO();
+        this._clearMappings();
     }
 
 
@@ -116,15 +162,23 @@ typealias E = Object;
     }
 
 
-    fun contains (arg0: Object): boolean
+    fun contains (obj: Object): boolean
     {
-        action TODO();
+        if (this.length == 0)
+        {
+            result = false;
+        }
+        else
+        {
+            val idx: int = action LIST_FIND(this.values, obj, 0, this.length, +1);
+            result = idx >= 0;
+        }
     }
 
 
     fun isEmpty (): boolean
     {
-        action TODO();
+        result = this.length == 0;
     }
 
 
@@ -135,15 +189,29 @@ typealias E = Object;
     }
 
 
-    fun remove (arg0: Object): boolean
+    fun remove (obj: Object): boolean
     {
-        action TODO();
+        assigns this.values;
+        ensures this.length' <= this.length;
+
+        val idx: int = action LIST_FIND(this.values, obj, 0, this.length, +1);
+        if (idx >= 0)
+        {
+            action LIST_REMOVE(this.values, index);
+            this.length -= 1;
+            this._updateModifications();
+            result = true;
+        }
+        else
+        {
+            result = false;
+        }
     }
 
 
     fun size (): int
     {
-        action TODO();
+        result = this.length;
     }
 
 
