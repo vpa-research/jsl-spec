@@ -263,8 +263,8 @@ typealias E = Object;
     {
         // Problem - 1) how import KeyIterator automaton ? 2) We must change realization of this, because it uses not "map" now.
         result = new KeyIterator(state=Initialized,
-        this.hasMap,
-        expectedModCount=this.modCount)
+            this.hasMap,
+            expectedModCount=this.modCount)
     }
 
 
