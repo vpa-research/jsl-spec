@@ -10,11 +10,10 @@ library any
 // === LIFE-TIME management ===
 
 
-define action MAP_NEW(
-    ): map<any, any>;
+define action MAP_NEW (): map<any, any>;
 
 // unused
-define action MAP_FREE(
+define action MAP_FREE (
         aMap: map<any, any>
     ): void;
 
@@ -22,17 +21,17 @@ define action MAP_FREE(
 // === READ operations ===
 
 
-define action MAP_GET(
+define action MAP_GET (
         aMap: map<any, any>,
         key: any
     ): any;
 
-define action MAP_HAS_KEY(
+define action MAP_HAS_KEY (
         aMap: map<any, any>,
         key: any
     ): bool;
 
-define action MAP_SIZE(
+define action MAP_SIZE (
         aMap: map<any, any>
     ): int32;
 
@@ -40,27 +39,27 @@ define action MAP_SIZE(
 // === UPDATE operations ===
 
 
-define action MAP_INTERSECT_WITH(
+define action MAP_INTERSECT_WITH (
         receiver: map<any, any>,
         otherSource: map<any, any>
-    ): any;
+    ): void;
 
-define action MAP_SET(
+define action MAP_SET (
         aMap: map<any, any>,
         key: any,
         value: any
-    ): any;
+    ): void;
 
-define action MAP_UNITE_WITH(
+define action MAP_UNITE_WITH (
         receiver: map<any, any>,
         otherSource: map<any, any>
-    ): any;
+    ): void;
 
 
 // === DELETE operations
 
 
-define action MAP_REMOVE(
+define action MAP_REMOVE (
         aMap: map<any, any>,
         key: any
     ): void;

@@ -24,6 +24,9 @@ type Iterator
     is java.util.Iterator
     for Object
 {
+    fun hasNext(): boolean;
+
+    fun next(): Object;
 }
 
 
@@ -38,7 +41,7 @@ type Spliterator
 @Parameterized(["K", "V"]) // #problem
 type Map
     is java.util.Map
-    for Object // #question: add map here?
+    for Object
 {
 }
 
@@ -53,8 +56,9 @@ type MapEntry
 @Parameterized(["E"]) // #problem
 type Collection
     is java.util.Collection
-    for Iterable, Object
+    for Iterable
 {
+    fun size(): int;
 }
 
 

@@ -4,7 +4,7 @@ libsl "1.1.0";
 // TODO: remove debug code
 library any
     version "*"
-    language "Java"
+    language "*"
     url "-";
 
 
@@ -22,40 +22,34 @@ annotation AnnotatedWith (
 annotation AutoInline;
 
 
-// Stores the result of a function computation as a private field inside of the generated class.
-// Something like: `private Set __cached_keySet = null;`
-annotation CacheOnce;
-
-
-// Stores the result of a function computation as a private static field inside of the generated class.
-// Something like: `private static Set __cached_keySet = null;`
-annotation CacheStaticOnce;
-
-
 // The marked feature is no longer needed or required.
 annotation Deprecated (
-    hint: string = "",
+    note: string = "",
     forRemoval: bool = false,
 );
 
 
-// Specifies expected parent automaton and a class-container.
-annotation From (
-    parentAutomatonName: string,
-);
+// The declared type have no direct connection any of the existing JSL classes,
+// thus requiring the creation of a completely new one.
+annotation GenerateMe;
+
+
+// disables code generation for subroutine and uses its body as an element for loop or other structure
+// should be used only on subroutines
+annotation LambdaComponent;
 
 
 // The merked method does not return to normal execution.
 annotation NoReturn;
 
 
-// #problem
+// unused
 annotation Parameterized (
     typeParameters: array<string>,
 );
 
 
-// #problem
+// unused
 annotation ParameterizedResult (
     typeParameters: array<string>,
 );
@@ -65,10 +59,11 @@ annotation ParameterizedResult (
 annotation StopsControlFlow;
 
 
+// unused
 // Associates the type on the LEFT side of typealias with the specified type.
 //@Deprecated
 annotation TypeMapping (
     fullClassName: string = null,
     builtin: bool = false,
-    typeVariable: bool = false, // #problem
+    typeVariable: bool = false, // unused
 );

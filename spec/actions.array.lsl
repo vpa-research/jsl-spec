@@ -10,13 +10,13 @@ library any
 // === LIFE-TIME management ===
 
 
-define action ARRAY_NEW(
+define action ARRAY_NEW (
         typeName: string, // literal!
         size: int32
     ): array<any>;
 
 // unused
-define action ARRAY_FREE(
+define action ARRAY_FREE (
         arr: array<any>
     ): void;
 
@@ -24,12 +24,12 @@ define action ARRAY_FREE(
 // === READ operations ===
 
 
-define action ARRAY_GET(
+define action ARRAY_GET (
         arr: array<any>,
         itemIndex: int32
     ): any;
 
-define action ARRAY_SIZE(
+define action ARRAY_SIZE (
         arr: array<any>
     ): int32;
 
@@ -38,12 +38,12 @@ define action ARRAY_SIZE(
 
 
 // #question: do we actually need this?
-define action ARRAY_FILL(
+define action ARRAY_FILL (
         arr: array<any>,
         value: any
     ): void;
 
-define action ARRAY_COPY(
+define action ARRAY_COPY (
         src: array<any>,
         srcPos: int32,
         dst: array<any>,
@@ -51,7 +51,7 @@ define action ARRAY_COPY(
         count: int32
     ): void;
 
-define action ARRAY_SET(
+define action ARRAY_SET (
         arr: array<any>,
         itemIndex: int32,
         value: any
