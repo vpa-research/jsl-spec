@@ -19,19 +19,26 @@ import "list-actions.lsl";
 typealias E = Object;
 
 
-// automata
-
+@For(automaton="HashSetAutomaton", insteadOf="java.util.HashSet")
 @Parameterized("E")
 @extends("java.util.AbstractSet<E>")
 @implements(["java.util.Set<E>", "java.lang.Cloneable", "java.io.Serializable"])
-@public automaton HashSet: int
-(
+@public type HashSet
+{
     var hashMap: map<E, Object> = null;
     @transient var length: int = 0;
     @transient var modCounter: int = 0;
 
     @static @final var serialVersionUID: long = -5024744406713321676;
     @static @final var mockedValue: Object = Object;
+}
+
+
+// automata
+
+@Parameterized("E")
+@public automaton HashSetAutomaton: HashSet
+(
 )
 {
     // states and shifts
@@ -67,7 +74,7 @@ typealias E = Object;
 
     // constructors
 
-    constructor HashSet (@target @Parameterized(["E"]) self: HashSet)
+    constructor HashSet (@target self: HashSet)
     {
         assigns hashMap;
         assigns this.length;
@@ -82,7 +89,7 @@ typealias E = Object;
     }
 
 
-    constructor HashSet (@target @Parameterized(["E"]) self: HashSet, @Parameterized("? extends E") c: Collection)
+    constructor HashSet (@target self: HashSet, @Parameterized("? extends E") c: Collection)
     {
         requires c != null;
         assigns hashMap;
@@ -102,7 +109,7 @@ typealias E = Object;
     }
 
 
-    constructor HashSet (@target @Parameterized(["E"]) self: HashSet, initialCapacity: int)
+    constructor HashSet (@target self: HashSet, initialCapacity: int)
     {
         requires initialCapacity >= 0;
         assigns hashMap;
@@ -126,7 +133,7 @@ typealias E = Object;
     }
 
 
-    constructor HashSet (@target @Parameterized(["E"]) self: HashSet, initialCapacity: int, loadFactor: float)
+    constructor HashSet (@target self: HashSet, initialCapacity: int, loadFactor: float)
     {
         requires initialCapacity >= 0;
         requires loadFactor > 0;
@@ -160,7 +167,7 @@ typealias E = Object;
     }
 
 
-    constructor HashSet (@target @Parameterized(["E"]) self: HashSet, initialCapacity: int, loadFactor: float, dummy: boolean)
+    constructor HashSet (@target self: HashSet, initialCapacity: int, loadFactor: float, dummy: boolean)
     {
         // Problem; We don't have LinkedHashMap automaton at this moment !
         action TODO();
@@ -193,7 +200,7 @@ typealias E = Object;
 
     // methods
 
-    fun add (obj: E): boolean
+    fun add (@target self: HashSet, obj: E): boolean
     {
         assigns this.values;
         ensures this.length' >= this.length;
@@ -217,13 +224,13 @@ typealias E = Object;
     }
 
 
-    fun clear (): void
+    fun clear (@target self: HashSet): void
     {
         this._clearMappings();
     }
 
 
-    fun clone (): Object
+    fun clone (@target self: HashSet): Object
     {
         val clonedHashMap: map<Object> = action MAP_NEW();
 
@@ -232,7 +239,7 @@ typealias E = Object;
     }
 
 
-    fun contains (obj: Object): boolean
+    fun contains (@target self: HashSet, obj: Object): boolean
     {
         if (this.length == 0)
         {
@@ -245,14 +252,14 @@ typealias E = Object;
     }
 
 
-    fun isEmpty (): boolean
+    fun isEmpty (@target self: HashSet): boolean
     {
         result = this.length == 0;
     }
 
 
     @ParameterizedResult("E")
-    fun iterator (): Iterator
+    fun iterator (@target self: HashSet): Iterator
     {
         // Problem - 1) how import KeyIterator automaton ? 2) We must change realization of this, because it uses not "map" now.
         result = new KeyIterator(state=Initialized,
@@ -261,7 +268,7 @@ typealias E = Object;
     }
 
 
-    fun remove (obj: Object): boolean
+    fun remove (@target self: HashSet, obj: Object): boolean
     {
         assigns this.hashMap;
         assigns this.length;
@@ -282,14 +289,14 @@ typealias E = Object;
     }
 
 
-    fun size (): int
+    fun size (@target self: HashSet): int
     {
         result = this.length;
     }
 
 
     @ParameterizedResult("E")
-    fun spliterator (): Spliterator
+    fun spliterator (@target self: HashSet): Spliterator
     {
         // Problem - 1) how import KeySpliterator automaton ? 2) We must change realization of this, because it uses not "map" now.
         result = new KeySpliterator(state=Initialized,
