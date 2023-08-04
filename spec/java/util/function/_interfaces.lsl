@@ -4,7 +4,7 @@ libsl "1.1.0";
 library std
     version "11"
     language "Java"
-    url "-";
+    url "https://github.com/openjdk/jdk11/tree/master/src/java.base/share/classes/java/util/function";
 
 // imports
 
@@ -13,16 +13,18 @@ import java.common;
 
 // semantic types
 
-@Parameterized(["T", "U"]) // #problem
+@Parameterized(["T", "U"])
 type BiConsumer
     is java.util.function.BiConsumer
     for Object
 {
     fun accept(t: Object, u: Object): void;
+
+    // #problem: there are other methods but it will break `is-functional-interface` detection mechanism
 }
 
 
-@Parameterized(["T", "U", "R"]) // #problem
+@Parameterized(["T", "U", "R"])
 type BiFunction
     is java.util.function.BiFunction
     for Object
@@ -31,7 +33,7 @@ type BiFunction
 }
 
 
-@Parameterized(["T"]) // #problem
+@Parameterized(["T"])
 type BinaryOperator
     is java.util.function.BinaryOperator
     for BiFunction, Object
@@ -40,7 +42,7 @@ type BinaryOperator
 }
 
 
-@Parameterized(["T", "U"]) // #problem
+@Parameterized(["T", "U"])
 type BiPredicate
     is java.util.function.BiPredicate
     for Object
@@ -57,7 +59,7 @@ type BooleanSupplier
 }
 
 
-@Parameterized(["T"]) // #problem
+@Parameterized(["T"])
 type Consumer
     is java.util.function.Consumer
     for Object
@@ -82,7 +84,7 @@ type DoubleConsumer
 }
 
 
-@Parameterized(["R"]) // #problem
+@Parameterized(["R"])
 type DoubleFunction
     is java.util.function.DoubleFunction
     for Object
@@ -131,7 +133,7 @@ type DoubleUnaryOperator
 }
 
 
-@Parameterized(["T", "R"]) // #problem
+@Parameterized(["T", "R"])
 type Function
     is java.util.function.Function
     for Object
@@ -156,7 +158,7 @@ type IntConsumer
 }
 
 
-@Parameterized(["R"]) // #problem
+@Parameterized(["R"])
 type IntFunction
     is java.util.function.IntFunction
     for Object
@@ -221,7 +223,7 @@ type LongConsumer
 }
 
 
-@Parameterized(["R"]) // #problem
+@Parameterized(["R"])
 type LongFunction
     is java.util.function.LongFunction
     for Object
@@ -270,7 +272,7 @@ type LongUnaryOperator
 }
 
 
-@Parameterized(["T"]) // #problem
+@Parameterized(["T"])
 type ObjDoubleConsumer
     is java.util.function.ObjDoubleConsumer
     for Object
@@ -279,7 +281,7 @@ type ObjDoubleConsumer
 }
 
 
-@Parameterized(["T"]) // #problem
+@Parameterized(["T"])
 type ObjIntConsumer
     is java.util.function.ObjIntConsumer
     for Object
@@ -288,7 +290,7 @@ type ObjIntConsumer
 }
 
 
-@Parameterized(["T"]) // #problem
+@Parameterized(["T"])
 type ObjLongConsumer
     is java.util.function.ObjLongConsumer
     for Object
@@ -297,7 +299,7 @@ type ObjLongConsumer
 }
 
 
-@Parameterized(["T"]) // #problem
+@Parameterized(["T"])
 type Predicate
     is java.util.function.Predicate
     for Object
@@ -306,7 +308,7 @@ type Predicate
 }
 
 
-@Parameterized(["T"]) // #problem
+@Parameterized(["T"])
 type Supplier
     is java.util.function.Supplier
     for Object
@@ -315,7 +317,7 @@ type Supplier
 }
 
 
-@Parameterized(["T", "U"]) // #problem
+@Parameterized(["T", "U"])
 type ToDoubleBiFunction
     is java.util.function.ToDoubleBiFunction
     for Object
@@ -324,7 +326,7 @@ type ToDoubleBiFunction
 }
 
 
-@Parameterized(["T"]) // #problem
+@Parameterized(["T"])
 type ToDoubleFunction
     is java.util.function.ToDoubleFunction
     for Object
@@ -333,7 +335,7 @@ type ToDoubleFunction
 }
 
 
-@Parameterized(["T", "U"]) // #problem
+@Parameterized(["T", "U"])
 type ToIntBiFunction
     is java.util.function.ToIntBiFunction
     for Object
@@ -342,7 +344,7 @@ type ToIntBiFunction
 }
 
 
-@Parameterized(["T"]) // #problem
+@Parameterized(["T"])
 type ToIntFunction
     is java.util.function.ToIntFunction
     for Object
@@ -351,7 +353,7 @@ type ToIntFunction
 }
 
 
-@Parameterized(["T", "U"]) // #problem
+@Parameterized(["T", "U"])
 type ToLongBiFunction
     is java.util.function.ToLongBiFunction
     for Object
@@ -360,7 +362,7 @@ type ToLongBiFunction
 }
 
 
-@Parameterized(["T"]) // #problem
+@Parameterized(["T"])
 type ToLongFunction
     is java.util.function.ToLongFunction
     for Object
@@ -369,7 +371,7 @@ type ToLongFunction
 }
 
 
-@Parameterized(["T"]) // #problem
+@Parameterized(["T"])
 type UnaryOperator
     is java.util.function.UnaryOperator
     for Function, Object
