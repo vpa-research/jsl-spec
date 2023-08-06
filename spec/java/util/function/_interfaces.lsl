@@ -36,7 +36,7 @@ type BiFunction
 @Parameterized(["T"])
 type BinaryOperator
     is java.util.function.BinaryOperator
-    for BiFunction, Object
+    for BiFunction
 {
     fun apply(ta: Object, tb: Object): Object;
 }
@@ -374,7 +374,7 @@ type ToLongFunction
 @Parameterized(["T"])
 type UnaryOperator
     is java.util.function.UnaryOperator
-    for Function, Object
+    for Function
 {
     fun apply(t: Object): Object;
 }

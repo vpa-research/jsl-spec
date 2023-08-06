@@ -49,6 +49,10 @@ annotation volatile ();
 
 annotation strict ();
 
+annotation FunctionalInterface (
+    callableName: string = null
+);
+
 
 
 // === TYPES ===
