@@ -34,7 +34,7 @@ import java/util/stream/_interfaces;
 @GenerateMe
 @implements("java.util.ListIterator")
 @public @final type ArrayList_ListIterator
-    is java.util.ArrayList.ListItr
+    is java.util.ArrayList_ListItr  // NOTE: do not use inner classes
     for ListIterator
 {
 }
@@ -534,11 +534,12 @@ automaton ArrayListAutomaton
 
     fun iterator (@target self: ArrayList): Iterator
     {
-        result = new ArrayList_ListIteratorAutomaton(state = Initialized,
+        val res: ArrayList_ListIterator = new ArrayList_ListIteratorAutomaton(state = Initialized,
             parent = self,
             cursor = 0,
             expectedModCount = this.modCount
         );
+        result = res;
     }
 
 
