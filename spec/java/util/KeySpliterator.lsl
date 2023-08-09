@@ -39,6 +39,16 @@ import "list-actions.lsl";
 
     initstate Initialized;
 
+    shift Initialized -> this by [
+        // read operations
+        characteristics,
+        trySplit,
+
+        // write operations
+        forEachRemaining,
+        tryAdvance,
+    ];
+
 
     // constructors
 
