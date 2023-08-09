@@ -76,13 +76,13 @@ typealias E = Object;
 
     constructor HashSet (@target self: HashSet)
     {
-        assigns hashMap;
+        assigns this.hashMap;
         assigns this.length;
         assigns this.modCounter;
         ensures this.length == 0;
         ensures this.modCounter == 0;
 
-        hashMap = action MAP_NEW();
+        this.hashMap = action MAP_NEW();
 
         this.length = 0;
         this.modCounter = 0;
@@ -92,7 +92,7 @@ typealias E = Object;
     constructor HashSet (@target self: HashSet, @Parameterized("? extends E") c: Collection)
     {
         requires c != null;
-        assigns hashMap;
+        assigns this.hashMap;
         assigns this.length;
         assigns this.modCounter;
         ensures this.length >= 0;
@@ -100,9 +100,9 @@ typealias E = Object;
 
         val size: int = c.size();
 
-        hashMap = action MAP_NEW();
+        this.hashMap = action MAP_NEW();
 
-        CALL_METHOD(hashMap, "addAll", [c])
+        CALL_METHOD(this.hashMap, "addAll", [c])
 
         this.length = size;
         this.modCounter = 0;
@@ -112,7 +112,7 @@ typealias E = Object;
     constructor HashSet (@target self: HashSet, initialCapacity: int)
     {
         requires initialCapacity >= 0;
-        assigns hashMap;
+        assigns this.hashMap;
         assigns this.length;
         assigns this.modCounter;
         ensures this.length == 0;
@@ -126,7 +126,7 @@ typealias E = Object;
                 ["Illegal initial capacity: " + initCapStr]);
         }
 
-        hashMap = action MAP_NEW();
+        this.hashMap = action MAP_NEW();
 
         this.length = 0;
         this.modCounter = 0;
@@ -138,7 +138,7 @@ typealias E = Object;
         requires initialCapacity >= 0;
         requires loadFactor > 0;
         requires !loadFactor.isNaN;  // #problem
-        assigns hashMap;
+        assigns this.hashMap;
         assigns this.length;
         assigns this.modCounter;
         ensures this.length == 0;
@@ -160,7 +160,7 @@ typealias E = Object;
                 ["Illegal load factor: " + loadFactorStr]);
         }
 
-        hashMap = action MAP_NEW();
+        this.hashMap = action MAP_NEW();
 
         this.length = 0;
         this.modCounter = 0;
@@ -215,7 +215,7 @@ typealias E = Object;
         {
             this.length = this.length + 1;
 
-            action MAP_SET(this.hashMap, obj, mockedValue);
+            action MAP_SET(this.hashMap, obj, this.mockedValue);
 
             result = true;
         }
@@ -234,7 +234,7 @@ typealias E = Object;
     {
         val clonedHashMap: map<Object> = action MAP_NEW();
 
-        action MAP_UNITE_WITH(clonedHashMap, hashMap);
+        action MAP_UNITE_WITH(clonedHashMap, this.hashMap);
         result = clonedHashMap;
     }
 

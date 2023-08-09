@@ -93,7 +93,7 @@ import "list-actions.lsl";
         val destMapHasKey = action MAP_HAS_KEY(this.destMap, key);
         assume(!destMapHasKey);
 
-        action MAP_SET(this.destMap, key, mockedValue);
+        action MAP_SET(this.destMap, key, this.mockedValue);
         this.index += 1;
         this.nextWasCalled = true;
     }
