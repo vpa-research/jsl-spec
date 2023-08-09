@@ -25,7 +25,7 @@ typealias E = Object;
 @implements(["java.util.Set<E>", "java.lang.Cloneable", "java.io.Serializable"])
 @public type HashSet
 {
-    var hashMap: map<E, Object> = null;
+    var storage: map<E, Object> = null;
     @transient var length: int = 0;
     @transient var modCounter: int = 0;
 
@@ -76,13 +76,13 @@ typealias E = Object;
 
     constructor HashSet (@target self: HashSet)
     {
-        assigns this.hashMap;
+        assigns this.storage;
         assigns this.length;
         assigns this.modCounter;
         ensures this.length == 0;
         ensures this.modCounter == 0;
 
-        this.hashMap = action MAP_NEW();
+        this.storage = action MAP_NEW();
 
         this.length = 0;
         this.modCounter = 0;
@@ -92,7 +92,7 @@ typealias E = Object;
     constructor HashSet (@target self: HashSet, @Parameterized("? extends E") c: Collection)
     {
         requires c != null;
-        assigns this.hashMap;
+        assigns this.storage;
         assigns this.length;
         assigns this.modCounter;
         ensures this.length >= 0;
@@ -100,9 +100,9 @@ typealias E = Object;
 
         val size: int = c.size();
 
-        this.hashMap = action MAP_NEW();
+        this.storage = action MAP_NEW();
 
-        CALL_METHOD(this.hashMap, "addAll", [c])
+        CALL_METHOD(this.storage, "addAll", [c])
 
         this.length = size;
         this.modCounter = 0;
@@ -112,7 +112,7 @@ typealias E = Object;
     constructor HashSet (@target self: HashSet, initialCapacity: int)
     {
         requires initialCapacity >= 0;
-        assigns this.hashMap;
+        assigns this.storage;
         assigns this.length;
         assigns this.modCounter;
         ensures this.length == 0;
@@ -126,7 +126,7 @@ typealias E = Object;
                 ["Illegal initial capacity: " + initCapStr]);
         }
 
-        this.hashMap = action MAP_NEW();
+        this.storage = action MAP_NEW();
 
         this.length = 0;
         this.modCounter = 0;
@@ -138,7 +138,7 @@ typealias E = Object;
         requires initialCapacity >= 0;
         requires loadFactor > 0;
         requires !loadFactor.isNaN;  // #problem
-        assigns this.hashMap;
+        assigns this.storage;
         assigns this.length;
         assigns this.modCounter;
         ensures this.length == 0;
@@ -160,7 +160,7 @@ typealias E = Object;
                 ["Illegal load factor: " + loadFactorStr]);
         }
 
-        this.hashMap = action MAP_NEW();
+        this.storage = action MAP_NEW();
 
         this.length = 0;
         this.modCounter = 0;
@@ -186,12 +186,12 @@ typealias E = Object;
 
     proc _clearMappings (): void
     {
-        assigns this.hashMap;
+        assigns this.storage;
         assigns this.length;
         ensures this.length == 0;
 
         this.length = 0;
-        this.hashMap = action MAP_NEW();
+        this.storage = action MAP_NEW();
 
         this._updateModifications();
     }
@@ -205,7 +205,7 @@ typealias E = Object;
         assigns this.values;
         ensures this.length' >= this.length;
 
-        val hasKey: boolean = action MAP_HAS_KEY(this.hashMap, obj);
+        val hasKey: boolean = action MAP_HAS_KEY(this.storage, obj);
 
         if (hasKey)
         {
@@ -215,7 +215,7 @@ typealias E = Object;
         {
             this.length = this.length + 1;
 
-            action MAP_SET(this.hashMap, obj, this.mockedValue);
+            action MAP_SET(this.storage, obj, this.mockedValue);
 
             result = true;
         }
@@ -232,10 +232,10 @@ typealias E = Object;
 
     fun clone (@target self: HashSet): Object
     {
-        val clonedHashMap: map<Object> = action MAP_NEW();
+        val clonedStorage: map<Object> = action MAP_NEW();
 
-        action MAP_UNITE_WITH(clonedHashMap, this.hashMap);
-        result = clonedHashMap;
+        action MAP_UNITE_WITH(clonedStorage, this.storage);
+        result = clonedStorage;
     }
 
 
@@ -247,7 +247,7 @@ typealias E = Object;
         }
         else
         {
-            result = action MAP_HAS_KEY(this.hashMap, obj);
+            result = action MAP_HAS_KEY(this.storage, obj);
         }
     }
 
@@ -263,22 +263,22 @@ typealias E = Object;
     {
         result = new KeyIterator(state = Initialized,
             expectedModCount = this.modCount,
-            sourceMap = this.hasMap,
-            size = this.length
+            sourceStorage = this.storage,
+            length = this.length
         );
     }
 
 
     fun remove (@target self: HashSet, obj: Object): boolean
     {
-        assigns this.hashMap;
+        assigns this.storage;
         assigns this.length;
         ensures this.length' <= this.length;
 
-        val hasKey: boolean = action MAP_HAS_KEY(this.hashMap, obj);
+        val hasKey: boolean = action MAP_HAS_KEY(this.storage, obj);
         if (hasKey)
         {
-            action MAP_REMOVE(this.hashMap, obj);
+            action MAP_REMOVE(this.storage, obj);
             this.length -= 1;
             this._updateModifications();
             result = true;
