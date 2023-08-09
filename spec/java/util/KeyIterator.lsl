@@ -22,6 +22,7 @@ import "list-actions.lsl";
 @implements(["java.util.Iterator<K>"])
 @public @final type KeyIterator
 {
+    @static @final var mockedValue: Object = Object;
 }
 
 
@@ -30,9 +31,10 @@ import "list-actions.lsl";
 @public automaton KeyIteratorAutomaton: KeyIterator
 (
     var index: int = 0;
-    var expectedModCount: int;
+    var destMap: map = null;
     var nextWasCalled: boolean = false;
-    val hashMap: map;
+    var expectedModCount: int;
+    val sourceMap: map;
     var size;
 )
 {
@@ -51,8 +53,10 @@ import "list-actions.lsl";
 
     // constructors
 
-    constructor `KeyIterator#KeyIterator` (@target obj: KeyIterator, arg0: HashMap)
+    constructor KeyIterator (@target obj: KeyIterator, arg0: HashMap)
     {
+        this.destMap = action MAP_NEW();
+        // Problem - what else we must to do in this constructor ???
         action TODO();
     }
 
@@ -82,11 +86,14 @@ import "list-actions.lsl";
         }
 
         val key = engine.makeSymbolic(K);
-        val hasKey = action MAP_HAS_KEY(this.hashMap, key);
+        val sourceMapHasKey = action MAP_HAS_KEY(this.sourceMap, key);
         result = key;
         // Assume must be always on the bottom of the method body or not ?
-        assume(hasKey);
+        assume(sourceMapHasKey);
+        val destMapHasKey = action MAP_HAS_KEY(this.destMap, key);
+        assume(!destMapHasKey);
 
+        action MAP_SET(this.destMap, key, mockedValue);
         this.index += 1;
         this.nextWasCalled = true;
     }
@@ -104,9 +111,9 @@ import "list-actions.lsl";
         // Before was such: this.parent._checkForModifications(this.expectedModCount).
 
         val key = engine.makeSymbolic(K);
-        val hasKey = action MAP_HAS_KEY(this.hashMap, key);
+        val hasKey = action MAP_HAS_KEY(this.sourceMap, key);
         assume(hasKey);
-        action MAP_REMOVE(this.hashMap, key);
+        action MAP_REMOVE(this.sourceMap, key);
 
         // Problem - change modCount.
         // Before was such: this.expectedModCount = this.parent.modCounter.
