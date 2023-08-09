@@ -261,10 +261,11 @@ typealias E = Object;
     @ParameterizedResult("E")
     fun iterator (@target self: HashSet): Iterator
     {
-        // Problem - 1) how import KeyIterator automaton ? 2) We must change realization of this, because it uses not "map" now.
-        result = new KeyIterator(state=Initialized,
-            this.hasMap,
-            expectedModCount=this.modCount)
+        result = new KeyIterator(state = Initialized,
+            expectedModCount = this.modCount,
+            sourceMap = this.hasMap,
+            size = this.length
+        );
     }
 
 
