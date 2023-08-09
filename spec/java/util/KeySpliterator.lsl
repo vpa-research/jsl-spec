@@ -33,6 +33,12 @@ import "list-actions.lsl";
 @Parameterized("K, V")
 @public automaton KeySpliteratorAutomaton: KeySpliterator
 (
+    var storage: map<K, Object>;
+    val length: int;
+    var index: int;
+    var fence: int;
+    var est: int;
+    var expectedModCount: int;
 )
 {
     // states and shifts
@@ -66,7 +72,13 @@ import "list-actions.lsl";
 
     fun characteristics (@target obj: KeySpliterator): int
     {
-        action TODO();
+        var mask: int = 0;
+        if (this.fence < 0 || this.est == this.length)
+        {
+            // Can we write such literals '0x00000040' ?
+            mask = 0x00000040;
+        }
+        result = mask | 0x00000001;
     }
 
 
