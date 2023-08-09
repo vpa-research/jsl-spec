@@ -308,4 +308,17 @@ typealias E = Object;
             expectedModCount = 0)
     }
 
+        @throws(["java.io.IOException"])
+        @private fun writeObject (@target self: ArrayList, s: ObjectOutputStream): void
+        {
+            action NOT_IMPLEMENTED("no serialization support yet");
+        }
+
+
+        @throws(["java.io.IOException", "java.lang.ClassNotFoundException"])
+        @private fun readObject (@target self: ArrayList, s: ObjectInputStream): void
+        {
+            action NOT_IMPLEMENTED("no serialization support yet");
+        }
+
 }
