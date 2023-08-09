@@ -29,12 +29,25 @@ import "list-actions.lsl";
 
 @public automaton KeyIteratorAutomaton: KeyIterator
 (
+    var index: int = 0;
+    var expectedModCount: int;
+    var nextWasCalled: boolean = false;
+    val hashMap: map;
+    var size;
 )
 {
     // states and shifts
 
     initstate Initialized;
 
+    shift Initialized -> this by [
+        // read operations
+        hasNext,
+
+        // write operations
+        next,
+        remove,
+    ];
 
     // constructors
 
@@ -50,9 +63,53 @@ import "list-actions.lsl";
 
     // methods
 
-    @final fun `KeyIterator#next` (@target obj: KeyIterator): K
+    fun hasNext (@target obj: KeyIterator): boolean
     {
-        action TODO();
+        result = this.index < this.size;
+    }
+
+    @final fun next (@target obj: KeyIterator): K
+    {
+        // Problem - change modCount.
+        // Before was such: this.parent._checkForModifications(this.expectedModCount).
+        // Now we don't have parent.
+        // https://docs.google.com/document/d/17fQBVGENeliEInbk80q9V6wO_lTYv-7MjVCuZFaswEM/edit
+
+        val atValidPosition: boolean = this.index < this.size;
+        if (!atValidPosition)
+        {
+            action THROW_NEW("java.util.NoSuchElementException", []);
+        }
+
+        val key = engine.makeSymbolic(K);
+        val hasKey = action MAP_HAS_KEY(this.hashMap, key);
+        result = key;
+        // Assume must be always on the bottom of the method body or not ?
+        assume(hasKey);
+
+        this.index += 1;
+        this.nextWasCalled = true;
+    }
+
+    fun remove (): void
+    {
+        val atValidPosition: boolean = this.index < this.size;
+        if (!atValidPosition || !this.nextWasCalled)
+        {
+            action THROW_NEW("java.lang.IllegalStateException", []);
+        }
+        this.nextWasCalled = false;
+
+        // Problem - change modCount.
+        // Before was such: this.parent._checkForModifications(this.expectedModCount).
+
+        val key = engine.makeSymbolic(K);
+        val hasKey = action MAP_HAS_KEY(this.hashMap, key);
+        assume(hasKey);
+        action MAP_REMOVE(this.hashMap, key);
+
+        // Problem - change modCount.
+        // Before was such: this.expectedModCount = this.parent.modCounter.
     }
 
 }
