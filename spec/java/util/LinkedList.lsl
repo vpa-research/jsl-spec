@@ -131,7 +131,9 @@ automaton LinkedListAutomaton
     {
         if (!_isValidIndex(index))
         {
-            val message: String =  "Index: "+index+", Size: "+this.size;
+            val message: String =
+                "Index: " + action OBJECT_TO_STRING(index) +
+                ", Size: " + action OBJECT_TO_STRING(this.size);
             action THROW_NEW("java.util.IndexOutOfBoundsException", [message]);
         }
     }
@@ -153,7 +155,9 @@ automaton LinkedListAutomaton
     {
         if (!_isPositionIndex(index))
         {
-            val message: String =  "Index: "+index+", Size: "+this.size;
+            val message: String =
+                "Index: " + action OBJECT_TO_STRING(index) +
+                ", Size: " + action OBJECT_TO_STRING(this.size);
             action THROW_NEW("java.util.IndexOutOfBoundsException", [message]);
         }
     }
@@ -186,20 +190,23 @@ automaton LinkedListAutomaton
     proc _addAllElements (index: int, @Parameterized(["E"]) c: Collection): boolean
     {
         // #todo: add optimized version when C is this automaton (HAS operator is required)
-        var i: int = 0;
-        val c_size: int = action CALL_METHOD(c, "size", []);
 
-        action LOOP_FOR(i, 0, c_size, +1, _addAllElements_loop(i, c));
+        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+        action LOOP_WHILE(
+            action CALL_METHOD(iter, "hasNext", []),
+            _addAllElements_loop(iter)
+        );
 
         this.modCount += 1;
     }
 
-    @LambdaComponent proc _addAllElements_loop (i: int, c: Collection): void
+    @LambdaComponent proc _addAllElements_loop (iter: Iterator): boolean
     {
-        val item: Object = action CALL_METHOD(c, "get", [i]);
+        val item: Object = action CALL_METHOD(iter, "next", []);
         action LIST_INSERT_AT(this.storage, this.size, item);
 
         this.size += 1;
+        result = true;
     }
 
 
