@@ -464,7 +464,29 @@ automaton LinkedListAutomaton
 
     fun removeLastOccurrence (@target self: LinkedList, o: Object): boolean
     {
-        action TODO();
+        var index: int = -1;
+
+        var i: int = 0;
+        action LOOP_FOR(i, this.size - 1, 0, -1, removeLastOccurrence_loop(i, o, index));
+
+        result = index >= 0;
+        if (result)
+        {
+            action LIST_REMOVE(this.storage, index);
+
+            this.size -= 1;
+            this.modCount += 1;
+        }
+    }
+
+    @LambdaComponent proc removeLastOccurrence_loop (i: int, o: Object, index: int): void
+    {
+        val item: Object = action LIST_GET(this.storage, i);
+        if (item == o)
+        {
+            index = i;
+            action LOOP_BREAK;
+        }
     }
 
 
