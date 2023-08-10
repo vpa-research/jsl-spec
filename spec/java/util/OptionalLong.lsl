@@ -65,26 +65,26 @@ automaton OptionalLongAutomaton
     ];
 
 
-    // constructors
-
-    @private constructor OptionalLong (@target self: OptionalLong)
-    {
-        action ERROR("Private constructor call");
-    }
-
-
-    @private constructor OptionalLong (@target self: OptionalLong, x: long)
-    {
-        action ERROR("Private constructor call");
-    }
-
-
     // utilities
 
     @AutoInline
     @static proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
+    // constructors
+
+    @private constructor OptionalLong (@target self: OptionalLong)
+    {
+        action NOT_IMPLEMENTED("this method can be called using reflection only");
+    }
+
+
+    @private constructor OptionalLong (@target self: OptionalLong, x: long)
+    {
+        action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
 
 
@@ -98,7 +98,10 @@ automaton OptionalLongAutomaton
 
     @static fun of (x: long): OptionalLong
     {
-        result = new OptionalLongAutomaton(state=Initialized, value=x, present=true);
+        result = new OptionalLongAutomaton(state = Initialized,
+            value = x,
+            present = true
+        );
     }
 
 
@@ -286,6 +289,9 @@ automaton OptionalLongAutomaton
 
 // globals
 
-// #problem: "0" should be int64
-val EMPTY_OPTIONAL_LONG: OptionalLong = new OptionalLongAutomaton(state=Initialized, value=0, present=false);
+val EMPTY_OPTIONAL_LONG: OptionalLong
+    = new OptionalLongAutomaton(state = Initialized,
+        value = 0, // #problem: "0" should be int64
+        present = false
+    );
 

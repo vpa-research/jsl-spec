@@ -71,26 +71,26 @@ automaton OptionalDoubleAutomaton
     ];
 
 
-    // constructors
-
-    @private constructor OptionalDouble (@target self: OptionalDouble)
-    {
-        action ERROR("Private constructor call");
-    }
-
-
-    @private constructor OptionalDouble (@target self: OptionalDouble, x: double)
-    {
-        action ERROR("Private constructor call");
-    }
-
-
     // utilities
 
     @AutoInline
     @static proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
+    // constructors
+
+    @private constructor OptionalDouble (@target self: OptionalDouble)
+    {
+        action NOT_IMPLEMENTED("this method can be called using reflection only");
+    }
+
+
+    @private constructor OptionalDouble (@target self: OptionalDouble, x: double)
+    {
+        action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
 
 
@@ -104,7 +104,10 @@ automaton OptionalDoubleAutomaton
 
     @static fun of (x: double): OptionalDouble
     {
-        result = new OptionalDoubleAutomaton(state=Initialized, value=x, present=true);
+        result = new OptionalDoubleAutomaton(state = Initialized,
+            value = x,
+            present = true
+        );
     }
 
 
@@ -293,5 +296,9 @@ automaton OptionalDoubleAutomaton
 
 // globals
 
-val EMPTY_OPTIONAL_DOUBLE: OptionalDouble = new OptionalDoubleAutomaton(state=Initialized, value=0.0d, present=false);
+val EMPTY_OPTIONAL_DOUBLE: OptionalDouble
+    = new OptionalDoubleAutomaton(state = Initialized,
+        value = 0.0d,
+        present = false
+    );
 

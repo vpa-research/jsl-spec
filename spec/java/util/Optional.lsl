@@ -123,10 +123,9 @@ automaton OptionalAutomaton
 
     // static methods
 
-    // #problem
     @Parameterized(["T"])
     @ParameterizedResult(["T"])
-    @static fun empty (): Optional  // #problem
+    @static fun empty (): Optional
     {
         result = _makeEmpty();
     }

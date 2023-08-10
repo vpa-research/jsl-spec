@@ -44,21 +44,18 @@ import java/util/stream/_interfaces;
 
 automaton ArrayListAutomaton
 (
+    var storage: list<Object>,
+    @transient var length: int
 )
 : ArrayList
 {
-    var storage: list<Object>;
-    var length: int;
-    @transient var modCount: int;
-
-
     // states and shifts
 
     initstate Allocated;
     state Initialized;
 
-    // constructors
     shift Allocated -> Initialized by [
+        // constructors
         ArrayList(ArrayList),
         ArrayList(ArrayList, int),
         ArrayList(ArrayList, Collection)
@@ -104,32 +101,10 @@ automaton ArrayListAutomaton
         trimToSize,
     ];
 
-    //constructors
 
-    constructor ArrayList (@target self: ArrayList, initialCapacity: int)
-    {
-        if (initialCapacity < 0)
-        {
-            val message: String = "Illegal Capacity: " + action OBJECT_TO_STRING(initialCapacity);
-            action THROW_NEW("java.lang.IllegalArgumentException", [message]);
-        }
-        this.storage = action LIST_NEW();
-    }
+    // automaton instance-specific local variables
 
-
-    constructor ArrayList (@target self: ArrayList)
-    {
-        this.storage = action LIST_NEW();
-    }
-
-
-    constructor ArrayList (@target self: ArrayList, c: Collection)
-    {
-        this.storage = action LIST_NEW();
-
-        // #problem: loops, interface calls
-        action NOT_IMPLEMENTED("interface calls are not supported yet");
-    }
+    @transient var modCount: int = 0;
 
 
     // subroutines
@@ -243,6 +218,34 @@ automaton ArrayListAutomaton
     @AutoInline @LambdaComponent proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
+    //constructors
+
+    constructor ArrayList (@target self: ArrayList, initialCapacity: int)
+    {
+        if (initialCapacity < 0)
+        {
+            val message: String = "Illegal Capacity: " + action OBJECT_TO_STRING(initialCapacity);
+            action THROW_NEW("java.lang.IllegalArgumentException", [message]);
+        }
+        this.storage = action LIST_NEW();
+    }
+
+
+    constructor ArrayList (@target self: ArrayList)
+    {
+        this.storage = action LIST_NEW();
+    }
+
+
+    constructor ArrayList (@target self: ArrayList, c: Collection)
+    {
+        this.storage = action LIST_NEW();
+
+        // #problem: loops, interface calls
+        action NOT_IMPLEMENTED("interface calls are not supported yet");
     }
 
 

@@ -65,26 +65,26 @@ automaton OptionalIntAutomaton
     ];
 
 
-    // constructors
-
-    @private constructor OptionalInt (@target self: OptionalInt)
-    {
-        action ERROR("Private constructor call");
-    }
-
-
-    @private constructor OptionalInt (@target self: OptionalInt, x: int)
-    {
-        action ERROR("Private constructor call");
-    }
-
-
     // utilities
 
     @AutoInline
     @static proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
+    // constructors
+
+    @private constructor OptionalInt (@target self: OptionalInt)
+    {
+        action NOT_IMPLEMENTED("this method can be called using reflection only");
+    }
+
+
+    @private constructor OptionalInt (@target self: OptionalInt, x: int)
+    {
+        action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
 
 
@@ -98,7 +98,10 @@ automaton OptionalIntAutomaton
 
     @static fun of (x: int): OptionalInt
     {
-        result = new OptionalIntAutomaton(state=Initialized, value=x, present=true);
+        result = new OptionalIntAutomaton(state = Initialized,
+            value = x,
+            present = true
+        );
     }
 
 
@@ -286,5 +289,9 @@ automaton OptionalIntAutomaton
 
 // globals
 
-val EMPTY_OPTIONAL_INT: OptionalInt = new OptionalIntAutomaton(state=Initialized, value=0, present=false);
+val EMPTY_OPTIONAL_INT: OptionalInt
+    = new OptionalIntAutomaton(state = Initialized,
+        value = 0,
+        present = false
+    );
 

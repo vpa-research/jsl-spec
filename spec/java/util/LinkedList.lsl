@@ -1,4 +1,4 @@
-//#! pragma: non-synthesizable
+///#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -36,17 +36,17 @@ import java/util/stream/_interfaces;
 automaton LinkedListAutomaton
 (
     var storage: list<Object>,
-    @transient var size: int = 0,
-    @transient var modCount: int = 0,
+    @transient var size: int
 )
 : LinkedList
 {
+    // states and shifts
 
     initstate Allocated;
     state Initialized;
 
-    // constructors
     shift Allocated -> Initialized by [
+        // constructors
         LinkedList(LinkedList),
         LinkedList(LinkedList, Collection)
     ];
@@ -66,8 +66,9 @@ automaton LinkedListAutomaton
         peekFirst,
         peekLast,
         toArray,
+        forEach,
         spliterator,
-        listIterator
+        listIterator,
 
         toString,
         hashCode,
@@ -78,7 +79,7 @@ automaton LinkedListAutomaton
         removeLast,
         addFirst,
         addLast,
-        add(Object),
+        add(LinkedList, Object),
         add(LinkedList, int, Object),
         remove(LinkedList),
         remove(LinkedList, int),
@@ -99,20 +100,13 @@ automaton LinkedListAutomaton
         removeLastOccurrence,
     ];
 
-    //constructors
 
-    constructor LinkedList (@target self: LinkedList)
-    {
-        action LIST_RESIZE(this.storage, 0);
-    }
+    // automaton instance-specific local variables
 
-    constructor LinkedList (@target self: LinkedList, @Parameterized(["E"]) c: Collection)
-    {
-        action LIST_RESIZE(this.storage, 0);
-        _addAllElements(this.size, c);
-    }
+    @transient var modCount: int = 0;
 
-    //subs
+
+    // subroutines
 
     proc _unlinkAny (index: int): Object
     {
@@ -145,13 +139,13 @@ automaton LinkedListAutomaton
 
     proc _isValidIndex (index: int): boolean
     {
-        return 0 <= index && index < this.size;
+        result = 0 <= index && index < this.size;
     }
 
 
     proc _isPositionIndex (index: int): boolean
     {
-        return 0 <= index && index <= this.size;
+        result = 0 <= index && index <= this.size;
     }
 
 
@@ -168,53 +162,72 @@ automaton LinkedListAutomaton
     proc _unlinkFirst (): Object
     {
         if (this.size == 0)
-        {
-            action THROW_NEW("java.util.NoSuchElementException", []);
-        }
+            {action THROW_NEW("java.util.NoSuchElementException", []);}
         else
-        {
-            result = _unlinkAny(0);
-        }
+            {result = _unlinkAny(0);}
     }
 
 
     proc _unlinkByFirstEqualsObject (o: Object): boolean
     {
-        val index: int = action LIST_FIND(this.storage, o, 0, this.size, 1);
+        val index: int = action LIST_FIND(this.storage, o, 0, this.size);
 
-        result = action LIST_REMOVE(this.storage, index, 1);
-
+        result = index >= 0;
         if (result)
         {
+            action LIST_REMOVE(this.storage, index);
+
             this.size -= 1;
             this.modCount += 1;
         }
     }
 
 
-    proc _addAllElements (index:int, @Parameterized(["E"]) c:Collection): boolean
+    proc _addAllElements (index: int, @Parameterized(["E"]) c: Collection): boolean
     {
-        //problem:
-        //we don't know how to avoid cycle i this method
-        action NOT_IMPLEMENTED();
+        // #todo: add optimized version when C is this automaton (HAS operator is required)
+        var i: int = 0;
+        val c_size: int = action CALL_METHOD(c, "size", []);
+
+        action LOOP_FOR(i, 0, c_size, +1, _addAllElements_loop(i, c));
+
+        this.modCount += 1;
+    }
+
+    @LambdaComponent proc _addAllElements_loop (i: int, c: Collection): void
+    {
+        val item: Object = action CALL_METHOD(c, "get", [i]);
+        action LIST_INSERT_AT(this.storage, this.size, item);
+
+        this.size += 1;
     }
 
 
     proc _getFirstElement (): Object
     {
         if (this.size == 0)
-        {
-            action THROW_NEW("java.util.NoSuchElementException", []);
-        }
+            {action THROW_NEW("java.util.NoSuchElementException", []);}
         else
-        {
-            result = action LIST_GET(this.storage, 0);
-        }
+            {result = action LIST_GET(this.storage, 0);}
+    }
+
+
+    // constructors
+
+    constructor LinkedList (@target self: LinkedList)
+    {
+        this.storage = action LIST_NEW();
+    }
+
+
+    constructor LinkedList (@target self: LinkedList, @Parameterized(["E"]) c: Collection)
+    {
+        this.storage = action LIST_NEW();
+        _addAllElements(this.size, c);
     }
 
 
     // methods
-
 
     fun getFirst (@target self: LinkedList): Object
     {
@@ -225,13 +238,9 @@ automaton LinkedListAutomaton
     fun getLast (@target self: LinkedList): Object
     {
         if (this.size == 0)
-        {
-            action THROW_NEW("java.util.NoSuchElementException", []);
-        }
+            {action THROW_NEW("java.util.NoSuchElementException", []);}
         else
-        {
-            result = action LIST_GET(this.storage, this.size - 1);
-        }
+            {result = action LIST_GET(this.storage, this.size - 1);}
     }
 
 
@@ -244,13 +253,9 @@ automaton LinkedListAutomaton
     fun removeLast (@target self: LinkedList): Object
     {
         if (this.size == 0)
-        {
-            action THROW_NEW("java.util.NoSuchElementException", []);
-        }
+            {action THROW_NEW("java.util.NoSuchElementException", []);}
         else
-        {
-            result = _unlinkAny(this.size - 1);
-        }
+            {result = _unlinkAny(this.size - 1);}
     }
 
 
@@ -268,7 +273,7 @@ automaton LinkedListAutomaton
 
     fun contains (@target self: LinkedList, o: Object): boolean
     {
-        result = action LIST_FIND(this.storage, o, 0, this.size, 1) >= 0;
+        result = action LIST_FIND(this.storage, o, 0, this.size) >= 0;
     }
 
 
@@ -305,7 +310,7 @@ automaton LinkedListAutomaton
 
     fun clear (@target self: LinkedList): void
     {
-        action LIST_RESIZE(this.storage, 0);
+        this.storage = action LIST_NEW();
         this.size = 0;
         this.modCount += 1;
     }
@@ -342,27 +347,22 @@ automaton LinkedListAutomaton
 
     fun indexOf (@target self: LinkedList, o: Object): int
     {
-        result = action LIST_FIND(storage, o, 0, size, 1);
+        result = action LIST_FIND(this.storage, o, 0, this.size);
     }
 
 
     fun lastIndexOf (@target self: LinkedList, o: Object): int
     {
-        // #problem: counting backwards
-        result = action LIST_FIND(this.storage, o, this.size, 0, -1);
+        action NOT_IMPLEMENTED("counting backwards");
     }
 
 
     fun peek (@target self: LinkedList): Object
     {
         if (this.size == 0)
-        {
-            result = null;
-        }
+            {result = null;}
         else
-        {
-            result = action LIST_GET(this.storage, 0);
-        }
+            {result = action LIST_GET(this.storage, 0);}
     }
 
 
@@ -375,13 +375,9 @@ automaton LinkedListAutomaton
     fun poll (@target self: LinkedList): Object
     {
         if (this.size == 0)
-        {
-            result = null;
-        }
+            {result = null;}
         else
-        {
-            result = _unlinkAny(0);
-        }
+            {result = _unlinkAny(0);}
     }
 
 
@@ -393,7 +389,7 @@ automaton LinkedListAutomaton
 
     fun offer (@target self: LinkedList, e: Object): boolean
     {
-        _linkAny(size, e);
+        _linkAny(this.size, e);
         result = true;
     }
 
@@ -415,52 +411,36 @@ automaton LinkedListAutomaton
     fun peekFirst (@target self: LinkedList): Object
     {
         if (this.size == 0)
-        {
-            result = null;
-        }
+            {result = null;}
         else
-        {
-            result = action LIST_GET(this.storage, 0);
-        }
+            {result = action LIST_GET(this.storage, 0);}
     }
 
 
     fun peekLast (@target self: LinkedList): Object
     {
         if (this.size == 0)
-        {
-            result = null;
-        }
+            {result = null;}
         else
-        {
-            result = action LIST_GET(this.storage, this.size - 1);
-        }
+            {result = action LIST_GET(this.storage, this.size - 1);}
     }
 
 
     fun pollFirst (@target self: LinkedList): Object
     {
         if (this.size == 0)
-        {
-            result = null;
-        }
+            {result = null;}
         else
-        {
-            result = _unlinkAny(0);
-        }
+            {result = _unlinkAny(0);}
     }
 
 
     fun pollLast (@target self: LinkedList): Object
     {
         if (this.size == 0)
-        {
-            result = null;
-        }
+            {result = null;}
         else
-        {
-            result = _unlinkAny(this.size - 1);
-        }
+            {result = _unlinkAny(this.size - 1);}
     }
 
 
@@ -484,8 +464,7 @@ automaton LinkedListAutomaton
 
     fun removeLastOccurrence (@target self: LinkedList, o: Object): boolean
     {
-        //I need think about this action
-        action NOT_IMPLEMENTED();
+        action TODO();
     }
 
 
@@ -525,13 +504,44 @@ automaton LinkedListAutomaton
     }
 
 
+    fun forEach (@target self: LinkedList, anAction: Consumer): void
+    {
+        if (anAction == null)
+            {action THROW_NEW("java.lang.NullPointerException", []);}
+
+        val expectedModCount: int = this.modCount;
+        val length: int = this.size;
+
+        var i: int = 0;
+        action LOOP_WHILE(
+            this.modCount == expectedModCount && i < length,
+            forEach_loop(i, anAction)
+        );
+
+        if (this.modCount != expectedModCount)
+            {action THROW_NEW("java.util.ConcurrentModificationException", []);}
+    }
+
+    @LambdaComponent proc forEach_loop(i: int, anAction: Consumer): void
+    {
+        val item: Object = action LIST_GET(this.storage, i);
+        action CALL(anAction, [item]);
+        i += 1;
+    }
+
+
     fun spliterator (@target self: LinkedList): Spliterator
     {
+        // #problem: not implemented
+        /*
         result = new LLSpliterator(state=Initialized,
             parent = self,
             est = -1,
             expectedModCount = 0
         );
+        */
+        result = action SYMBOLIC("java.util.Spliterator");
+        action ASSUME(result != null);
     }
 
 
@@ -539,24 +549,35 @@ automaton LinkedListAutomaton
     {
         _checkPositionIndex(index);
 
-        result = new ListItr(state=Created,
+        // #problem: not implemented
+        /*
+        result = new ListItr(state = Created,
             expectedModCount = this.modCounter
         );
+        */
+        result = action SYMBOLIC("java.util.ListIterator");
+        action ASSUME(result != null);
     }
 
     fun descendingIterator (@target self: LinkedList): Iterator
     {
-        result = new DescendingIterator(state=Created);
+        // #problem: not implemented
+        /*
+        result = new DescendingIterator(state = Created);
+        */
+        result = action SYMBOLIC("java.util.Iterator");
+        action ASSUME(result != null);
     }
 
 
     fun clone (@target self: LinkedList): Object
     {
-        storageCopy = action LIST_DUP(storage);
+        val storageCopy: list<Object> = action LIST_NEW();
+        action LIST_COPY(this.storage, storageCopy, 0, 0, this.size);
 
-        result = new LinkedListAutomaton(state=Initialized,
+        result = new LinkedListAutomaton(state = Initialized,
             storage = storageCopy,
-            size = self.size
+            size = this.size
         );
     }
 
@@ -569,7 +590,8 @@ automaton LinkedListAutomaton
 
     fun toString (@target self: LinkedList): String
     {
-        result = action OBJECT_TO_STRING(this.storage);
+        //result = action OBJECT_TO_STRING(this.storage);
+        action NOT_IMPLEMENTED("no concrete decision");
     }
 
 }
