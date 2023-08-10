@@ -66,7 +66,10 @@ typealias long    = int64;
 typealias float   = float32;
 typealias double  = float64;
 
-type Object is java.lang.Object for Object {}
+type Object is java.lang.Object for Object
+{
+    // WARNING: use OBJECT_HASH_CODE and OBJECT_EQUALS actions instead of calling these methods directly
+}
 
 
 // === ACTIONS ===
