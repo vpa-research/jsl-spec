@@ -189,9 +189,11 @@ automaton LinkedListAutomaton
 
     proc _addAllElements (index: int, @Parameterized(["E"]) c: Collection): boolean
     {
-        // #todo: add optimized version when C is this automaton (HAS operator is required)
+        // #todo: add optimized version when 'C' is this automaton (HAS operator is required)
 
         val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+        result = action CALL_METHOD(iter, "hasNext", []);
+
         action LOOP_WHILE(
             action CALL_METHOD(iter, "hasNext", []),
             _addAllElements_loop(iter)
@@ -200,13 +202,12 @@ automaton LinkedListAutomaton
         this.modCount += 1;
     }
 
-    @LambdaComponent proc _addAllElements_loop (iter: Iterator): boolean
+    @LambdaComponent proc _addAllElements_loop (iter: Iterator): void
     {
         val item: Object = action CALL_METHOD(iter, "next", []);
         action LIST_INSERT_AT(this.storage, this.size, item);
 
         this.size += 1;
-        result = true;
     }
 
 
@@ -471,28 +472,27 @@ automaton LinkedListAutomaton
 
     fun removeLastOccurrence (@target self: LinkedList, o: Object): boolean
     {
-        var index: int = -1;
-
-        var i: int = 0;
-        action LOOP_FOR(i, this.size - 1, 0, -1, removeLastOccurrence_loop(i, o, index));
-
-        result = index >= 0;
-        if (result)
+        val index: int = action LIST_FIND(this.storage, o, 0, this.size);
+        if (index == -1)
         {
-            action LIST_REMOVE(this.storage, index);
+            result = false;
+        }
+        else
+        {
+            result = true;
 
+            // there should be no elements to the right of the previously found position
+            val nextIndex: int = index + 1;
+            if (nextIndex < this.size)
+            {
+                val rightIndex: int = action LIST_FIND(this.storage, o, nextIndex, this.size);
+                action ASSUME(rightIndex == -1);
+            }
+
+            // actual removal and associated modifications
+            action LIST_REMOVE(this.storage, index);
             this.size -= 1;
             this.modCount += 1;
-        }
-    }
-
-    @LambdaComponent proc removeLastOccurrence_loop (i: int, o: Object, index: int): void
-    {
-        val item: Object = action LIST_GET(this.storage, i);
-        if (item == o)
-        {
-            index = i;
-            action LOOP_BREAK;
         }
     }
 
