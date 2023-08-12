@@ -237,7 +237,7 @@ automaton OptionalLongAutomaton
 
 
     @Parameterized(["X extends java.lang.Throwable"])
-    @throws(["X"])
+    @throws(["java.lang.Throwable"])
     fun orElseThrow(@target self: OptionalLong, @Parameterized(["? extends X"]) exceptionSupplier: Supplier): long
     {
         requires exceptionSupplier != null;

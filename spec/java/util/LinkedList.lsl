@@ -134,7 +134,7 @@ automaton LinkedListAutomaton
             val message: String =
                 "Index: " + action OBJECT_TO_STRING(index) +
                 ", Size: " + action OBJECT_TO_STRING(this.size);
-            action THROW_NEW("java.util.IndexOutOfBoundsException", [message]);
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
         }
     }
 
@@ -158,7 +158,7 @@ automaton LinkedListAutomaton
             val message: String =
                 "Index: " + action OBJECT_TO_STRING(index) +
                 ", Size: " + action OBJECT_TO_STRING(this.size);
-            action THROW_NEW("java.util.IndexOutOfBoundsException", [message]);
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
         }
     }
 
@@ -196,17 +196,18 @@ automaton LinkedListAutomaton
 
         action LOOP_WHILE(
             action CALL_METHOD(iter, "hasNext", []),
-            _addAllElements_loop(iter)
+            _addAllElements_loop(iter, index)
         );
 
         this.modCount += 1;
     }
 
-    @LambdaComponent proc _addAllElements_loop (iter: Iterator): void
+    @LambdaComponent proc _addAllElements_loop (iter: Iterator, index: int): void
     {
         val item: Object = action CALL_METHOD(iter, "next", []);
-        action LIST_INSERT_AT(this.storage, this.size, item);
+        action LIST_INSERT_AT(this.storage, index, item);
 
+        index += 1;
         this.size += 1;
     }
 

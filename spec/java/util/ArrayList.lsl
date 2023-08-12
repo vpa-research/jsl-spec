@@ -32,10 +32,11 @@ import java/util/stream/_interfaces;
 
 
 @GenerateMe
-@implements("java.util.ListIterator")
+//@implements("java.util.ListIterator")
+@implements("java.util.Iterator")
 @public @final type ArrayList_ListIterator
     is java.util.ArrayList_ListItr  // NOTE: do not use inner classes
-    for ListIterator
+    for Iterator
 {
 }
 
@@ -423,7 +424,7 @@ automaton ArrayListAutomaton
                     result = false;
                 }
 
-                action DEBUG_DO("other._checkForComodification(otherExpectedModCount)"); // #problem
+                action DEBUG_DO("((ArrayList) other)._checkForComodification(otherExpectedModCount)"); // #problem
                 _checkForComodification(expectedModCount);
             }
             else
@@ -517,21 +518,27 @@ automaton ArrayListAutomaton
     {
         _rangeCheckForAdd(index);
 
+        /*
         result = new ArrayList_ListIteratorAutomaton(state = Initialized,
             parent = self,
             cursor = index,
             expectedModCount = this.modCount
         );
+        */
+        action NOT_IMPLEMENTED("testing creation and usage of new types");
     }
 
 
     fun listIterator (@target self: ArrayList): ListIterator
     {
+        /*
         result = new ArrayList_ListIteratorAutomaton(state = Initialized,
             parent = self,
             cursor = 0,
             expectedModCount = this.modCount
         );
+        */
+        action NOT_IMPLEMENTED("testing creation and usage of new types");
     }
 
 
@@ -694,15 +701,22 @@ automaton ArrayList_ListIteratorAutomaton
     initstate Initialized;
 
     shift Initialized -> self by [
-       hasPrevious,
+       hasNext,
+       next,
     ];
 
 
     // methods
 
-    fun hasPrevious (@target self: ArrayList_ListIterator): boolean
+    fun hasNext (@target self: ArrayList_ListIterator): boolean
     {
         result = this.cursor != 0;
+    }
+
+
+    fun next (@target self: ArrayList_ListIterator): Object
+    {
+        result = action SYMBOLIC("java.lang.Object");
     }
 }
 

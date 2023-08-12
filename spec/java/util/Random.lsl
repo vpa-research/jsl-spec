@@ -72,13 +72,13 @@ automaton RandomAutomaton: Random
 
     constructor Random (@target self: Random)
     {
-        action TODO();
+        // nothing
     }
 
 
-    constructor Random (@target self: Random, arg0: long)
+    constructor Random (@target self: Random, seed: long)
     {
-        action TODO();
+        // nothing
     }
 
 
@@ -90,73 +90,97 @@ automaton RandomAutomaton: Random
 
     fun doubles (@target self: Random): DoubleStream
     {
-        action TODO();
+        // #problem: no streams yet
+        result = action SYMBOLIC("java.util.stream.DoubleStream");
+        action ASSUME(result != null);
     }
 
 
     fun doubles (@target self: Random, arg0: double, arg1: double): DoubleStream
     {
-        action TODO();
+        // #problem: no streams yet
+        result = action SYMBOLIC("java.util.stream.DoubleStream");
+        action ASSUME(result != null);
     }
 
 
     fun doubles (@target self: Random, arg0: long): DoubleStream
     {
-        action TODO();
+        // #problem: no streams yet
+        result = action SYMBOLIC("java.util.stream.DoubleStream");
+        action ASSUME(result != null);
     }
 
 
     fun doubles (@target self: Random, arg0: long, arg1: double, arg2: double): DoubleStream
     {
-        action TODO();
+        // #problem: no streams yet
+        result = action SYMBOLIC("java.util.stream.DoubleStream");
+        action ASSUME(result != null);
     }
 
 
     fun ints (@target self: Random): IntStream
     {
-        action TODO();
+        // #problem: no streams yet
+        result = action SYMBOLIC("java.util.stream.IntStream");
+        action ASSUME(result != null);
     }
 
 
     fun ints (@target self: Random, arg0: int, arg1: int): IntStream
     {
-        action TODO();
+        // #problem: no streams yet
+        result = action SYMBOLIC("java.util.stream.IntStream");
+        action ASSUME(result != null);
     }
 
 
     fun ints (@target self: Random, arg0: long): IntStream
     {
-        action TODO();
+        // #problem: no streams yet
+        result = action SYMBOLIC("java.util.stream.IntStream");
+        action ASSUME(result != null);
     }
 
 
     fun ints (@target self: Random, arg0: long, arg1: int, arg2: int): IntStream
     {
-        action TODO();
+        // #problem: no streams yet
+        result = action SYMBOLIC("java.util.stream.IntStream");
+        action ASSUME(result != null);
     }
 
 
     fun longs (@target self: Random): LongStream
     {
-        action TODO();
+        // #problem: no streams yet
+        result = action SYMBOLIC("java.util.stream.LongStream");
+        action ASSUME(result != null);
     }
 
 
     fun longs (@target self: Random, arg0: long): LongStream
     {
-        action TODO();
+        // #problem: no streams yet
+        result = action SYMBOLIC("java.util.stream.LongStream");
+        action ASSUME(result != null);
     }
 
 
     fun longs (@target self: Random, arg0: long, arg1: long): LongStream
     {
-        action TODO();
+        // #problem: no streams yet
+        result = action SYMBOLIC("java.util.stream.LongStream");
+        action ASSUME(result != null);
     }
 
 
     fun longs (@target self: Random, arg0: long, arg1: long, arg2: long): LongStream
     {
-        action TODO();
+        // #problem: no streams yet
+        result = action SYMBOLIC("java.util.stream.LongStream");
+        action ASSUME(result != null);
     }
 
 
@@ -166,9 +190,20 @@ automaton RandomAutomaton: Random
     }
 
 
-    fun nextBytes (@target self: Random, arg0: array<byte>): void
+    fun nextBytes (@target self: Random, bytes: array<byte>): void
     {
-        action TODO();
+        // #problem: is there a more efficient way?
+        val size: int = action ARRAY_SIZE(bytes);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, size, +1,
+            nextBytes_loop(i, bytes)
+        );
+    }
+
+    @LambdaComponent proc nextBytes_loop (i: int, bytes: array<byte>): void
+    {
+        bytes[i] = action SYMBOLIC("byte");
     }
 
 
@@ -193,7 +228,7 @@ automaton RandomAutomaton: Random
     @synchronized fun nextGaussian (@target self: Random): double
     {
         result = action SYMBOLIC("double");
-        // #problem: result cant be NaN
+        // #problem: result should not be NaN
     }
 
 
