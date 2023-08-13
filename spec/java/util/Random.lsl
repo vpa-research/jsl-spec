@@ -201,7 +201,7 @@ automaton RandomAutomaton: Random
         );
     }
 
-    @LambdaComponent proc nextBytes_loop (i: int, bytes: array<byte>): void
+    @Phantom proc nextBytes_loop (i: int, bytes: array<byte>): void
     {
         bytes[i] = action SYMBOLIC("byte");
     }

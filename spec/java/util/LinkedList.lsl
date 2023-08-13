@@ -202,7 +202,7 @@ automaton LinkedListAutomaton
         this.modCount += 1;
     }
 
-    @LambdaComponent proc _addAllElements_loop (iter: Iterator, index: int): void
+    @Phantom proc _addAllElements_loop (iter: Iterator, index: int): void
     {
         val item: Object = action CALL_METHOD(iter, "next", []);
         action LIST_INSERT_AT(this.storage, index, item);
@@ -538,7 +538,7 @@ automaton LinkedListAutomaton
         }
     }
 
-    @LambdaComponent proc toArray_loop(i: int): array<Object>
+    @Phantom proc toArray_loop(i: int): array<Object>
     {
         result[i] = action LIST_GET(this.storage, i);
     }
@@ -562,7 +562,7 @@ automaton LinkedListAutomaton
             {action THROW_NEW("java.util.ConcurrentModificationException", []);}
     }
 
-    @LambdaComponent proc forEach_loop(i: int, anAction: Consumer): void
+    @Phantom proc forEach_loop(i: int, anAction: Consumer): void
     {
         val item: Object = action LIST_GET(this.storage, i);
         action CALL(anAction, [item]);

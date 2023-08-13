@@ -149,7 +149,7 @@ automaton ArrayListAutomaton
         this.modCount += 1;
     }
 
-    @LambdaComponent proc _addAllElements_loop (iter: Iterator, index: int): void
+    @Phantom proc _addAllElements_loop (iter: Iterator, index: int): void
     {
         val item: Object = action CALL_METHOD(iter, "next", []);
         action LIST_INSERT_AT(this.storage, index, item);
@@ -226,7 +226,7 @@ automaton ArrayListAutomaton
     }
 
 
-    @AutoInline @LambdaComponent proc _throwNPE (): void
+    @AutoInline @Phantom proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
     }
@@ -246,7 +246,7 @@ automaton ArrayListAutomaton
             {action THROW_NEW("java.util.ConcurrentModificationException", []);}
     }
 
-    @LambdaComponent proc _replaceAllRange_loop (i: int, op: UnaryOperator): void
+    @Phantom proc _replaceAllRange_loop (i: int, op: UnaryOperator): void
     {
         val oldItem: Object = action LIST_GET(this.storage, i);
         val newItem: Object = action CALL(op, [oldItem]);
@@ -367,7 +367,7 @@ automaton ArrayListAutomaton
 
 
     // #problem/todo: use exact parameter names
-    @LambdaComponent proc toArray_loop(i: int): array<Object>
+    @Phantom proc toArray_loop(i: int): array<Object>
     {
         result[i] = action LIST_GET(this.storage, i);
     }
@@ -629,7 +629,7 @@ automaton ArrayListAutomaton
             {action THROW_NEW("java.util.ConcurrentModificationException", []);}
     }
 
-    @LambdaComponent proc forEach_loop(i: int, anAction: Consumer): void
+    @Phantom proc forEach_loop(i: int, anAction: Consumer): void
     {
         val item: Object = action LIST_GET(this.storage, i);
         action CALL(anAction, [item]);
@@ -987,7 +987,7 @@ automaton ArrayList_ListIteratorAutomaton
         }
     }
 
-    @LambdaComponent proc forEachRemaining_loop (userAction: Consumer, es: list<Object>, i: int): void
+    @Phantom proc forEachRemaining_loop (userAction: Consumer, es: list<Object>, i: int): void
     {
         val item: Object = action LIST_GET(es, i);
         action CALL(userAction, [item]);
