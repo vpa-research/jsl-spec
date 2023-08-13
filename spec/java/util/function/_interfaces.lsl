@@ -38,7 +38,7 @@ type BinaryOperator
     is java.util.function.BinaryOperator
     for BiFunction
 {
-    fun apply(ta: Object, tb: Object): Object;
+    // fun apply(ta: Object, tb: Object): Object;
 }
 
 
@@ -376,5 +376,5 @@ type UnaryOperator
     is java.util.function.UnaryOperator
     for Function
 {
-    fun apply(t: Object): Object;
+    // fun apply(t: Object): Object;
 }
