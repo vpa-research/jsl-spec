@@ -362,7 +362,17 @@ automaton LinkedListAutomaton
 
     fun lastIndexOf (@target self: LinkedList, o: Object): int
     {
-        action NOT_IMPLEMENTED("counting backwards");
+        result = action LIST_FIND(this.storage, o, 0, this.size);
+        if (result != -1)
+        {
+            // there should be no elements to the right of the previously found position
+            val nextIndex: int = result + 1;
+            if (nextIndex < this.size)
+            {
+                val rightIndex: int = action LIST_FIND(this.storage, o, nextIndex, this.size);
+                action ASSUME(rightIndex == -1);
+            }
+        }
     }
 
 
@@ -523,14 +533,14 @@ automaton LinkedListAutomaton
                 toArray_loop(i) // result assignment is implicit
             );
 
-            if (aLen > length) { action ARRAY_SET(result, length, null); }
+            if (aLen > length)
+                {result[length] = null;}
         }
     }
 
     @LambdaComponent proc toArray_loop(i: int): array<Object>
     {
-        val item: Object = action LIST_GET(this.storage, i);
-        action ARRAY_SET(result, i, item);
+        result[i] = action LIST_GET(this.storage, i);
     }
 
 
@@ -620,8 +630,7 @@ automaton LinkedListAutomaton
 
     fun toString (@target self: LinkedList): String
     {
-        //result = action OBJECT_TO_STRING(this.storage);
-        action NOT_IMPLEMENTED("no concrete decision");
+        result = action OBJECT_TO_STRING(this.storage);
     }
 
 }

@@ -134,18 +134,28 @@ automaton ArrayListAutomaton
     }
 
 
-    proc _addAllElements (index: int, c: Collection): boolean
+    proc _addAllElements (index: int, @Parameterized(["E"]) c: Collection): boolean
     {
+        // #todo: add optimized version when 'C' is this automaton (HAS operator is required)
+
+        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+        result = action CALL_METHOD(iter, "hasNext", []);
+
+        action LOOP_WHILE(
+            action CALL_METHOD(iter, "hasNext", []),
+            _addAllElements_loop(iter, index)
+        );
+
         this.modCount += 1;
+    }
 
-        // #problem:
-        //we don't know how to avoid cycle in this method;
-        //for e in c:
-        //   storage.add(e);
-        action NOT_IMPLEMENTED("interface call support");
+    @LambdaComponent proc _addAllElements_loop (iter: Iterator, index: int): void
+    {
+        val item: Object = action CALL_METHOD(iter, "next", []);
+        action LIST_INSERT_AT(this.storage, index, item);
 
-        //At this moment we can't work with Collection, because this is interface.
-        //this.length = this.length + c.size();
+        index += 1;
+        this.length += 1;
     }
 
 
@@ -222,6 +232,30 @@ automaton ArrayListAutomaton
     }
 
 
+    proc _replaceAllRange (i: int, end: int, @Parameterized(["E"]) op: UnaryOperator): void
+    {
+        val expectedModCount: int = this.modCount;
+
+        var i: int = 0;
+        action LOOP_WHILE(
+            this.modCount == expectedModCount && i < end,
+            _replaceAllRange_loop(i, op)
+        );
+
+        if (this.modCount != expectedModCount)
+            {action THROW_NEW("java.util.ConcurrentModificationException", []);}
+    }
+
+    @LambdaComponent proc _replaceAllRange_loop (i: int, op: UnaryOperator): void
+    {
+        val oldItem: Object = action LIST_GET(this.storage, i);
+        val newItem: Object = action CALL(op, [oldItem]);
+        action LIST_SET(this.storage, i, newItem);
+
+        i += 1;
+    }
+
+
     //constructors
 
     constructor ArrayList (@target self: ArrayList, initialCapacity: int)
@@ -238,15 +272,16 @@ automaton ArrayListAutomaton
     constructor ArrayList (@target self: ArrayList)
     {
         this.storage = action LIST_NEW();
+        this.length = 0;
     }
 
 
     constructor ArrayList (@target self: ArrayList, c: Collection)
     {
         this.storage = action LIST_NEW();
+        this.length = 0;
 
-        // #problem: loops, interface calls
-        action NOT_IMPLEMENTED("interface calls are not supported yet");
+        _addAllElements(0, c);
     }
 
 
@@ -290,12 +325,19 @@ automaton ArrayListAutomaton
     }
 
 
-
     fun lastIndexOf (@target self: ArrayList, o: Object): int
     {
-        // #problem: counting backwards?
-        // result = action LIST_FIND_LAST(this.storage, o, 0, this.length);
-        action NOT_IMPLEMENTED("searching through lists backwards");
+        result = action LIST_FIND(this.storage, o, 0, this.length);
+        if (result != -1)
+        {
+            // there should be no elements to the right of the previously found position
+            val nextIndex: int = result + 1;
+            if (nextIndex < this.length)
+            {
+                val rightIndex: int = action LIST_FIND(this.storage, o, nextIndex, this.length);
+                action ASSUME(rightIndex == -1);
+            }
+        }
     }
 
 
@@ -319,18 +361,15 @@ automaton ArrayListAutomaton
         var i: int = 0;
         action LOOP_FOR(
             i, 0, size, +1,
-            _javaToArray_loop(i) // result assignment is implicit
+            toArray_loop(i) // result assignment is implicit
         );
     }
 
 
     // #problem/todo: use exact parameter names
-    @LambdaComponent proc _javaToArray_loop(i: int): array<Object>
+    @LambdaComponent proc toArray_loop(i: int): array<Object>
     {
-        val item: Object = action LIST_GET(this.storage, i);
-        action ARRAY_SET(result, i, item);
-        // #problem: arguments should be mutable to support WHILE action
-        //i += 1;
+        result[i] = action LIST_GET(this.storage, i);
     }
 
 
@@ -347,7 +386,7 @@ automaton ArrayListAutomaton
 
             action LOOP_FOR(
                 i, 0, size, +1,
-                _javaToArray_loop(i) // result assignment is implicit
+                toArray_loop(i) // result assignment is implicit
             );
         }
         else
@@ -356,10 +395,11 @@ automaton ArrayListAutomaton
 
             action LOOP_FOR(
                 i, 0, size, +1,
-                _javaToArray_loop(i) // result assignment is implicit
+                toArray_loop(i) // result assignment is implicit
             );
 
-            if (aLen > size) { action ARRAY_SET(result, size, null); }
+            if (aLen > size)
+                {result[size] = null;}
         }
     }
 
@@ -424,7 +464,8 @@ automaton ArrayListAutomaton
                     result = false;
                 }
 
-                action DEBUG_DO("((ArrayList) other)._checkForComodification(otherExpectedModCount)"); // #problem
+                // #problem
+                action DEBUG_DO("((ArrayList) other)._checkForComodification(otherExpectedModCount)");
                 _checkForComodification(expectedModCount);
             }
             else
@@ -437,13 +478,13 @@ automaton ArrayListAutomaton
 
     fun toString (@target self: ArrayList): String
     {
-        action NOT_IMPLEMENTED("no concrete decision");
+        result = action OBJECT_TO_STRING(this.storage);
     }
 
 
     fun hashCode (@target self: ArrayList): int
     {
-         result = action OBJECT_HASH_CODE(this.storage);
+        result = action OBJECT_HASH_CODE(this.storage);
     }
 
 
@@ -592,6 +633,7 @@ automaton ArrayListAutomaton
     {
         val item: Object = action LIST_GET(this.storage, i);
         action CALL(anAction, [item]);
+
         i += 1;
     }
 
@@ -643,38 +685,28 @@ automaton ArrayListAutomaton
     }
 
 
-    fun replaceAll (@target self: ArrayList, op: UnaryOperator): void
+    fun replaceAll (@target self: ArrayList, @Parameterized(["E"]) op: UnaryOperator): void
     {
         if (op == null)
-        {
-            _throwNPE();
-        }
+            {_throwNPE();}
 
-        val expectedModCount: int = modCount;
-
-        // #problem: loop with interface calls
-        action NOT_IMPLEMENTED("no support for interface calls");
-
-        if (this.modCount != expectedModCount)
-        {
-            action THROW_NEW("java.util.ConcurrentModificationException", []);
-        }
-
+        _replaceAllRange(0, this.length, op);
         this.modCount += 1;
     }
 
 
     fun sort (@target self: ArrayList, c: Comparator): void
     {
-        val expectedModCount: int = modCount;
+        if (c == null)
+            {_throwNPE();}
+
+        val expectedModCount: int = this.modCount;
 
         // #problem: loops, extremely complex
-        action NOT_IMPLEMENTED("too complex, no decision");
+        action NOT_IMPLEMENTED("too complex, no decision yet");
 
         if (this.modCount != expectedModCount)
-        {
-            action THROW_NEW("java.util.ConcurrentModificationException", []);
-        }
+            {action THROW_NEW("java.util.ConcurrentModificationException", []);}
 
         this.modCount += 1;
     }
