@@ -36,7 +36,7 @@ annotation GenerateMe;
 
 // disables code generation for subroutine and uses its body as an element for loop or other structure
 // should be used only on subroutines
-annotation LambdaComponent;
+annotation Phantom;
 
 
 // The merked method does not return to normal execution.
