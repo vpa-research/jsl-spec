@@ -236,7 +236,6 @@ automaton ArrayListAutomaton
     {
         val expectedModCount: int = this.modCount;
 
-        var i: int = 0;
         action LOOP_WHILE(
             this.modCount == expectedModCount && i < end,
             _replaceAllRange_loop(i, op)
@@ -258,6 +257,13 @@ automaton ArrayListAutomaton
 
     //constructors
 
+    constructor ArrayList (@target self: ArrayList)
+    {
+        this.storage = action LIST_NEW();
+        this.length = 0;
+    }
+
+
     constructor ArrayList (@target self: ArrayList, initialCapacity: int)
     {
         if (initialCapacity < 0)
@@ -266,18 +272,15 @@ automaton ArrayListAutomaton
             action THROW_NEW("java.lang.IllegalArgumentException", [message]);
         }
         this.storage = action LIST_NEW();
-    }
-
-
-    constructor ArrayList (@target self: ArrayList)
-    {
-        this.storage = action LIST_NEW();
         this.length = 0;
     }
 
 
     constructor ArrayList (@target self: ArrayList, c: Collection)
     {
+        if (c == null)
+            {_throwNPE();}
+
         this.storage = action LIST_NEW();
         this.length = 0;
 
@@ -655,9 +658,7 @@ automaton ArrayListAutomaton
     fun removeIf (@target self: ArrayList, filter: Predicate): boolean
     {
         if (filter == null)
-        {
-            _throwNPE();
-        }
+            {_throwNPE();}
 
         val expectedModCount: int = modCount;
 
@@ -742,13 +743,15 @@ automaton ArrayList_ListIteratorAutomaton
 
     fun hasNext (@target self: ArrayList_ListIterator): boolean
     {
-        result = this.cursor != 0;
+        action ASSUME(this.parent != null);
+        result = this.cursor < action DEBUG_DO("parent.length");
     }
 
 
     fun next (@target self: ArrayList_ListIterator): Object
     {
         result = action SYMBOLIC("java.lang.Object");
+        this.cursor += 1;
     }
 }
 

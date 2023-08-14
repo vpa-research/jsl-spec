@@ -226,12 +226,18 @@ automaton LinkedListAutomaton
     constructor LinkedList (@target self: LinkedList)
     {
         this.storage = action LIST_NEW();
+        this.size = 0;
     }
 
 
     constructor LinkedList (@target self: LinkedList, @Parameterized(["E"]) c: Collection)
     {
+        if (c == null)
+            {action THROW_NEW("java.lang.NullPointerException", []);}
+
         this.storage = action LIST_NEW();
+        this.size = 0;
+
         _addAllElements(this.size, c);
     }
 
