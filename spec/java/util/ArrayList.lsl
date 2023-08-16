@@ -724,52 +724,6 @@ automaton ArrayList_ListIteratorAutomaton
 )
 : ArrayList_ListIterator
 {
-    // local variables
-
-    var lastRet: int = -1;
-
-
-    // states and shifts
-
-    initstate Initialized;
-
-    shift Initialized -> self by [
-       hasNext,
-       next,
-    ];
-
-
-    // methods
-
-    fun hasNext (@target self: ArrayList_ListIterator): boolean
-    {
-        action ASSUME(this.parent != null);
-        result = this.cursor < action DEBUG_DO("parent.length");
-    }
-
-
-    fun next (@target self: ArrayList_ListIterator): Object
-    {
-        result = action SYMBOLIC("java.lang.Object");
-        this.cursor += 1;
-    }
-}
-
-
-/*
-automaton ArrayList_ListIteratorAutomaton
-(
-    var parent: ArrayList,
-    var cursor: int,
-    var expectedModCount: int
-)
-: ArrayList_ListIterator
-{
-    // local variables
-
-    var lastRet: int = -1;
-
-
     // states and shifts
 
     initstate Initialized;
@@ -788,6 +742,11 @@ automaton ArrayList_ListIteratorAutomaton
     ];
 
 
+    // local variables
+
+    var lastRet: int = -1;
+
+
     // utilities
 
     proc _checkForComodification(): void
@@ -795,7 +754,7 @@ automaton ArrayList_ListIteratorAutomaton
         // relax state/error discovery process
         action ASSUME(this.parent != null);
 
-        val modCount: int = ArrayListAutomaton(parent).modCount;
+        val modCount: int = action DEBUG_DO("parent.modCount");
         if (modCount != this.expectedModCount)
             {action THROW_NEW("java.util.ConcurrentModificationException", []);}
     }
@@ -826,7 +785,7 @@ automaton ArrayList_ListIteratorAutomaton
         // relax state/error discovery process
         action ASSUME(this.parent != null);
 
-        result = this.cursor != ArrayListAutomaton(this.parent).length;
+        result = this.cursor != action DEBUG_DO("parent.length");
     }
 
 
@@ -837,10 +796,10 @@ automaton ArrayList_ListIteratorAutomaton
 
         _checkForComodification();
 
-        val parentStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
+        val parentStorage: list<Object> = action DEBUG_DO("parent.storage");
 
         val i: int = this.cursor;
-        if (i >= ArrayListAutomaton(this.parent).length)
+        if (i >= action DEBUG_DO("parent.length"))
             {action THROW_NEW("java.util.NoSuchElementException", []);}
 
         // iterrator validity check
@@ -861,7 +820,7 @@ automaton ArrayList_ListIteratorAutomaton
 
         _checkForComodification();
 
-        val parentStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
+        val parentStorage: list<Object> = action DEBUG_DO("parent.storage");
 
         val i: int = this.cursor - 1;
         if (i < 0)
@@ -888,27 +847,27 @@ automaton ArrayList_ListIteratorAutomaton
 
         _checkForComodification();
 
-        val pStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
+        val pStorage: list<Object> = action DEBUG_DO("parent.storage");
         if (this.lastRet >= action LIST_SIZE(pStorage))
         {
             action THROW_NEW("java.util.ConcurrentModificationException", []);
         }
         else
         {
-            ArrayListAutomaton(this.parent).modCount += 1;
+            action DEBUG_DO("parent.modCount += 1");
 
             action LIST_REMOVE(pStorage, this.lastRet);
 
-            ArrayListAutomaton(this.parent).length -= 1;
+            action DEBUG_DO("parent.length -= 1");
         }
 
         this.cursor = this.lastRet;
         this.lastRet = -1;
-        this.expectedModCount = ArrayListAutomaton(this.parent).modCount;
+        this.expectedModCount = action DEBUG_DO("parent.modCount");
     }
 
 
-    fun set (@target self: ArrayList_ListIterator) e: Object): void
+    fun set (@target self: ArrayList_ListIterator, e: Object): void
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
@@ -918,7 +877,7 @@ automaton ArrayList_ListIteratorAutomaton
 
         _checkForComodification();
 
-        val pStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
+        val pStorage: list<Object> = action DEBUG_DO("parent.storage");
         if (this.lastRet >= action LIST_SIZE(pStorage))
         {
             action THROW_NEW("java.util.ConcurrentModificationException", []);
@@ -930,7 +889,7 @@ automaton ArrayList_ListIteratorAutomaton
     }
 
 
-    fun add (@target self: ArrayList_ListIterator) e: Object): void
+    fun add (@target self: ArrayList_ListIterator, e: Object): void
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
@@ -939,27 +898,27 @@ automaton ArrayList_ListIteratorAutomaton
 
         val i: int = this.cursor;
 
-        val pStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
+        val pStorage: list<Object> = action DEBUG_DO("parent.storage");
         if (this.lastRet > action LIST_SIZE(pStorage))
         {
             action THROW_NEW("java.util.ConcurrentModificationException", []);
         }
         else
         {
-            ArrayListAutomaton(this.parent).modCount += 1;
+            action DEBUG_DO("parent.modCount += 1");
 
             action LIST_INSERT_AT(pStorage, i, e);
 
-            ArrayListAutomaton(this.parent).length += 1;
+            action DEBUG_DO("parent.length += 1");
         }
 
         this.cursor = i + 1;
         this.lastRet = -1;
-        this.expectedModCount = ArrayListAutomaton(this.parent).modCount;
+        this.expectedModCount = action DEBUG_DO("parent.modCount");
     }
 
 
-    fun forEachRemaining (@target self: ArrayList_ListIterator) userAction: Consumer): void
+    fun forEachRemaining (@target self: ArrayList_ListIterator, userAction: Consumer): void
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
@@ -968,18 +927,18 @@ automaton ArrayList_ListIteratorAutomaton
             {action THROW_NEW("java.lang.NullPointerException", []);}
 
         var i: int = this.cursor;
-        val size: int = ArrayListAutomaton(this.parent).length;
+        val size: int = action DEBUG_DO("parent.length");
 
         if (i < size)
         {
-            val es: list<Object> = ArrayListAutomaton(this.parent).storage;
+            val es: list<Object> = action DEBUG_DO("parent.storage");
 
             if (i >= action LIST_SIZE(es))
                 {action THROW_NEW("java.util.ConcurrentModificationException", []);}
 
             // using this exact loop form here due to coplex termination expression
             action LOOP_WHILE(
-                i < size && ArrayListAutomaton(this.parent).modCount == this.expectedModCount,
+                i < size && action DEBUG_DO("parent.modCount") == this.expectedModCount,
                 forEachRemaining_loop(userAction, es, i)
             );
 
@@ -998,7 +957,6 @@ automaton ArrayList_ListIteratorAutomaton
     }
 
 }
-// */
 
 
 
