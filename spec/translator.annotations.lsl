@@ -19,7 +19,7 @@ annotation AnnotatedWith (
 
 
 // Forces the body of a specified subroutine to be copy-pasted at the callsite.
-annotation AutoInline;
+annotation AutoInline ();
 
 
 // The marked feature is no longer needed or required.
@@ -31,16 +31,16 @@ annotation Deprecated (
 
 // The declared type have no direct connection any of the existing JSL classes,
 // thus requiring the creation of a completely new one.
-annotation GenerateMe;
+annotation GenerateMe ();
 
 
 // disables code generation for subroutine and uses its body as an element for loop or other structure
 // should be used only on subroutines
-annotation Phantom;
+annotation Phantom ();
 
 
 // The merked method does not return to normal execution.
-annotation NoReturn;
+annotation NoReturn ();
 
 
 // unused
@@ -56,7 +56,7 @@ annotation ParameterizedResult (
 
 
 // The marked action stops execution of current control flow by throwing exception or other means.
-annotation StopsControlFlow;
+annotation StopsControlFlow ();
 
 
 // unused
