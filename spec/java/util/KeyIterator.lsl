@@ -32,10 +32,11 @@ import "list-actions.lsl";
 (
     var index: int = 0;
     var destStorage: map = null;
+    var currentKey: K = null;
     var nextWasCalled: boolean = false;
     var expectedModCount: int;
-    val sourceStorage: map;
-    var length: int;
+    var sourceStorage: map;
+    var parent: HashSet;
 )
 {
     // states and shifts
@@ -63,23 +64,37 @@ import "list-actions.lsl";
 
     // utilities
 
+    @AutoInline
+    proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+    proc _checkForComodification (): void
+    {
+        val modCount: int = HashSetAutomaton(this.parent).modCount;
+        if (this.expectedModCount != modCount)
+        {
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+        }
+    }
+
     // static methods
 
     // methods
 
     fun hasNext (@target obj: KeyIterator): boolean
     {
-        result = this.index < this.length;
+        val length: int = action MAP_SIZE(map);
+        result = this.index < length;
     }
 
     @final fun next (@target obj: KeyIterator): K
     {
-        // Problem - change modCount.
-        // Before was such: this.parent._checkForModifications(this.expectedModCount).
-        // Now we don't have parent.
-        // https://docs.google.com/document/d/17fQBVGENeliEInbk80q9V6wO_lTYv-7MjVCuZFaswEM/edit
+        _checkForComodification();
 
-        val atValidPosition: boolean = this.index < this.length;
+        val length: int = action MAP_SIZE(map);
+        val atValidPosition: boolean = this.index < length;
         if (!atValidPosition)
         {
             action THROW_NEW("java.util.NoSuchElementException", []);
@@ -87,36 +102,34 @@ import "list-actions.lsl";
 
         val key = engine.makeSymbolic(K);
         val sourceStorageHasKey = action MAP_HAS_KEY(this.sourceStorage, key);
-        result = key;
         // Assume must be always on the bottom of the method body or not ?
         assume(sourceStorageHasKey);
         val destStorageHasKey = action MAP_HAS_KEY(this.destStorage, key);
         assume(!destStorageHasKey);
 
-        action MAP_SET(this.destStorage, key, this.mockedValue);
+        currentKey = key;
+        result = key;
+
+        action MAP_SET(this.destStorage, currentKey, this.mockedValue);
         this.index += 1;
         this.nextWasCalled = true;
     }
 
     fun remove (): void
     {
-        val atValidPosition: boolean = this.index < this.length;
+        val length: int = action MAP_SIZE(map);
+        val atValidPosition: boolean = this.index < length;
         if (!atValidPosition || !this.nextWasCalled)
         {
             action THROW_NEW("java.lang.IllegalStateException", []);
         }
         this.nextWasCalled = false;
 
-        // Problem - change modCount.
-        // Before was such: this.parent._checkForModifications(this.expectedModCount).
+        _checkForComodification();
 
-        val key = engine.makeSymbolic(K);
-        val hasKey = action MAP_HAS_KEY(this.sourceStorage, key);
-        assume(hasKey);
-        action MAP_REMOVE(this.sourceStorage, key);
+        action MAP_REMOVE(this.sourceStorage, currentKey);
 
-        // Problem - change modCount.
-        // Before was such: this.expectedModCount = this.parent.modCounter.
+        this.expectedModCount = HashSetAutomaton(this.parent).modCount;
     }
 
 }
