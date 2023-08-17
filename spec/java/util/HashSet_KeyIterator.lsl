@@ -8,7 +8,7 @@ library "std:???"
 // imports
 
 import "java-common.lsl";
-import "java/util/HashMap.lsl";
+import "java/util/HashSet.lsl";
 
 import "list-actions.lsl";
 
@@ -18,8 +18,8 @@ import "list-actions.lsl";
 @GenerateMe
 @implements("java.util.Iterator")
 @public @final type KeyIterator
-    is java.util.HashMap_KeyIterator
-    for Iterator, Object
+    is java.util.HashSet_KeyIterator
+    for Iterator
 {
 }
 
@@ -30,12 +30,13 @@ val HASHSET_KEYITERATOR_VALUE: Object = 0;
 
 // automata
 
-automaton KeyIteratorAutomaton: KeyIterator
+automaton HashSet_KeyIteratorAutomaton
 (
     var expectedModCount: int;
-    var visitedKeys: map;
+    var visitedKeys: map<Object, Object>;
     var parent: HashSet;
 )
+: KeyIterator
 {
 
     var index: int = 0;
@@ -57,7 +58,7 @@ automaton KeyIteratorAutomaton: KeyIterator
 
     // constructors
 
-    @private constructor KeyIterator (@target self: KeyIterator, arg0: HashMap)
+    @private constructor KeyIterator (@target self: KeyIterator, source: HashMap)
     {
         action ERROR("Private constructor call");
     }
@@ -84,7 +85,7 @@ automaton KeyIteratorAutomaton: KeyIterator
     }
 
 
-    @final fun next (@target self: KeyIterator): K
+    @final fun next (@target self: KeyIterator): Object
     {
         action ASSUME(this.parent != null);
         _checkForComodification();
@@ -99,10 +100,10 @@ automaton KeyIteratorAutomaton: KeyIterator
         val key: Object = action SYMBOLIC("java.lang.Object");
         action ASSUME(key != null);
         action ASSUME(key != this.currentKey);
-        val parentStorage: map = HashSetAutomaton(this.parent).storage;
-        val sourceStorageHasKey = action MAP_HAS_KEY(parentStorage, key);
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        val sourceStorageHasKey: bool = action MAP_HAS_KEY(parentStorage, key);
         action ASSUME(sourceStorageHasKey);
-        val destStorageHasKey = action MAP_HAS_KEY(this.visitedKeys, key);
+        val destStorageHasKey: bool = action MAP_HAS_KEY(this.visitedKeys, key);
         action ASSUME(!destStorageHasKey);
 
         this.currentKey = key;
@@ -127,7 +128,7 @@ automaton KeyIteratorAutomaton: KeyIterator
 
         _checkForComodification();
 
-        val parentStorage: map = HashSetAutomaton(this.parent).storage;
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
         action MAP_REMOVE(parentStorage, this.currentKey);
 
         this.expectedModCount = HashSetAutomaton(this.parent).modCount;
