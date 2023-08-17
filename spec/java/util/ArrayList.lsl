@@ -562,38 +562,31 @@ automaton ArrayListAutomaton
     {
         _rangeCheckForAdd(index);
 
-        /*
         result = new ArrayList_ListIteratorAutomaton(state = Initialized,
             parent = self,
             cursor = index,
             expectedModCount = this.modCount
         );
-        */
-        action NOT_IMPLEMENTED("testing creation and usage of new types");
     }
 
 
     fun listIterator (@target self: ArrayList): ListIterator
     {
-        /*
         result = new ArrayList_ListIteratorAutomaton(state = Initialized,
             parent = self,
             cursor = 0,
             expectedModCount = this.modCount
         );
-        */
-        action NOT_IMPLEMENTED("testing creation and usage of new types");
     }
 
 
     fun iterator (@target self: ArrayList): Iterator
     {
-        val res: ArrayList_ListIterator = new ArrayList_ListIteratorAutomaton(state = Initialized,
+        result = new ArrayList_ListIteratorAutomaton(state = Initialized,
             parent = self,
             cursor = 0,
             expectedModCount = this.modCount
         );
-        result = res;
     }
 
 
