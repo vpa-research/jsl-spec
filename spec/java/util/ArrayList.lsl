@@ -27,7 +27,8 @@ import java/util/stream/_interfaces;
     is java.util.ArrayList
     for List
 {
-    //@private @static @final var serialVersionUID: long = 8683452581122892189;
+    // #problem: should be 8683452581122892189 instead
+    @private @static val serialVersionUID: long = 1;
 }
 
 
@@ -187,8 +188,9 @@ automaton ArrayListAutomaton
     proc _checkForComodification (expectedModCount: int): void
     {
         if (this.modCount != expectedModCount)
-            {action THROW_NEW("java.util.ConcurrentModificationException", []);}
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
     }
+
 
     proc _deleteElement (index: int): Object
     {
@@ -242,7 +244,7 @@ automaton ArrayListAutomaton
         );
 
         if (this.modCount != expectedModCount)
-            {action THROW_NEW("java.util.ConcurrentModificationException", []);}
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
     }
 
     @Phantom proc _replaceAllRange_loop (i: int, op: UnaryOperator): void
@@ -257,14 +259,14 @@ automaton ArrayListAutomaton
 
     //constructors
 
-    constructor ArrayList (@target self: ArrayList)
+    constructor *.ArrayList (@target self: ArrayList)
     {
         this.storage = action LIST_NEW();
         this.length = 0;
     }
 
 
-    constructor ArrayList (@target self: ArrayList, initialCapacity: int)
+    constructor *.ArrayList (@target self: ArrayList, initialCapacity: int)
     {
         if (initialCapacity < 0)
         {
@@ -276,10 +278,10 @@ automaton ArrayListAutomaton
     }
 
 
-    constructor ArrayList (@target self: ArrayList, c: Collection)
+    constructor *.ArrayList (@target self: ArrayList, c: Collection)
     {
         if (c == null)
-            {_throwNPE();}
+            _throwNPE();
 
         this.storage = action LIST_NEW();
         this.length = 0;
@@ -290,45 +292,45 @@ automaton ArrayListAutomaton
 
     //methods
 
-    fun trimToSize (@target self: ArrayList): void
+    fun *.trimToSize (@target self: ArrayList): void
     {
         // method is not applicable to this approximation
         this.modCount += 1;
     }
 
 
-    fun ensureCapacity (@target self: ArrayList, minCapacity: int): void
+    fun *.ensureCapacity (@target self: ArrayList, minCapacity: int): void
     {
         // method is not applicable to this approximation
         this.modCount += 1;
     }
 
 
-    fun size (@target self: ArrayList): int
+    fun *.size (@target self: ArrayList): int
     {
         result = this.length;
     }
 
 
-    fun isEmpty (@target self: ArrayList): boolean
+    fun *.isEmpty (@target self: ArrayList): boolean
     {
         result = this.length == 0;
     }
 
 
-    fun contains (@target self: ArrayList, o: Object): boolean
+    fun *.contains (@target self: ArrayList, o: Object): boolean
     {
         result = action LIST_FIND(this.storage, o, 0, this.length) >= 0;
     }
 
 
-    fun indexOf (@target self: ArrayList, o: Object): int
+    fun *.indexOf (@target self: ArrayList, o: Object): int
     {
         result = action LIST_FIND(this.storage, o, 0, this.length);
     }
 
 
-    fun lastIndexOf (@target self: ArrayList, o: Object): int
+    fun *.lastIndexOf (@target self: ArrayList, o: Object): int
     {
         result = action LIST_FIND(this.storage, o, 0, this.length);
         if (result != -1)
@@ -344,7 +346,7 @@ automaton ArrayListAutomaton
     }
 
 
-    fun clone (@target self: ArrayList): Object
+    fun *.clone (@target self: ArrayList): Object
     {
         val storageCopy: list<Object> = action LIST_NEW();
         action LIST_COPY(this.storage, storageCopy, 0, 0, this.length);
@@ -356,7 +358,7 @@ automaton ArrayListAutomaton
     }
 
 
-    fun toArray (@target self: ArrayList): array<Object>
+    fun *.toArray (@target self: ArrayList): array<Object>
     {
         val size: int = this.length;
         result = action ARRAY_NEW("java.lang.Object", size);
@@ -376,7 +378,7 @@ automaton ArrayListAutomaton
     }
 
 
-    fun toArray (@target self: ArrayList, a: array<Object>): array<Object>
+    fun *.toArray (@target self: ArrayList, a: array<Object>): array<Object>
     {
         val aLen: int = action ARRAY_SIZE(a);
         val size: int = this.length;
@@ -402,25 +404,25 @@ automaton ArrayListAutomaton
             );
 
             if (aLen > size)
-                {result[size] = null;}
+                result[size] = null;
         }
     }
 
 
-    fun get (@target self: ArrayList, index: int): Object
+    fun *.get (@target self: ArrayList, index: int): Object
     {
         _checkValidIndex(index);
         result = action LIST_GET(this.storage, index);
     }
 
 
-    fun set (@target self: ArrayList, index: int, element: Object): Object
+    fun *.set (@target self: ArrayList, index: int, element: Object): Object
     {
         result = _setElement(index, element);
     }
 
 
-    fun add (@target self: ArrayList, e: Object): boolean
+    fun *.add (@target self: ArrayList, e: Object): boolean
     {
         this.modCount += 1;
         action LIST_INSERT_AT(this.storage, this.length, e);
@@ -429,19 +431,19 @@ automaton ArrayListAutomaton
     }
 
 
-    fun add (@target self: ArrayList, index: int, element: Object): void
+    fun *.add (@target self: ArrayList, index: int, element: Object): void
     {
         _addElement(index, element);
     }
 
 
-    fun remove (@target self: ArrayList, index: int): Object
+    fun *.remove (@target self: ArrayList, index: int): Object
     {
         result = _deleteElement(index);
     }
 
 
-    fun equals (@target self: ArrayList, other: Object): boolean
+    fun *.equals (@target self: ArrayList, other: Object): boolean
     {
         if (other == self)
         {
@@ -480,19 +482,19 @@ automaton ArrayListAutomaton
     }
 
 
-    fun toString (@target self: ArrayList): String
+    fun *.toString (@target self: ArrayList): String
     {
         result = action OBJECT_TO_STRING(this.storage);
     }
 
 
-    fun hashCode (@target self: ArrayList): int
+    fun *.hashCode (@target self: ArrayList): int
     {
         result = action OBJECT_HASH_CODE(this.storage);
     }
 
 
-    fun remove (@target self: ArrayList, o: Object): boolean
+    fun *.remove (@target self: ArrayList, o: Object): boolean
     {
         val index: int = action LIST_FIND(this.storage, o, 0, this.length);
         if (index == -1)
@@ -507,7 +509,7 @@ automaton ArrayListAutomaton
     }
 
 
-    fun clear (@target self: ArrayList): void
+    fun *.clear (@target self: ArrayList): void
     {
         this.storage = action LIST_NEW();
         this.length = 0;
@@ -515,28 +517,28 @@ automaton ArrayListAutomaton
     }
 
 
-    fun addAll (@target self: ArrayList, c: Collection): boolean
+    fun *.addAll (@target self: ArrayList, c: Collection): boolean
     {
         result = _addAllElements(this.length, c);
     }
 
 
 
-    fun addAll (@target self: ArrayList, index: int, c: Collection): boolean
+    fun *.addAll (@target self: ArrayList, index: int, c: Collection): boolean
     {
         _rangeCheckForAdd(index);
         result = _addAllElements(index, c);
     }
 
 
-    fun removeAll (@target self: ArrayList, c: Collection): boolean
+    fun *.removeAll (@target self: ArrayList, c: Collection): boolean
     {
         // TODO: interface call
         action NOT_IMPLEMENTED("no support for interface calls yet");
     }
 
 
-    fun retainAll (@target self: ArrayList, c: Collection): boolean
+    fun *.retainAll (@target self: ArrayList, c: Collection): boolean
     {
         // TODO: interface call
         action NOT_IMPLEMENTED("no support for interface calls yet");
@@ -559,7 +561,7 @@ automaton ArrayListAutomaton
     }
 
 
-    fun listIterator (@target self: ArrayList, index: int): ListIterator
+    fun *.listIterator (@target self: ArrayList, index: int): ListIterator
     {
         _rangeCheckForAdd(index);
 
@@ -571,7 +573,7 @@ automaton ArrayListAutomaton
     }
 
 
-    fun listIterator (@target self: ArrayList): ListIterator
+    fun *.listIterator (@target self: ArrayList): ListIterator
     {
         result = new ArrayList_ListIteratorAutomaton(state = Initialized,
             parent = self,
@@ -581,7 +583,7 @@ automaton ArrayListAutomaton
     }
 
 
-    fun iterator (@target self: ArrayList): Iterator
+    fun *.iterator (@target self: ArrayList): Iterator
     {
         result = new ArrayList_ListIteratorAutomaton(state = Initialized,
             parent = self,
@@ -591,7 +593,7 @@ automaton ArrayListAutomaton
     }
 
 
-    fun subList (@target self: ArrayList, fromIndex: int, toIndex: int): List
+    fun *.subList (@target self: ArrayList, fromIndex: int, toIndex: int): List
     {
         _subListRangeCheck(fromIndex, toIndex, this.length);
 
@@ -608,10 +610,10 @@ automaton ArrayListAutomaton
     }
 
 
-    fun forEach (@target self: ArrayList, anAction: Consumer): void
+    fun *.forEach (@target self: ArrayList, anAction: Consumer): void
     {
         if (anAction == null)
-            {_throwNPE();}
+            _throwNPE();
 
         val expectedModCount: int = this.modCount;
         val size: int = this.length;
@@ -623,7 +625,7 @@ automaton ArrayListAutomaton
         );
 
         if (this.modCount != expectedModCount)
-            {action THROW_NEW("java.util.ConcurrentModificationException", []);}
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
     }
 
     @Phantom proc forEach_loop(i: int, anAction: Consumer): void
@@ -635,7 +637,7 @@ automaton ArrayListAutomaton
     }
 
 
-    fun spliterator (@target self: ArrayList): Spliterator
+    fun *.spliterator (@target self: ArrayList): Spliterator
     {
         /*
         result = new ArrayList_SpliteratorAutomaton(state = Initialized,
@@ -649,10 +651,10 @@ automaton ArrayListAutomaton
     }
 
 
-    fun removeIf (@target self: ArrayList, filter: Predicate): boolean
+    fun *.removeIf (@target self: ArrayList, filter: Predicate): boolean
     {
         if (filter == null)
-            {_throwNPE();}
+            _throwNPE();
 
         val expectedModCount: int = modCount;
 
@@ -680,20 +682,20 @@ automaton ArrayListAutomaton
     }
 
 
-    fun replaceAll (@target self: ArrayList, @Parameterized(["E"]) op: UnaryOperator): void
+    fun *.replaceAll (@target self: ArrayList, @Parameterized(["E"]) op: UnaryOperator): void
     {
         if (op == null)
-            {_throwNPE();}
+            _throwNPE();
 
         _replaceAllRange(0, this.length, op);
         this.modCount += 1;
     }
 
 
-    fun sort (@target self: ArrayList, c: Comparator): void
+    fun *.sort (@target self: ArrayList, c: Comparator): void
     {
         if (c == null)
-            {_throwNPE();}
+            _throwNPE();
 
         val expectedModCount: int = this.modCount;
 
@@ -701,7 +703,7 @@ automaton ArrayListAutomaton
         action NOT_IMPLEMENTED("too complex, no decision yet");
 
         if (this.modCount != expectedModCount)
-            {action THROW_NEW("java.util.ConcurrentModificationException", []);}
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
 
         this.modCount += 1;
     }
@@ -750,31 +752,31 @@ automaton ArrayList_ListIteratorAutomaton
 
         val modCount: int = ArrayListAutomaton(this.parent).modCount;
         if (modCount != this.expectedModCount)
-            {action THROW_NEW("java.util.ConcurrentModificationException", []);}
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
     }
 
 
     // methods
 
-    fun hasPrevious (@target self: ArrayList_ListIterator): boolean
+    fun *.hasPrevious (@target self: ArrayList_ListIterator): boolean
     {
         result = this.cursor != 0;
     }
 
 
-    fun nextIndex (@target self: ArrayList_ListIterator): int
+    fun *.nextIndex (@target self: ArrayList_ListIterator): int
     {
         result = this.cursor;
     }
 
 
-    fun previousIndex (@target self: ArrayList_ListIterator): int
+    fun *.previousIndex (@target self: ArrayList_ListIterator): int
     {
         result = this.cursor - 1;
     }
 
 
-    fun hasNext (@target self: ArrayList_ListIterator): boolean
+    fun *.hasNext (@target self: ArrayList_ListIterator): boolean
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
@@ -783,7 +785,7 @@ automaton ArrayList_ListIteratorAutomaton
     }
 
 
-    fun next (@target self: ArrayList_ListIterator): Object
+    fun *.next (@target self: ArrayList_ListIterator): Object
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
@@ -794,11 +796,11 @@ automaton ArrayList_ListIteratorAutomaton
 
         val i: int = this.cursor;
         if (i >= ArrayListAutomaton(this.parent).length)
-            {action THROW_NEW("java.util.NoSuchElementException", []);}
+            action THROW_NEW("java.util.NoSuchElementException", []);
 
         // iterrator validity check
         if (i >= action LIST_SIZE(parentStorage))
-            {action THROW_NEW("java.util.ConcurrentModificationException", []);}
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
 
         this.cursor = i + 1;
         this.lastRet = i;
@@ -807,7 +809,7 @@ automaton ArrayList_ListIteratorAutomaton
     }
 
 
-    fun previous (@target self: ArrayList_ListIterator): Object
+    fun *.previous (@target self: ArrayList_ListIterator): Object
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
@@ -818,11 +820,11 @@ automaton ArrayList_ListIteratorAutomaton
 
         val i: int = this.cursor - 1;
         if (i < 0)
-            {action THROW_NEW("java.util.NoSuchElementException", []);}
+            action THROW_NEW("java.util.NoSuchElementException", []);
 
         // iterrator validity check
         if (i >= action LIST_SIZE(parentStorage))
-            {action THROW_NEW("java.util.ConcurrentModificationException", []);}
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
 
         this.cursor = i;
         this.lastRet = i;
@@ -831,13 +833,13 @@ automaton ArrayList_ListIteratorAutomaton
     }
 
 
-    fun remove (@target self: ArrayList_ListIterator): void
+    fun *.remove (@target self: ArrayList_ListIterator): void
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
 
         if (this.lastRet < 0)
-            {action THROW_NEW("java.lang.IllegalStateException", []);}
+            action THROW_NEW("java.lang.IllegalStateException", []);
 
         _checkForComodification();
 
@@ -861,13 +863,13 @@ automaton ArrayList_ListIteratorAutomaton
     }
 
 
-    fun set (@target self: ArrayList_ListIterator, e: Object): void
+    fun *.set (@target self: ArrayList_ListIterator, e: Object): void
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
 
         if (this.lastRet < 0)
-            {action THROW_NEW("java.lang.IllegalStateException", []);}
+            action THROW_NEW("java.lang.IllegalStateException", []);
 
         _checkForComodification();
 
@@ -883,7 +885,7 @@ automaton ArrayList_ListIteratorAutomaton
     }
 
 
-    fun add (@target self: ArrayList_ListIterator, e: Object): void
+    fun *.add (@target self: ArrayList_ListIterator, e: Object): void
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
@@ -912,13 +914,13 @@ automaton ArrayList_ListIteratorAutomaton
     }
 
 
-    fun forEachRemaining (@target self: ArrayList_ListIterator, userAction: Consumer): void
+    fun *.forEachRemaining (@target self: ArrayList_ListIterator, userAction: Consumer): void
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
 
         if (userAction == null)
-            {action THROW_NEW("java.lang.NullPointerException", []);}
+            action THROW_NEW("java.lang.NullPointerException", []);
 
         var i: int = this.cursor;
         val size: int = ArrayListAutomaton(this.parent).length;
@@ -928,7 +930,7 @@ automaton ArrayList_ListIteratorAutomaton
             val es: list<Object> = ArrayListAutomaton(this.parent).storage;
 
             if (i >= action LIST_SIZE(es))
-                {action THROW_NEW("java.util.ConcurrentModificationException", []);}
+                action THROW_NEW("java.util.ConcurrentModificationException", []);
 
             // using this exact loop form here due to coplex termination expression
             action LOOP_WHILE(
@@ -996,31 +998,31 @@ automaton ArrayListSpliterator: int(
     //methods
 
 
-    fun trySplit (): ArrayListSpliterator
+    fun *.trySplit (): ArrayListSpliterator
     {
         action TODO();
     }
 
 
-    fun tryAdvance (action: Consumer): void
+    fun *.tryAdvance (action: Consumer): void
     {
         action TODO();
     }
 
 
-    fun forEachRemaining (action: Consumer): void
+    fun *.forEachRemaining (action: Consumer): void
     {
         action TODO();
     }
 
 
-    fun estimateSize (): long
+    fun *.estimateSize (): long
     {
         action TODO();
     }
 
 
-    fun characteristics (): int
+    fun *.characteristics (): int
     {
         action TODO();
     }
@@ -1131,7 +1133,7 @@ automaton SubList: int(
     //methods
 
 
-    fun set (index: int, element: Object): void
+    fun *.set (index: int, element: Object): void
     {
         this.parent._checkValidIndex(index);
         this.parent._checkForComodification(modCount);
@@ -1143,7 +1145,7 @@ automaton SubList: int(
     }
 
 
-    fun get (index: int): Object
+    fun *.get (index: int): Object
     {
         this.parent._checkValidIndex(index);
         this.parent._checkForComodification(modCount);
@@ -1154,14 +1156,14 @@ automaton SubList: int(
     }
 
 
-    fun size (): int
+    fun *.size (): int
     {
         this.parent._checkForComodification(modCount);
         result = length;
     }
 
 
-    fun add (index: int, element: Object): void
+    fun *.add (index: int, element: Object): void
     {
         this.parent._rangeCheckForAdd(index);
         this.parent._checkForComodification(modCount);
@@ -1173,7 +1175,7 @@ automaton SubList: int(
     }
 
 
-    fun remove (index: int): Object
+    fun *.remove (index: int): Object
     {
         this.parent._checkValidIndex(index);
         this.parent._checkForComodification(modCount);
@@ -1186,47 +1188,47 @@ automaton SubList: int(
     }
 
 
-    fun addAll (c: Collection): boolean
+    fun *.addAll (c: Collection): boolean
     {
         _addAllElements(length, c);
     }
 
 
-    fun addAll (index: int, c: Collection): boolean
+    fun *.addAll (index: int, c: Collection): boolean
     {
         _addAllElements(index, c);
     }
 
 
-    fun replaceAll (operator: UnaryOperator): void
+    fun *.replaceAll (operator: UnaryOperator): void
     {
         // #problem
         action TODO();
     }
 
 
-    fun removeAll (c: Collection): boolean
+    fun *.removeAll (c: Collection): boolean
     {
         // #problem
         action TODO();
     }
 
 
-    fun retainAll (c: Collection): boolean
+    fun *.retainAll (c: Collection): boolean
     {
         // #problem
         action TODO();
     }
 
 
-    fun removeIf (filter: Predicate): boolean
+    fun *.removeIf (filter: Predicate): boolean
     {
         // #problem
         action TODO();
     }
 
 
-    fun toArray (): array<Object>
+    fun *.toArray (): array<Object>
     {
         val a: array<int> = action ARRAY_NEW("java.lang.Object", this.length);
 
@@ -1235,21 +1237,21 @@ automaton SubList: int(
     }
 
 
-    fun toArray (a: list<Object>): array<Object>
+    fun *.toArray (a: list<Object>): array<Object>
     {
         val end: int = offset + length;
         result = action LIST_TO_ARRAY(storage, a, offset, end);
     }
 
 
-    fun equals (o: Object): boolean
+    fun *.equals (o: Object): boolean
     {
         // #problem
         action TODO();
     }
 
 
-    fun hashCode (): int
+    fun *.hashCode (): int
     {
         // result = action OBJECT_HASH_CODE(self);
         // #problem
@@ -1257,26 +1259,26 @@ automaton SubList: int(
     }
 
 
-    fun indexOf (o: Object): int
+    fun *.indexOf (o: Object): int
     {
         result = _indexOfElement(o);
     }
 
 
-    fun lastIndexOf (o: Object): int
+    fun *.lastIndexOf (o: Object): int
     {
         //I must think about this new action.
         action TODO();
     }
 
 
-    fun contains (o: Object): boolean
+    fun *.contains (o: Object): boolean
     {
         result = _indexOfElement(o) >= 0;
     }
 
 
-    fun subList (fromIndex: int, toIndex: int): List
+    fun *.subList (fromIndex: int, toIndex: int): List
     {
         this.parent._subListRangeCheck(fromIndex, toIndex, length);
         result = new SubList(state=Created,
@@ -1288,13 +1290,13 @@ automaton SubList: int(
     }
 
 
-    fun iterator (): Iterator
+    fun *.iterator (): Iterator
     {
         action TODO();
     }
 
 
-    fun spliterator (): Spliterator
+    fun *.spliterator (): Spliterator
     {
         action TODO();
     }

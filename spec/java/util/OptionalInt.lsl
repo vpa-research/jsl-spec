@@ -20,6 +20,7 @@ import java/util/stream/_interfaces;
     is java.util.OptionalInt
     for Object
 {
+    // NOTE: value is stored within the automaton
 }
 
 
@@ -67,8 +68,7 @@ automaton OptionalIntAutomaton
 
     // utilities
 
-    @AutoInline
-    @static proc _throwNPE (): void
+    @AutoInline @Phantom proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
     }
@@ -76,13 +76,13 @@ automaton OptionalIntAutomaton
 
     // constructors
 
-    @private constructor OptionalInt (@target self: OptionalInt)
+    @private constructor *.OptionalInt (@target self: OptionalInt)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
 
 
-    @private constructor OptionalInt (@target self: OptionalInt, x: int)
+    @private constructor *.OptionalInt (@target self: OptionalInt, x: int)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
@@ -90,13 +90,13 @@ automaton OptionalIntAutomaton
 
     // static methods
 
-    @static fun empty (): OptionalInt
+    @static fun *.empty (): OptionalInt
     {
         result = EMPTY_OPTIONAL_INT;
     }
 
 
-    @static fun of (x: int): OptionalInt
+    @static fun *.of (x: int): OptionalInt
     {
         result = new OptionalIntAutomaton(state = Initialized,
             value = x,
@@ -108,7 +108,7 @@ automaton OptionalIntAutomaton
     // methods
 
     @AnnotatedWith("java.lang.Override")
-    fun equals (@target self: OptionalInt, other: Object): boolean
+    fun *.equals (@target self: OptionalInt, other: Object): boolean
     {
         if (other == self)
         {
@@ -123,9 +123,9 @@ automaton OptionalIntAutomaton
                 val otherPresent: boolean = OptionalIntAutomaton(other).present;
 
                 if (this.present && otherPresent)
-                    {result = this.value == otherValue;}
+                    result = this.value == otherValue;
                 else
-                    {result = this.present == otherPresent;}
+                    result = this.present == otherPresent;
             }
             else
             {
@@ -135,40 +135,40 @@ automaton OptionalIntAutomaton
     }
 
 
-    fun getAsInt (@target self: OptionalInt): int
+    fun *.getAsInt (@target self: OptionalInt): int
     {
         if (!this.present)
-            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
+            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
 
         result = this.value;
     }
 
 
     @AnnotatedWith("java.lang.Override")
-    fun hashCode (@target self: OptionalInt): int
+    fun *.hashCode (@target self: OptionalInt): int
     {
         if (this.present)
-            {result = action OBJECT_HASH_CODE(this.value);}
+            result = action OBJECT_HASH_CODE(this.value);
         else
-            {result = 0;}
+            result = 0;
     }
 
 
-    fun ifPresent (@target self: OptionalInt, consumer: IntConsumer): void
+    fun *.ifPresent (@target self: OptionalInt, consumer: IntConsumer): void
     {
         requires !this.present || (this.present && consumer != null);
 
         if (this.present)
         {
             if (consumer == null)
-                {_throwNPE();}
+                _throwNPE();
 
             action CALL(consumer, [this.value]);
         }
     }
 
 
-    fun ifPresentOrElse (@target self: OptionalInt, consumer: IntConsumer, emptyAction: Runnable): void
+    fun *.ifPresentOrElse (@target self: OptionalInt, consumer: IntConsumer, emptyAction: Runnable): void
     {
         requires !this.present || (this.present  && consumer != null);
         requires this.present  || (!this.present && emptyAction != null);
@@ -176,61 +176,61 @@ automaton OptionalIntAutomaton
         if (this.present)
         {
             if (consumer == null)
-                {_throwNPE();}
+                _throwNPE();
 
             action CALL(consumer, [this.value]);
         }
         else
         {
             if (emptyAction == null)
-                {_throwNPE();}
+                _throwNPE();
 
             action CALL(emptyAction, []);
         }
     }
 
 
-    fun isEmpty (@target self: OptionalInt): boolean
+    fun *.isEmpty (@target self: OptionalInt): boolean
     {
         result = this.present == false;
     }
 
 
-    fun isPresent (@target self: OptionalInt): boolean
+    fun *.isPresent (@target self: OptionalInt): boolean
     {
         result = this.present == true;
     }
 
 
-    fun orElse (@target self: OptionalInt, other: int): int
+    fun *.orElse (@target self: OptionalInt, other: int): int
     {
         if (this.present)
-            {result = this.value;}
+            result = this.value;
         else
-            {result = other;}
+            result = other;
     }
 
 
-    fun orElseGet (@target self: OptionalInt, supplier: IntSupplier): int
+    fun *.orElseGet (@target self: OptionalInt, supplier: IntSupplier): int
     {
         requires supplier != null;
 
         if (supplier == null)
-            {_throwNPE();}
+            _throwNPE();
 
         if (this.present)
-            {result = this.value;}
+            result = this.value;
         else
-            {result = action CALL(supplier, []);}
+            result = action CALL(supplier, []);
     }
 
 
-    fun orElseThrow (@target self: OptionalInt): int
+    fun *.orElseThrow (@target self: OptionalInt): int
     {
         requires this.present;
 
         if (!this.present)
-            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
+            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
 
         result = this.value;
     }
@@ -238,12 +238,12 @@ automaton OptionalIntAutomaton
 
     @Parameterized(["X extends java.lang.Throwable"])
     @throws(["java.lang.Throwable"])
-    fun orElseThrow(@target self: OptionalInt, @Parameterized(["? extends X"]) exceptionSupplier: Supplier): int
+    fun *.orElseThrow(@target self: OptionalInt, @Parameterized(["? extends X"]) exceptionSupplier: Supplier): int
     {
         requires exceptionSupplier != null;
 
         if (exceptionSupplier == null)
-            {_throwNPE();}
+            _throwNPE();
 
         if (!this.present)
         {
@@ -257,7 +257,7 @@ automaton OptionalIntAutomaton
     }
 
 
-    fun stream (@target self: OptionalInt): IntStream
+    fun *.stream (@target self: OptionalInt): IntStream
     {
         action NOT_IMPLEMENTED("no decision");
 
@@ -271,7 +271,7 @@ automaton OptionalIntAutomaton
 
 
     @AnnotatedWith("java.lang.Override", [])
-    fun toString (@target self: OptionalInt): String
+    fun *.toString (@target self: OptionalInt): String
     {
         if (this.present)
         {

@@ -20,12 +20,14 @@ import java/util/stream/_interfaces;
     is java.util.OptionalDouble
     for Object
 {
+    // NOTE: value is stored within the automaton
 }
 
 
 // automata
 
-automaton concept MyConcept: Object
+// TODO: find ways to get concepts working
+automaton concept TestConcept: Object
 {
     var value: double;
 }
@@ -36,7 +38,7 @@ automaton OptionalDoubleAutomaton
     var present: boolean
 )
 : OptionalDouble
-    implements MyConcept
+    implements TestConcept
 {
     // states and shifts
 
@@ -73,8 +75,7 @@ automaton OptionalDoubleAutomaton
 
     // utilities
 
-    @AutoInline
-    @static proc _throwNPE (): void
+    @AutoInline @Phantom proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
     }
@@ -82,13 +83,13 @@ automaton OptionalDoubleAutomaton
 
     // constructors
 
-    @private constructor OptionalDouble (@target self: OptionalDouble)
+    @private constructor *.OptionalDouble (@target self: OptionalDouble)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
 
 
-    @private constructor OptionalDouble (@target self: OptionalDouble, x: double)
+    @private constructor *.OptionalDouble (@target self: OptionalDouble, x: double)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
@@ -96,13 +97,13 @@ automaton OptionalDoubleAutomaton
 
     // static methods
 
-    @static fun empty (): OptionalDouble
+    @static fun *.empty (): OptionalDouble
     {
         result = EMPTY_OPTIONAL_DOUBLE;
     }
 
 
-    @static fun of (x: double): OptionalDouble
+    @static fun *.of (x: double): OptionalDouble
     {
         result = new OptionalDoubleAutomaton(state = Initialized,
             value = x,
@@ -114,7 +115,7 @@ automaton OptionalDoubleAutomaton
     // methods
 
     @AnnotatedWith("java.lang.Override")
-    fun equals (@target self: OptionalDouble, other: Object): boolean
+    fun *.equals (@target self: OptionalDouble, other: Object): boolean
     {
         if (other == self)
         {
@@ -130,9 +131,9 @@ automaton OptionalDoubleAutomaton
 
                 if (this.present && otherPresent)
                     // #problem: need `Double.compare(this.value, other.value) == 0`
-                    {result = this.value == otherValue;}
+                    result = this.value == otherValue;
                 else
-                    {result = this.present == otherPresent;}
+                    result = this.present == otherPresent;
             }
             else
             {
@@ -142,40 +143,40 @@ automaton OptionalDoubleAutomaton
     }
 
 
-    fun getAsDouble (@target self: OptionalDouble): double
+    fun *.getAsDouble (@target self: OptionalDouble): double
     {
         if (!this.present)
-            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
+            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
 
         result = this.value;
     }
 
 
     @AnnotatedWith("java.lang.Override")
-    fun hashCode (@target self: OptionalDouble): int
+    fun *.hashCode (@target self: OptionalDouble): int
     {
         if (this.present)
-            {result = action OBJECT_HASH_CODE(this.value);}
+            result = action OBJECT_HASH_CODE(this.value);
         else
-            {result = 0;}
+            result = 0;
     }
 
 
-    fun ifPresent (@target self: OptionalDouble, consumer: DoubleConsumer): void
+    fun *.ifPresent (@target self: OptionalDouble, consumer: DoubleConsumer): void
     {
         requires !this.present || (this.present && consumer != null);
 
         if (this.present)
         {
             if (consumer == null)
-                {_throwNPE();}
+                _throwNPE();
 
             action CALL(consumer, [this.value]);
         }
     }
 
 
-    fun ifPresentOrElse (@target self: OptionalDouble, consumer: DoubleConsumer, emptyAction: Runnable): void
+    fun *.ifPresentOrElse (@target self: OptionalDouble, consumer: DoubleConsumer, emptyAction: Runnable): void
     {
         requires !this.present || (this.present  && consumer != null);
         requires this.present  || (!this.present && emptyAction != null);
@@ -183,61 +184,61 @@ automaton OptionalDoubleAutomaton
         if (this.present)
         {
             if (consumer == null)
-                {_throwNPE();}
+                _throwNPE();
 
             action CALL(consumer, [this.value]);
         }
         else
         {
             if (emptyAction == null)
-                {_throwNPE();}
+                _throwNPE();
 
             action CALL(emptyAction, []);
         }
     }
 
 
-    fun isEmpty (@target self: OptionalDouble): boolean
+    fun *.isEmpty (@target self: OptionalDouble): boolean
     {
         result = this.present == false;
     }
 
 
-    fun isPresent (@target self: OptionalDouble): boolean
+    fun *.isPresent (@target self: OptionalDouble): boolean
     {
         result = this.present == true;
     }
 
 
-    fun orElse (@target self: OptionalDouble, other: double): double
+    fun *.orElse (@target self: OptionalDouble, other: double): double
     {
         if (this.present)
-            {result = this.value;}
+            result = this.value;
         else
-            {result = other;}
+            result = other;
     }
 
 
-    fun orElseGet (@target self: OptionalDouble, supplier: DoubleSupplier): double
+    fun *.orElseGet (@target self: OptionalDouble, supplier: DoubleSupplier): double
     {
         requires supplier != null;
 
         if (supplier == null)
-            {_throwNPE();}
+            _throwNPE();
 
         if (this.present)
-            {result = this.value;}
+            result = this.value;
         else
-            {result = action CALL(supplier, []);}
+            result = action CALL(supplier, []);
     }
 
 
-    fun orElseThrow (@target self: OptionalDouble): double
+    fun *.orElseThrow (@target self: OptionalDouble): double
     {
         requires this.present;
 
         if (!this.present)
-            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
+            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
 
         result = this.value;
     }
@@ -245,12 +246,12 @@ automaton OptionalDoubleAutomaton
 
     @Parameterized(["X extends java.lang.Throwable"])
     @throws(["java.lang.Throwable"])
-    fun orElseThrow (@target self: OptionalDouble, @Parameterized(["? extends X"]) exceptionSupplier: Supplier): double
+    fun *.orElseThrow (@target self: OptionalDouble, @Parameterized(["? extends X"]) exceptionSupplier: Supplier): double
     {
         requires exceptionSupplier != null;
 
         if (exceptionSupplier == null)
-            {_throwNPE();}
+            _throwNPE();
 
         if (!this.present)
         {
@@ -264,7 +265,7 @@ automaton OptionalDoubleAutomaton
     }
 
 
-    fun stream (@target self: OptionalDouble): DoubleStream
+    fun *.stream (@target self: OptionalDouble): DoubleStream
     {
         action NOT_IMPLEMENTED("no decision");
 
@@ -278,7 +279,7 @@ automaton OptionalDoubleAutomaton
 
 
     @AnnotatedWith("java.lang.Override", [])
-    fun toString (@target self: OptionalDouble): String
+    fun *.toString (@target self: OptionalDouble): String
     {
         if (this.present)
         {

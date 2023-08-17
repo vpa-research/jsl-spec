@@ -20,6 +20,7 @@ import java/util/stream/_interfaces;
     is java.util.OptionalLong
     for Object
 {
+    // NOTE: value is stored within the automaton
 }
 
 
@@ -67,8 +68,7 @@ automaton OptionalLongAutomaton
 
     // utilities
 
-    @AutoInline
-    @static proc _throwNPE (): void
+    @AutoInline @Phantom proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
     }
@@ -76,13 +76,13 @@ automaton OptionalLongAutomaton
 
     // constructors
 
-    @private constructor OptionalLong (@target self: OptionalLong)
+    @private constructor *.OptionalLong (@target self: OptionalLong)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
 
 
-    @private constructor OptionalLong (@target self: OptionalLong, x: long)
+    @private constructor *.OptionalLong (@target self: OptionalLong, x: long)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
@@ -90,13 +90,13 @@ automaton OptionalLongAutomaton
 
     // static methods
 
-    @static fun empty (): OptionalLong
+    @static fun *.empty (): OptionalLong
     {
         result = EMPTY_OPTIONAL_LONG;
     }
 
 
-    @static fun of (x: long): OptionalLong
+    @static fun *.of (x: long): OptionalLong
     {
         result = new OptionalLongAutomaton(state = Initialized,
             value = x,
@@ -108,7 +108,7 @@ automaton OptionalLongAutomaton
     // methods
 
     @AnnotatedWith("java.lang.Override")
-    fun equals (@target self: OptionalLong, other: Object): boolean
+    fun *.equals (@target self: OptionalLong, other: Object): boolean
     {
         if (other == self)
         {
@@ -123,9 +123,9 @@ automaton OptionalLongAutomaton
                 val otherPresent: boolean = OptionalLongAutomaton(other).present;
 
                 if (this.present && otherPresent)
-                    {result = this.value == otherValue;}
+                    result = this.value == otherValue;
                 else
-                    {result = this.present == otherPresent;}
+                    result = this.present == otherPresent;
             }
             else
             {
@@ -135,40 +135,40 @@ automaton OptionalLongAutomaton
     }
 
 
-    fun getAsLong (@target self: OptionalLong): long
+    fun *.getAsLong (@target self: OptionalLong): long
     {
         if (!this.present)
-            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
+            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
 
         result = this.value;
     }
 
 
     @AnnotatedWith("java.lang.Override")
-    fun hashCode (@target self: OptionalLong): int
+    fun *.hashCode (@target self: OptionalLong): int
     {
         if (this.present)
-            {result = action OBJECT_HASH_CODE(this.value);}
+            result = action OBJECT_HASH_CODE(this.value);
         else
-            {result = 0;}
+            result = 0;
     }
 
 
-    fun ifPresent (@target self: OptionalLong, consumer: LongConsumer): void
+    fun *.ifPresent (@target self: OptionalLong, consumer: LongConsumer): void
     {
         requires !this.present || (this.present && consumer != null);
 
         if (this.present)
         {
             if (consumer == null)
-                {_throwNPE();}
+                _throwNPE();
 
             action CALL(consumer, [this.value]);
         }
     }
 
 
-    fun ifPresentOrElse (@target self: OptionalLong, consumer: LongConsumer, emptyAction: Runnable): void
+    fun *.ifPresentOrElse (@target self: OptionalLong, consumer: LongConsumer, emptyAction: Runnable): void
     {
         requires !this.present || (this.present  && consumer != null);
         requires this.present  || (!this.present && emptyAction != null);
@@ -176,61 +176,61 @@ automaton OptionalLongAutomaton
         if (this.present)
         {
             if (consumer == null)
-                {_throwNPE();}
+                _throwNPE();
 
             action CALL(consumer, [this.value]);
         }
         else
         {
             if (emptyAction == null)
-                {_throwNPE();}
+                _throwNPE();
 
             action CALL(emptyAction, []);
         }
     }
 
 
-    fun isEmpty (@target self: OptionalLong): boolean
+    fun *.isEmpty (@target self: OptionalLong): boolean
     {
         result = this.present == false;
     }
 
 
-    fun isPresent (@target self: OptionalLong): boolean
+    fun *.isPresent (@target self: OptionalLong): boolean
     {
         result = this.present == true;
     }
 
 
-    fun orElse (@target self: OptionalLong, other: long): long
+    fun *.orElse (@target self: OptionalLong, other: long): long
     {
         if (this.present)
-            {result = this.value;}
+            result = this.value;
         else
-            {result = other;}
+            result = other;
     }
 
 
-    fun orElseGet (@target self: OptionalLong, supplier: LongSupplier): long
+    fun *.orElseGet (@target self: OptionalLong, supplier: LongSupplier): long
     {
         requires supplier != null;
 
         if (supplier == null)
-            {_throwNPE();}
+            _throwNPE();
 
         if (this.present)
-            {result = this.value;}
+            result = this.value;
         else
-            {result = action CALL(supplier, []);}
+            result = action CALL(supplier, []);
     }
 
 
-    fun orElseThrow (@target self: OptionalLong): long
+    fun *.orElseThrow (@target self: OptionalLong): long
     {
         requires this.present;
 
         if (!this.present)
-            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
+            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
 
         result = this.value;
     }
@@ -238,12 +238,12 @@ automaton OptionalLongAutomaton
 
     @Parameterized(["X extends java.lang.Throwable"])
     @throws(["java.lang.Throwable"])
-    fun orElseThrow(@target self: OptionalLong, @Parameterized(["? extends X"]) exceptionSupplier: Supplier): long
+    fun *.orElseThrow(@target self: OptionalLong, @Parameterized(["? extends X"]) exceptionSupplier: Supplier): long
     {
         requires exceptionSupplier != null;
 
         if (exceptionSupplier == null)
-            {_throwNPE();}
+            _throwNPE();
 
         if (!this.present)
         {
@@ -257,7 +257,7 @@ automaton OptionalLongAutomaton
     }
 
 
-    fun stream (@target self: OptionalLong): LongStream
+    fun *.stream (@target self: OptionalLong): LongStream
     {
         action NOT_IMPLEMENTED("no decision");
 
@@ -271,7 +271,7 @@ automaton OptionalLongAutomaton
 
 
     @AnnotatedWith("java.lang.Override")
-    fun toString (@target self: OptionalLong): String
+    fun *.toString (@target self: OptionalLong): String
     {
         if (this.present)
         {

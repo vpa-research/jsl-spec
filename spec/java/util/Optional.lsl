@@ -1,7 +1,7 @@
 ///#! pragma: non-synthesizable
 libsl "1.1.0";
 
-library `std`
+library std
     version "11"
     language "Java"
     url "https://github.com/openjdk/jdk11/blob/master/src/java.base/share/classes/java/util/Optional.java";
@@ -16,19 +16,12 @@ import java/util/stream/_interfaces;
 
 // local semantic types
 
-// # problem
-/*type T is java.lang.Object for Object
-{
-}*/
-@TypeMapping(typeVariable=true)
-typealias T = Object;
-
 @Parameterized(["T"])
 @public @final type Optional
     is java.util.Optional
     for Object
 {
-    //var value: T;
+    // NOTE: value is stored within the automaton
 }
 
 
@@ -37,7 +30,7 @@ typealias T = Object;
 @Parameterized(["T"])
 automaton OptionalAutomaton
 (
-    var value: T
+    var value: Object
 )
 : Optional
 {
@@ -49,7 +42,7 @@ automaton OptionalAutomaton
     shift Allocated -> Initialized by [
         // constructors
         Optional (Optional),
-        Optional (Optional, T),
+        Optional (Optional, Object),
 
         // static methods
         empty,
@@ -79,9 +72,23 @@ automaton OptionalAutomaton
     ];
 
 
+    // utilities
+
+    @static proc _makeEmpty (): Optional
+    {
+        result = EMPTY_OPTIONAL;
+    }
+
+
+    @AutoInline @Phantom proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
     // constructors
 
-    @private constructor Optional (@target @Parameterized(["T"]) self: Optional)
+    @private constructor *.Optional (@target @Parameterized(["T"]) self: Optional)
     {
         action ERROR("Private constructor call");
         /*assigns this.value;
@@ -91,7 +98,7 @@ automaton OptionalAutomaton
     }
 
 
-    @private constructor Optional (@target @Parameterized(["T"]) self: Optional, obj: T)
+    @private constructor *.Optional (@target @Parameterized(["T"]) self: Optional, obj: Object)
     {
         action ERROR("Private constructor call");
         /*requires obj != null;
@@ -99,25 +106,9 @@ automaton OptionalAutomaton
         ensures this.value == obj;
 
         if (obj == null)
-            {_throwNPE();}
+            _throwNPE();
 
         this.value = obj;*/
-    }
-
-
-    // utilities
-
-    @static proc _makeEmpty (): Optional
-    {
-        // #problem: not parameterized; missing type cast
-        result = EMPTY_OPTIONAL;
-    }
-
-
-    @AutoInline
-    @static proc _throwNPE (): void
-    {
-        action THROW_NEW("java.lang.NullPointerException", []);
     }
 
 
@@ -125,7 +116,7 @@ automaton OptionalAutomaton
 
     @Parameterized(["T"])
     @ParameterizedResult(["T"])
-    @static fun empty (): Optional
+    @static fun *.empty (): Optional
     {
         result = _makeEmpty();
     }
@@ -133,36 +124,36 @@ automaton OptionalAutomaton
 
     @Parameterized(["T"])
     @ParameterizedResult(["T"])
-    @static fun of (obj: T): Optional
+    @static fun *.of (obj: Object): Optional
     {
         requires obj != null;
 
         if (obj == null)
-            {_throwNPE();}
+            _throwNPE();
 
-        result = new OptionalAutomaton(state=Initialized, value=obj);
+        result = new OptionalAutomaton(state = Initialized,
+            value = obj
+        );
     }
 
 
     @Parameterized(["T"])
     @ParameterizedResult(["T"])
-    @static fun ofNullable (obj: T): Optional
+    @static fun *.ofNullable (obj: Object): Optional
     {
         if (obj == null)
-        {
             result = _makeEmpty();
-        }
         else
-        {
-            result = new OptionalAutomaton(state=Initialized, value=obj);
-        }
+            result = new OptionalAutomaton(state = Initialized,
+                value = obj
+            );
     }
 
 
     // methods
 
     @AnnotatedWith("java.lang.Override")
-    fun equals (@target @Parameterized(["T"]) self: Optional, other: Object): boolean
+    fun *.equals (@target @Parameterized(["T"]) self: Optional, other: Object): boolean
     {
         if (other == self)
         {
@@ -173,7 +164,7 @@ automaton OptionalAutomaton
             val isSameType: boolean = action OBJECT_SAME_TYPE(self, other);
             if (isSameType)
             {
-                val otherValue: Object = OptionalAutomaton(other).value;  // #problem
+                val otherValue: Object = OptionalAutomaton(other).value;
                 result = action OBJECT_EQUALS(this.value, otherValue);
             }
             else
@@ -185,13 +176,13 @@ automaton OptionalAutomaton
 
 
     @ParameterizedResult(["T"])
-    fun filter (@target @Parameterized(["T"]) self: Optional,
-                @Parameterized(["? super T"]) predicate: Predicate): Optional
+    fun *.filter (@target @Parameterized(["T"]) self: Optional,
+                  @Parameterized(["? super T"]) predicate: Predicate): Optional
     {
         requires predicate != null;
 
         if (predicate == null)
-            {_throwNPE();}
+            _throwNPE();
 
         if (this.value == null)
         {
@@ -202,9 +193,9 @@ automaton OptionalAutomaton
             val sat: boolean = action CALL(predicate, [this.value]);
 
             if (sat)
-                {result = self;}
+                result = self;
             else
-                {result = _makeEmpty();}
+                result = _makeEmpty();
         }
     }
 
@@ -212,13 +203,13 @@ automaton OptionalAutomaton
     @Parameterized(["U"])
     @ParameterizedResult(["U"])
     // #problem
-    fun flatMap (@target @Parameterized(["T"]) self: Optional,
-                 @Parameterized(["? super T", "? extends Optional<? extends U>"]) mapper: Function): Optional
+    fun *.flatMap (@target @Parameterized(["T"]) self: Optional,
+                   @Parameterized(["? super T", "? extends Optional<? extends U>"]) mapper: Function): Optional
     {
         requires mapper != null;
 
         if (mapper == null)
-            {_throwNPE();}
+            _throwNPE();
 
         if (this.value == null)
         {
@@ -230,45 +221,45 @@ automaton OptionalAutomaton
             result = action CALL(mapper, [this.value]);
 
             if (result == null)
-                {_throwNPE();}
+                _throwNPE();
         }
     }
 
 
-    fun get (@target @Parameterized(["T"]) self: Optional): T
+    fun *.get (@target @Parameterized(["T"]) self: Optional): Object
     {
         if (this.value == null)
-            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
+            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
 
         result = this.value;
     }
 
 
     @AnnotatedWith("java.lang.Override")
-    fun hashCode (@target @Parameterized(["T"]) self: Optional): int
+    fun *.hashCode (@target @Parameterized(["T"]) self: Optional): int
     {
         result = action OBJECT_HASH_CODE(this.value);
     }
 
 
-    fun ifPresent (@target @Parameterized(["T"]) self: Optional,
-                   @Parameterized(["? super T"]) consumer: Consumer): void
+    fun *.ifPresent (@target @Parameterized(["T"]) self: Optional,
+                     @Parameterized(["? super T"]) consumer: Consumer): void
     {
         requires this.value == null || (this.value != null && consumer != null);
 
         if (this.value != null)
         {
             if (consumer == null)
-                {_throwNPE();}
+                _throwNPE();
 
             action CALL(consumer, [this.value]);
         }
     }
 
 
-    fun ifPresentOrElse (@target @Parameterized(["T"]) self: Optional,
-                         @Parameterized(["? super T"]) consumer: Consumer,
-                         emptyAction: Runnable): void
+    fun *.ifPresentOrElse (@target @Parameterized(["T"]) self: Optional,
+                           @Parameterized(["? super T"]) consumer: Consumer,
+                           emptyAction: Runnable): void
     {
         requires this.value == null || (this.value != null && consumer != null);
         requires this.value != null || (this.value == null && emptyAction != null);
@@ -276,27 +267,27 @@ automaton OptionalAutomaton
         if (this.value != null)
         {
             if (consumer == null)
-                {_throwNPE();}
+                _throwNPE();
 
             action CALL(consumer, [this.value]);
         }
         else
         {
             if (emptyAction == null)
-                {_throwNPE();}
+                _throwNPE();
 
             action CALL(emptyAction, []);
         }
     }
 
 
-    fun isEmpty (@target @Parameterized(["T"]) self: Optional): boolean
+    fun *.isEmpty (@target @Parameterized(["T"]) self: Optional): boolean
     {
         result = this.value == null;
     }
 
 
-    fun isPresent (@target @Parameterized(["T"]) self: Optional): boolean
+    fun *.isPresent (@target @Parameterized(["T"]) self: Optional): boolean
     {
         result = this.value != null;
     }
@@ -304,13 +295,13 @@ automaton OptionalAutomaton
 
     @Parameterized(["U"])
     @ParameterizedResult(["U"])
-    fun map (@target @Parameterized(["T"]) self: Optional,
-             @Parameterized(["? super T", "? extends U"]) mapper: Function): Optional
+    fun *.map (@target @Parameterized(["T"]) self: Optional,
+               @Parameterized(["? super T", "? extends U"]) mapper: Function): Optional
     {
         requires mapper != null;
 
         if (mapper == null)
-            {_throwNPE();}
+            _throwNPE();
 
         if (this.value == null)
         {
@@ -322,29 +313,31 @@ automaton OptionalAutomaton
             val mappedValue: Object = action CALL(mapper, [this.value]);
 
             if (mappedValue == null)
-                {result = _makeEmpty();}
+                result = _makeEmpty();
             else
                 // #problem: how to parameterize the result?
-                {result = new OptionalAutomaton(state=Initialized, value=mappedValue);}
+                result = new OptionalAutomaton(state = Initialized,
+                    value = mappedValue
+                );
         }
     }
 
 
     @ParameterizedResult(["T"])
-    fun or (@target @Parameterized(["T"]) self: Optional,
-            @Parameterized(["? extends Optional<? extends T>"]) supplier: Supplier): Optional
+    fun *.or (@target @Parameterized(["T"]) self: Optional,
+              @Parameterized(["? extends Optional<? extends T>"]) supplier: Supplier): Optional
     {
         requires supplier != null;
 
         if (supplier == null)
-            {_throwNPE();}
+            _throwNPE();
 
         if (this.value == null)
         {
             result = action CALL(supplier, []);
 
             if (result == null)
-                {_throwNPE();}
+                _throwNPE();
         }
         else
         {
@@ -353,36 +346,36 @@ automaton OptionalAutomaton
     }
 
 
-    fun orElse (@target @Parameterized(["T"]) self: Optional, other: T): T
+    fun *.orElse (@target @Parameterized(["T"]) self: Optional, other: Object): Object
     {
         if (this.value == null)
-            {result = other;}
+            result = other;
         else
-            {result = this.value;}
+            result = this.value;
     }
 
 
-    fun orElseGet (@target @Parameterized(["T"]) self: Optional,
-                   @Parameterized(["? extends T"]) supplier: Supplier): T
+    fun *.orElseGet (@target @Parameterized(["T"]) self: Optional,
+                     @Parameterized(["? extends T"]) supplier: Supplier): Object
     {
         requires supplier != null;
 
         if (supplier == null)
-            {_throwNPE();}
+            _throwNPE();
 
         if (this.value == null)
-            {result = action CALL(supplier, []);}
+            result = action CALL(supplier, []);
         else
-            {result = this.value;}
+            result = this.value;
     }
 
 
-    fun orElseThrow (@target @Parameterized(["T"]) self: Optional): T
+    fun *.orElseThrow (@target @Parameterized(["T"]) self: Optional): Object
     {
         requires this.value != null;
 
         if (this.value == null)
-            {action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);}
+            action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
 
         result = this.value;
     }
@@ -390,13 +383,13 @@ automaton OptionalAutomaton
 
     @Parameterized(["X extends java.lang.Throwable"])
     @throws(["java.lang.Throwable"])
-    fun orElseThrow (@target @Parameterized(["T"]) self: Optional,
-                     @Parameterized(["? extends X"]) exceptionSupplier: Supplier): T
+    fun *.orElseThrow (@target @Parameterized(["T"]) self: Optional,
+                       @Parameterized(["? extends X"]) exceptionSupplier: Supplier): Object
     {
         requires exceptionSupplier != null;
 
         if (exceptionSupplier == null)
-            {_throwNPE();}
+            _throwNPE();
 
         if (this.value == null)
         {
@@ -411,7 +404,7 @@ automaton OptionalAutomaton
 
 
     @ParameterizedResult(["T"])
-    fun stream (@target @Parameterized(["T"]) self: Optional): Stream
+    fun *.stream (@target @Parameterized(["T"]) self: Optional): Stream
     {
         action NOT_IMPLEMENTED("no decision");
 
@@ -425,7 +418,7 @@ automaton OptionalAutomaton
 
 
     @AnnotatedWith("java.lang.Override")
-    fun toString (@target @Parameterized(["T"]) self: Optional): String
+    fun *.toString (@target @Parameterized(["T"]) self: Optional): String
     {
         if (this.value == null)
         {
