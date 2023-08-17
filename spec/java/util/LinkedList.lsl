@@ -572,6 +572,7 @@ automaton LinkedListAutomaton
     {
         val item: Object = action LIST_GET(this.storage, i);
         action CALL(anAction, [item]);
+
         i += 1;
     }
 
