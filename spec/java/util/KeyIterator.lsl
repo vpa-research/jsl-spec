@@ -15,35 +15,38 @@ import "list-actions.lsl";
 
 // local semantic types
 
-@TypeMapping(typeVariable=true) typealias K = Object;
-
-@For(automaton="KeyIteratorAutomaton", insteadOf="java.util.HashMap$KeyIterator")
-@extends("java.util.HashMap<K, V>$HashIterator")
-@implements(["java.util.Iterator<K>"])
+@GenerateMe
+@implements("java.util.Iterator")
 @public @final type KeyIterator
+    is java.util.HashMap_KeyIterator
+    for Iterator, Object
 {
-    @static @final var mockedValue: Object = Object;
 }
 
 
+// === CONSTANTS ===
+
+val HASHSET_KEYITERATOR_VALUE: Object = 0;
+
 // automata
 
-@public automaton KeyIteratorAutomaton: KeyIterator
+automaton KeyIteratorAutomaton: KeyIterator
 (
-    var index: int = 0;
-    var destStorage: map = null;
-    var currentKey: K = null;
-    var nextWasCalled: boolean = false;
     var expectedModCount: int;
-    var sourceStorage: map;
+    var visitedKeys: map;
     var parent: HashSet;
 )
 {
+
+    var index: int = 0;
+    var currentKey: Object = null;
+    var nextWasCalled: boolean = false;
+
     // states and shifts
 
     initstate Initialized;
 
-    shift Initialized -> this by [
+    shift Initialized -> self by [
         // read operations
         hasNext,
 
@@ -54,21 +57,13 @@ import "list-actions.lsl";
 
     // constructors
 
-    constructor KeyIterator (@target obj: KeyIterator, arg0: HashMap)
+    @private constructor KeyIterator (@target self: KeyIterator, arg0: HashMap)
     {
-        this.destStorage = action MAP_NEW();
-        // Problem - what else we must to do in this constructor ???
-        action TODO();
+        action ERROR("Private constructor call");
     }
 
 
     // utilities
-
-    @AutoInline
-    proc _throwNPE (): void
-    {
-        action THROW_NEW("java.lang.NullPointerException", []);
-    }
 
     proc _checkForComodification (): void
     {
@@ -79,45 +74,50 @@ import "list-actions.lsl";
         }
     }
 
-    // static methods
-
     // methods
 
-    fun hasNext (@target obj: KeyIterator): boolean
+    fun hasNext (@target self: KeyIterator): boolean
     {
-        val length: int = action MAP_SIZE(map);
+        action ASSUME(this.parent != null);
+        val length: int = HashSetAutomaton(this.parent).length;
         result = this.index < length;
     }
 
-    @final fun next (@target obj: KeyIterator): K
+
+    @final fun next (@target self: KeyIterator): K
     {
+        action ASSUME(this.parent != null);
         _checkForComodification();
 
-        val length: int = action MAP_SIZE(map);
+        val length: int = HashSetAutomaton(this.parent).length;
         val atValidPosition: boolean = this.index < length;
         if (!atValidPosition)
         {
             action THROW_NEW("java.util.NoSuchElementException", []);
         }
 
-        val key = engine.makeSymbolic(K);
-        val sourceStorageHasKey = action MAP_HAS_KEY(this.sourceStorage, key);
-        // Assume must be always on the bottom of the method body or not ?
-        assume(sourceStorageHasKey);
-        val destStorageHasKey = action MAP_HAS_KEY(this.destStorage, key);
-        assume(!destStorageHasKey);
+        val key: Object = action SYMBOLIC("java.lang.Object");
+        action ASSUME(key != null);
+        action ASSUME(key != this.currentKey);
+        val parentStorage: map = HashSetAutomaton(this.parent).storage;
+        val sourceStorageHasKey = action MAP_HAS_KEY(parentStorage, key);
+        action ASSUME(sourceStorageHasKey);
+        val destStorageHasKey = action MAP_HAS_KEY(this.visitedKeys, key);
+        action ASSUME(!destStorageHasKey);
 
-        currentKey = key;
+        this.currentKey = key;
         result = key;
 
-        action MAP_SET(this.destStorage, currentKey, this.mockedValue);
+        action MAP_SET(this.visitedKeys, this.currentKey, HASHSET_KEYITERATOR_VALUE);
         this.index += 1;
         this.nextWasCalled = true;
     }
 
-    fun remove (): void
+
+    fun remove (@target self: KeyIterator): void
     {
-        val length: int = action MAP_SIZE(map);
+        action ASSUME(this.parent != null);
+        val length: int = HashSetAutomaton(this.parent).length;
         val atValidPosition: boolean = this.index < length;
         if (!atValidPosition || !this.nextWasCalled)
         {
@@ -127,7 +127,8 @@ import "list-actions.lsl";
 
         _checkForComodification();
 
-        action MAP_REMOVE(this.sourceStorage, currentKey);
+        val parentStorage: map = HashSetAutomaton(this.parent).storage;
+        action MAP_REMOVE(parentStorage, this.currentKey);
 
         this.expectedModCount = HashSetAutomaton(this.parent).modCount;
     }
