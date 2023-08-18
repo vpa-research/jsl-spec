@@ -125,11 +125,7 @@ automaton HashSet_KeySpliteratorAutomaton
     fun *.estimateSize (@target self: HashSet_KeySpliterator): long
     {
         _getFence();
-        // Problem:
-        // In original class we have such construction: "return (long) est;"; Can we convert int to long ?
-        // Or we must write something in such style:
-        // "var r: long = est;
-        // result  = r;"
+        result = this.est as long;
     }
 
 
@@ -140,10 +136,9 @@ automaton HashSet_KeySpliteratorAutomaton
         var mask: int = 0;
         val length: int = HashSetAutomaton(this.parent).length;
         if (this.fence < 0 || this.est == length)
-            // Can we write such literals '0x00000040' ?
-            mask = 0x00000040;
+            mask = 64;
 
-        result = mask | 0x00000001;
+        result = mask | 1;
     }
 
 
