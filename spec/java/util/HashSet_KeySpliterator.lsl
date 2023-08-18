@@ -30,8 +30,6 @@ import "list-actions.lsl";
 
 automaton HashSet_KeySpliteratorAutomaton
 (
-    var storage: map<K, V>;
-    val length: int;
     var index: int;
     var fence: int;
     var est: int;
@@ -73,10 +71,13 @@ automaton HashSet_KeySpliteratorAutomaton
 
     proc _getFence(): int
     {
+        action ASSUME(this.parent != null);
+
         var hi: int = this.fence;
         if (hi < 0)
         {
-            this.est = action MAP_SIZE(storage);
+            val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+            this.est = action MAP_SIZE(parentStorage);
             this.expectedModCount = HashSetAutomaton(this.parent).modCount;
             this.fence = this.est;
             // That's right ?
@@ -95,7 +96,7 @@ automaton HashSet_KeySpliteratorAutomaton
     proc _checkForComodification (): void
     {
         val modCount: int = HashSetAutomaton(this.parent).modCount;
-        if (this.expectedModCount != expectedModCount)
+        if (this.expectedModCount != modCount)
         {
             action THROW_NEW("java.util.ConcurrentModificationException", []);
         }
@@ -103,14 +104,15 @@ automaton HashSet_KeySpliteratorAutomaton
 
     proc _loop_body_tryAdvance (userAction: Consumer): void
     {
-        val key = engine.makeSymbolic(K);
-        val sourceStorageHasKey = action MAP_HAS_KEY(this.storage, key);
-        assume(sourceStorageHasKey);
+        val key: Object = action SYMBOLIC("java.lang.Object");
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        val sourceStorageHasKey: bool = action MAP_HAS_KEY(parentStorage, key);
+        action ASSUME(sourceStorageHasKey);
 
         action CALL(consumer, [key]);
 
         _checkForComodification();
-        index += 1;
+        this.index += 1;
     }
 
     // static methods
@@ -129,8 +131,11 @@ automaton HashSet_KeySpliteratorAutomaton
 
     fun *.characteristics (@target self: HashSet_KeySpliterator): int
     {
+        action ASSUME(this.parent != null);
+
         var mask: int = 0;
-        if (this.fence < 0 || this.est == this.length)
+        val length: int = HashSetAutomaton(this.parent).length;
+        if (this.fence < 0 || this.est == length)
         {
             // Can we write such literals '0x00000040' ?
             mask = 0x00000040;
@@ -147,14 +152,17 @@ automaton HashSet_KeySpliteratorAutomaton
 
     fun *.tryAdvance (@target self: HashSet_KeySpliterator, userAction: Consumer): boolean
     {
+        action ASSUME(this.parent != null);
+
         if(act == null)
             _throwNPE();
 
         var hi: int = _getFence();
+        val length: int = HashSetAutomaton(this.parent).length;
 
-        if(this.length >= hi && index >= 0)
+        if(length >= hi && this.index >= 0)
         {
-            action LOOP_WHILE(index < hi, _loop_body_tryAdvance(act));
+            action LOOP_WHILE(this.index < hi, _loop_body_tryAdvance(act));
         }
 
         result = false;
@@ -163,6 +171,8 @@ automaton HashSet_KeySpliteratorAutomaton
 
     fun *.trySplit (@target self: HashSet_KeySpliterator): HashSet_KeySpliterator
     {
+        action ASSUME(this.parent != null);
+
         val hi: int = _getFence();
         val lo: int = this.index;
 
@@ -181,7 +191,7 @@ automaton HashSet_KeySpliteratorAutomaton
         }
         else
         {
-            val newEst: int = est >> 1;
+            val newEst: int = this.est >> 1;
             if (newEst < 0)
             {
                 newEst = newEst * (-1);
@@ -189,9 +199,6 @@ automaton HashSet_KeySpliteratorAutomaton
             this.index = mid;
 
             result = new KeySpliteratorAutomaton(state = Initialized,
-                expectedModCount = this.modCount,
-                storage = this.storage,
-                length = this.length,
                 index = lo,
                 fence = mid,
                 est = newEst,
