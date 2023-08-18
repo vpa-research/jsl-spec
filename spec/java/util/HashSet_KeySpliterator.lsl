@@ -5,6 +5,7 @@ library "std:???"
     language "Java"
     url "-";
 
+
 // imports
 
 import java-common.lsl;
@@ -14,6 +15,8 @@ import "java/util/function/_interfaces.lsl";
 
 import "list-actions.lsl";
 
+
+// local semantic types
 
 @GenerateMe
 // Problem: inner class extends
@@ -26,10 +29,16 @@ import "list-actions.lsl";
 }
 
 
+// === CONSTANTS ===
+
+val HASHSET_KEYITERATOR_VALUE: Object = 0;
+
+
 // automata
 
 automaton HashSet_KeySpliteratorAutomaton
 (
+    var visitedKeys: map<Object, Object>;
     var index: int;
     var fence: int;
     var est: int;
@@ -87,35 +96,29 @@ automaton HashSet_KeySpliteratorAutomaton
         result = hi;
     }
 
+
     @AutoInline
     proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
     }
 
+
     proc _checkForComodification (): void
     {
         val modCount: int = HashSetAutomaton(this.parent).modCount;
         if (this.expectedModCount != modCount)
-        {
             action THROW_NEW("java.util.ConcurrentModificationException", []);
-        }
     }
 
-    proc _loop_body_tryAdvance (userAction: Consumer): void
+
+    proc _checkForComodification (): void
     {
-        val key: Object = action SYMBOLIC("java.lang.Object");
-        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
-        val sourceStorageHasKey: bool = action MAP_HAS_KEY(parentStorage, key);
-        action ASSUME(sourceStorageHasKey);
-
-        action CALL(consumer, [key]);
-
-        _checkForComodification();
-        this.index += 1;
+        val modCount: int = HashSetAutomaton(this.parent).modCount;
+        if (this.expectedModCount != modCount)
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
     }
 
-    // static methods
 
     // methods
 
@@ -129,6 +132,7 @@ automaton HashSet_KeySpliteratorAutomaton
         // result  = r;"
     }
 
+
     fun *.characteristics (@target self: HashSet_KeySpliterator): int
     {
         action ASSUME(this.parent != null);
@@ -136,10 +140,9 @@ automaton HashSet_KeySpliteratorAutomaton
         var mask: int = 0;
         val length: int = HashSetAutomaton(this.parent).length;
         if (this.fence < 0 || this.est == length)
-        {
             // Can we write such literals '0x00000040' ?
             mask = 0x00000040;
-        }
+
         result = mask | 0x00000001;
     }
 
@@ -160,12 +163,39 @@ automaton HashSet_KeySpliteratorAutomaton
         var hi: int = _getFence();
         val length: int = HashSetAutomaton(this.parent).length;
 
+        // this is correct condition ? It is enough ?
         if(length >= hi && this.index >= 0)
-        {
-            action LOOP_WHILE(this.index < hi, _loop_body_tryAdvance(act));
-        }
+            result = action LOOP_WHILE(this.index < hi, tryAdvance_loop(act));
 
         result = false;
+    }
+
+
+    @Phantom proc tryAdvance_loop (userAction: Consumer): boolean
+    {
+        val key: Object = action SYMBOLIC("java.lang.Object");
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+
+        val parentLength: int = HashSetAutomaton(this.parent).length;
+        val currentLength: int = action MAP_SIZE(visitedKeys);
+        // All elements were visited;
+        if (parentLength == currentLength)
+            result = false;
+
+        val sourceStorageHasKey: bool = action MAP_HAS_KEY(parentStorage, key);
+        action ASSUME(sourceStorageHasKey);
+
+        val destStorageHasKey: bool = action MAP_HAS_KEY(this.visitedKeys, key);
+        action ASSUME(!destStorageHasKey);
+
+        action CALL(consumer, [key]);
+
+        action MAP_SET(this.visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
+
+        _checkForComodification();
+        this.index += 1;
+
+        result = true;
     }
 
 
@@ -177,28 +207,24 @@ automaton HashSet_KeySpliteratorAutomaton
         val lo: int = this.index;
 
         // We don't have such operator in LibSL: ">>>"
-        // it bottom this is right realization of such code: "mid = (lo + hi) >>> 1"
+        // In the bottom this is right realization of such code: "mid = (lo + hi) >>> 1" ?
 
         var mid: int = (hi + lo) >> 1;
         if (mid < 0)
-        {
             mid = mid * (-1);
-        }
 
         if (lo >= mid)
-        {
             result = null;
-        }
         else
         {
-            val newEst: int = this.est >> 1;
+            var newEst: int = this.est >> 1;
             if (newEst < 0)
-            {
                 newEst = newEst * (-1);
-            }
+
             this.index = mid;
 
             result = new KeySpliteratorAutomaton(state = Initialized,
+                visitedKeys = this.visitedKeys,
                 index = lo,
                 fence = mid,
                 est = newEst,
