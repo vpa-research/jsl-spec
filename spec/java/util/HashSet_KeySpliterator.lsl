@@ -54,7 +54,7 @@ automaton HashSet_KeySpliteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        HashSet_KeySpliterator (HashSet_KeySpliterator, HashMap, int, int, int, int),
+        HashSet_KeySpliterator,
     ]
 
     shift Initialized -> this by [
@@ -144,7 +144,59 @@ automaton HashSet_KeySpliteratorAutomaton
 
     fun *.forEachRemaining (@target self: HashSet_KeySpliterator, userAction: Consumer): void
     {
-        action TODO();
+        action ASSUME(this.parent != null);
+
+        if(userAction == null)
+            _throwNPE();
+
+        var hi: int = this.fence;
+        var mc: int = this.expectedModCount;
+        var i: int = this.index;
+        val length: int = HashSetAutomaton(this.parent).length;
+        if(hi < 0)
+        {
+            this.expectedModCount = HashSetAutomaton(this.parent).modCount;
+            mc = this.expectedModCount;
+            // problem
+            // How correctly write such string "hi = fence = (tab == null) ? 0 : tab.length;"
+            this.fence = length;
+            hi = this.fence
+        }
+
+        // Original condition: "if (tab != null && tab.length >= hi && (i = index) >= 0 && (i < (index = hi) || current != null))"
+        // This is correct this condition translation ?
+        this.index = hi;
+        if (length == 0 && length >= hi && i >= 0 && i < this.index)
+        {
+            // I must think about this:
+            action LOOP_WHILE(i < hi, forEachRemaining_loop(userAction, i));
+
+            val modCount: int = HashSetAutomaton(this.parent).modCount;
+            if (modCount != mc)
+                action THROW_NEW("java.util.ConcurrentModificationException", []);
+        }
+    }
+
+
+    @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int): boolean
+    {
+        val key: Object = action SYMBOLIC("java.lang.Object");
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+
+        val parentLength: int = HashSetAutomaton(this.parent).length;
+        val currentLength: int = action MAP_SIZE(visitedKeys);
+
+        val sourceStorageHasKey: bool = action MAP_HAS_KEY(parentStorage, key);
+        action ASSUME(sourceStorageHasKey);
+
+        val destStorageHasKey: bool = action MAP_HAS_KEY(this.visitedKeys, key);
+        action ASSUME(!destStorageHasKey);
+
+        action CALL(consumer, [key]);
+
+        action MAP_SET(this.visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
+
+        i += 1;
     }
 
 

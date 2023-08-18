@@ -51,7 +51,7 @@ automaton HashSet_KeyIteratorAutomaton
      shift Allocated -> Initialized by [
             // constructors
             // Problem: here mustn't be "HashMap"; What must be here ? What we must to do with constructor ?
-            HashSet_KeyIterator (HashSet_KeyIterator, HashMap),
+            HashSet_KeyIterator,
      ];
 
     shift Initialized -> self by [
