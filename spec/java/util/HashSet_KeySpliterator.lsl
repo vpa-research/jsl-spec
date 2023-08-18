@@ -42,7 +42,13 @@ automaton HashSet_KeySpliteratorAutomaton
 {
     // states and shifts
 
-    initstate Initialized;
+    initstate Allocated;
+    state Initialized;
+
+    shift Allocated -> Initialized by [
+        // constructors
+        HashSet_KeySpliterator (HashSet_KeySpliterator, HashMap, int, int, int, int),
+    ]
 
     shift Initialized -> this by [
         // read operations
@@ -57,7 +63,7 @@ automaton HashSet_KeySpliteratorAutomaton
 
     // constructors
 
-    constructor KeySpliterator (@target obj: KeySpliterator, @Parameterized("K, V") arg0: HashMap, arg1: int, arg2: int, arg3: int, arg4: int)
+    constructor *.HashSet_KeySpliterator (@target self: HashSet_KeySpliterator, source: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
     {
         action TODO();
     }
@@ -95,7 +101,7 @@ automaton HashSet_KeySpliteratorAutomaton
         }
     }
 
-    proc _loop_body_tryAdvance (@Parameterized("? super K") consumer: Consumer): void
+    proc _loop_body_tryAdvance (userAction: Consumer): void
     {
         val key = engine.makeSymbolic(K);
         val sourceStorageHasKey = action MAP_HAS_KEY(this.storage, key);
@@ -111,7 +117,7 @@ automaton HashSet_KeySpliteratorAutomaton
 
     // methods
 
-    fun estimateSize (@target obj: KeySpliterator): long
+    fun *.estimateSize (@target self: HashSet_KeySpliterator): long
     {
         _getFence();
         // Problem:
@@ -121,7 +127,7 @@ automaton HashSet_KeySpliteratorAutomaton
         // result  = r;"
     }
 
-    fun characteristics (@target obj: KeySpliterator): int
+    fun *.characteristics (@target self: HashSet_KeySpliterator): int
     {
         var mask: int = 0;
         if (this.fence < 0 || this.est == this.length)
@@ -133,13 +139,13 @@ automaton HashSet_KeySpliteratorAutomaton
     }
 
 
-    fun forEachRemaining (@target obj: KeySpliterator, @Parameterized("? super K") arg0: Consumer): void
+    fun *.forEachRemaining (@target self: HashSet_KeySpliterator, userAction: Consumer): void
     {
         action TODO();
     }
 
 
-    fun tryAdvance (@target obj: KeySpliterator, @Parameterized("? super K") act: Consumer): boolean
+    fun *.tryAdvance (@target self: HashSet_KeySpliterator, userAction: Consumer): boolean
     {
         if(act == null)
             _throwNPE();
@@ -155,8 +161,7 @@ automaton HashSet_KeySpliteratorAutomaton
     }
 
 
-    @ParameterizedResult("K, V")
-    fun trySplit (@target obj: KeySpliterator): KeySpliterator
+    fun *.trySplit (@target self: HashSet_KeySpliterator): HashSet_KeySpliterator
     {
         val hi: int = _getFence();
         val lo: int = this.index;
