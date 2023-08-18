@@ -102,7 +102,7 @@ define action CALL (
 
 
 define action CALL_METHOD (
-        obj: any,           // variable!
+        obj: any,
         methodName: string, // literal!
         args: array<any>
     ): any;
