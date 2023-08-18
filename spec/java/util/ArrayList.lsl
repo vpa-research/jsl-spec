@@ -33,11 +33,10 @@ import java/util/stream/_interfaces;
 
 
 @GenerateMe
-//@implements("java.util.ListIterator")
-@implements("java.util.Iterator")
+@implements("java.util.ListIterator")
 @public @final type ArrayList_ListIterator
     is java.util.ArrayList_ListItr  // NOTE: do not use inner classes
-    for Iterator
+    for ListIterator
 {
 }
 
