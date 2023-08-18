@@ -17,7 +17,7 @@ import "list-actions.lsl";
 
 @GenerateMe
 @implements("java.util.Iterator")
-@public @final type KeyIterator
+@public @final type HashSet_KeyIterator
     is java.util.HashSet_KeyIterator
     for Iterator
 {
@@ -36,7 +36,7 @@ automaton HashSet_KeyIteratorAutomaton
     var visitedKeys: map<Object, Object>;
     var parent: HashSet;
 )
-: KeyIterator
+: HashSet_KeyIterator
 {
 
     var index: int = 0;
@@ -45,7 +45,14 @@ automaton HashSet_KeyIteratorAutomaton
 
     // states and shifts
 
-    initstate Initialized;
+    initstate Allocated;
+    state Initialized;
+
+     shift Allocated -> Initialized by [
+            // constructors
+            // Problem: here mustn't be "HashMap"; What must be here ? What we must to do with constructor ?
+            HashSet_KeyIterator (HashSet_KeyIterator, HashMap),
+     ];
 
     shift Initialized -> self by [
         // read operations
@@ -58,7 +65,7 @@ automaton HashSet_KeyIteratorAutomaton
 
     // constructors
 
-    @private constructor KeyIterator (@target self: KeyIterator, source: HashMap)
+    @private constructor HashSet_KeyIterator (@target self: HashSet_KeyIterator, source: HashMap)
     {
         action ERROR("Private constructor call");
     }
@@ -77,7 +84,7 @@ automaton HashSet_KeyIteratorAutomaton
 
     // methods
 
-    fun hasNext (@target self: KeyIterator): boolean
+    fun hasNext (@target self: HashSet_KeyIterator): boolean
     {
         action ASSUME(this.parent != null);
         val length: int = HashSetAutomaton(this.parent).length;
@@ -85,7 +92,7 @@ automaton HashSet_KeyIteratorAutomaton
     }
 
 
-    @final fun next (@target self: KeyIterator): Object
+    @final fun next (@target self: HashSet_KeyIterator): Object
     {
         action ASSUME(this.parent != null);
         _checkForComodification();
@@ -115,7 +122,7 @@ automaton HashSet_KeyIteratorAutomaton
     }
 
 
-    fun remove (@target self: KeyIterator): void
+    fun remove (@target self: HashSet_KeyIterator): void
     {
         action ASSUME(this.parent != null);
         val length: int = HashSetAutomaton(this.parent).length;
