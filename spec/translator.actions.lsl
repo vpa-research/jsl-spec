@@ -77,3 +77,6 @@ define action NOT_IMPLEMENTED (
 
 @StopsControlFlow
 define action TODO (): void;
+
+// do nothing explicitly but detectable by the translator if needed
+define action DO_NOTHING (): void;
