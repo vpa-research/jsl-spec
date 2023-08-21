@@ -199,6 +199,13 @@ automaton HashSetAutomaton
     }
 
 
+    proc _checkForComodification (expectedModCount: int): void
+    {
+        if (this.modCount != expectedModCount)
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+    }
+
+
     // methods
 
     fun *.add (@target self: HashSet, obj: Object): boolean
@@ -351,9 +358,67 @@ automaton HashSetAutomaton
 
     fun removeAll (@target self: HashSet, c: Collection): boolean
     {
-        //val modified: boolean = SYMBOLIC("boolean");
-        //result = modified;
-        action TODO();
+        if (c == null)
+            action THROW_NEW("java.lang.NullPointerException", []);
+
+        val expectedModCount: int = this.modCount;
+
+        val otherSize: int = action CALL_METHOD(c, "size", []);
+        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+        val i: int = 0;
+        val lengthBeforeRemoving: int = this.length;
+
+        if (this.length > otherSize)
+            action LOOP_WHILE(
+                action CALL_METHOD(iter, "hasNext", []),
+                _removeAllElements_loop(iter)
+            );
+        else
+        {
+            val visitedKeys: map<Object, Object> = action MAP_NEW();
+            action LOOP_WHILE(
+                i < this.length,
+                _removeAllElements_loop_indirect(i, c, visitedKeys)
+            );
+        }
+
+        _checkForComodification(expectedModCount);
+        this.modCount += 1;
+        // If length changed, it means that at least one element was deleted
+        result = lengthBeforeRemoving != this.length;
+    }
+
+
+    @Phantom proc _removeAllElements_loop_direct (iter: Iterator): void
+    {
+        val key: Object = action CALL_METHOD(iter, "next", []);
+        val isKeyExist: boolean = MAP_HAS_KEY(this.storage, key);
+
+        if (isKeyExist)
+        {
+            action MAP_REMOVE(this.storage, key);
+            this.length -= 1;
+        }
+    }
+
+
+    @Phantom proc _removeAllElements_loop_indirect (i: int, c: Collection, visitedKeys: map<Object, Object>): void
+    {
+        val key: Object = action SYMBOLIC("java.lang.Object");
+        action ASSUME(key != null);
+        val isKeyExist: boolean = MAP_HAS_KEY(this.storage, key);
+        action ASSUME(isKeyExist);
+
+        val isCollectionContainsKey: boolean = action CALL_METHOD(c, "contains", [key]);
+
+        if (isCollectionContainsKey)
+        {
+            action MAP_REMOVE(this.storage, key);
+            this.length -= 1;
+        }
+
+        action MAP_SET(visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
+        i += 1;
     }
 
 }
