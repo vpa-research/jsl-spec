@@ -209,9 +209,7 @@ automaton HashSetAutomaton
         val hasKey: boolean = action MAP_HAS_KEY(this.storage, obj);
 
         if (hasKey)
-        {
             result = false;
-        }
         else
         {
             this.length = this.length + 1;
@@ -243,13 +241,9 @@ automaton HashSetAutomaton
     fun *.contains (@target self: HashSet, obj: Object): boolean
     {
         if (this.length == 0)
-        {
             result = false;
-        }
         else
-        {
             result = action MAP_HAS_KEY(this.storage, obj);
-        }
     }
 
 
@@ -284,9 +278,7 @@ automaton HashSetAutomaton
             result = true;
         }
         else
-        {
             result = false;
-        }
     }
 
 
@@ -309,16 +301,59 @@ automaton HashSetAutomaton
 
 
     @throws(["java.io.IOException"])
-    @private fun *.writeObject (@target self: ArrayList, s: ObjectOutputStream): void
+    @private fun *.writeObject (@target self: HashSet, s: ObjectOutputStream): void
     {
         action NOT_IMPLEMENTED("no serialization support yet");
     }
 
 
     @throws(["java.io.IOException", "java.lang.ClassNotFoundException"])
-    @private fun *.readObject (@target self: ArrayList, s: ObjectInputStream): void
+    @private fun *.readObject (@target self: HashSet, s: ObjectInputStream): void
     {
         action NOT_IMPLEMENTED("no serialization support yet");
+    }
+
+
+    fun equals (@target self: HashSet, other: Object): boolean
+    {
+        if (other == self)
+            result = true;
+        else
+        {
+            val isSameType: boolean = action OBJECT_SAME_TYPE(self, other);
+            if (isSameType)
+            {
+                val expectedModCount: int = this.modCount;
+                val otherExpectedModCount: int = HashSetAutomaton(other).modCount;
+
+                val otherStorage: map<Object, Object> = HashSetAutomaton(other).storage;
+                val otherLength: int = HashSetAutomaton(other).length;
+
+                if (this.length == otherLength)
+                    result = action OBJECT_EQUALS(this.storage, otherStorage);
+                else
+                    result = false;
+
+                action DEBUG_DO("other._checkForComodification(otherExpectedModCount)"); // #problem
+                _checkForComodification(expectedModCount);
+            }
+            else
+                result = false;
+        }
+    }
+
+
+    fun hashCode (@target self: HashSet): int
+    {
+        result = action OBJECT_HASH_CODE(this.storage);
+    }
+
+
+    fun removeAll (@target self: HashSet, c: Collection): boolean
+    {
+        //val modified: boolean = SYMBOLIC("boolean");
+        //result = modified;
+        action TODO();
     }
 
 }
