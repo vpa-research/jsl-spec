@@ -253,20 +253,13 @@ automaton HashSet_KeySpliteratorAutomaton
         val hi: int = _getFence();
         val lo: int = this.index;
 
-        // We don't have such operator in LibSL: ">>>"
-        // In the bottom this is right realization of such code: "mid = (lo + hi) >>> 1" ?
-
-        var mid: int = (hi + lo) >> 1;
-        if (mid < 0)
-            mid = mid * (-1);
+        var mid: int = (hi + lo) >>> 1;
 
         if (lo >= mid)
             result = null;
         else
         {
-            var newEst: int = this.est >> 1;
-            if (newEst < 0)
-                newEst = newEst * (-1);
+            this.est = this.est >>> 1;
 
             this.index = mid;
 
@@ -274,7 +267,7 @@ automaton HashSet_KeySpliteratorAutomaton
                 visitedKeys = this.visitedKeys,
                 index = lo,
                 fence = mid,
-                est = newEst,
+                est = this.est,
                 expectedModCount = this.expectedModCount,
                 parent = this.parent;
             );
