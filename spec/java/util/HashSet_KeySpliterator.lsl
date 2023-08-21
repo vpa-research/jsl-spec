@@ -38,7 +38,7 @@ val HASHSET_KEYITERATOR_VALUE: Object = 0;
 
 automaton HashSet_KeySpliteratorAutomaton
 (
-    var visitedKeys: map<Object, Object>;
+    var keysStorage: list<Object>;
     var index: int;
     var fence: int;
     var est: int;
@@ -61,6 +61,7 @@ automaton HashSet_KeySpliteratorAutomaton
         // read operations
         characteristics,
         trySplit,
+        estimateSize,
 
         // write operations
         forEachRemaining,
@@ -101,14 +102,6 @@ automaton HashSet_KeySpliteratorAutomaton
     proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
-    }
-
-
-    proc _checkForComodification (): void
-    {
-        val modCount: int = HashSetAutomaton(this.parent).modCount;
-        if (this.expectedModCount != modCount)
-            action THROW_NEW("java.util.ConcurrentModificationException", []);
     }
 
 
@@ -204,7 +197,7 @@ automaton HashSet_KeySpliteratorAutomaton
     {
         action ASSUME(this.parent != null);
 
-        if(act == null)
+        if(userAction == null)
             _throwNPE();
 
         var hi: int = _getFence();
@@ -212,37 +205,16 @@ automaton HashSet_KeySpliteratorAutomaton
 
         // this is correct condition ? It is enough ?
         if(length >= hi && this.index >= 0)
-            result = action LOOP_WHILE(this.index < hi, tryAdvance_loop(act));
+        {
+            val key: Object = action LIST_GET(this.keysStorage, this.index);
+            action CALL(consumer, [key]);
+
+            this.index += 1;
+            _checkForComodification();
+            result = true;
+        }
 
         result = false;
-    }
-
-
-    @Phantom proc tryAdvance_loop (userAction: Consumer): boolean
-    {
-        val key: Object = action SYMBOLIC("java.lang.Object");
-        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
-
-        val parentLength: int = HashSetAutomaton(this.parent).length;
-        val currentLength: int = action MAP_SIZE(visitedKeys);
-        // All elements were visited;
-        if (parentLength == currentLength)
-            result = false;
-
-        val sourceStorageHasKey: bool = action MAP_HAS_KEY(parentStorage, key);
-        action ASSUME(sourceStorageHasKey);
-
-        val destStorageHasKey: bool = action MAP_HAS_KEY(this.visitedKeys, key);
-        action ASSUME(!destStorageHasKey);
-
-        action CALL(consumer, [key]);
-
-        action MAP_SET(this.visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
-
-        _checkForComodification();
-        this.index += 1;
-
-        result = true;
     }
 
 
