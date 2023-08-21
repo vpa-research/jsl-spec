@@ -73,7 +73,11 @@ automaton HashSet_KeySpliteratorAutomaton
 
     constructor *.HashSet_KeySpliterator (@target self: HashSet_KeySpliterator, source: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
     {
-        action TODO();
+        this. = origin;
+        this.index = origin;
+        this.fence = fence;
+        this.est = est;
+        this.expectedModCount = expectedModCount;
     }
 
 
@@ -87,7 +91,7 @@ automaton HashSet_KeySpliteratorAutomaton
         if (hi < 0)
         {
             val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
-            this.est = action MAP_SIZE(parentStorage);
+            this.est = HashSetAutomaton(this.parent).length;
             this.expectedModCount = HashSetAutomaton(this.parent).modCount;
             this.fence = this.est;
             // That's right ?
@@ -224,7 +228,7 @@ automaton HashSet_KeySpliteratorAutomaton
             this.index = mid;
 
             result = new KeySpliteratorAutomaton(state = Initialized,
-                visitedKeys = this.visitedKeys,
+                keysStorage = this.keysStorage,
                 index = lo,
                 fence = mid,
                 est = this.est,
