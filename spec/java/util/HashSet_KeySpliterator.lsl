@@ -146,12 +146,14 @@ automaton HashSet_KeySpliteratorAutomaton
         var mc: int = this.expectedModCount;
         var i: int = this.index;
         val length: int = HashSetAutomaton(this.parent).length;
+
         if(hi < 0)
         {
             this.expectedModCount = HashSetAutomaton(this.parent).modCount;
             mc = this.expectedModCount;
             // problem
             // How correctly write such string "hi = fence = (tab == null) ? 0 : tab.length;"
+            // As I see this condition "tab == null" we mustn't check, because we don't have "map.table" field;
             this.fence = length;
             hi = this.fence
         }
@@ -159,7 +161,7 @@ automaton HashSet_KeySpliteratorAutomaton
         // Original condition: "if (tab != null && tab.length >= hi && (i = index) >= 0 && (i < (index = hi) || current != null))"
         // This is correct this condition translation ?
         this.index = hi;
-        if (length == 0 && length >= hi && i >= 0 && i < this.index)
+        if (length > 0 && length >= hi && i >= 0 && i < this.index)
         {
             // I must think about this:
             action LOOP_WHILE(i < hi, forEachRemaining_loop(userAction, i));
@@ -173,22 +175,8 @@ automaton HashSet_KeySpliteratorAutomaton
 
     @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int): boolean
     {
-        val key: Object = action SYMBOLIC("java.lang.Object");
-        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
-
-        val parentLength: int = HashSetAutomaton(this.parent).length;
-        val currentLength: int = action MAP_SIZE(visitedKeys);
-
-        val sourceStorageHasKey: bool = action MAP_HAS_KEY(parentStorage, key);
-        action ASSUME(sourceStorageHasKey);
-
-        val destStorageHasKey: bool = action MAP_HAS_KEY(this.visitedKeys, key);
-        action ASSUME(!destStorageHasKey);
-
+        val key: Object = action LIST_GET(this.keysStorage, this.index);
         action CALL(consumer, [key]);
-
-        action MAP_SET(this.visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
-
         i += 1;
     }
 
