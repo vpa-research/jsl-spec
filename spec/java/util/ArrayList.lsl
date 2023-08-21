@@ -184,7 +184,7 @@ automaton ArrayListAutomaton
     }
 
 
-    proc _checkForComodification (expectedModCount: int): void
+    @KeepVisible proc _checkForComodification (expectedModCount: int): void
     {
         if (this.modCount != expectedModCount)
             action THROW_NEW("java.util.ConcurrentModificationException", []);
