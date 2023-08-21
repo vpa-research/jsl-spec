@@ -34,9 +34,8 @@ annotation Deprecated (
 annotation GenerateMe ();
 
 
-// disables code generation for subroutine and uses its body as an element for loop or other structure
-// should be used only on subroutines
-annotation Phantom ();
+// Indicates that a subroutine should be callable by other automata types and instances.
+annotation KeepVisible ();
 
 
 // The merked method does not return to normal execution.
@@ -48,11 +47,15 @@ annotation Parameterized (
     typeParameters: array<string>,
 );
 
-
 // unused
 annotation ParameterizedResult (
     typeParameters: array<string>,
 );
+
+
+// disables code generation for subroutine and uses its body as an element for loop or other structure
+// should be used only on subroutines
+annotation Phantom ();
 
 
 // The marked action stops execution of current control flow by throwing exception or other means.
