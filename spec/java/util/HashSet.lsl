@@ -11,6 +11,7 @@ import java-common.lsl;
 import java/lang/_interfaces;
 import java/io/_interfaces;
 import java/util/_interfaces.lsl;
+import java/util/function/_interfaces;
 
 
 // local semantic types
@@ -78,7 +79,9 @@ automaton HashSetAutomaton
         clear,
         remove,
         removeAll,
-        retainAll
+        retainAll,
+        removeIf,
+        forEach,
     ]
 
 
@@ -607,7 +610,7 @@ automaton HashSetAutomaton
 
     fun *.removeIf (@target self: HashSet, filter: Predicate): boolean
     {
-        if (c == null)
+        if (filter == null)
             _throwNPE();
 
         val lengthBeforeAdd: int = this.length;
@@ -617,7 +620,7 @@ automaton HashSetAutomaton
 
         action LOOP_WHILE(
             i < lengthBeforeAdd,
-            _removeIf_loop(iter, i, visitedKeys, filter)
+            _removeIf_loop(i, visitedKeys, filter)
         );
 
         if (lengthBeforeAdd != this.length)
@@ -630,7 +633,7 @@ automaton HashSetAutomaton
     }
 
 
-    @Phantom proc _removeIf_loop(iter: Iterator, i: int, visitedKeys: map<Object, Object>, filter: Predicate): void
+    @Phantom proc _removeIf_loop(i: int, visitedKeys: map<Object, Object>, filter: Predicate): void
     {
         val key: Object = action SYMBOLIC("java.lang.Object");
         action ASSUME(key != null);
@@ -649,6 +652,39 @@ automaton HashSetAutomaton
         }
 
         i += 1;
+        action MAP_SET(visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
     }
 
+
+    fun *.forEach (@target self: HashSet, userAction: Consumer): void
+    {
+        if (userAction == null)
+            _throwNPE();
+
+        var i: int = 0;
+        val visitedKeys: map<Object, Object> = action MAP_NEW();
+
+
+        action LOOP_WHILE(
+            i < this.length,
+            _forEach_loop(i, visitedKeys, filter)
+        );
+    }
+
+
+    @Phantom proc _forEach_loop(i: int, visitedKeys: map<Object, Object>, userAction: Consumer): void
+    {
+        val key: Object = action SYMBOLIC("java.lang.Object");
+        action ASSUME(key != null);
+        val isKeyExist: boolean = MAP_HAS_KEY(this.storage, key);
+        action ASSUME(isKeyExist);
+
+        val isKeyWasVisited: boolean = MAP_HAS_KEY(visitedKeys, key);
+        action ASSUME(!isKeyWasVisited);
+
+        action CALL_METHOD(userAction, "accept", [key]);
+
+        i += 1;
+        action MAP_SET(visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
+    }
 }
