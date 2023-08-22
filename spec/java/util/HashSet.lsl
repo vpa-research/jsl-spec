@@ -63,6 +63,8 @@ automaton HashSetAutomaton
         size,
 
         clone,
+        equals,
+        hashcode,
 
         iterator,
         spliterator,
@@ -70,7 +72,8 @@ automaton HashSetAutomaton
         // write operations
         add,
         clear,
-        remove
+        remove,
+        removeAll
     ]
 
 
@@ -409,6 +412,9 @@ automaton HashSetAutomaton
         val isKeyExist: boolean = MAP_HAS_KEY(this.storage, key);
         action ASSUME(isKeyExist);
 
+        val isKeyWasVisited: boolean = MAP_HAS_KEY(visitedKeys, key);
+        action ASSUME(!isKeyWasVisited);
+
         val isCollectionContainsKey: boolean = action CALL_METHOD(c, "contains", [key]);
 
         if (isCollectionContainsKey)
@@ -419,6 +425,36 @@ automaton HashSetAutomaton
 
         action MAP_SET(visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
         i += 1;
+    }
+
+
+    fun toArray(@target self: HashSet): array<Object>
+    {
+        val size: int = this.length;
+        result = action SYMBOLIC_ARRAY("java.lang.Object", size);
+
+        val visitedKeys: map<Object, Object> = action MAP_NEW();
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, size, +1,
+            toArray_loop(i, visitedKeys) // result assignment is implicit
+        );
+    }
+
+
+    @Phantom proc toArray_loop(i: int, visitedKeys: map<Object, Object>): array<Object>
+    {
+        val key: Object = action SYMBOLIC("java.lang.Object");
+        action ASSUME(key != null);
+        val isKeyExist: boolean = MAP_HAS_KEY(this.storage, key);
+        action ASSUME(isKeyExist);
+
+        val isKeyWasVisited: boolean = MAP_HAS_KEY(visitedKeys, key);
+        action ASSUME(!isKeyWasVisited);
+
+        result[i] = key;
+
+        action MAP_SET(visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
     }
 
 }
