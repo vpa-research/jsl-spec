@@ -324,7 +324,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun equals (@target self: HashSet, other: Object): boolean
+    fun *.equals (@target self: HashSet, other: Object): boolean
     {
         if (other == self)
             result = true;
@@ -353,13 +353,13 @@ automaton HashSetAutomaton
     }
 
 
-    fun hashCode (@target self: HashSet): int
+    fun *.hashCode (@target self: HashSet): int
     {
         result = action OBJECT_HASH_CODE(this.storage);
     }
 
 
-    fun removeAll (@target self: HashSet, c: Collection): boolean
+    fun *.removeAll (@target self: HashSet, c: Collection): boolean
     {
         if (c == null)
             action THROW_NEW("java.lang.NullPointerException", []);
@@ -428,8 +428,9 @@ automaton HashSetAutomaton
     }
 
 
-    fun toArray(@target self: HashSet): array<Object>
+    fun *.toArray(@target self: HashSet): array<Object>
     {
+        val expectedModCount: int = this.modCount;
         val size: int = this.length;
         result = action SYMBOLIC_ARRAY("java.lang.Object", size);
 
@@ -439,6 +440,7 @@ automaton HashSetAutomaton
             i, 0, size, +1,
             toArray_loop(i, visitedKeys) // result assignment is implicit
         );
+        _checkForComodification(expectedModCount);
     }
 
 
@@ -456,5 +458,37 @@ automaton HashSetAutomaton
 
         action MAP_SET(visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
     }
+
+
+    fun *.toArray (@target self: HashSet, a: array<Object>): array<Object>
+    {
+        val expectedModCount: int = this.modCount;
+        val aLen: int = action ARRAY_SIZE(a);
+        val size: int = this.length;
+        var i: int = 0;
+        val visitedKeys: map<Object, Object> = action MAP_NEW();
+
+        if (aLen < size)
+        {
+            result = action SYMBOLIC_ARRAY("java.lang.Object", size);
+            action LOOP_FOR(
+                i, 0, size, +1,
+                toArray_loop(i, visitedKeys) // result assignment is implicit
+            );
+
+        }
+        else
+        {
+            result = a;
+            action LOOP_FOR(
+                i, 0, size, +1,
+                toArray_loop(i, visitedKeys) // result assignment is implicit
+            );
+
+        }
+        _checkForComodification(expectedModCount);
+    }
+
+
 
 }
