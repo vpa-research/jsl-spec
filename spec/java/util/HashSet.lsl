@@ -107,7 +107,7 @@ automaton HashSetAutomaton
 
         this.storage = action MAP_NEW();
 
-        CALL_METHOD(this.storage, "addAll", [c])
+        _addAllElements(c);
 
         this.length = size;
         this.modCounter = 0;
@@ -206,6 +206,38 @@ automaton HashSetAutomaton
     {
         if (this.modCount != expectedModCount)
             action THROW_NEW("java.util.ConcurrentModificationException", []);
+    }
+
+
+    proc _addAllElements (c: Collection): boolean
+    {
+        val lengthBeforeAdd: int = this.length;
+        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+
+        action LOOP_WHILE(
+            action CALL_METHOD(iter, "hasNext", []),
+            _addAllElements_loop(iter)
+        );
+
+        this.modCount += 1;
+
+        if (lengthBeforeAdd < this.length)
+            result = true;
+        else
+            result = false;
+    }
+
+
+    @Phantom proc _addAllElements_loop(iter: Iterator): void
+    {
+        val key: Object = action CALL_METHOD(iter, "next", []);
+        val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);
+
+        if(!hasKey)
+        {
+            action MAP_SET(this.storage, key, HASHSET_KEYITERATOR_VALUE);
+            this.length += 1;
+        }
     }
 
 
@@ -514,5 +546,11 @@ automaton HashSetAutomaton
         {
             isContainsAll = false;
         }
+    }
+
+
+    fun *.addAll (c: Collection): boolean
+    {
+        result = _addAllElements(c);
     }
 }
