@@ -59,6 +59,7 @@ automaton HashSetAutomaton
     shift Initialized -> this by [
         // read operations
         contains,
+        containsAll,
         isEmpty,
         size,
 
@@ -68,12 +69,16 @@ automaton HashSetAutomaton
 
         iterator,
         spliterator,
+        toArray(HashSet),
+        toArray(HashSet, array<Object>),
 
         // write operations
         add,
+        addAll,
         clear,
         remove,
-        removeAll
+        removeAll,
+        retainAll
     ]
 
 
@@ -219,10 +224,11 @@ automaton HashSetAutomaton
             _addAllElements_loop(iter)
         );
 
-        this.modCount += 1;
-
         if (lengthBeforeAdd < this.length)
+        {
+            this.modCount += 1;
             result = true;
+        }
         else
             result = false;
     }
@@ -233,11 +239,18 @@ automaton HashSetAutomaton
         val key: Object = action CALL_METHOD(iter, "next", []);
         val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);
 
-        if(!hasKey)
+        if (!hasKey)
         {
             action MAP_SET(this.storage, key, HASHSET_KEYITERATOR_VALUE);
             this.length += 1;
         }
+    }
+
+
+    @AutoInline
+    proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
     }
 
 
@@ -394,7 +407,7 @@ automaton HashSetAutomaton
     fun *.removeAll (@target self: HashSet, c: Collection): boolean
     {
         if (c == null)
-            action THROW_NEW("java.lang.NullPointerException", []);
+            _throwNPE();
 
         val expectedModCount: int = this.modCount;
 
@@ -552,5 +565,42 @@ automaton HashSetAutomaton
     fun *.addAll (c: Collection): boolean
     {
         result = _addAllElements(c);
+    }
+
+
+    fun *.retainAll(c: Collection): boolean
+    {
+        if (c == null)
+            _throwNPE();
+
+        val lengthBeforeAdd: int = this.length;
+        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+
+        action LOOP_WHILE(
+            action CALL_METHOD(iter, "hasNext", []),
+            _retainAllElements_loop(iter)
+        );
+
+
+        if (lengthBeforeAdd != this.length)
+        {
+            this.modCount += 1;
+            result = true;
+        }
+        else
+            result = false;
+    }
+
+
+    @Phantom proc _retainAllElements_loop(iter: Iterator): void
+    {
+        val key: Object = action CALL_METHOD(iter, "next", []);
+        val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);
+
+        if (!hasKey)
+        {
+            action MAP_REMOVE(this.storage, key);
+            this.length -= 1;
+        }
     }
 }
