@@ -490,5 +490,29 @@ automaton HashSetAutomaton
     }
 
 
+    fun *.containsAll (@target self: HashSet, c: Collection): boolean
+    {
+        val otherSize: int = action CALL_METHOD(c, "size", []);
+        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+        var isContainsAll: boolean = true;
 
+        action LOOP_WHILE(
+            action CALL_METHOD(iter, "hasNext", []),
+            _containsAllElements_loop(iter, isContainsAll)
+        );
+        // This is right ? Can we understand that boolean value was changed in cycle ?
+        result = isContainsAll;
+    }
+
+
+    @Phantom proc _containsAllElements_loop(iter: Iterator, isContainsAll: boolean): void
+    {
+        val key: Object = action CALL_METHOD(iter, "next", []);
+        val isKeyExist: boolean = MAP_HAS_KEY(this.storage, key);
+
+        if (!isKeyExist)
+        {
+            isContainsAll = false;
+        }
+    }
 }
