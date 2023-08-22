@@ -413,7 +413,7 @@ automaton HashSetAutomaton
 
         val otherSize: int = action CALL_METHOD(c, "size", []);
         val iter: Iterator = action CALL_METHOD(c, "iterator", []);
-        val i: int = 0;
+        var i: int = 0;
         val lengthBeforeRemoving: int = this.length;
 
         if (this.length > otherSize)
@@ -562,13 +562,13 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.addAll (c: Collection): boolean
+    fun *.addAll (@target self: HashSet, c: Collection): boolean
     {
         result = _addAllElements(c);
     }
 
 
-    fun *.retainAll(c: Collection): boolean
+    fun *.retainAll(@target self: HashSet, c: Collection): boolean
     {
         if (c == null)
             _throwNPE();
@@ -603,4 +603,52 @@ automaton HashSetAutomaton
             this.length -= 1;
         }
     }
+
+
+    fun *.removeIf (@target self: HashSet, filter: Predicate): boolean
+    {
+        if (c == null)
+            _throwNPE();
+
+        val lengthBeforeAdd: int = this.length;
+        var i: int = 0;
+        val visitedKeys: map<Object, Object> = action MAP_NEW();
+
+
+        action LOOP_WHILE(
+            i < lengthBeforeAdd,
+            _removeIf_loop(iter, i, visitedKeys, filter)
+        );
+
+        if (lengthBeforeAdd != this.length)
+        {
+            this.modCount += 1;
+            result = true;
+        }
+        else
+            result = false;
+    }
+
+
+    @Phantom proc _removeIf_loop(iter: Iterator, i: int, visitedKeys: map<Object, Object>, filter: Predicate): void
+    {
+        val key: Object = action SYMBOLIC("java.lang.Object");
+        action ASSUME(key != null);
+        val isKeyExist: boolean = MAP_HAS_KEY(this.storage, key);
+        action ASSUME(isKeyExist);
+
+        val isKeyWasVisited: boolean = MAP_HAS_KEY(visitedKeys, key);
+        action ASSUME(!isKeyWasVisited);
+
+        var isDelete: boolean = action CALL_METHOD(filter, "test", [key]);
+
+        if(isDelete)
+        {
+            action MAP_REMOVE(this.storage, key);
+            this.length -= 1;
+        }
+
+        i += 1;
+    }
+
 }
