@@ -28,6 +28,26 @@ import java/util/function/_interfaces;
 }
 
 
+@GenerateMe
+// Problem: inner class extends
+@extends("java.util.HashMap$HashMapSpliterator")
+@implements("java.util.Spliterator")
+@public @static @final type HashSet_KeySpliterator
+    is java.util.HashSet_KeySpliterator
+    for Spliterator
+{
+}
+
+
+@GenerateMe
+@implements("java.util.Iterator")
+@public @final type HashSet_KeyIterator
+    is java.util.HashSet_KeyIterator
+    for Iterator
+{
+}
+
+
 // === CONSTANTS ===
 
 val HASHSET_KEYITERATOR_VALUE: Object = 0;
@@ -713,4 +733,358 @@ automaton HashSetAutomaton
         i += 1;
         action MAP_SET(visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
     }
+}
+
+
+automaton HashSet_KeyIteratorAutomaton
+(
+    var expectedModCount: int,
+    var visitedKeys: map<Object, Object>,
+    var parent: HashSet
+)
+: HashSet_KeyIterator
+{
+
+    var index: int = 0;
+    var currentKey: Object = null;
+    var nextWasCalled: boolean = false;
+
+    // states and shifts
+
+    initstate Allocated;
+    state Initialized;
+
+     shift Allocated -> Initialized by [
+            // constructors
+            // Problem: here mustn't be "HashMap"; What must be here ? What we must to do with constructor ?
+            HashSet_KeyIterator,
+     ];
+
+    shift Initialized -> self by [
+        // read operations
+        hasNext,
+
+        // write operations
+        next,
+        remove,
+    ];
+
+    // constructors
+
+    @private constructor *.HashSet_KeyIterator (@target self: HashSet_KeyIterator, source: HashMap)
+    {
+        action ERROR("Private constructor call");
+    }
+
+
+    // utilities
+
+    proc _checkForComodification (): void
+    {
+        val modCount: int = HashSetAutomaton(this.parent).modCount;
+        if (this.expectedModCount != modCount)
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+    }
+
+    // methods
+
+    fun *.hasNext (@target self: HashSet_KeyIterator): boolean
+    {
+        action ASSUME(this.parent != null);
+        val length: int = HashSetAutomaton(this.parent).length;
+        result = this.index < length;
+    }
+
+
+    @final fun *.next (@target self: HashSet_KeyIterator): Object
+    {
+        action ASSUME(this.parent != null);
+        _checkForComodification();
+
+        val length: int = HashSetAutomaton(this.parent).length;
+        val atValidPosition: boolean = this.index < length;
+        if (!atValidPosition)
+            action THROW_NEW("java.util.NoSuchElementException", []);
+
+        val key: Object = action SYMBOLIC("java.lang.Object");
+        action ASSUME(key != null);
+        action ASSUME(key != this.currentKey);
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        val sourceStorageHasKey: bool = action MAP_HAS_KEY(parentStorage, key);
+        action ASSUME(sourceStorageHasKey);
+        val destStorageHasKey: bool = action MAP_HAS_KEY(this.visitedKeys, key);
+        action ASSUME(!destStorageHasKey);
+
+        this.currentKey = key;
+        result = key;
+
+        action MAP_SET(this.visitedKeys, this.currentKey, HASHSET_KEYITERATOR_VALUE);
+        this.index += 1;
+        this.nextWasCalled = true;
+    }
+
+
+    fun *.remove (@target self: HashSet_KeyIterator): void
+    {
+        action ASSUME(this.parent != null);
+        val length: int = HashSetAutomaton(this.parent).length;
+        val atValidPosition: boolean = this.index < length;
+        if (!atValidPosition || !this.nextWasCalled)
+            action THROW_NEW("java.lang.IllegalStateException", []);
+
+        this.nextWasCalled = false;
+
+        _checkForComodification();
+
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        action MAP_REMOVE(parentStorage, this.currentKey);
+
+        this.expectedModCount = HashSetAutomaton(this.parent).modCount;
+    }
+
+
+    fun *.forEachRemaining (@target self: HashSet_KeyIterator, userAction: Consumer): void
+    {
+        action ASSUME(this.parent != null);
+
+        if (userAction == null)
+            action THROW_NEW("java.lang.NullPointerException", []);
+
+        val length: int = HashSetAutomaton(this.parent).length;
+        var i: int = this.cursor;
+
+        action LOOP_WHILE(
+            i < length,
+            forEachRemaining_loop(userAction, i)
+        );
+
+        this.cursor = i;
+        this.nextWasCalled = true;
+    }
+
+
+    @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int): void
+    {
+        _checkForComodification();
+
+        val key: Object = action SYMBOLIC("java.lang.Object");
+        action ASSUME(key != null);
+        action ASSUME(key != this.currentKey);
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        val sourceStorageHasKey: bool = action MAP_HAS_KEY(parentStorage, key);
+        action ASSUME(sourceStorageHasKey);
+        val destStorageHasKey: bool = action MAP_HAS_KEY(this.visitedKeys, key);
+        action ASSUME(!destStorageHasKey);
+
+        this.currentKey = key;
+        action MAP_SET(this.visitedKeys, this.currentKey, HASHSET_KEYITERATOR_VALUE);
+
+        action CALL(userAction, [key]);
+        i += 1;
+    }
+
+}
+
+
+automaton HashSet_KeySpliteratorAutomaton
+(
+    var keysStorage: list<Object>,
+    var index: int,
+    var fence: int,
+    var est: int,
+    var expectedModCount: int,
+    var parent: HashSet
+)
+: HashSet_KeySpliterator
+{
+    // states and shifts
+
+    initstate Allocated;
+    state Initialized;
+
+    shift Allocated -> Initialized by [
+        // constructors
+        HashSet_KeySpliterator,
+    ];
+
+    shift Initialized -> this by [
+        // read operations
+        characteristics,
+        trySplit,
+        estimateSize,
+
+        // write operations
+        forEachRemaining,
+        tryAdvance,
+    ];
+
+
+    // constructors
+
+    constructor *.HashSet_KeySpliterator (@target self: HashSet_KeySpliterator, source: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
+    {
+        this.index = origin;
+        this.fence = fence;
+        this.est = est;
+        this.expectedModCount = expectedModCount;
+    }
+
+
+    // utilities
+
+    proc _getFence(): int
+    {
+        action ASSUME(this.parent != null);
+
+        var hi: int = this.fence;
+        if (hi < 0)
+        {
+            val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+            this.est = HashSetAutomaton(this.parent).length;
+            this.expectedModCount = HashSetAutomaton(this.parent).modCount;
+            this.fence = this.est;
+            // That's right ?
+            // Original code: "hi = fence = (tab == null) ? 0 : tab.length;"
+            hi = this.fence;
+        }
+        result = hi;
+    }
+
+
+    @AutoInline
+    proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
+    proc _checkForComodification (): void
+    {
+        val modCount: int = HashSetAutomaton(this.parent).modCount;
+        if (this.expectedModCount != modCount)
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+    }
+
+
+    // methods
+
+    fun *.estimateSize (@target self: HashSet_KeySpliterator): long
+    {
+        _getFence();
+        result = this.est as long;
+    }
+
+
+    fun *.characteristics (@target self: HashSet_KeySpliterator): int
+    {
+        action ASSUME(this.parent != null);
+
+        var mask: int = 0;
+        val length: int = HashSetAutomaton(this.parent).length;
+        if (this.fence < 0 || this.est == length)
+            mask = 64;
+
+        result = mask | 1;
+    }
+
+
+    fun *.forEachRemaining (@target self: HashSet_KeySpliterator, userAction: Consumer): void
+    {
+        action ASSUME(this.parent != null);
+
+        if(userAction == null)
+            _throwNPE();
+
+        var hi: int = this.fence;
+        var mc: int = this.expectedModCount;
+        var i: int = this.index;
+        val length: int = HashSetAutomaton(this.parent).length;
+
+        if(hi < 0)
+        {
+            this.expectedModCount = HashSetAutomaton(this.parent).modCount;
+            mc = this.expectedModCount;
+            // problem
+            // How correctly write such string "hi = fence = (tab == null) ? 0 : tab.length;"
+            // As I see this condition "tab == null" we mustn't check, because we don't have "map.table" field;
+            this.fence = length;
+            hi = this.fence;
+        }
+
+        // Original condition: "if (tab != null && tab.length >= hi && (i = index) >= 0 && (i < (index = hi) || current != null))"
+        // This is correct this condition translation ?
+        this.index = hi;
+        if (length > 0 && length >= hi && i >= 0 && i < this.index)
+        {
+            // I must think about this:
+            action LOOP_WHILE(i < hi, forEachRemaining_loop(userAction, i));
+
+            val modCount: int = HashSetAutomaton(this.parent).modCount;
+            if (modCount != mc)
+                action THROW_NEW("java.util.ConcurrentModificationException", []);
+        }
+    }
+
+
+    @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int): boolean
+    {
+        val key: Object = action LIST_GET(this.keysStorage, this.index);
+        action CALL(userAction, [key]);
+        i += 1;
+    }
+
+
+    fun *.tryAdvance (@target self: HashSet_KeySpliterator, userAction: Consumer): boolean
+    {
+        action ASSUME(this.parent != null);
+
+        if(userAction == null)
+            _throwNPE();
+
+        var hi: int = _getFence();
+        val length: int = HashSetAutomaton(this.parent).length;
+
+        // this is correct condition ? It is enough ?
+        if(length >= hi && this.index >= 0)
+        {
+            val key: Object = action LIST_GET(this.keysStorage, this.index);
+            action CALL(userAction, [key]);
+
+            this.index += 1;
+            _checkForComodification();
+            result = true;
+        }
+
+        result = false;
+    }
+
+
+    fun *.trySplit (@target self: HashSet_KeySpliterator): HashSet_KeySpliterator
+    {
+        action ASSUME(this.parent != null);
+
+        val hi: int = _getFence();
+        val lo: int = this.index;
+
+        var mid: int = (hi + lo) >>> 1;
+
+        if (lo >= mid)
+            result = null;
+        else
+        {
+            this.est = this.est >>> 1;
+
+            this.index = mid;
+
+            result = new HashSet_KeySpliterator(state = Initialized,
+                keysStorage = this.keysStorage,
+                index = lo,
+                fence = mid,
+                est = this.est,
+                expectedModCount = this.expectedModCount,
+                parent = this.parent
+            );
+        }
+    }
+
 }
