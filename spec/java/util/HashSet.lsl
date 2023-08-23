@@ -1,21 +1,20 @@
 libsl "1.1.0";
 
-library "std:???"
+library std
     version "11"
     language "Java"
     url "-";
 
 // imports
 
-import java-common.lsl;
+import java.common;
 import java/lang/_interfaces;
 import java/io/_interfaces;
-import java/util/_interfaces.lsl;
+import java/util/_interfaces;
 import java/util/function/_interfaces;
 
 
 // local semantic types
-
 @GenerateMe
 @extends("java.util.AbstractSet")
 @implements("java.util.Set")
@@ -25,7 +24,7 @@ import java/util/function/_interfaces;
     is java.util.HashSet
     for Set
 {
-    @static @final var serialVersionUID: long = -5024744406713321676;
+    //@static @final var serialVersionUID: long = -5024744406713321676;
 }
 
 
@@ -38,9 +37,9 @@ val HASHSET_KEYITERATOR_VALUE: Object = 0;
 
 automaton HashSetAutomaton
 (
-    var storage: map<Object, Object> = null;
-    @transient var length: int = 0;
-    @transient var modCounter: int = 0;
+    var storage: map<Object, Object> = null,
+    @transient var length: int = 0,
+    @transient var modCounter: int = 0
 )
 : HashSet
 {
@@ -82,7 +81,7 @@ automaton HashSetAutomaton
         retainAll,
         removeIf,
         forEach,
-    ]
+    ];
 
 
     // constructors
@@ -313,10 +312,11 @@ automaton HashSetAutomaton
 
     fun *.iterator (@target self: HashSet): Iterator
     {
-        result = new KeyIterator(state = Initialized,
+        val visitedKeysMap: map<Object, Object> = action MAP_NEW();
+        result = new HashSet_KeyIterator(state = Initialized,
             expectedModCount = this.modCount,
-            sourceStorage = this.storage,
-            length = this.length
+            visitedKeys = visitedKeysMap,
+            parent = this
         );
     }
 
@@ -348,13 +348,39 @@ automaton HashSetAutomaton
 
     fun *.spliterator (@target self: HashSet): Spliterator
     {
-        // Problem - 1) how import KeySpliterator automaton ? 2) We must change realization of this, because it uses not "map" now.
-        result = new KeySpliterator(state=Initialized,
-            this.hasMap,
-            origin = 0,
+        val keysStorageList: list<Object> = action LIST_NEW();
+        val visitedKeys: map<Object, Object> = action MAP_NEW();
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            fromMapToList_loop(i, keysStorageList, visitedKeys)
+        );
+
+
+        result = new HashSet_KeySpliteratorAutomaton(state=Initialized,
+            keysStorage = keysStorageList,
+            index = 0,
             fence = -1,
-            est = 0
-            expectedModCount = 0)
+            est = 0,
+            expectedModCount = this.modCount,
+            parent = this);
+    }
+
+
+    @Phantom proc fromMapToList_loop (i: int, keysStorageList: list<Object>, visitedKeys: map<Object, Object>): void
+    {
+        val key: Object = action SYMBOLIC("java.lang.Object");
+        action ASSUME(key != null);
+        val isKeyExist: boolean = MAP_HAS_KEY(this.storage, key);
+        action ASSUME(isKeyExist);
+
+        val isKeyWasVisited: boolean = MAP_HAS_KEY(visitedKeys, key);
+        action ASSUME(!isKeyWasVisited);
+
+        action LIST_INSERT_AT(keysStorageList, i, key);
+
+        i += 1;
+        action MAP_SET(visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
     }
 
 
