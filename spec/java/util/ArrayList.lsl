@@ -541,7 +541,9 @@ automaton ArrayListAutomaton
     // within java.util.Collection
     fun *.parallelStream (@target self: ArrayList): Stream
     {
-        action TODO();
+        // #problem: no streams
+        result = action SYMBOLIC("java.util.stream.Stream");
+        action ASSUME(result != null);
     }
 
 
@@ -695,7 +697,9 @@ automaton ArrayListAutomaton
     // within java.util.Collection
     fun *.stream (@target self: ArrayList): Stream
     {
-        action TODO();
+        // #problem: no streams
+        result = action SYMBOLIC("java.util.stream.Stream");
+        action ASSUME(result != null);
     }
 
 
@@ -740,7 +744,18 @@ automaton ArrayListAutomaton
     // within java.util.Collection
     fun *.toArray (@target self: ArrayList, generator: IntFunction): array<Object>
     {
-        action TODO();
+        // acting just like the JDK
+        val a: array<Object> = action CALL_METHOD(generator, "accept", [0]);
+
+        val size: int = this.length;
+        // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)
+        result = action ARRAY_NEW("java.lang.Object", size);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, size, +1,
+            toArray_loop(i) // result assignment is implicit
+        );
     }
 
 
