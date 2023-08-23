@@ -65,6 +65,7 @@ automaton ArrayListAutomaton
     shift Initialized -> self by [
         // read operations
         contains,
+        containsAll,
         get,
         indexOf,
         isEmpty,
@@ -320,6 +321,26 @@ automaton ArrayListAutomaton
     fun *.contains (@target self: ArrayList, o: Object): boolean
     {
         result = action LIST_FIND(this.storage, o, 0, this.length) >= 0;
+    }
+
+
+    fun *.containsAll (@target self: ArrayList, c: Collection): boolean
+    {
+        // TODO: check if 'C' has this automaton and add more optimized version
+
+        result = true;
+
+        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+        action LOOP_WHILE(
+            result && action CALL_METHOD(iter, "hasNext", []),
+            containsAll_loop(iter)
+        );
+    }
+
+    @Phantom proc containsAll_loop(iter: Iterator): boolean
+    {
+        val item: Object = action CALL_METHOD(iter, "next", []);
+        result &= action LIST_FIND(this.storage, item, 0, this.length) >= 0;
     }
 
 
