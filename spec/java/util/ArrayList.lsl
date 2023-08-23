@@ -57,43 +57,45 @@ automaton ArrayListAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        ArrayList(ArrayList),
-        ArrayList(ArrayList, int),
-        ArrayList(ArrayList, Collection)
+        ArrayList (ArrayList),
+        ArrayList (ArrayList, Collection),
+        ArrayList (ArrayList, int),
     ];
 
     shift Initialized -> self by [
         // read operations
+        clone,
         contains,
         containsAll,
+        equals,
+        forEach,
         get,
+        hashCode,
         indexOf,
         isEmpty,
-        lastIndexOf,
-        size,
-
-        toString,
-        hashCode,
-        clone,
-
         iterator,
-        listIterator(ArrayList),
-        listIterator(ArrayList, int),
+        lastIndexOf,
+        listIterator (ArrayList),
+        listIterator (ArrayList, int),
+        parallelStream,
+        size,
         spliterator,
+        stream,
         subList,
-        toArray(ArrayList),
-        //toArray(ArrayList, array<Object>), // #problem
+        toArray (ArrayList),
+        toArray (ArrayList, IntFunction),
+        toArray (ArrayList, array<Object>),
+        toString,
 
         // write operations
-        add(ArrayList, Object),
-        add(ArrayList, int, Object),
-        addAll(ArrayList, Collection),
-        addAll(ArrayList, int, Collection),
+        add (ArrayList, Object),
+        add (ArrayList, int, Object),
+        addAll (ArrayList, Collection),
+        addAll (ArrayList, int, Collection),
         clear,
         ensureCapacity,
-        forEach,
-        remove(ArrayList, int),
-        remove(ArrayList, Object),
+        remove (ArrayList, Object),
+        remove (ArrayList, int),
         removeAll,
         removeIf,
         replaceAll,
@@ -103,13 +105,12 @@ automaton ArrayListAutomaton
         trimToSize,
     ];
 
-
-    // automaton instance-specific local variables
+    // internal variables
 
     @transient var modCount: int = 0;
 
 
-    // subroutines
+    // utilities
 
     proc _checkValidIndex (index: int): void
     {
@@ -139,6 +140,8 @@ automaton ArrayListAutomaton
     {
         // #todo: add optimized version when 'C' is this automaton (HAS operator is required)
 
+        result = false; // not modified
+
         val iter: Iterator = action CALL_METHOD(c, "iterator", []);
         result = action CALL_METHOD(iter, "hasNext", []);
 
@@ -150,13 +153,14 @@ automaton ArrayListAutomaton
         this.modCount += 1;
     }
 
-    @Phantom proc _addAllElements_loop (iter: Iterator, index: int): void
+    @Phantom proc _addAllElements_loop (iter: Iterator, index: int): boolean
     {
         val item: Object = action CALL_METHOD(iter, "next", []);
         action LIST_INSERT_AT(this.storage, index, item);
 
         index += 1;
         this.length += 1;
+        result = true; // modified
     }
 
 
@@ -257,8 +261,9 @@ automaton ArrayListAutomaton
     }
 
 
-    //constructors
+    // constructors
 
+    // within java.util.ArrayList
     constructor *.ArrayList (@target self: ArrayList)
     {
         this.storage = action LIST_NEW();
@@ -266,18 +271,7 @@ automaton ArrayListAutomaton
     }
 
 
-    constructor *.ArrayList (@target self: ArrayList, initialCapacity: int)
-    {
-        if (initialCapacity < 0)
-        {
-            val message: String = "Illegal Capacity: " + action OBJECT_TO_STRING(initialCapacity);
-            action THROW_NEW("java.lang.IllegalArgumentException", [message]);
-        }
-        this.storage = action LIST_NEW();
-        this.length = 0;
-    }
-
-
+    // within java.util.ArrayList
     constructor *.ArrayList (@target self: ArrayList, c: Collection)
     {
         if (c == null)
@@ -290,40 +284,83 @@ automaton ArrayListAutomaton
     }
 
 
-    //methods
-
-    fun *.trimToSize (@target self: ArrayList): void
+    // within java.util.ArrayList
+    constructor *.ArrayList (@target self: ArrayList, initialCapacity: int)
     {
-        // method is not applicable to this approximation
+        if (initialCapacity < 0)
+        {
+            val message: String = "Illegal Capacity: " + action OBJECT_TO_STRING(initialCapacity);
+            action THROW_NEW("java.lang.IllegalArgumentException", [message]);
+        }
+        this.storage = action LIST_NEW();
+        this.length = 0;
+    }
+
+
+    // methods
+
+    // within java.util.ArrayList
+    fun *.add (@target self: ArrayList, e: Object): boolean
+    {
+        this.modCount += 1;
+        action LIST_INSERT_AT(this.storage, this.length, e);
+        this.length += 1;
+        result = true;
+    }
+
+
+    // within java.util.ArrayList
+    fun *.add (@target self: ArrayList, index: int, element: Object): void
+    {
+        _addElement(index, element);
+    }
+
+
+    // within java.util.ArrayList
+    fun *.addAll (@target self: ArrayList, c: Collection): boolean
+    {
+        result = _addAllElements(this.length, c);
+    }
+
+
+    // within java.util.ArrayList
+    fun *.addAll (@target self: ArrayList, index: int, c: Collection): boolean
+    {
+        _rangeCheckForAdd(index);
+        result = _addAllElements(index, c);
+    }
+
+
+    // within java.util.ArrayList
+    fun *.clear (@target self: ArrayList): void
+    {
+        this.storage = action LIST_NEW();
+        this.length = 0;
         this.modCount += 1;
     }
 
 
-    fun *.ensureCapacity (@target self: ArrayList, minCapacity: int): void
+    // within java.util.ArrayList
+    fun *.clone (@target self: ArrayList): Object
     {
-        // method is not applicable to this approximation
-        this.modCount += 1;
+        val storageCopy: list<Object> = action LIST_NEW();
+        action LIST_COPY(this.storage, storageCopy, 0, 0, this.length);
+
+        result = new ArrayListAutomaton(state = Initialized,
+            storage = storageCopy,
+            length = this.length
+        );
     }
 
 
-    fun *.size (@target self: ArrayList): int
-    {
-        result = this.length;
-    }
-
-
-    fun *.isEmpty (@target self: ArrayList): boolean
-    {
-        result = this.length == 0;
-    }
-
-
+    // within java.util.ArrayList
     fun *.contains (@target self: ArrayList, o: Object): boolean
     {
         result = action LIST_FIND(this.storage, o, 0, this.length) >= 0;
     }
 
 
+    // within java.util.AbstractCollection
     fun *.containsAll (@target self: ArrayList, c: Collection): boolean
     {
         // TODO: check if 'C' has this automaton and add more optimized version
@@ -344,125 +381,15 @@ automaton ArrayListAutomaton
     }
 
 
-    fun *.indexOf (@target self: ArrayList, o: Object): int
+    // within java.util.ArrayList
+    fun *.ensureCapacity (@target self: ArrayList, minCapacity: int): void
     {
-        result = action LIST_FIND(this.storage, o, 0, this.length);
-    }
-
-
-    fun *.lastIndexOf (@target self: ArrayList, o: Object): int
-    {
-        result = action LIST_FIND(this.storage, o, 0, this.length);
-        if (result != -1)
-        {
-            // there should be no elements to the right of the previously found position
-            val nextIndex: int = result + 1;
-            if (nextIndex < this.length)
-            {
-                val rightIndex: int = action LIST_FIND(this.storage, o, nextIndex, this.length);
-                action ASSUME(rightIndex == -1);
-            }
-        }
-    }
-
-
-    fun *.clone (@target self: ArrayList): Object
-    {
-        val storageCopy: list<Object> = action LIST_NEW();
-        action LIST_COPY(this.storage, storageCopy, 0, 0, this.length);
-
-        result = new ArrayListAutomaton(state = Initialized,
-            storage = storageCopy,
-            length = this.length
-        );
-    }
-
-
-    fun *.toArray (@target self: ArrayList): array<Object>
-    {
-        val size: int = this.length;
-        result = action ARRAY_NEW("java.lang.Object", size);
-
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, size, +1,
-            toArray_loop(i) // result assignment is implicit
-        );
-    }
-
-
-    // #problem/todo: use exact parameter names
-    @Phantom proc toArray_loop(i: int): array<Object>
-    {
-        result[i] = action LIST_GET(this.storage, i);
-    }
-
-
-    fun *.toArray (@target self: ArrayList, a: array<Object>): array<Object>
-    {
-        val aLen: int = action ARRAY_SIZE(a);
-        val size: int = this.length;
-        var i: int = 0;
-
-        if (aLen < size)
-        {
-            // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)
-            result = action ARRAY_NEW("java.lang.Object", size);
-
-            action LOOP_FOR(
-                i, 0, size, +1,
-                toArray_loop(i) // result assignment is implicit
-            );
-        }
-        else
-        {
-            result = a;
-
-            action LOOP_FOR(
-                i, 0, size, +1,
-                toArray_loop(i) // result assignment is implicit
-            );
-
-            if (aLen > size)
-                result[size] = null;
-        }
-    }
-
-
-    fun *.get (@target self: ArrayList, index: int): Object
-    {
-        _checkValidIndex(index);
-        result = action LIST_GET(this.storage, index);
-    }
-
-
-    fun *.set (@target self: ArrayList, index: int, element: Object): Object
-    {
-        result = _setElement(index, element);
-    }
-
-
-    fun *.add (@target self: ArrayList, e: Object): boolean
-    {
+        // method is not applicable to this approximation
         this.modCount += 1;
-        action LIST_INSERT_AT(this.storage, this.length, e);
-        this.length += 1;
-        result = true;
     }
 
 
-    fun *.add (@target self: ArrayList, index: int, element: Object): void
-    {
-        _addElement(index, element);
-    }
-
-
-    fun *.remove (@target self: ArrayList, index: int): Object
-    {
-        result = _deleteElement(index);
-    }
-
-
+    // within java.util.ArrayList
     fun *.equals (@target self: ArrayList, other: Object): boolean
     {
         if (other == self)
@@ -489,7 +416,7 @@ automaton ArrayListAutomaton
                     result = false;
                 }
 
-                // #problem
+                // #problem: should be something like
                 // ArrayListAutomaton(other)._checkForComodification(otherExpectedModCount);
                 action DEBUG_DO("((ArrayList) other)._checkForComodification(otherExpectedModCount)");
                 _checkForComodification(expectedModCount);
@@ -502,134 +429,7 @@ automaton ArrayListAutomaton
     }
 
 
-    fun *.toString (@target self: ArrayList): String
-    {
-        result = action OBJECT_TO_STRING(this.storage);
-    }
-
-
-    fun *.hashCode (@target self: ArrayList): int
-    {
-        result = action OBJECT_HASH_CODE(this.storage);
-    }
-
-
-    fun *.remove (@target self: ArrayList, o: Object): boolean
-    {
-        val index: int = action LIST_FIND(this.storage, o, 0, this.length);
-        if (index == -1)
-        {
-            result = false;
-        }
-        else
-        {
-            action LIST_REMOVE(this.storage, index);
-            result = true;
-        }
-    }
-
-
-    fun *.clear (@target self: ArrayList): void
-    {
-        this.storage = action LIST_NEW();
-        this.length = 0;
-        this.modCount += 1;
-    }
-
-
-    fun *.addAll (@target self: ArrayList, c: Collection): boolean
-    {
-        result = _addAllElements(this.length, c);
-    }
-
-
-
-    fun *.addAll (@target self: ArrayList, index: int, c: Collection): boolean
-    {
-        _rangeCheckForAdd(index);
-        result = _addAllElements(index, c);
-    }
-
-
-    fun *.removeAll (@target self: ArrayList, c: Collection): boolean
-    {
-        // TODO: interface call
-        action NOT_IMPLEMENTED("no support for interface calls yet");
-    }
-
-
-    fun *.retainAll (@target self: ArrayList, c: Collection): boolean
-    {
-        // TODO: interface call
-        action NOT_IMPLEMENTED("no support for interface calls yet");
-    }
-
-
-    @throws(["java.io.IOException"])
-    @private fun writeObject (@target self: ArrayList, s: ObjectOutputStream): void
-    {
-        // #question: do we actually need this method?
-        action NOT_IMPLEMENTED("no serialization support yet");
-    }
-
-
-    @throws(["java.io.IOException", "java.lang.ClassNotFoundException"])
-    @private fun readObject (@target self: ArrayList, s: ObjectInputStream): void
-    {
-        // #question: do we actually need this method?
-        action NOT_IMPLEMENTED("no serialization support yet");
-    }
-
-
-    fun *.listIterator (@target self: ArrayList, index: int): ListIterator
-    {
-        _rangeCheckForAdd(index);
-
-        result = new ArrayList_ListIteratorAutomaton(state = Initialized,
-            parent = self,
-            cursor = index,
-            expectedModCount = this.modCount
-        );
-    }
-
-
-    fun *.listIterator (@target self: ArrayList): ListIterator
-    {
-        result = new ArrayList_ListIteratorAutomaton(state = Initialized,
-            parent = self,
-            cursor = 0,
-            expectedModCount = this.modCount
-        );
-    }
-
-
-    fun *.iterator (@target self: ArrayList): Iterator
-    {
-        result = new ArrayList_ListIteratorAutomaton(state = Initialized,
-            parent = self,
-            cursor = 0,
-            expectedModCount = this.modCount
-        );
-    }
-
-
-    fun *.subList (@target self: ArrayList, fromIndex: int, toIndex: int): List
-    {
-        _subListRangeCheck(fromIndex, toIndex, this.length);
-
-        // #problem
-        //We don't have decision about sublists.
-        result = action SYMBOLIC("java.util.List");
-        action ASSUME(result != null);
-        /*
-        result = new ArrayList_SubListAutomaton(state = Created,
-            startIndex = fromIndex,
-            endIndex = toIndex
-        );
-        */
-    }
-
-
+    // within java.util.ArrayList
     fun *.forEach (@target self: ArrayList, anAction: Consumer): void
     {
         if (anAction == null)
@@ -657,20 +457,144 @@ automaton ArrayListAutomaton
     }
 
 
-    fun *.spliterator (@target self: ArrayList): Spliterator
+    // within java.util.ArrayList
+    fun *.get (@target self: ArrayList, index: int): Object
     {
-        /*
-        result = new ArrayList_SpliteratorAutomaton(state = Initialized,
-            origin = 0,
-            est = -1,
-            expectedModCount = 0
-        );
-        */
-        result = action SYMBOLIC("java.util.Spliterator");
-        action ASSUME(result != null);
+        _checkValidIndex(index);
+        result = action LIST_GET(this.storage, index);
     }
 
 
+    // within java.util.ArrayList
+    fun *.hashCode (@target self: ArrayList): int
+    {
+        result = action OBJECT_HASH_CODE(this.storage);
+    }
+
+
+    // within java.util.ArrayList
+    fun *.indexOf (@target self: ArrayList, o: Object): int
+    {
+        result = action LIST_FIND(this.storage, o, 0, this.length);
+    }
+
+
+    // within java.util.ArrayList
+    fun *.isEmpty (@target self: ArrayList): boolean
+    {
+        result = this.length == 0;
+    }
+
+
+    // within java.util.ArrayList
+    fun *.iterator (@target self: ArrayList): Iterator
+    {
+        result = new ArrayList_ListIteratorAutomaton(state = Initialized,
+            parent = self,
+            cursor = 0,
+            expectedModCount = this.modCount
+        );
+    }
+
+
+    // within java.util.ArrayList
+    fun *.lastIndexOf (@target self: ArrayList, o: Object): int
+    {
+        result = action LIST_FIND(this.storage, o, 0, this.length);
+        if (result != -1)
+        {
+            // there should be no elements to the right of the previously found position
+            val nextIndex: int = result + 1;
+            if (nextIndex < this.length)
+            {
+                val rightIndex: int = action LIST_FIND(this.storage, o, nextIndex, this.length);
+                action ASSUME(rightIndex == -1);
+            }
+        }
+    }
+
+
+    // within java.util.ArrayList
+    fun *.listIterator (@target self: ArrayList): ListIterator
+    {
+        result = new ArrayList_ListIteratorAutomaton(state = Initialized,
+            parent = self,
+            cursor = 0,
+            expectedModCount = this.modCount
+        );
+    }
+
+
+    // within java.util.ArrayList
+    fun *.listIterator (@target self: ArrayList, index: int): ListIterator
+    {
+        _rangeCheckForAdd(index);
+
+        result = new ArrayList_ListIteratorAutomaton(state = Initialized,
+            parent = self,
+            cursor = index,
+            expectedModCount = this.modCount
+        );
+    }
+
+
+    // within java.util.Collection
+    fun *.parallelStream (@target self: ArrayList): Stream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.ArrayList
+    fun *.remove (@target self: ArrayList, o: Object): boolean
+    {
+        val index: int = action LIST_FIND(this.storage, o, 0, this.length);
+        if (index == -1)
+        {
+            result = false;
+        }
+        else
+        {
+            result = _deleteElement(index);
+        }
+    }
+
+
+    // within java.util.ArrayList
+    fun *.remove (@target self: ArrayList, index: int): Object
+    {
+        result = _deleteElement(index);
+    }
+
+
+    // within java.util.ArrayList
+    fun *.removeAll (@target self: ArrayList, c: Collection): boolean
+    {
+        // TODO: check if 'C' has this automaton and add more optimized version
+
+        result = false; // not modified
+
+        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+        action LOOP_WHILE(
+            action CALL_METHOD(iter, "hasNext", []),
+            removeAll_loop(iter)
+        );
+    }
+
+    @Phantom proc removeAll_loop (iter: Iterator): boolean
+    {
+        val o: Object = action CALL_METHOD(iter, "next", []);
+        val index: int = action LIST_FIND(this.storage, o, 0, this.length);
+
+        if (index >= 0)
+        {
+            _deleteElement(index);
+            result = true; // modified
+        }
+    }
+
+
+    // within java.util.ArrayList
     fun *.removeIf (@target self: ArrayList, filter: Predicate): boolean
     {
         if (filter == null)
@@ -702,6 +626,7 @@ automaton ArrayListAutomaton
     }
 
 
+    // within java.util.ArrayList
     fun *.replaceAll (@target self: ArrayList, @Parameterized(["E"]) op: UnaryOperator): void
     {
         if (op == null)
@@ -712,6 +637,29 @@ automaton ArrayListAutomaton
     }
 
 
+    // within java.util.ArrayList
+    fun *.retainAll (@target self: ArrayList, c: Collection): boolean
+    {
+        // TODO: interface call
+        action NOT_IMPLEMENTED("no support for interface calls yet");
+    }
+
+
+    // within java.util.ArrayList
+    fun *.set (@target self: ArrayList, index: int, element: Object): Object
+    {
+        result = _setElement(index, element);
+    }
+
+
+    // within java.util.ArrayList
+    fun *.size (@target self: ArrayList): int
+    {
+        result = this.length;
+    }
+
+
+    // within java.util.ArrayList
     fun *.sort (@target self: ArrayList, c: Comparator): void
     {
         if (c == null)
@@ -727,6 +675,139 @@ automaton ArrayListAutomaton
 
         this.modCount += 1;
     }
+
+
+    // within java.util.ArrayList
+    fun *.spliterator (@target self: ArrayList): Spliterator
+    {
+        /*
+        result = new ArrayList_SpliteratorAutomaton(state = Initialized,
+            origin = 0,
+            est = -1,
+            expectedModCount = 0
+        );
+        */
+        result = action SYMBOLIC("java.util.Spliterator");
+        action ASSUME(result != null);
+    }
+
+
+    // within java.util.Collection
+    fun *.stream (@target self: ArrayList): Stream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.ArrayList
+    fun *.subList (@target self: ArrayList, fromIndex: int, toIndex: int): List
+    {
+        _subListRangeCheck(fromIndex, toIndex, this.length);
+
+        // #problem
+        //We don't have decision about sublists.
+        result = action SYMBOLIC("java.util.List");
+        action ASSUME(result != null);
+        /*
+        result = new ArrayList_SubListAutomaton(state = Created,
+            startIndex = fromIndex,
+            endIndex = toIndex
+        );
+        */
+    }
+
+
+    // within java.util.ArrayList
+    fun *.toArray (@target self: ArrayList): array<Object>
+    {
+        val size: int = this.length;
+        result = action ARRAY_NEW("java.lang.Object", size);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, size, +1,
+            toArray_loop(i) // result assignment is implicit
+        );
+    }
+
+    // #problem/todo: use exact parameter names
+    @Phantom proc toArray_loop(i: int): array<Object>
+    {
+        result[i] = action LIST_GET(this.storage, i);
+    }
+
+
+    // within java.util.Collection
+    fun *.toArray (@target self: ArrayList, @Parameterized(["T[]"]) arg0: IntFunction): array<Object>
+    {
+        action TODO();
+    }
+
+
+    // within java.util.ArrayList
+    fun *.toArray (@target self: ArrayList, a: array<Object>): array<Object>
+    {
+        val aLen: int = action ARRAY_SIZE(a);
+        val size: int = this.length;
+        var i: int = 0;
+
+        if (aLen < size)
+        {
+            // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)
+            result = action ARRAY_NEW("java.lang.Object", size);
+
+            action LOOP_FOR(
+                i, 0, size, +1,
+                toArray_loop(i) // result assignment is implicit
+            );
+        }
+        else
+        {
+            result = a;
+
+            action LOOP_FOR(
+                i, 0, size, +1,
+                toArray_loop(i) // result assignment is implicit
+            );
+
+            if (aLen > size)
+                result[size] = null;
+        }
+    }
+
+
+    // within java.util.AbstractCollection
+    fun *.toString (@target self: ArrayList): String
+    {
+        result = action OBJECT_TO_STRING(this.storage);
+    }
+
+
+    // within java.util.ArrayList
+    fun *.trimToSize (@target self: ArrayList): void
+    {
+        // method is not applicable to this approximation
+        this.modCount += 1;
+    }
+
+
+    // special: serialization
+
+    @throws(["java.io.IOException"])
+    @private fun writeObject (@target self: ArrayList, s: ObjectOutputStream): void
+    {
+        // #question: do we actually need this method?
+        action NOT_IMPLEMENTED("no serialization support yet");
+    }
+
+
+    @throws(["java.io.IOException", "java.lang.ClassNotFoundException"])
+    @private fun readObject (@target self: ArrayList, s: ObjectInputStream): void
+    {
+        // #question: do we actually need this method?
+        action NOT_IMPLEMENTED("no serialization support yet");
+    }
+
 }
 
 
