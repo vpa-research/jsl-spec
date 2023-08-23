@@ -136,7 +136,7 @@ automaton ArrayListAutomaton
     }
 
 
-    proc _addAllElements (index: int, @Parameterized(["E"]) c: Collection): boolean
+    proc _addAllElements (index: int, c: Collection): boolean
     {
         // #todo: add optimized version when 'C' is this automaton (HAS operator is required)
 
@@ -238,7 +238,7 @@ automaton ArrayListAutomaton
     }
 
 
-    proc _replaceAllRange (i: int, end: int, @Parameterized(["E"]) op: UnaryOperator): void
+    proc _replaceAllRange (i: int, end: int, op: UnaryOperator): void
     {
         val expectedModCount: int = this.modCount;
 
@@ -627,7 +627,7 @@ automaton ArrayListAutomaton
 
 
     // within java.util.ArrayList
-    fun *.replaceAll (@target self: ArrayList, @Parameterized(["E"]) op: UnaryOperator): void
+    fun *.replaceAll (@target self: ArrayList, op: UnaryOperator): void
     {
         if (op == null)
             _throwNPE();
@@ -738,7 +738,7 @@ automaton ArrayListAutomaton
 
 
     // within java.util.Collection
-    fun *.toArray (@target self: ArrayList, @Parameterized(["T[]"]) arg0: IntFunction): array<Object>
+    fun *.toArray (@target self: ArrayList, generator: IntFunction): array<Object>
     {
         action TODO();
     }
