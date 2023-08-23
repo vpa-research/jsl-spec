@@ -363,18 +363,38 @@ automaton ArrayListAutomaton
     // within java.util.AbstractCollection
     fun *.containsAll (@target self: ArrayList, c: Collection): boolean
     {
-        // TODO: check if 'C' has this automaton and add more optimized version
-
         result = true;
 
-        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
-        action LOOP_WHILE(
-            result && action CALL_METHOD(iter, "hasNext", []),
-            containsAll_loop(iter)
-        );
+        if (c has ArrayListAutomaton)
+        {
+            val otherStorage: list<Object> = ArrayListAutomaton(c).storage;
+            val otherLength: int = ArrayListAutomaton(c).length;
+
+            var i: int = 0;
+            action LOOP_WHILE(
+                result && i < otherLength,
+                containsAll_loop(otherStorage, i)
+            );
+        }
+        else
+        {
+            val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+            action LOOP_WHILE(
+                result && action CALL_METHOD(iter, "hasNext", []),
+                containsAll_loop(iter)
+            );
+        }
     }
 
-    @Phantom proc containsAll_loop(iter: Iterator): boolean
+    @Phantom proc containsAll_loop (otherStorage: list<Object>, i: int): boolean
+    {
+        val item: Object = action LIST_GET(otherStorage, i);
+        result &= action LIST_FIND(this.storage, item, 0, this.length) >= 0;
+
+        i += 1;
+    }
+
+    @Phantom proc containsAll_loop (iter: Iterator): boolean
     {
         val item: Object = action CALL_METHOD(iter, "next", []);
         result &= action LIST_FIND(this.storage, item, 0, this.length) >= 0;
