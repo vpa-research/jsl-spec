@@ -10,7 +10,7 @@ library any
 import translator.annotations;
 import actions.array;
 import actions.list;
-//import actions.map; // #problem: types with multiple type parameters
+import actions.map;
 
 
 /// generator-specific actions
