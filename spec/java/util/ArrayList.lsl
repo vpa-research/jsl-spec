@@ -263,7 +263,6 @@ automaton ArrayListAutomaton
 
     // constructors
 
-    // within java.util.ArrayList
     constructor *.ArrayList (@target self: ArrayList)
     {
         this.storage = action LIST_NEW();
@@ -271,7 +270,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     constructor *.ArrayList (@target self: ArrayList, c: Collection)
     {
         if (c == null)
@@ -284,7 +282,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     constructor *.ArrayList (@target self: ArrayList, initialCapacity: int)
     {
         if (initialCapacity < 0)
@@ -299,7 +296,6 @@ automaton ArrayListAutomaton
 
     // methods
 
-    // within java.util.ArrayList
     fun *.add (@target self: ArrayList, e: Object): boolean
     {
         this.modCount += 1;
@@ -309,21 +305,18 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.add (@target self: ArrayList, index: int, element: Object): void
     {
         _addElement(index, element);
     }
 
 
-    // within java.util.ArrayList
     fun *.addAll (@target self: ArrayList, c: Collection): boolean
     {
         result = _addAllElements(this.length, c);
     }
 
 
-    // within java.util.ArrayList
     fun *.addAll (@target self: ArrayList, index: int, c: Collection): boolean
     {
         _rangeCheckForAdd(index);
@@ -331,7 +324,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.clear (@target self: ArrayList): void
     {
         this.storage = action LIST_NEW();
@@ -340,7 +332,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.clone (@target self: ArrayList): Object
     {
         val storageCopy: list<Object> = action LIST_NEW();
@@ -353,7 +344,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.contains (@target self: ArrayList, o: Object): boolean
     {
         result = action LIST_FIND(this.storage, o, 0, this.length) >= 0;
@@ -401,7 +391,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.ensureCapacity (@target self: ArrayList, minCapacity: int): void
     {
         // method is not applicable to this approximation
@@ -409,7 +398,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.equals (@target self: ArrayList, other: Object): boolean
     {
         if (other == self)
@@ -449,7 +437,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.forEach (@target self: ArrayList, anAction: Consumer): void
     {
         if (anAction == null)
@@ -477,7 +464,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.get (@target self: ArrayList, index: int): Object
     {
         _checkValidIndex(index);
@@ -485,28 +471,24 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.hashCode (@target self: ArrayList): int
     {
         result = action OBJECT_HASH_CODE(this.storage);
     }
 
 
-    // within java.util.ArrayList
     fun *.indexOf (@target self: ArrayList, o: Object): int
     {
         result = action LIST_FIND(this.storage, o, 0, this.length);
     }
 
 
-    // within java.util.ArrayList
     fun *.isEmpty (@target self: ArrayList): boolean
     {
         result = this.length == 0;
     }
 
 
-    // within java.util.ArrayList
     fun *.iterator (@target self: ArrayList): Iterator
     {
         result = new ArrayList_ListIteratorAutomaton(state = Initialized,
@@ -517,7 +499,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.lastIndexOf (@target self: ArrayList, o: Object): int
     {
         result = action LIST_FIND(this.storage, o, 0, this.length);
@@ -534,7 +515,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.listIterator (@target self: ArrayList): ListIterator
     {
         result = new ArrayList_ListIteratorAutomaton(state = Initialized,
@@ -545,7 +525,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.listIterator (@target self: ArrayList, index: int): ListIterator
     {
         _rangeCheckForAdd(index);
@@ -567,7 +546,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.remove (@target self: ArrayList, o: Object): boolean
     {
         val index: int = action LIST_FIND(this.storage, o, 0, this.length);
@@ -582,14 +560,12 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.remove (@target self: ArrayList, index: int): Object
     {
         result = _deleteElement(index);
     }
 
 
-    // within java.util.ArrayList
     fun *.removeAll (@target self: ArrayList, c: Collection): boolean
     {
         // TODO: check if 'C' has this automaton and add more optimized version
@@ -616,7 +592,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.removeIf (@target self: ArrayList, filter: Predicate): boolean
     {
         if (filter == null)
@@ -648,7 +623,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.replaceAll (@target self: ArrayList, op: UnaryOperator): void
     {
         if (op == null)
@@ -659,7 +633,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.retainAll (@target self: ArrayList, c: Collection): boolean
     {
         // TODO: interface call
@@ -667,21 +640,18 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.set (@target self: ArrayList, index: int, element: Object): Object
     {
         result = _setElement(index, element);
     }
 
 
-    // within java.util.ArrayList
     fun *.size (@target self: ArrayList): int
     {
         result = this.length;
     }
 
 
-    // within java.util.ArrayList
     fun *.sort (@target self: ArrayList, c: Comparator): void
     {
         if (c == null)
@@ -699,7 +669,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.spliterator (@target self: ArrayList): Spliterator
     {
         /*
@@ -723,7 +692,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.subList (@target self: ArrayList, fromIndex: int, toIndex: int): List
     {
         _subListRangeCheck(fromIndex, toIndex, this.length);
@@ -741,7 +709,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.toArray (@target self: ArrayList): array<Object>
     {
         val size: int = this.length;
@@ -779,7 +746,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.toArray (@target self: ArrayList, a: array<Object>): array<Object>
     {
         val aLen: int = action ARRAY_SIZE(a);
@@ -818,7 +784,6 @@ automaton ArrayListAutomaton
     }
 
 
-    // within java.util.ArrayList
     fun *.trimToSize (@target self: ArrayList): void
     {
         // method is not applicable to this approximation
