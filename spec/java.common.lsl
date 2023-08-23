@@ -49,31 +49,27 @@ annotation volatile ();
 
 annotation strict ();
 
-
-
-// === CONSTANTS ===
-
-
-
-//val null: Object = 0;
-
-//val false: boolean = 0;
-//val true: boolean = 1;
+annotation FunctionalInterface (
+    callableName: string = null
+);
 
 
 
 // === TYPES ===
 
 
-/*@TypeMapping(builtin=true)*/ typealias boolean = bool;
-/*@TypeMapping(builtin=true)*/ typealias byte    = int8;
-/*@TypeMapping(builtin=true)*/ typealias short   = int16;
-/*@TypeMapping(builtin=true)*/ typealias int     = int32;
-/*@TypeMapping(builtin=true)*/ typealias long    = int64;
-/*@TypeMapping(builtin=true)*/ typealias float   = float32;
-/*@TypeMapping(builtin=true)*/ typealias double  = float64;
-/*@TypeMapping(builtin=true)*/
-type Object is java.lang.Object for Object {}
+typealias boolean = bool;
+typealias byte    = int8;
+typealias short   = int16;
+typealias int     = int32;
+typealias long    = int64;
+typealias float   = float32;
+typealias double  = float64;
+
+type Object is java.lang.Object for Object
+{
+    // WARNING: use OBJECT_HASH_CODE and OBJECT_EQUALS actions instead of calling these methods directly
+}
 
 
 // === ACTIONS ===
@@ -81,29 +77,41 @@ type Object is java.lang.Object for Object {}
 
 // language-specific features
 
+
 @StopsControlFlow
-define action THROW_NEW(
+define action THROW_NEW (
         exceptionType: string,
         params: array<any>
     ): void;
 
 @StopsControlFlow
-define action THROW_VALUE(
+define action THROW_VALUE (
         value: any
     ): void;
 
 
+
+
 // work-arounds
 
-define action CALL(
+
+define action CALL (
         callable: any,
-        params: array<any>
+        args: array<any>
     ): any;
 
 
-// "ad-hoc" solutions
+define action CALL_METHOD (
+        obj: any,
+        methodName: string, // literal!
+        args: array<any>
+    ): any;
 
-// the same as something like: return a == b || (a != null && a.equals(b))
+
+
+// helper methods in runtime
+
+
 define action OBJECT_EQUALS(
         a: any,
         b: any

@@ -4,13 +4,17 @@ libsl "1.1.0";
 library std
     version "11"
     language "Java"
-    url "-";
+    url "https://github.com/openjdk/jdk11/tree/master/src/java.base/share/classes/java/util";
+
+// imports
 
 import java.common;
 import java/lang/_interfaces;
 
 
-@Parameterized(["T"]) // #problem
+// semantic types
+
+@Parameterized(["T"])
 type Comparator
     is java.util.Comparator
     for Object
@@ -19,15 +23,18 @@ type Comparator
 }
 
 
-@Parameterized(["E"]) // #problem
+@Parameterized(["E"])
 type Iterator
     is java.util.Iterator
     for Object
 {
+    fun hasNext(): boolean;
+
+    fun next(): Object;
 }
 
 
-@Parameterized(["T"]) // #problem
+@Parameterized(["T"])
 type Spliterator
     is java.util.Spliterator
     for Object
@@ -35,30 +42,92 @@ type Spliterator
 }
 
 
-@Parameterized(["K", "V"]) // #problem
+@Parameterized(["K", "V"])
 type Map
     is java.util.Map
-    for Object // #question: add map here?
+    for Object
 {
+    fun size(): int;
+
+    fun isEmpty(): boolean;
+
+    fun containsKey(key: Object): boolean;
+
+    fun containsValue(value: Object): boolean;
+
+    fun get(key: Object): Object;
+
+    fun put(key: Object, value: Object): Object;
+
+    fun remove(key: Object): Object;
+
+    fun remove(key: Object, value: Object): boolean;
+
+    fun clear(): void;
 }
 
-@Parameterized(["K", "V"]) // #problem
-type MapEntry
+@Parameterized(["K", "V"])
+type Map_Entry
     is java.util.Map.Entry
     for Object
 {
+    fun getKey(): Object;
+
+    fun getValue(): Object;
+
+    fun setValue(value: Object): Object;
 }
 
 
-@Parameterized(["E"]) // #problem
+@Parameterized(["E"])
 type Collection
     is java.util.Collection
-    for Iterable, Object
+    for Iterable
 {
+    fun size(): int;
+
+    fun isEmpty(): boolean;
+
+    fun contains(o: Object): boolean;
+
+    @ParameterizedResult(["E"])
+    fun iterator(): Iterator;
+
+    fun toArray(): array<Object>;
+
+    @Parameterized(["T"])
+    @ParameterizedResult(["T"])
+    fun toArray(@Parameterized(["T"]) a: array<Object>): array<Object>;
+
+    /*
+    @Parameterized(["T"])
+    @ParameterizedResult(["T"])
+    fun toArray(@Parameterized(["T[]"]) generator: IntFunction): array<Object>;
+    */
+
+    fun add(e: Object): boolean;
+
+    fun remove(o: Object): boolean;
+
+    // #problem
+    //fun containsAll(@Parameterized(["?"]) c: Collection): boolean;
+
+    // #problem
+    //fun addAll(@Parameterized(["? extends E"]) c: Collection): boolean;
+
+    // #problem
+    //fun removeAll(@Parameterized(["?"]) c: Collection): boolean;
+
+    //fun removeIf(@Parameterized(["? super E"]) filter: Predicate): boolean;
+
+    // #problem
+    //fun retainAll(@Parameterized(["?"]) c: Collection): boolean;
+
+    fun clear(): void;
 }
 
 
-@Parameterized(["E"]) // #problem
+@Parameterized(["E"])
 type List
     is java.util.List
     for Collection
@@ -66,7 +135,7 @@ type List
 }
 
 
-@Parameterized(["E"]) // #problem
+@Parameterized(["E"])
 type Set
     is java.util.Set
     for Collection
@@ -74,7 +143,7 @@ type Set
 }
 
 
-@Parameterized(["E"]) // #problem
+@Parameterized(["E"])
 type Queue
     is java.util.Queue
     for Collection
@@ -82,7 +151,7 @@ type Queue
 }
 
 
-@Parameterized(["E"]) // #problem
+@Parameterized(["E"])
 type Deque
     is java.util.Deque
     for Queue
@@ -90,7 +159,7 @@ type Deque
 }
 
 
-@Parameterized(["E"]) // #problem
+@Parameterized(["E"])
 type ListIterator
     is java.util.ListIterator
     for Iterator
