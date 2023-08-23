@@ -745,7 +745,7 @@ automaton ArrayListAutomaton
     fun *.toArray (@target self: ArrayList, generator: IntFunction): array<Object>
     {
         // acting just like the JDK
-        val a: array<Object> = action CALL_METHOD(generator, "accept", [0]);
+        val a: array<Object> = action CALL_METHOD(generator, "apply", [0]);
 
         val size: int = this.length;
         // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)
