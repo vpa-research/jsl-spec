@@ -108,6 +108,27 @@ define action CALL_METHOD (
     ): any;
 
 
+/*
+Usage example:
+action TRY_CATCH(
+    _try_proc(),
+    [
+        ["java.lang.Error",     _catch_proc_a()],
+        ["java.util.Exception", _catch_proc_b()],
+    ]
+);
+*/
+define action TRY_CATCH (
+        tryBlock: any,                // subroutine call!
+        catchTable: array<array<any>> // pairs of {name: str, handler: call}
+    ): void;
+
+
+// WARNING: applicable only within the exception handler ("catch") subroutine
+define action CATCH_GET_EXCEPTION_REF (
+    ): Object;
+
+
 
 // helper methods in runtime
 
