@@ -133,15 +133,15 @@ define action CATCH_GET_EXCEPTION_REF (
 // helper methods in runtime
 
 
-define action OBJECT_EQUALS(
+define action OBJECT_SAME_TYPE (
         a: any,
         b: any
     ): boolean;
 
-define action OBJECT_TO_STRING(
+define action OBJECT_TO_STRING (
         value: any
     ): string;
 
-define action OBJECT_HASH_CODE(
+define action OBJECT_HASH_CODE (
         value: any
     ): int;
