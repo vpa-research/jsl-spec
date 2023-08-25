@@ -108,7 +108,7 @@ automaton HashSetAutomaton
 
     // constructors
 
-    constructor *.HashSet (@Target self: HashSet)
+    constructor *.HashSet (@target self: HashSet)
     {
         assigns this.storage;
         assigns this.length;
@@ -123,7 +123,7 @@ automaton HashSetAutomaton
     }
 
 
-    constructor *.HashSet (@Target self: HashSet, c: Collection)
+    constructor *.HashSet (@target self: HashSet, c: Collection)
     {
         requires c != null;
         assigns this.storage;
@@ -139,7 +139,7 @@ automaton HashSetAutomaton
     }
 
 
-    constructor *.HashSet (@Target self: HashSet, initialCapacity: int)
+    constructor *.HashSet (@target self: HashSet, initialCapacity: int)
     {
         requires initialCapacity >= 0;
         assigns this.storage;
@@ -163,7 +163,7 @@ automaton HashSetAutomaton
     }
 
 
-    constructor *.HashSet (@Target self: HashSet, initialCapacity: int, loadFactor: float)
+    constructor *.HashSet (@target self: HashSet, initialCapacity: int, loadFactor: float)
     {
         requires initialCapacity >= 0;
         requires loadFactor > 0;
@@ -198,7 +198,7 @@ automaton HashSetAutomaton
     }
 
 
-    constructor *.HashSet (@Target self: HashSet, initialCapacity: int, loadFactor: float, dummy: boolean)
+    constructor *.HashSet (@target self: HashSet, initialCapacity: int, loadFactor: float, dummy: boolean)
     {
         // Problem; We don't have LinkedHashMap automaton at this moment !
         action TODO();
@@ -277,7 +277,7 @@ automaton HashSetAutomaton
 
     // methods
 
-    fun *.add (@Target self: HashSet, obj: Object): boolean
+    fun *.add (@target self: HashSet, obj: Object): boolean
     {
         assigns this.values;
         ensures this.length' >= this.length;
@@ -299,13 +299,13 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.clear (@Target self: HashSet): void
+    fun *.clear (@target self: HashSet): void
     {
         this._clearMappings();
     }
 
 
-    fun *.clone (@Target self: HashSet): Object
+    fun *.clone (@target self: HashSet): Object
     {
         val clonedStorage: map<Object, Object> = action MAP_NEW();
 
@@ -314,7 +314,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.contains (@Target self: HashSet, obj: Object): boolean
+    fun *.contains (@target self: HashSet, obj: Object): boolean
     {
         if (this.length == 0)
             result = false;
@@ -323,13 +323,13 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.isEmpty (@Target self: HashSet): boolean
+    fun *.isEmpty (@target self: HashSet): boolean
     {
         result = this.length == 0;
     }
 
 
-    fun *.iterator (@Target self: HashSet): Iterator
+    fun *.iterator (@target self: HashSet): Iterator
     {
         val visitedKeysMap: map<Object, Object> = action MAP_NEW();
         result = new HashSet_KeyIteratorAutomaton(state = Initialized,
@@ -341,7 +341,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.remove (@Target self: HashSet, obj: Object): boolean
+    fun *.remove (@target self: HashSet, obj: Object): boolean
     {
         assigns this.storage;
         assigns this.length;
@@ -360,13 +360,13 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.size (@Target self: HashSet): int
+    fun *.size (@target self: HashSet): int
     {
         result = this.length;
     }
 
 
-    fun *.spliterator (@Target self: HashSet): Spliterator
+    fun *.spliterator (@target self: HashSet): Spliterator
     {
         val keysStorageList: list<Object> = action LIST_NEW();
         val visitedKeys: map<Object, Object> = action MAP_NEW();
@@ -405,26 +405,28 @@ automaton HashSetAutomaton
 
 
     @throws(["java.io.IOException"])
-    @private fun *.writeObject (@Target self: HashSet, s: ObjectOutputStream): void
+    @private fun *.writeObject (@target self: HashSet, s: ObjectOutputStream): void
     {
         action NOT_IMPLEMENTED("no serialization support yet");
     }
 
 
     @throws(["java.io.IOException", "java.lang.ClassNotFoundException"])
-    @private fun *.readObject (@Target self: HashSet, s: ObjectInputStream): void
+    @private fun *.readObject (@target self: HashSet, s: ObjectInputStream): void
     {
         action NOT_IMPLEMENTED("no serialization support yet");
     }
 
 
-    fun *.equals (@Target self: HashSet, other: Object): boolean
+    fun *.equals (@target self: HashSet, other: Object): boolean
     {
         if (other == self)
             result = true;
         else
         {
-            val isSameType: boolean = action OBJECT_SAME_TYPE(self, other);
+            // Problem ! We don't have such action "OBJECT_SAME_TYPE";
+            //val isSameType: boolean = action OBJECT_SAME_TYPE(self, other);
+            val isSameType: boolean = true;
             if (isSameType)
             {
                 val expectedModCount: int = this.modCount;
@@ -447,13 +449,13 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.hashCode (@Target self: HashSet): int
+    fun *.hashCode (@target self: HashSet): int
     {
         result = action OBJECT_HASH_CODE(this.storage);
     }
 
 
-    fun *.removeAll (@Target self: HashSet, c: Collection): boolean
+    fun *.removeAll (@target self: HashSet, c: Collection): boolean
     {
         if (c == null)
             _throwNPE();
@@ -522,7 +524,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.toArray(@Target self: HashSet): array<Object>
+    fun *.toArray(@target self: HashSet): array<Object>
     {
         val expectedModCount: int = this.modCount;
         val size: int = this.length;
@@ -554,7 +556,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.toArray (@Target self: HashSet, a: array<Object>): array<Object>
+    fun *.toArray (@target self: HashSet, a: array<Object>): array<Object>
     {
         val expectedModCount: int = this.modCount;
         val aLen: int = action ARRAY_SIZE(a);
@@ -584,7 +586,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.containsAll (@Target self: HashSet, c: Collection): boolean
+    fun *.containsAll (@target self: HashSet, c: Collection): boolean
     {
         val otherSize: int = action CALL_METHOD(c, "size", []);
         val iter: Iterator = action CALL_METHOD(c, "iterator", []);
@@ -611,13 +613,13 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.addAll (@Target self: HashSet, c: Collection): boolean
+    fun *.addAll (@target self: HashSet, c: Collection): boolean
     {
         result = _addAllElements(c);
     }
 
 
-    fun *.retainAll(@Target self: HashSet, c: Collection): boolean
+    fun *.retainAll(@target self: HashSet, c: Collection): boolean
     {
         if (c == null)
             _throwNPE();
@@ -654,7 +656,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.removeIf (@Target self: HashSet, filter: Predicate): boolean
+    fun *.removeIf (@target self: HashSet, filter: Predicate): boolean
     {
         if (filter == null)
             _throwNPE();
@@ -702,7 +704,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.forEach (@Target self: HashSet, userAction: Consumer): void
+    fun *.forEach (@target self: HashSet, userAction: Consumer): void
     {
         if (userAction == null)
             _throwNPE();
@@ -771,7 +773,7 @@ automaton HashSet_KeyIteratorAutomaton
 
     // constructors
 
-    @private constructor *.HashSet_KeyIterator (@Target self: HashSet_KeyIterator, source: HashMap)
+    @private constructor *.HashSet_KeyIterator (@target self: HashSet_KeyIterator, source: HashMap)
     {
         action ERROR("Private constructor call");
     }
@@ -788,7 +790,7 @@ automaton HashSet_KeyIteratorAutomaton
 
     // methods
 
-    fun *.hasNext (@Target self: HashSet_KeyIterator): boolean
+    fun *.hasNext (@target self: HashSet_KeyIterator): boolean
     {
         action ASSUME(this.parent != null);
         val length: int = HashSetAutomaton(this.parent).length;
@@ -796,7 +798,7 @@ automaton HashSet_KeyIteratorAutomaton
     }
 
 
-    @final fun *.next (@Target self: HashSet_KeyIterator): Object
+    @final fun *.next (@target self: HashSet_KeyIterator): Object
     {
         action ASSUME(this.parent != null);
         _checkForComodification();
@@ -824,7 +826,7 @@ automaton HashSet_KeyIteratorAutomaton
     }
 
 
-    fun *.remove (@Target self: HashSet_KeyIterator): void
+    fun *.remove (@target self: HashSet_KeyIterator): void
     {
         action ASSUME(this.parent != null);
         val length: int = HashSetAutomaton(this.parent).length;
@@ -843,7 +845,7 @@ automaton HashSet_KeyIteratorAutomaton
     }
 
 
-    fun *.forEachRemaining (@Target self: HashSet_KeyIterator, userAction: Consumer): void
+    fun *.forEachRemaining (@target self: HashSet_KeyIterator, userAction: Consumer): void
     {
         action ASSUME(this.parent != null);
 
@@ -921,7 +923,7 @@ automaton HashSet_KeySpliteratorAutomaton
 
     // constructors
 
-    constructor *.HashSet_KeySpliterator (@Target self: HashSet_KeySpliterator, source: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
+    constructor *.HashSet_KeySpliterator (@target self: HashSet_KeySpliterator, source: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
     {
         this.index = origin;
         this.fence = fence;
@@ -968,14 +970,14 @@ automaton HashSet_KeySpliteratorAutomaton
 
     // methods
 
-    fun *.estimateSize (@Target self: HashSet_KeySpliterator): long
+    fun *.estimateSize (@target self: HashSet_KeySpliterator): long
     {
         _getFence();
         result = this.est as long;
     }
 
 
-    fun *.characteristics (@Target self: HashSet_KeySpliterator): int
+    fun *.characteristics (@target self: HashSet_KeySpliterator): int
     {
         action ASSUME(this.parent != null);
 
@@ -988,7 +990,7 @@ automaton HashSet_KeySpliteratorAutomaton
     }
 
 
-    fun *.forEachRemaining (@Target self: HashSet_KeySpliterator, userAction: Consumer): void
+    fun *.forEachRemaining (@target self: HashSet_KeySpliterator, userAction: Consumer): void
     {
         action ASSUME(this.parent != null);
 
@@ -1034,7 +1036,7 @@ automaton HashSet_KeySpliteratorAutomaton
     }
 
 
-    fun *.tryAdvance (@Target self: HashSet_KeySpliterator, userAction: Consumer): boolean
+    fun *.tryAdvance (@target self: HashSet_KeySpliterator, userAction: Consumer): boolean
     {
         action ASSUME(this.parent != null);
 
@@ -1059,7 +1061,7 @@ automaton HashSet_KeySpliteratorAutomaton
     }
 
 
-    fun *.trySplit (@Target self: HashSet_KeySpliterator): HashSet_KeySpliterator
+    fun *.trySplit (@target self: HashSet_KeySpliterator): HashSet_KeySpliterator
     {
         action ASSUME(this.parent != null);
 
