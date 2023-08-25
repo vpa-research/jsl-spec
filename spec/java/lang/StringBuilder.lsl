@@ -33,6 +33,13 @@ automaton StringBuilderAutomaton
 )
 : StringBuilder
 {
+
+    var storage: array<byte>;
+    var length: int;
+    // Problem
+    // How can we get this value from "java.lang.String" ?
+    val coder: byte;
+
     // states and shifts
 
     initstate Allocated;
@@ -94,29 +101,81 @@ automaton StringBuilderAutomaton
 
     constructor *.StringBuilder (@target self: StringBuilder)
     {
-        action TODO();
+        assigns this.storage;
+        assigns this.length;
+        ensures this.storage != null;
+        ensures this.length == 16;
+        // Can we give type = "byte" in ARRAY_NEW action ?
+        this.storage = action ARRAY_NEW("java.lang.Byte", 16);
+        this.length = 16;
     }
 
 
     constructor *.StringBuilder (@target self: StringBuilder, seq: CharSequence)
     {
-        action TODO();
+        assigns this.storage;
+        assigns this.length;
+        ensures this.storage != null;
+        ensures this.length >= 16;
+
+        val seqLength: Iterator = action CALL_METHOD(seq, "length", []);
+        val newLength = seqLength + 16;
+
+        // Can we give type = "byte" in ARRAY_NEW action ?
+        this.storage = action ARRAY_NEW("java.lang.Byte", newLength);
+        this.length = newLength;
+        _append(seq);
     }
 
 
     constructor *.StringBuilder (@target self: StringBuilder, str: String)
     {
-        action TODO();
+        assigns this.storage;
+        assigns this.length;
+        ensures this.storage != null;
+        ensures this.length >= 0;
+
+        // Problem:
+        // How do we can get str.length ?
+
+        // Can we give type = "byte" in ARRAY_NEW action ?
+        this.storage = action ARRAY_NEW("java.lang.Byte", capacity);
+        this.length = capacity;
+        _append(str);
     }
 
 
     constructor *.StringBuilder (@target self: StringBuilder, capacity: int)
     {
-        action TODO();
+        assigns this.storage;
+        assigns this.length;
+        ensures this.storage != null;
+        ensures this.length == capacity;
+        // Can we give type = "byte" in ARRAY_NEW action ?
+        this.storage = action ARRAY_NEW("java.lang.Byte", capacity);
+        this.length = capacity;
     }
 
 
     // static methods
+
+
+    // utilities
+
+    proc _append (seq: CharSequence): void
+    {
+        action TODO();
+        /*if (seq == null)
+        {
+
+        }*/
+    }
+
+    proc _append (str: String): void
+    {
+        action TODO();
+    }
+
 
     // methods
 
