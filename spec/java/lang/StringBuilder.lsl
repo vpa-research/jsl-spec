@@ -16,13 +16,13 @@ import java/lang/_interfaces;
 
 @extends("java.lang.AbstractStringBuilder")
 @implements("java.io.Serializable")
-@implements("java.lang.Comparable<StringBuilder>")
+@implements("java.lang.Comparable")
 @implements("java.lang.CharSequence")
 @public @final type StringBuilder
     is java.lang.StringBuilder
     for Object
 {
-    @private @static @final var serialVersionUID: long = 4383685877147921099;
+    //@private @static @final var serialVersionUID: long = 4383685877147921099;
 }
 
 
