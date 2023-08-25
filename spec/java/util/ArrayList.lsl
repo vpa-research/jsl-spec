@@ -261,6 +261,37 @@ automaton ArrayListAutomaton
     }
 
 
+    @KeepVisible proc _removeIf(filter: Predicate, start: int, end: int): boolean
+    {
+        if (filter == null)
+            _throwNPE();
+
+        result = false; // not modified
+        val expectedModCount: int = this.modCount;
+
+        // remove elements from the back first
+        var i: int = 0;
+        action LOOP_FOR(
+            i, end - 1, start, -1,
+            _removeIf_loop(i, filter)
+        );
+
+        _checkForComodification(expectedModCount);
+    }
+
+    @Phantom proc _removeIf_loop (i: int, filter: Predicate): boolean
+    {
+        val item: Object = action LIST_GET(this.storage, i);
+        if (action CALL(filter, [item]))
+        {
+            action LIST_REMOVE(this.storage, i);
+            this.length -= 1;
+
+            result = true; // modified
+        }
+    }
+
+
     // constructors
 
     constructor *.ArrayList (@target self: ArrayList)
@@ -594,32 +625,7 @@ automaton ArrayListAutomaton
 
     fun *.removeIf (@target self: ArrayList, filter: Predicate): boolean
     {
-        if (filter == null)
-            _throwNPE();
-
-        val expectedModCount: int = modCount;
-
-        // #problem: loop with interface calls
-        action NOT_IMPLEMENTED("no support for interface calls");
-
-        //val res = action CALL(filter, [storage]);
-        // if (res == null)
-        // {
-        //     result = false;
-        //     if (modCount != expectedModCount)
-        //     {
-        //         action THROW_NEW("java.util.ConcurrentModificationException", []);
-        //     }
-        // }
-        // else
-        // {
-        //     result = true;
-        //     if (modCount != expectedModCount)
-        //     {
-        //         action THROW_NEW("java.util.ConcurrentModificationException", []);
-        //     }
-        //     modCount = modCount + 1;
-        // }
+        result = _removeIf(filter, 0, this.length);
     }
 
 
