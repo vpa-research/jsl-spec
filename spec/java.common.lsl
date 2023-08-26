@@ -124,6 +124,7 @@ define action TRY_CATCH (
     ): void;
 
 
+// Used to get reference to the caught exception within the 'catch' section of 'try-catch' block.
 // WARNING: applicable only within the exception handler ("catch") subroutine
 define action CATCH_GET_EXCEPTION_REF (
     ): Object;
