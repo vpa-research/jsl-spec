@@ -9,8 +9,8 @@ library std
 // imports
 
 import java.common;
-import java/lang/_interfaces;
 import java/io/_interfaces;
+import java/lang/_interfaces;
 import java/util/_interfaces;
 import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
@@ -18,7 +18,6 @@ import java/util/stream/_interfaces;
 
 // local semantic types
 
-@Parameterized(["E"])
 @extends("java.util.AbstractSequentialList")
 @implements("java.util.List")
 @implements("java.util.Deque")
@@ -49,66 +48,77 @@ automaton LinkedListAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LinkedList(LinkedList),
-        LinkedList(LinkedList, Collection)
+        LinkedList (LinkedList),
+        LinkedList (LinkedList, Collection),
     ];
 
     shift Initialized -> self by [
-        // read operations
-        getFirst,
-        getLast,
-        contains,
-        size,
-        get,
-        indexOf(LinkedList, Object),
-        indexOf(LinkedList, int),
-        lastIndexOf,
-        peek,
-        element,
-        peekFirst,
-        peekLast,
-        toArray,
-        forEach,
-        spliterator,
-        listIterator,
-
-        toString,
-        hashCode,
-        clone,
-
-        // write operations
-        removeFirst,
-        removeLast,
+        // instance methods
+        add (LinkedList, Object),
+        add (LinkedList, int, Object),
+        addAll (LinkedList, Collection),
+        addAll (LinkedList, int, Collection),
         addFirst,
         addLast,
-        add(LinkedList, Object),
-        add(LinkedList, int, Object),
-        remove(LinkedList),
-        remove(LinkedList, int),
-        remove(LinkedList, Object),
-        addAll(LinkedList, Collection),
-        addAll(LinkedList, int, Collection),
         clear,
-        set,
-        poll,
+        clone,
+        contains,
+        containsAll,
+        descendingIterator,
+        element,
+        equals,
+        forEach,
+        get,
+        getFirst,
+        getLast,
+        hashCode,
+        indexOf,
+        isEmpty,
+        iterator,
+        lastIndexOf,
+        listIterator (LinkedList),
+        listIterator (LinkedList, int),
         offer,
         offerFirst,
         offerLast,
+        parallelStream,
+        peek,
+        peekFirst,
+        peekLast,
+        poll,
         pollFirst,
         pollLast,
-        push,
         pop,
+        push,
+        remove (LinkedList),
+        remove (LinkedList, Object),
+        remove (LinkedList, int),
+        removeAll,
+        removeFirst,
         removeFirstOccurrence,
+        removeIf,
+        removeLast,
         removeLastOccurrence,
+        replaceAll,
+        retainAll,
+        set,
+        size,
+        sort,
+        spliterator,
+        stream,
+        subList,
+        toArray (LinkedList),
+        toArray (LinkedList, IntFunction),
+        toArray (LinkedList, array<Object>),
+        toString,
     ];
 
-
-    // automaton instance-specific local variables
+    // internal variables
 
     @transient var modCount: int = 0;
 
 
-    // subroutines
+    // utilities
 
     proc _unlinkAny (index: int): Object
     {
@@ -232,7 +242,7 @@ automaton LinkedListAutomaton
     }
 
 
-    constructor *.LinkedList (@target self: LinkedList, @Parameterized(["E"]) c: Collection)
+    constructor *.LinkedList (@target self: LinkedList, c: Collection)
     {
         if (c == null)
             action THROW_NEW("java.lang.NullPointerException", []);
@@ -245,6 +255,136 @@ automaton LinkedListAutomaton
 
 
     // methods
+
+    fun *.add (@target self: LinkedList, e: Object): boolean
+    {
+        _linkAny(this.size, e);
+        result = true;
+    }
+
+
+    fun *.add (@target self: LinkedList, index: int, element: Object): void
+    {
+        _checkPositionIndex(index);
+        _linkAny(index, element);
+    }
+
+
+    fun *.addAll (@target self: LinkedList, c: Collection): boolean
+    {
+        result = _addAllElements(this.size, c);
+    }
+
+
+    fun *.addAll (@target self: LinkedList, index: int, c: Collection): boolean
+    {
+        result = _addAllElements(index, c);
+    }
+
+
+    fun *.addFirst (@target self: LinkedList, e: Object): void
+    {
+        _linkAny(0, e);
+    }
+
+
+    fun *.addLast (@target self: LinkedList, e: Object): void
+    {
+        _linkAny(this.size, e);
+    }
+
+
+    fun *.clear (@target self: LinkedList): void
+    {
+        this.storage = action LIST_NEW();
+        this.size = 0;
+        this.modCount += 1;
+    }
+
+
+    fun *.clone (@target self: LinkedList): Object
+    {
+        val storageCopy: list<Object> = action LIST_NEW();
+        action LIST_COPY(this.storage, storageCopy, 0, 0, this.size);
+
+        result = new LinkedListAutomaton(state = Initialized,
+            storage = storageCopy,
+            size = this.size
+        );
+    }
+
+
+    fun *.contains (@target self: LinkedList, o: Object): boolean
+    {
+        result = action LIST_FIND(this.storage, o, 0, this.size) >= 0;
+    }
+
+
+    // within java.util.AbstractCollection
+    fun *.containsAll (@target self: LinkedList, c: Collection): boolean
+    {
+        action TODO();
+    }
+
+
+    fun *.descendingIterator (@target self: LinkedList): Iterator
+    {
+        // #problem: not implemented
+        /*
+        result = new DescendingIterator(state = Created);
+        */
+        result = action SYMBOLIC("java.util.Iterator");
+        action ASSUME(result != null);
+    }
+
+
+    fun *.element (@target self: LinkedList): Object
+    {
+        result = _getFirstElement();
+    }
+
+
+    // within java.util.AbstractList
+    fun *.equals (@target self: LinkedList, o: Object): boolean
+    {
+        action TODO();
+    }
+
+
+    // within java.lang.Iterable
+    fun *.forEach (@target self: LinkedList, _action: Consumer): void
+    {
+        if (_action == null)
+            action THROW_NEW("java.lang.NullPointerException", []);
+
+        val expectedModCount: int = this.modCount;
+        val length: int = this.size;
+
+        var i: int = 0;
+        action LOOP_WHILE(
+            this.modCount == expectedModCount && i < length,
+            forEach_loop(i, _action)
+        );
+
+        if (this.modCount != expectedModCount)
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+    }
+
+    @Phantom proc forEach_loop(i: int, _action: Consumer): void
+    {
+        val item: Object = action LIST_GET(this.storage, i);
+        action CALL(_action, [item]);
+
+        i += 1;
+    }
+
+
+    fun *.get (@target self: LinkedList, index: int): Object
+    {
+        _checkElementIndex(index);
+        result = action LIST_GET(this.storage, index);
+    }
+
 
     fun *.getFirst (@target self: LinkedList): Object
     {
@@ -261,110 +401,30 @@ automaton LinkedListAutomaton
     }
 
 
-    fun *.removeFirst (@target self: LinkedList): Object
+    // within java.util.AbstractList
+    fun *.hashCode (@target self: LinkedList): int
     {
-        result = _unlinkFirst();
-    }
-
-
-    fun *.removeLast (@target self: LinkedList): Object
-    {
-        if (this.size == 0)
-            action THROW_NEW("java.util.NoSuchElementException", []);
-
-        result = _unlinkAny(this.size - 1);
-    }
-
-
-    fun *.addFirst (@target self: LinkedList, e: Object): void
-    {
-        _linkAny(0, e);
-    }
-
-
-    fun *.addLast (@target self: LinkedList, e: Object): void
-    {
-        _linkAny(this.size, e);
-    }
-
-
-    fun *.contains (@target self: LinkedList, o: Object): boolean
-    {
-        result = action LIST_FIND(this.storage, o, 0, this.size) >= 0;
-    }
-
-
-    fun *.size (@target self: LinkedList): int
-    {
-        result = this.size;
-    }
-
-
-    fun *.add (@target self: LinkedList, e: Object): boolean
-    {
-        _linkAny(this.size, e);
-        result = true;
-    }
-
-
-    fun *.remove (@target self: LinkedList, o: Object): boolean
-    {
-        result = _unlinkByFirstEqualsObject(o);
-    }
-
-
-    fun *.addAll (@target self: LinkedList, @Parameterized(["E"]) c: Collection): boolean
-    {
-        result = _addAllElements(this.size, c);
-    }
-
-
-    fun *.addAll (@target self: LinkedList, index: int, @Parameterized(["E"]) c: Collection): boolean
-    {
-        result = _addAllElements(index, c);
-    }
-
-
-    fun *.clear (@target self: LinkedList): void
-    {
-        this.storage = action LIST_NEW();
-        this.size = 0;
-        this.modCount += 1;
-    }
-
-
-    fun *.get (@target self: LinkedList, index: int): Object
-    {
-        _checkElementIndex(index);
-        result = action LIST_GET(this.storage, index);
-    }
-
-
-    fun *.set (@target self: LinkedList, index: int, element: Object): Object
-    {
-        _checkElementIndex(index);
-        action LIST_SET(this.storage, index, element);
-        result = action LIST_GET(this.storage, index);
-    }
-
-
-    fun *.add (@target self: LinkedList, index: int, element: Object): void
-    {
-        _checkPositionIndex(index);
-        _linkAny(index, element);
-    }
-
-
-    fun *.remove (@target self: LinkedList, index: int): Object
-    {
-        _checkElementIndex(index);
-        result = _unlinkAny(index);
+        result = action OBJECT_HASH_CODE(this.storage);
     }
 
 
     fun *.indexOf (@target self: LinkedList, o: Object): int
     {
         result = action LIST_FIND(this.storage, o, 0, this.size);
+    }
+
+
+    // within java.util.AbstractCollection
+    fun *.isEmpty (@target self: LinkedList): boolean
+    {
+        action TODO();
+    }
+
+
+    // within java.util.AbstractSequentialList
+    fun *.iterator (@target self: LinkedList): Iterator
+    {
+        action TODO();
     }
 
 
@@ -384,33 +444,32 @@ automaton LinkedListAutomaton
     }
 
 
-    fun *.peek (@target self: LinkedList): Object
+    // within java.util.AbstractList
+    fun *.listIterator (@target self: LinkedList): ListIterator
     {
-        if (this.size == 0)
-            result = null;
-        else
-            result = action LIST_GET(this.storage, 0);
+        // #problem: not implemented
+        /*
+        result = new ListItr(state = Created,
+            expectedModCount = this.modCounter
+        );
+        */
+        result = action SYMBOLIC("java.util.ListIterator");
+        action ASSUME(result != null);
     }
 
 
-    fun *.element (@target self: LinkedList): Object
+    fun *.listIterator (@target self: LinkedList, index: int): ListIterator
     {
-        result = _getFirstElement();
-    }
+        _checkPositionIndex(index);
 
-
-    fun *.poll (@target self: LinkedList): Object
-    {
-        if (this.size == 0)
-            result = null;
-        else
-            result = _unlinkAny(0);
-    }
-
-
-    fun *.remove (@target self: LinkedList): Object
-    {
-        result = _unlinkFirst();
+        // #problem: not implemented
+        /*
+        result = new ListItr(state = Created,
+            expectedModCount = this.modCounter
+        );
+        */
+        result = action SYMBOLIC("java.util.ListIterator");
+        action ASSUME(result != null);
     }
 
 
@@ -435,6 +494,22 @@ automaton LinkedListAutomaton
     }
 
 
+    // within java.util.Collection
+    fun *.parallelStream (@target self: LinkedList): Stream
+    {
+        action TODO();
+    }
+
+
+    fun *.peek (@target self: LinkedList): Object
+    {
+        if (this.size == 0)
+            result = null;
+        else
+            result = action LIST_GET(this.storage, 0);
+    }
+
+
     fun *.peekFirst (@target self: LinkedList): Object
     {
         if (this.size == 0)
@@ -450,6 +525,15 @@ automaton LinkedListAutomaton
             result = null;
         else
             result = action LIST_GET(this.storage, this.size - 1);
+    }
+
+
+    fun *.poll (@target self: LinkedList): Object
+    {
+        if (this.size == 0)
+            result = null;
+        else
+            result = _unlinkAny(0);
     }
 
 
@@ -471,13 +555,45 @@ automaton LinkedListAutomaton
     }
 
 
+    fun *.pop (@target self: LinkedList): Object
+    {
+        result = _unlinkFirst();
+    }
+
+
     fun *.push (@target self: LinkedList, e: Object): void
     {
         _linkAny(0, e);
     }
 
 
-    fun *.pop (@target self: LinkedList): Object
+    fun *.remove (@target self: LinkedList): Object
+    {
+        result = _unlinkFirst();
+    }
+
+
+    fun *.remove (@target self: LinkedList, o: Object): boolean
+    {
+        result = _unlinkByFirstEqualsObject(o);
+    }
+
+
+    fun *.remove (@target self: LinkedList, index: int): Object
+    {
+        _checkElementIndex(index);
+        result = _unlinkAny(index);
+    }
+
+
+    // within java.util.AbstractCollection
+    fun *.removeAll (@target self: LinkedList, c: Collection): boolean
+    {
+        action TODO();
+    }
+
+
+    fun *.removeFirst (@target self: LinkedList): Object
     {
         result = _unlinkFirst();
     }
@@ -486,6 +602,22 @@ automaton LinkedListAutomaton
     fun *.removeFirstOccurrence (@target self: LinkedList, o: Object): boolean
     {
         result = _unlinkByFirstEqualsObject(o);
+    }
+
+
+    // within java.util.Collection
+    fun *.removeIf (@target self: LinkedList, filter: Predicate): boolean
+    {
+        action TODO();
+    }
+
+
+    fun *.removeLast (@target self: LinkedList): Object
+    {
+        if (this.size == 0)
+            action THROW_NEW("java.util.NoSuchElementException", []);
+
+        result = _unlinkAny(this.size - 1);
     }
 
 
@@ -513,6 +645,83 @@ automaton LinkedListAutomaton
             this.size -= 1;
             this.modCount += 1;
         }
+    }
+
+
+    // within java.util.List
+    fun *.replaceAll (@target self: LinkedList, operator: UnaryOperator): void
+    {
+        action TODO();
+    }
+
+
+    // within java.util.AbstractCollection
+    fun *.retainAll (@target self: LinkedList, c: Collection): boolean
+    {
+        action TODO();
+    }
+
+
+    fun *.set (@target self: LinkedList, index: int, element: Object): Object
+    {
+        _checkElementIndex(index);
+        action LIST_SET(this.storage, index, element);
+        result = action LIST_GET(this.storage, index);
+    }
+
+
+    fun *.size (@target self: LinkedList): int
+    {
+        result = this.size;
+    }
+
+
+    // within java.util.List
+    fun *.sort (@target self: LinkedList, c: Comparator): void
+    {
+        action TODO();
+    }
+
+
+    fun *.spliterator (@target self: LinkedList): Spliterator
+    {
+        // #problem: not implemented
+        /*
+        result = new LLSpliterator(state=Initialized,
+            parent = self,
+            est = -1,
+            expectedModCount = 0
+        );
+        */
+        result = action SYMBOLIC("java.util.Spliterator");
+        action ASSUME(result != null);
+    }
+
+
+    // within java.util.Collection
+    fun *.stream (@target self: LinkedList): Stream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.AbstractList
+    fun *.subList (@target self: LinkedList, fromIndex: int, toIndex: int): List
+    {
+        action TODO();
+    }
+
+
+    fun *.toArray (@target self: LinkedList): array<Object>
+    {
+        action TODO();
+    }
+
+
+    // within java.util.Collection
+    fun *.toArray (@target self: LinkedList, generator: IntFunction): array<Object>
+    {
+        action TODO();
     }
 
 
@@ -552,91 +761,7 @@ automaton LinkedListAutomaton
     }
 
 
-    fun *.forEach (@target self: LinkedList, anAction: Consumer): void
-    {
-        if (anAction == null)
-            action THROW_NEW("java.lang.NullPointerException", []);
-
-        val expectedModCount: int = this.modCount;
-        val length: int = this.size;
-
-        var i: int = 0;
-        action LOOP_WHILE(
-            this.modCount == expectedModCount && i < length,
-            forEach_loop(i, anAction)
-        );
-
-        if (this.modCount != expectedModCount)
-            action THROW_NEW("java.util.ConcurrentModificationException", []);
-    }
-
-    @Phantom proc forEach_loop(i: int, anAction: Consumer): void
-    {
-        val item: Object = action LIST_GET(this.storage, i);
-        action CALL(anAction, [item]);
-
-        i += 1;
-    }
-
-
-    fun *.spliterator (@target self: LinkedList): Spliterator
-    {
-        // #problem: not implemented
-        /*
-        result = new LLSpliterator(state=Initialized,
-            parent = self,
-            est = -1,
-            expectedModCount = 0
-        );
-        */
-        result = action SYMBOLIC("java.util.Spliterator");
-        action ASSUME(result != null);
-    }
-
-
-    fun *.listIterator (@target self: LinkedList, index: int): ListIterator
-    {
-        _checkPositionIndex(index);
-
-        // #problem: not implemented
-        /*
-        result = new ListItr(state = Created,
-            expectedModCount = this.modCounter
-        );
-        */
-        result = action SYMBOLIC("java.util.ListIterator");
-        action ASSUME(result != null);
-    }
-
-    fun *.descendingIterator (@target self: LinkedList): Iterator
-    {
-        // #problem: not implemented
-        /*
-        result = new DescendingIterator(state = Created);
-        */
-        result = action SYMBOLIC("java.util.Iterator");
-        action ASSUME(result != null);
-    }
-
-
-    fun *.clone (@target self: LinkedList): Object
-    {
-        val storageCopy: list<Object> = action LIST_NEW();
-        action LIST_COPY(this.storage, storageCopy, 0, 0, this.size);
-
-        result = new LinkedListAutomaton(state = Initialized,
-            storage = storageCopy,
-            size = this.size
-        );
-    }
-
-
-    fun *.hashCode (@target self: LinkedList): int
-    {
-        result = action OBJECT_HASH_CODE(this.storage);
-    }
-
-
+    // within java.util.AbstractCollection
     fun *.toString (@target self: LinkedList): String
     {
         result = action OBJECT_TO_STRING(this.storage);
