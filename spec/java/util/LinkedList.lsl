@@ -810,12 +810,12 @@ automaton LinkedListAutomaton
 
     fun *.toArray (@target self: LinkedList): array<Object>
     {
-        val size: int = this.size;
-        result = action ARRAY_NEW("java.lang.Object", size);
+        val length: int = this.size;
+        result = action ARRAY_NEW("java.lang.Object", length);
 
         var i: int = 0;
         action LOOP_FOR(
-            i, 0, size, +1,
+            i, 0, length, +1,
             toArray_loop(i) // result assignment is implicit
         );
     }
@@ -833,13 +833,13 @@ automaton LinkedListAutomaton
         // acting just like the JDK
         val a: Object = action CALL_METHOD(generator, "apply", [0]);
 
-        val size: int = this.size;
+        val length: int = this.size;
         // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)
-        result = action ARRAY_NEW("java.lang.Object", size);
+        result = action ARRAY_NEW("java.lang.Object", length);
 
         var i: int = 0;
         action LOOP_FOR(
-            i, 0, size, +1,
+            i, 0, length, +1,
             toArray_loop(i) // result assignment is implicit
         );
     }
