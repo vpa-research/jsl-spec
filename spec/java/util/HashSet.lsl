@@ -424,9 +424,7 @@ automaton HashSetAutomaton
             result = true;
         else
         {
-            // Problem ! We don't have such action "OBJECT_SAME_TYPE";
-            //val isSameType: boolean = action OBJECT_SAME_TYPE(self, other);
-            val isSameType: boolean = true;
+            val isSameType: boolean = action OBJECT_SAME_TYPE(self, other);
             if (isSameType)
             {
                 val expectedModCount: int = this.modCount;
