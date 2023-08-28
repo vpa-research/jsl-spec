@@ -120,6 +120,13 @@ automaton LinkedListAutomaton
 
     // utilities
 
+    @KeepVisible proc _checkForComodification (expectedModCount: int): void
+    {
+        if (this.modCount != expectedModCount)
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+    }
+
+
     proc _unlinkAny (index: int): Object
     {
         result = action LIST_GET(this.storage, index);
@@ -323,7 +330,44 @@ automaton LinkedListAutomaton
     // within java.util.AbstractCollection
     fun *.containsAll (@target self: LinkedList, c: Collection): boolean
     {
-        action TODO();
+        result = true;
+
+        if (c has LinkedListAutomaton)
+        {
+            val otherStorage: list<Object> = LinkedListAutomaton(c).storage;
+            val otherSize: int = LinkedListAutomaton(c).size;
+
+            action ASSUME(otherStorage != null);
+            action ASSUME(otherSize >= 0);
+
+            var i: int = 0;
+            action LOOP_WHILE(
+                result && i < otherSize,
+                containsAll_loop_optimized(otherStorage, i)
+            );
+        }
+        else
+        {
+            val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+            action LOOP_WHILE(
+                result && action CALL_METHOD(iter, "hasNext", []),
+                containsAll_loop_regular(iter)
+            );
+        }
+    }
+
+    @Phantom proc containsAll_loop_optimized (otherStorage: list<Object>, i: int): boolean
+    {
+        val item: Object = action LIST_GET(otherStorage, i);
+        result &= action LIST_FIND(this.storage, item, 0, this.size) >= 0;
+
+        i += 1;
+    }
+
+    @Phantom proc containsAll_loop_regular (iter: Iterator): boolean
+    {
+        val item: Object = action CALL_METHOD(iter, "next", []);
+        result &= action LIST_FIND(this.storage, item, 0, this.size) >= 0;
     }
 
 
@@ -347,7 +391,42 @@ automaton LinkedListAutomaton
     // within java.util.AbstractList
     fun *.equals (@target self: LinkedList, o: Object): boolean
     {
-        action TODO();
+        if (self == o)
+        {
+            result = true;
+        }
+        else
+        {
+            if (o has LinkedListAutomaton)
+            {
+                val expectedModCount: int = this.modCount;
+                val otherExpectedModCount: int = LinkedListAutomaton(o).modCount;
+
+                val otherStorage: list<Object> = LinkedListAutomaton(o).storage;
+                val otherSize: int = LinkedListAutomaton(o).size;
+
+                action ASSUME(otherStorage != null);
+                action ASSUME(otherSize >= 0);
+
+                if (this.size == otherSize)
+                {
+                    result = action OBJECT_EQUALS(this.storage, otherStorage);
+                }
+                else
+                {
+                    result = false;
+                }
+
+                // #problem: should be something like
+                // LinkedListAutomaton(o)._checkForComodification(otherExpectedModCount);
+                action DEBUG_DO("((LinkedList) o)._checkForComodification(otherExpectedModCount)");
+                _checkForComodification(expectedModCount);
+            }
+            else
+            {
+                result = false;
+            }
+        }
     }
 
 
@@ -366,8 +445,7 @@ automaton LinkedListAutomaton
             forEach_loop(i, _action)
         );
 
-        if (this.modCount != expectedModCount)
-            action THROW_NEW("java.util.ConcurrentModificationException", []);
+        _checkForComodification(expectedModCount);
     }
 
     @Phantom proc forEach_loop(i: int, _action: Consumer): void
@@ -417,14 +495,21 @@ automaton LinkedListAutomaton
     // within java.util.AbstractCollection
     fun *.isEmpty (@target self: LinkedList): boolean
     {
-        action TODO();
+        result = this.size == 0;
     }
 
 
     // within java.util.AbstractSequentialList
     fun *.iterator (@target self: LinkedList): Iterator
     {
-        action TODO();
+        // #problem: not implemented
+        /*
+        result = new ListItr(state = Created,
+            expectedModCount = this.modCounter
+        );
+        */
+        result = action SYMBOLIC("java.util.Iterator");
+        action ASSUME(result != null);
     }
 
 
@@ -497,7 +582,9 @@ automaton LinkedListAutomaton
     // within java.util.Collection
     fun *.parallelStream (@target self: LinkedList): Stream
     {
-        action TODO();
+        // #problem: no streams
+        result = action SYMBOLIC("java.util.stream.Stream");
+        action ASSUME(result != null);
     }
 
 
@@ -679,7 +766,14 @@ automaton LinkedListAutomaton
     // within java.util.List
     fun *.sort (@target self: LinkedList, c: Comparator): void
     {
-        action TODO();
+        val expectedModCount: int = this.modCount;
+
+        // #problem: loops, extremely complex
+        action NOT_IMPLEMENTED("too complex, no decision yet");
+
+        _checkForComodification(expectedModCount);
+
+        this.modCount += 1;
     }
 
 
@@ -701,7 +795,9 @@ automaton LinkedListAutomaton
     // within java.util.Collection
     fun *.stream (@target self: LinkedList): Stream
     {
-        action TODO();
+        // #problem: no streams
+        result = action SYMBOLIC("java.util.stream.Stream");
+        action ASSUME(result != null);
     }
 
 
@@ -714,14 +810,38 @@ automaton LinkedListAutomaton
 
     fun *.toArray (@target self: LinkedList): array<Object>
     {
-        action TODO();
+        val size: int = this.size;
+        result = action ARRAY_NEW("java.lang.Object", size);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, size, +1,
+            toArray_loop(i) // result assignment is implicit
+        );
+    }
+
+    // #problem/todo: use exact parameter names
+    @Phantom proc toArray_loop (i: int): array<Object>
+    {
+        result[i] = action LIST_GET(this.storage, i);
     }
 
 
     // within java.util.Collection
     fun *.toArray (@target self: LinkedList, generator: IntFunction): array<Object>
     {
-        action TODO();
+        // acting just like the JDK
+        val a: Object = action CALL_METHOD(generator, "apply", [0]);
+
+        val size: int = this.size;
+        // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)
+        result = action ARRAY_NEW("java.lang.Object", size);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, size, +1,
+            toArray_loop(i) // result assignment is implicit
+        );
     }
 
 

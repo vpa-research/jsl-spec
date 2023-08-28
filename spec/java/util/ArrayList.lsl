@@ -745,16 +745,12 @@ automaton ArrayListAutomaton
 
     fun *.sort (@target self: ArrayList, c: Comparator): void
     {
-        if (c == null)
-            _throwNPE();
-
         val expectedModCount: int = this.modCount;
 
         // #problem: loops, extremely complex
         action NOT_IMPLEMENTED("too complex, no decision yet");
 
-        if (this.modCount != expectedModCount)
-            action THROW_NEW("java.util.ConcurrentModificationException", []);
+        _checkForComodification(expectedModCount);
 
         this.modCount += 1;
     }
@@ -813,7 +809,7 @@ automaton ArrayListAutomaton
     }
 
     // #problem/todo: use exact parameter names
-    @Phantom proc toArray_loop(i: int): array<Object>
+    @Phantom proc toArray_loop (i: int): array<Object>
     {
         result[i] = action LIST_GET(this.storage, i);
     }
@@ -937,14 +933,20 @@ automaton ArrayList_ListIteratorAutomaton
 
     // utilities
 
-    proc _checkForComodification(): void
+    @AutoInline @Phantom proc _throwCME (): void
+    {
+        action THROW_NEW("java.util.ConcurrentModificationException", []);
+    }
+
+
+    proc _checkForComodification (): void
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
 
         val modCount: int = ArrayListAutomaton(this.parent).modCount;
         if (modCount != this.expectedModCount)
-            action THROW_NEW("java.util.ConcurrentModificationException", []);
+            _throwCME();
     }
 
 
@@ -992,7 +994,7 @@ automaton ArrayList_ListIteratorAutomaton
 
         // iterrator validity check
         if (i >= action LIST_SIZE(parentStorage))
-            action THROW_NEW("java.util.ConcurrentModificationException", []);
+            _throwCME();
 
         this.cursor = i + 1;
         this.lastRet = i;
@@ -1016,7 +1018,7 @@ automaton ArrayList_ListIteratorAutomaton
 
         // iterrator validity check
         if (i >= action LIST_SIZE(parentStorage))
-            action THROW_NEW("java.util.ConcurrentModificationException", []);
+            _throwCME();
 
         this.cursor = i;
         this.lastRet = i;
@@ -1038,7 +1040,7 @@ automaton ArrayList_ListIteratorAutomaton
         val pStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
         if (this.lastRet >= action LIST_SIZE(pStorage))
         {
-            action THROW_NEW("java.util.ConcurrentModificationException", []);
+            _throwCME();
         }
         else
         {
@@ -1068,7 +1070,7 @@ automaton ArrayList_ListIteratorAutomaton
         val pStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
         if (this.lastRet >= action LIST_SIZE(pStorage))
         {
-            action THROW_NEW("java.util.ConcurrentModificationException", []);
+            _throwCME();
         }
         else
         {
@@ -1089,7 +1091,7 @@ automaton ArrayList_ListIteratorAutomaton
         val pStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
         if (this.lastRet > action LIST_SIZE(pStorage))
         {
-            action THROW_NEW("java.util.ConcurrentModificationException", []);
+            _throwCME();
         }
         else
         {
@@ -1122,7 +1124,7 @@ automaton ArrayList_ListIteratorAutomaton
             val es: list<Object> = ArrayListAutomaton(this.parent).storage;
 
             if (i >= action LIST_SIZE(es))
-                action THROW_NEW("java.util.ConcurrentModificationException", []);
+                _throwCME();
 
             // using this exact loop form here due to coplex termination expression
             action LOOP_WHILE(
