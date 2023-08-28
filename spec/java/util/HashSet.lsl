@@ -810,9 +810,9 @@ automaton HashSet_KeyIteratorAutomaton
         action ASSUME(key != null);
         action ASSUME(key != this.currentKey);
         val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
-        val sourceStorageHasKey: bool = action MAP_HAS_KEY(parentStorage, key);
+        val sourceStorageHasKey: boolean = action MAP_HAS_KEY(parentStorage, key);
         action ASSUME(sourceStorageHasKey);
-        val destStorageHasKey: bool = action MAP_HAS_KEY(this.visitedKeys, key);
+        val destStorageHasKey: boolean = action MAP_HAS_KEY(this.visitedKeys, key);
         action ASSUME(!destStorageHasKey);
 
         this.currentKey = key;
@@ -871,9 +871,9 @@ automaton HashSet_KeyIteratorAutomaton
         action ASSUME(key != null);
         action ASSUME(key != this.currentKey);
         val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
-        val sourceStorageHasKey: bool = action MAP_HAS_KEY(parentStorage, key);
+        val sourceStorageHasKey: boolean = action MAP_HAS_KEY(parentStorage, key);
         action ASSUME(sourceStorageHasKey);
-        val destStorageHasKey: bool = action MAP_HAS_KEY(this.visitedKeys, key);
+        val destStorageHasKey: boolean = action MAP_HAS_KEY(this.visitedKeys, key);
         action ASSUME(!destStorageHasKey);
 
         this.currentKey = key;
