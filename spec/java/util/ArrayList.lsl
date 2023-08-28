@@ -192,22 +192,22 @@ automaton ArrayListAutomaton
     {
         if (fromIndex < 0)
         {
-            val message: String = "fromIndex = " + action OBJECT_TO_STRING(fromIndex);
-            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
+            val message1: String = "fromIndex = " + action OBJECT_TO_STRING(fromIndex);
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message1]);
         }
 
         if (toIndex > size)
         {
-            val message: String = "toIndex = " + action OBJECT_TO_STRING(toIndex);
-            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
+            val message2: String = "toIndex = " + action OBJECT_TO_STRING(toIndex);
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message2]);
         }
 
         if (fromIndex > toIndex)
         {
             val from: String = action OBJECT_TO_STRING(fromIndex);
             val to: String = action OBJECT_TO_STRING(toIndex);
-            val message: String = "fromIndex(" + from + ") > toIndex(" + to + ")";
-            action THROW_NEW("java.lang.IllegalArgumentException", [message]);
+            val message3: String = "fromIndex(" + from + ") > toIndex(" + to + ")";
+            action THROW_NEW("java.lang.IllegalArgumentException", [message3]);
         }
     }
 
