@@ -130,7 +130,7 @@ automaton LinkedListAutomaton
     proc _unlinkAny (index: int): Object
     {
         result = action LIST_GET(this.storage, index);
-        action LIST_REMOVE(this.storage, index, 1);
+        action LIST_REMOVE(this.storage, index);
 
         this.size -= 1;
         this.modCount += 1;
