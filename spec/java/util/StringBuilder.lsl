@@ -1,3 +1,4 @@
+///#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -8,7 +9,7 @@ library std
 // imports
 
 import java.common;
-import java/lang/StringBuffer;
+//import java/lang/StringBuffer;
 import java/lang/_interfaces;
 
 
@@ -24,6 +25,11 @@ import java/lang/_interfaces;
 {
     //@private @static @final var serialVersionUID: long = 4383685877147921099;
 }
+
+
+// === CONSTANTS ===
+
+val MAX_LENGTH: int = 1073741823;
 
 
 // automata
@@ -104,10 +110,8 @@ automaton StringBuilderAutomaton
         assigns this.storage;
         assigns this.length;
         ensures this.storage != null;
-        ensures this.length == 16;
-        // Can we give type = "byte" in ARRAY_NEW action ?
-        this.storage = action ARRAY_NEW("java.lang.Byte", 16);
-        this.length = 16;
+        ensures this.length == 32;
+        _newBytesFor(16);
     }
 
 
@@ -116,15 +120,13 @@ automaton StringBuilderAutomaton
         assigns this.storage;
         assigns this.length;
         ensures this.storage != null;
-        ensures this.length >= 16;
+        ensures this.length >= 32;
 
-        val seqLength: Iterator = action CALL_METHOD(seq, "length", []);
-        val newLength = seqLength + 16;
+        val seqLength: int = action CALL_METHOD(seq, "length", []);
+        val newLength: int = seqLength + 16;
 
-        // Can we give type = "byte" in ARRAY_NEW action ?
-        this.storage = action ARRAY_NEW("java.lang.Byte", newLength);
-        this.length = newLength;
-        _append(seq);
+        _newBytesFor(newLength);
+        //_append(seq);
     }
 
 
@@ -135,13 +137,11 @@ automaton StringBuilderAutomaton
         ensures this.storage != null;
         ensures this.length >= 0;
 
-        // Problem:
-        // How do we can get str.length ?
+        val strLength: int = action CALL_METHOD(str, "length", []);
+        val newLength: int = strLength + 16;
 
-        // Can we give type = "byte" in ARRAY_NEW action ?
-        this.storage = action ARRAY_NEW("java.lang.Byte", capacity);
-        this.length = capacity;
-        _append(str);
+        _newBytesFor(newLength);
+        //_append(str);
     }
 
 
@@ -151,9 +151,8 @@ automaton StringBuilderAutomaton
         assigns this.length;
         ensures this.storage != null;
         ensures this.length == capacity;
-        // Can we give type = "byte" in ARRAY_NEW action ?
-        this.storage = action ARRAY_NEW("java.lang.Byte", capacity);
-        this.length = capacity;
+
+        _newBytesFor(capacity);
     }
 
 
@@ -162,19 +161,33 @@ automaton StringBuilderAutomaton
 
     // utilities
 
-    proc _append (seq: CharSequence): void
+    proc _newBytesFor (len: int): void
+    {
+        if (len < 0)
+            action THROW_NEW("java.lang.NegativeArraySizeException", []);
+        if (len > MAX_LENGTH)
+        {
+            val message: String = "UTF16 String size is " + action OBJECT_TO_STRING(len) + ", should be less than " + action OBJECT_TO_STRING(MAX_LENGTH);
+            action THROW_NEW("java.lang.OutOfMemoryError", [message]);
+        }
+        len = len << 1;
+        this.storage = action ARRAY_NEW("java.lang.Byte", len);
+        this.length = len;
+    }
+
+    /*proc _append (seq: CharSequence): void
     {
         action TODO();
-        /*if (seq == null)
+        if (seq == null)
         {
 
-        }*/
+        }
     }
 
     proc _append (str: String): void
     {
         action TODO();
-    }
+    }*/
 
 
     // methods
