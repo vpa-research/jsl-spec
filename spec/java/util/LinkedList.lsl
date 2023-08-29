@@ -766,14 +766,33 @@ automaton LinkedListAutomaton
     // within java.util.List
     fun *.sort (@target self: LinkedList, c: Comparator): void
     {
-        val expectedModCount: int = this.modCount;
+        if (this.size == 0)
+        {
+            action DO_NOTHING();
+        }
+        else
+        {
+            val expectedModCount: int = this.modCount;
 
-        // #problem: loops, extremely complex
-        action NOT_IMPLEMENTED("too complex, no decision yet");
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 1, this.size, +1,
+                sort_loop(i, c)
+            );
 
-        _checkForComodification(expectedModCount);
+            _checkForComodification(expectedModCount);
+        }
 
         this.modCount += 1;
+    }
+
+    @Phantom proc sort_loop (i: int, c: Comparator): void
+    {
+        val a: Object = action LIST_GET(this.storage, i - 1);
+        val b: Object = action LIST_GET(this.storage, i - 0);
+
+        // catch side-effects of erronious user code inside of the provided comparator
+        action CALL(c, [a, b]);
     }
 
 
