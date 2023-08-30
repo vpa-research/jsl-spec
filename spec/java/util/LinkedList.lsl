@@ -771,7 +771,7 @@ automaton LinkedListAutomaton
             val start_idx: int = 0;
             val start_obj: Object = action LIST_GET(this.storage, start_idx);
 
-            val mid_idx: int = this.size >>> 1;
+            val mid_idx: int = this.size / 2;
             val mid_obj: Object = action LIST_GET(this.storage, mid_idx);
 
             val end_idx: int = this.size;
