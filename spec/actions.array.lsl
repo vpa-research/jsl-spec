@@ -24,11 +24,6 @@ define action ARRAY_FREE (
 // === READ operations ===
 
 
-define action ARRAY_GET (
-        arr: array<any>,
-        itemIndex: int32
-    ): any;
-
 define action ARRAY_SIZE (
         arr: array<any>
     ): int32;
@@ -49,12 +44,6 @@ define action ARRAY_COPY (
         dst: array<any>,
         dstPos: int32,
         count: int32
-    ): void;
-
-define action ARRAY_SET (
-        arr: array<any>,
-        itemIndex: int32,
-        value: any
     ): void;
 
 
