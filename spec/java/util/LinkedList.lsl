@@ -766,33 +766,36 @@ automaton LinkedListAutomaton
     // within java.util.List
     fun *.sort (@target self: LinkedList, c: Comparator): void
     {
-        if (this.size == 0)
-        {
-            action DO_NOTHING();
-        }
-        else
+        if (this.size != 0)
         {
             val expectedModCount: int = this.modCount;
 
-            var i: int = 0;
-            action LOOP_FOR(
-                i, 1, this.size, +1,
-                sort_loop(i, c)
-            );
+            // prepare indexes and object references
+            val start_idx: int = 0;
+            val start_obj: Object = action LIST_GET(this.storage, start_idx);
+
+            val mid_idx: int = this.size >>> 1;
+            val mid_obj: Object = action LIST_GET(this.storage, mid_idx);
+
+            val end_idx: int = this.size;
+            val end_obj: Object = action LIST_GET(this.storage, end_idx);
+
+            // capture side-effects from the user code
+            action CALL(c, [start_obj, mid_obj]);
+            action CALL(c, [mid_obj, end_obj]);
+            val r: int = action CALL(c, [start_obj, end_obj]);
+
+            // occasionally swap first and last items
+            if (r > 0)
+            {
+                action LIST_SET(this.storage, start_idx, end_obj);
+                action LIST_SET(this.storage, end_idx, start_obj);
+            }
 
             _checkForComodification(expectedModCount);
         }
 
         this.modCount += 1;
-    }
-
-    @Phantom proc sort_loop (i: int, c: Comparator): void
-    {
-        val a: Object = action LIST_GET(this.storage, i - 1);
-        val b: Object = action LIST_GET(this.storage, i - 0);
-
-        // catch side-effects of erronious user code inside of the provided comparator
-        action CALL(c, [a, b]);
     }
 
 
