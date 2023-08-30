@@ -774,7 +774,7 @@ automaton LinkedListAutomaton
             val mid_idx: int = this.size / 2;
             val mid_obj: Object = action LIST_GET(this.storage, mid_idx);
 
-            val end_idx: int = this.size;
+            val end_idx: int = this.size - 1;
             val end_obj: Object = action LIST_GET(this.storage, end_idx);
 
             // capture side-effects from the user code
