@@ -468,9 +468,6 @@ automaton ArrayListAutomaton
                 val otherStorage: list<Object> = ArrayListAutomaton(other).storage;
                 val otherLength: int = ArrayListAutomaton(other).length;
 
-                action ASSUME(otherStorage != null);
-                action ASSUME(otherLength >= 0);
-
                 if (this.length == otherLength)
                 {
                     result = action OBJECT_EQUALS(this.storage, otherStorage);
@@ -798,12 +795,12 @@ automaton ArrayListAutomaton
 
     fun *.toArray (@target self: ArrayList): array<Object>
     {
-        val size: int = this.length;
-        result = action ARRAY_NEW("java.lang.Object", size);
+        val len: int = this.length;
+        result = action ARRAY_NEW("java.lang.Object", len);
 
         var i: int = 0;
         action LOOP_FOR(
-            i, 0, size, +1,
+            i, 0, len, +1,
             toArray_loop(i) // result assignment is implicit
         );
     }
@@ -818,16 +815,17 @@ automaton ArrayListAutomaton
     // within java.util.Collection
     fun *.toArray (@target self: ArrayList, generator: IntFunction): array<Object>
     {
-        // acting just like the JDK
-        val a: Object = action CALL_METHOD(generator, "apply", [0]);
+        // acting just like the JDK: trigger NPE and class cast exceptions on invalid generator return value
+        val a: array<Object> = action CALL_METHOD(generator, "apply", [0]) as array<Object>;
+        val aLen: int = action ARRAY_SIZE(a);
 
-        val size: int = this.length;
+        val len: int = this.length;
         // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)
-        result = action ARRAY_NEW("java.lang.Object", size);
+        result = action ARRAY_NEW("java.lang.Object", len);
 
         var i: int = 0;
         action LOOP_FOR(
-            i, 0, size, +1,
+            i, 0, len, +1,
             toArray_loop(i) // result assignment is implicit
         );
     }
@@ -836,16 +834,16 @@ automaton ArrayListAutomaton
     fun *.toArray (@target self: ArrayList, a: array<Object>): array<Object>
     {
         val aLen: int = action ARRAY_SIZE(a);
-        val size: int = this.length;
+        val len: int = this.length;
         var i: int = 0;
 
-        if (aLen < size)
+        if (aLen < len)
         {
             // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)
-            result = action ARRAY_NEW("java.lang.Object", size);
+            result = action ARRAY_NEW("java.lang.Object", len);
 
             action LOOP_FOR(
-                i, 0, size, +1,
+                i, 0, len, +1,
                 toArray_loop(i) // result assignment is implicit
             );
         }
@@ -854,12 +852,12 @@ automaton ArrayListAutomaton
             result = a;
 
             action LOOP_FOR(
-                i, 0, size, +1,
+                i, 0, len, +1,
                 toArray_loop(i) // result assignment is implicit
             );
 
-            if (aLen > size)
-                result[size] = null;
+            if (aLen > len)
+                result[len] = null;
         }
     }
 

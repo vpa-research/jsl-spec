@@ -405,9 +405,6 @@ automaton LinkedListAutomaton
                 val otherStorage: list<Object> = LinkedListAutomaton(o).storage;
                 val otherSize: int = LinkedListAutomaton(o).size;
 
-                action ASSUME(otherStorage != null);
-                action ASSUME(otherSize >= 0);
-
                 if (this.size == otherSize)
                 {
                     result = action OBJECT_EQUALS(this.storage, otherStorage);
@@ -832,12 +829,12 @@ automaton LinkedListAutomaton
 
     fun *.toArray (@target self: LinkedList): array<Object>
     {
-        val length: int = this.size;
-        result = action ARRAY_NEW("java.lang.Object", length);
+        val len: int = this.size;
+        result = action ARRAY_NEW("java.lang.Object", len);
 
         var i: int = 0;
         action LOOP_FOR(
-            i, 0, length, +1,
+            i, 0, len, +1,
             toArray_loop(i) // result assignment is implicit
         );
     }
@@ -852,16 +849,17 @@ automaton LinkedListAutomaton
     // within java.util.Collection
     fun *.toArray (@target self: LinkedList, generator: IntFunction): array<Object>
     {
-        // acting just like the JDK
-        val a: Object = action CALL_METHOD(generator, "apply", [0]);
+        // acting just like the JDK: trigger NPE and class cast exceptions on invalid generator return value
+        val a: array<Object> = action CALL_METHOD(generator, "apply", [0]) as array<Object>;
+        val aLen: int = action ARRAY_SIZE(a);
 
-        val length: int = this.size;
+        val len: int = this.size;
         // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)
-        result = action ARRAY_NEW("java.lang.Object", length);
+        result = action ARRAY_NEW("java.lang.Object", len);
 
         var i: int = 0;
         action LOOP_FOR(
-            i, 0, length, +1,
+            i, 0, len, +1,
             toArray_loop(i) // result assignment is implicit
         );
     }
@@ -870,16 +868,16 @@ automaton LinkedListAutomaton
     fun *.toArray (@target self: LinkedList, a: array<Object>): array<Object>
     {
         val aLen: int = action ARRAY_SIZE(a);
-        val length: int = this.size;
+        val len: int = this.size;
         var i: int = 0;
 
-        if (aLen < length)
+        if (aLen < len)
         {
             // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)
-            result = action ARRAY_NEW("java.lang.Object", length);
+            result = action ARRAY_NEW("java.lang.Object", len);
 
             action LOOP_FOR(
-                i, 0, length, +1,
+                i, 0, len, +1,
                 toArray_loop(i) // result assignment is implicit
             );
         }
@@ -888,18 +886,13 @@ automaton LinkedListAutomaton
             result = a;
 
             action LOOP_FOR(
-                i, 0, length, +1,
+                i, 0, len, +1,
                 toArray_loop(i) // result assignment is implicit
             );
 
-            if (aLen > length)
-                result[length] = null;
+            if (aLen > len)
+                result[len] = null;
         }
-    }
-
-    @Phantom proc toArray_loop(i: int): array<Object>
-    {
-        result[i] = action LIST_GET(this.storage, i);
     }
 
 
