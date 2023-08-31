@@ -767,32 +767,41 @@ automaton LinkedListAutomaton
         {
             val expectedModCount: int = this.modCount;
 
-            // prepare indexes and object references
-            val start_idx: int = 0;
-            val start_obj: Object = action LIST_GET(this.storage, start_idx);
+            // Java has no unsigned primitive data types
+            action ASSUME(this.size > 0);
 
-            val mid_idx: int = this.size / 2;
-            val mid_obj: Object = action LIST_GET(this.storage, mid_idx);
-
-            val end_idx: int = this.size - 1;
-            val end_obj: Object = action LIST_GET(this.storage, end_idx);
-
-            // capture side-effects from the user code
-            action CALL(c, [start_obj, mid_obj]);
-            action CALL(c, [mid_obj, end_obj]);
-            val r: int = action CALL(c, [start_obj, end_obj]);
-
-            // occasionally swap first and last items
-            if (r > 0)
-            {
-                action LIST_SET(this.storage, start_idx, end_obj);
-                action LIST_SET(this.storage, end_idx, start_obj);
-            }
+            // plain bubble sorting algorithm with no optimizations
+            var i: int = 0;
+            var j: int = 0;
+            action LOOP_FOR(
+                i, 0, this.size, +1,
+                sort_loop_outer(i, j, c)
+            );
 
             _checkForComodification(expectedModCount);
         }
 
         this.modCount += 1;
+    }
+
+    @Phantom proc sort_loop_outer (i: int, j: int, c: Comparator): void
+    {
+        action LOOP_FOR(
+            j, 0, this.size, +1,
+            sort_loop_inner(i, j, c)
+        );
+    }
+
+    @Phantom proc sort_loop_inner (i: int, j: int, c: Comparator): void
+    {
+        val a: Object = action LIST_GET(this.storage, i);
+        val b: Object = action LIST_GET(this.storage, j);
+
+        if (action CALL(c, [a, b]) > 0)
+        {
+            action LIST_SET(this.storage, i, b);
+            action LIST_SET(this.storage, j, a);
+        }
     }
 
 
