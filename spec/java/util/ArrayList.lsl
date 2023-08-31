@@ -742,14 +742,45 @@ automaton ArrayListAutomaton
 
     fun *.sort (@target self: ArrayList, c: Comparator): void
     {
-        val expectedModCount: int = this.modCount;
+        if (this.length != 0)
+        {
+            val expectedModCount: int = this.modCount;
 
-        // #problem: loops, extremely complex
-        action NOT_IMPLEMENTED("too complex, no decision yet");
+            // Java has no unsigned primitive data types
+            action ASSUME(this.length > 0);
 
-        _checkForComodification(expectedModCount);
+            // plain bubble sorting algorithm with no optimizations
+            var i: int = 0;
+            var j: int = 0;
+            action LOOP_FOR(
+                i, 0, this.length, +1,
+                sort_loop_outer(i, j, c)
+            );
+
+            _checkForComodification(expectedModCount);
+        }
 
         this.modCount += 1;
+    }
+
+    @Phantom proc sort_loop_outer (i: int, j: int, c: Comparator): void
+    {
+        action LOOP_FOR(
+            j, 0, this.length, +1,
+            sort_loop_inner(i, j, c)
+        );
+    }
+
+    @Phantom proc sort_loop_inner (i: int, j: int, c: Comparator): void
+    {
+        val a: Object = action LIST_GET(this.storage, i);
+        val b: Object = action LIST_GET(this.storage, j);
+
+        if (action CALL(c, [a, b]) > 0)
+        {
+            action LIST_SET(this.storage, i, b);
+            action LIST_SET(this.storage, j, a);
+        }
     }
 
 
