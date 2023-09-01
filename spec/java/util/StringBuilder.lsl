@@ -188,6 +188,16 @@ automaton StringBuilderAutomaton
     }
 
 
+    proc _checkIndex (index: int): void
+    {
+         if (index < 0 || index >= this.length)
+         {
+             val message: String = "index " + action OBJECT_TO_STRING(index) + ",length " + action OBJECT_TO_STRING(this.length);
+             action THROW_NEW("java.lang.StringIndexOutOfBoundsException", [message]);
+         }
+    }
+
+
     // methods
 
     fun *.append (@target self: StringBuilder, seq: CharSequence): StringBuilder
@@ -409,7 +419,23 @@ automaton StringBuilderAutomaton
 
     fun *.deleteCharAt (@target self: StringBuilder, index: int): StringBuilder
     {
-        action TODO();
+        _checkIndex(index);
+        var newString: String = "";
+        var i: int = 0;
+        action LOOP_FOR(i, 0, this.length, +1, _deleteCharAt_loop(i, index, newString));
+        this.storage = newString;
+        this.length -= 1;
+        result = self;
+    }
+
+
+    @Phantom proc _deleteCharAt_loop(i: int, index: int, newString: String): void
+    {
+        if (i != index)
+        {
+            val currentChar: char = action CALL_METHOD(this.storage, "charAt", [i]);
+            newString += action OBJECT_TO_STRING(currentChar);
+        }
     }
 
 
