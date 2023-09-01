@@ -321,7 +321,7 @@ automaton LinkedListAutomaton
             var i: int = 0;
             action LOOP_WHILE(
                 result && i < otherSize,
-                containsAll_loop_optimized(otherStorage, i)
+                containsAll_loop_optimized(otherStorage, i, result)
             );
         }
         else
@@ -329,12 +329,12 @@ automaton LinkedListAutomaton
             val iter: Iterator = action CALL_METHOD(c, "iterator", []);
             action LOOP_WHILE(
                 result && action CALL_METHOD(iter, "hasNext", []),
-                containsAll_loop_regular(iter)
+                containsAll_loop_regular(iter, result)
             );
         }
     }
 
-    @Phantom proc containsAll_loop_optimized (otherStorage: list<Object>, i: int): boolean
+    @Phantom proc containsAll_loop_optimized (otherStorage: list<Object>, i: int, result: boolean): void
     {
         val item: Object = action LIST_GET(otherStorage, i);
         result &= action LIST_FIND(this.storage, item, 0, this.size) >= 0;
@@ -342,7 +342,7 @@ automaton LinkedListAutomaton
         i += 1;
     }
 
-    @Phantom proc containsAll_loop_regular (iter: Iterator): boolean
+    @Phantom proc containsAll_loop_regular (iter: Iterator, result: boolean): void
     {
         val item: Object = action CALL_METHOD(iter, "next", []);
         result &= action LIST_FIND(this.storage, item, 0, this.size) >= 0;
@@ -822,12 +822,12 @@ automaton LinkedListAutomaton
         var i: int = 0;
         action LOOP_FOR(
             i, 0, len, +1,
-            toArray_loop(i) // result assignment is implicit
+            toArray_loop(i, result)
         );
     }
 
     // #problem/todo: use exact parameter names
-    @Phantom proc toArray_loop (i: int): array<Object>
+    @Phantom proc toArray_loop (i: int, result: array<Object>): void
     {
         result[i] = action LIST_GET(this.storage, i);
     }
@@ -847,7 +847,7 @@ automaton LinkedListAutomaton
         var i: int = 0;
         action LOOP_FOR(
             i, 0, len, +1,
-            toArray_loop(i) // result assignment is implicit
+            toArray_loop(i, result)
         );
     }
 
@@ -865,7 +865,7 @@ automaton LinkedListAutomaton
 
             action LOOP_FOR(
                 i, 0, len, +1,
-                toArray_loop(i) // result assignment is implicit
+                toArray_loop(i, result)
             );
         }
         else
@@ -874,7 +874,7 @@ automaton LinkedListAutomaton
 
             action LOOP_FOR(
                 i, 0, len, +1,
-                toArray_loop(i) // result assignment is implicit
+                toArray_loop(i, result)
             );
 
             if (aLen > len)

@@ -248,7 +248,7 @@ automaton ArrayListAutomaton
     }
 
 
-    @KeepVisible proc _removeIf(filter: Predicate, start: int, end: int): boolean
+    @KeepVisible proc _removeIf (filter: Predicate, start: int, end: int): boolean
     {
         if (filter == null)
             _throwNPE();
@@ -386,7 +386,7 @@ automaton ArrayListAutomaton
             var i: int = 0;
             action LOOP_WHILE(
                 result && i < otherLength,
-                containsAll_loop_optimized(otherStorage, i)
+                containsAll_loop_optimized(otherStorage, i, result)
             );
         }
         else
@@ -394,12 +394,12 @@ automaton ArrayListAutomaton
             val iter: Iterator = action CALL_METHOD(c, "iterator", []);
             action LOOP_WHILE(
                 result && action CALL_METHOD(iter, "hasNext", []),
-                containsAll_loop_regular(iter)
+                containsAll_loop_regular(iter, result)
             );
         }
     }
 
-    @Phantom proc containsAll_loop_optimized (otherStorage: list<Object>, i: int): boolean
+    @Phantom proc containsAll_loop_optimized (otherStorage: list<Object>, i: int, result: boolean): void
     {
         val item: Object = action LIST_GET(otherStorage, i);
         result &= action LIST_FIND(this.storage, item, 0, this.length) >= 0;
@@ -407,7 +407,7 @@ automaton ArrayListAutomaton
         i += 1;
     }
 
-    @Phantom proc containsAll_loop_regular (iter: Iterator): boolean
+    @Phantom proc containsAll_loop_regular (iter: Iterator, result: boolean): void
     {
         val item: Object = action CALL_METHOD(iter, "next", []);
         result &= action LIST_FIND(this.storage, item, 0, this.length) >= 0;
@@ -438,13 +438,9 @@ automaton ArrayListAutomaton
                 val otherLength: int = ArrayListAutomaton(other).length;
 
                 if (this.length == otherLength)
-                {
                     result = action OBJECT_EQUALS(this.storage, otherStorage);
-                }
                 else
-                {
                     result = false;
-                }
 
                 // #problem: should be something like
                 // ArrayListAutomaton(other)._checkForComodification(otherExpectedModCount);
@@ -755,15 +751,12 @@ automaton ArrayListAutomaton
 
     fun *.spliterator (@target self: ArrayList): Spliterator
     {
-        /*
-        result = new ArrayList_SpliteratorAutomaton(state = Initialized,
-            origin = 0,
-            est = -1,
-            expectedModCount = 0
+        result = new ArrayListSpliteratorAutomaton(state = Initialized,
+            parent = self,
+            index = 0,
+            fence = this.length,
+            expectedModCount = this.modCount,
         );
-        */
-        result = action SYMBOLIC("java.util.Spliterator");
-        action ASSUME(result != null);
     }
 
 
@@ -801,12 +794,12 @@ automaton ArrayListAutomaton
         var i: int = 0;
         action LOOP_FOR(
             i, 0, len, +1,
-            toArray_loop(i) // result assignment is implicit
+            toArray_loop(i, result)
         );
     }
 
     // #problem/todo: use exact parameter names
-    @Phantom proc toArray_loop (i: int): array<Object>
+    @Phantom proc toArray_loop (i: int, result: array<Object>): void
     {
         result[i] = action LIST_GET(this.storage, i);
     }
@@ -826,7 +819,7 @@ automaton ArrayListAutomaton
         var i: int = 0;
         action LOOP_FOR(
             i, 0, len, +1,
-            toArray_loop(i) // result assignment is implicit
+            toArray_loop(i, result)
         );
     }
 
@@ -844,7 +837,7 @@ automaton ArrayListAutomaton
 
             action LOOP_FOR(
                 i, 0, len, +1,
-                toArray_loop(i) // result assignment is implicit
+                toArray_loop(i, result)
             );
         }
         else
@@ -853,7 +846,7 @@ automaton ArrayListAutomaton
 
             action LOOP_FOR(
                 i, 0, len, +1,
-                toArray_loop(i) // result assignment is implicit
+                toArray_loop(i, result)
             );
 
             if (aLen > len)
@@ -1150,77 +1143,132 @@ automaton ArrayList_ListIteratorAutomaton
 
 
 
-/*
-@final
-@implements(["java.util.Spliterator"])
-automaton ArrayListSpliterator: int(
+automaton ArrayListSpliteratorAutomaton
+(
+    var parent: ArrayList,
     var index: int,
     var fence: int,
     var expectedModCount: int
 )
+: ArrayListSpliterator
 {
+    // states and shifts
 
-    initstate Initialized;
-    state Allocated;
+    initstate Allocated;
+    state Initialized;
 
     shift Allocated -> Initialized by [
-        ArrayListSpliterator(int, int, int)
+        // constructors
+        ArrayListSpliterator,
     ];
 
     shift Initialized -> self by [
-       // read operations
-       estimateSize,
-       characteristics
+        // instance methods
+        characteristics,
+        equals,
+        estimateSize,
+        forEachRemaining,
+        getComparator,
+        getExactSizeIfKnown,
+        hasCharacteristics,
+        hashCode,
+        toString,
+        tryAdvance,
+        trySplit,
+    ];
 
-       // write operations
-       trySplit,
-       tryAdvance,
-       forEachRemaining
-    ]
+    // internal variables
 
-    //constructors
+    // utilities
 
+    // constructors
 
-    constructor ArrayListSpliterator (origin: int, fence: int, expectedModCount: int)
+    @private constructor *.ArrayListSpliterator (
+                @target self: ArrayListSpliterator,
+                _this: ArrayList,
+                origin: int, fence: int, expectedModCount: int)
     {
-        action ERROR("Dangerous behavior");
+        // #problem: translator cannot generate and refer to private inner classes, so this is effectively useless
+        action NOT_IMPLEMENTED("private constructor call");
     }
 
 
-    //methods
+    // static methods
 
+    // methods
 
-    fun *.trySplit (): ArrayListSpliterator
-    {
-        action TODO();
-    }
-
-
-    fun *.tryAdvance (action: Consumer): void
-    {
-        action TODO();
-    }
-
-
-    fun *.forEachRemaining (action: Consumer): void
-    {
-        action TODO();
-    }
-
-
-    fun *.estimateSize (): long
+    fun *.characteristics (@target self: ArrayListSpliterator): int
     {
         action TODO();
     }
 
 
-    fun *.characteristics (): int
+    // within java.lang.Object
+    fun *.equals (@target self: ArrayListSpliterator, obj: Object): boolean
+    {
+        action NOT_IMPLEMENTED("no final decision");
+    }
+
+
+    fun *.estimateSize (@target self: ArrayListSpliterator): long
+    {
+        action TODO();
+    }
+
+
+    fun *.forEachRemaining (@target self: ArrayListSpliterator, _action: Consumer): void
+    {
+        action TODO();
+    }
+
+
+    // within java.util.Spliterator
+    fun *.getComparator (@target self: ArrayListSpliterator): Comparator
+    {
+        action TODO();
+    }
+
+
+    // within java.util.Spliterator
+    fun *.getExactSizeIfKnown (@target self: ArrayListSpliterator): long
+    {
+        action TODO();
+    }
+
+
+    // within java.util.Spliterator
+    fun *.hasCharacteristics (@target self: ArrayListSpliterator, characteristics: int): boolean
+    {
+        action TODO();
+    }
+
+
+    // within java.lang.Object
+    fun *.hashCode (@target self: ArrayListSpliterator): int
+    {
+        action NOT_IMPLEMENTED("no final decision");
+    }
+
+
+    // within java.lang.Object
+    fun *.toString (@target self: ArrayListSpliterator): String
+    {
+        action NOT_IMPLEMENTED("no final decision");
+    }
+
+
+    fun *.tryAdvance (@target self: ArrayListSpliterator, _action: Consumer): boolean
+    {
+        action TODO();
+    }
+
+
+    fun *.trySplit (@target self: ArrayListSpliterator): ArrayListSpliterator
     {
         action TODO();
     }
 
 }
-// */
 
 
 

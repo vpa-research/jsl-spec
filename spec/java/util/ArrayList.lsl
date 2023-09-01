@@ -40,3 +40,12 @@ import java/util/stream/_interfaces;
 {
 }
 
+
+@GenerateMe
+@implements("java.util.Spliterator")
+@public @final type ArrayListSpliterator
+    is java.util.ArrayList_Spliterator  // NOTE: do not use inner classes
+    for Spliterator
+{
+}
+
