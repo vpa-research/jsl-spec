@@ -195,6 +195,7 @@ automaton StringBuilderAutomaton
             var i: int = 0;
             action LOOP_FOR(i, 0, seqLength, +1, _appendCharSequence_loop(i, seq));
         }
+        result = self;
     }
 
 
@@ -207,6 +208,7 @@ automaton StringBuilderAutomaton
         this.length += end - start;
         var i: int = 0;
         action LOOP_FOR(i, start, end, +1, _appendCharSequenceRange_loop(i, seq));
+        result = self;
     }
 
 
@@ -219,31 +221,77 @@ automaton StringBuilderAutomaton
 
     fun *.append (@target self: StringBuilder, obj: Object): StringBuilder
     {
-        action TODO();
+        if (obj == null)
+        {
+            this.storage += "null";
+            this.length += 4;
+        }
+        else
+        {
+            // Problem !
+            //That's right ? In original: "obj.toString()"
+            this.storage += action OBJECT_TO_STRING(obj);
+            this.length = action CALL_METHOD(this.storage, "length", []);
+        }
+        result = self;
     }
 
 
     fun *.append (@target self: StringBuilder, str: String): StringBuilder
     {
-        action TODO();
+        if (str == null)
+        {
+            this.storage += "null";
+            this.length += 4;
+        }
+        else
+        {
+            this.storage += str;
+            this.length = action CALL_METHOD(this.storage, "length", []);
+        }
+        result = self;
     }
 
 
     fun *.append (@target self: StringBuilder, sb: StringBuffer): StringBuilder
     {
-        action TODO();
+        if (sb == null)
+        {
+            this.storage += "null";
+            this.length += 4;
+        }
+        else
+        {
+            // That's right for StringBuffer ?
+            this.storage += action OBJECT_TO_STRING(sb);
+            this.length = action CALL_METHOD(this.storage, "length", []);
+        }
+        result = self;
     }
 
 
     fun *.append (@target self: StringBuilder, b: boolean): StringBuilder
     {
-        action TODO();
+        if (b)
+        {
+            this.storage += "true";
+            this.length += 4;
+        }
+        else
+        {
+            this.storage += "false";
+            this.length += 5;
+        }
+        result = self;
     }
 
 
     fun *.append (@target self: StringBuilder, c: char): StringBuilder
     {
-        action TODO();
+        // That's right for char ?
+        this.storage += action OBJECT_TO_STRING(c);
+        this.length += 1;
+        result = self;
     }
 
 
