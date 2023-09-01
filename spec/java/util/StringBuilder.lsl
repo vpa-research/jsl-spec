@@ -178,6 +178,16 @@ automaton StringBuilderAutomaton
     }
 
 
+    proc _checkRangeSIOOBE (start: int, end: int, len: int): void
+    {
+        if (start < 0 || start > end || end > len)
+        {
+            val message: String = "start " + action OBJECT_TO_STRING(start) + ", end " + action OBJECT_TO_STRING(end) + ", length " + action OBJECT_TO_STRING(len);
+            action THROW_NEW("java.lang.StringIndexOutOfBoundsException", [message]);
+        }
+    }
+
+
     // methods
 
     fun *.append (@target self: StringBuilder, seq: CharSequence): StringBuilder
@@ -297,55 +307,103 @@ automaton StringBuilderAutomaton
 
     fun *.append (@target self: StringBuilder, str: array<char>): StringBuilder
     {
-        action TODO();
+        val strSize: int = action ARRAY_SIZE(str);
+        this.length += strSize;
+        var i: int = 0;
+        action LOOP_FOR(i, 0, strSize, +1, _appendCharsArray_loop(i, str));
+        result = self;
+    }
+
+
+    @Phantom proc _appendCharsArray_loop(i: int, str: array<char>): void
+    {
+        var currentChar: char = action ARRAY_GET(str, i);
+        this.storage += action OBJECT_TO_STRING(currentChar);
     }
 
 
     fun *.append (@target self: StringBuilder, str: array<char>, offset: int, len: int): StringBuilder
     {
-        action TODO();
+        val end: int = offset + len;
+        val strSize: int = action ARRAY_SIZE(str);
+        _checkRange(offset, end, strSize);
+        var i: int = 0;
+        action LOOP_FOR(i, 0, strSize, +1, _appendCharsArray_loop(i, str));
+        result = self;
     }
 
 
     fun *.append (@target self: StringBuilder, d: double): StringBuilder
     {
-        action TODO();
+        this.storage += action OBJECT_TO_STRING(d);
+        this.length += 1;
+        result = self;
     }
 
 
     fun *.append (@target self: StringBuilder, f: float): StringBuilder
     {
-        action TODO();
+        this.storage += action OBJECT_TO_STRING(f);
+        this.length += 1;
+        result = self;
     }
 
 
     fun *.append (@target self: StringBuilder, i: int): StringBuilder
     {
-        action TODO();
+        this.storage += action OBJECT_TO_STRING(i);
+        this.length += 1;
+        result = self;
     }
 
 
     fun *.append (@target self: StringBuilder, lng: long): StringBuilder
     {
-        action TODO();
+        this.storage += action OBJECT_TO_STRING(lng);
+        this.length += 1;
+        result = self;
     }
 
 
     fun *.appendCodePoint (@target self: StringBuilder, codePoint: int): StringBuilder
     {
         action TODO();
+        /*if (codePoint >>> 16 == 0)
+        {
+
+        }
+        else
+        {
+
+        }*/
     }
 
 
     fun *.compareTo (@target self: StringBuilder, another: StringBuilder): int
     {
-        action TODO();
+        if (another == self)
+        {
+            result = 0;
+        }
+        val anotherString: String = action OBJECT_TO_STRING(another);
+        // Problem
+        //result = action CALL_METHOD(this.storage, "compareTo", [anotherString]);
     }
 
 
     fun *.delete (@target self: StringBuilder, start: int, end: int): StringBuilder
     {
-        action TODO();
+        if (end > this.length)
+            end = this.length;
+
+        _checkRangeSIOOBE(start, end, this.length);
+
+        val len: int = end - start;
+
+        // Problem with calling method "substring"
+        //if (len > 0)
+            //this.storage = action CALL_METHOD(this.storage, "substring", [start]);
+        result = self;
     }
 
 
