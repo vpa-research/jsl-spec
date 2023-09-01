@@ -168,18 +168,52 @@ automaton StringBuilderAutomaton
 
     // utilities
 
-
-    // methods
-
-    fun *.append (@target self: StringBuilder, s: CharSequence): StringBuilder
+    proc _checkRange (start: int, end: int, len: int): void
     {
-        action TODO();
+        if (start < 0 || start > end || end > len)
+        {
+            val message: String = "start " + action OBJECT_TO_STRING(start) + ", end " + action OBJECT_TO_STRING(end) + ", length " + action OBJECT_TO_STRING(len);
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
+        }
     }
 
 
-    fun *.append (@target self: StringBuilder, s: CharSequence, start: int, end: int): StringBuilder
+    // methods
+
+    fun *.append (@target self: StringBuilder, seq: CharSequence): StringBuilder
     {
-        action TODO();
+        if (seq == null)
+        {
+            this.storage += "null";
+            this.length += 4;
+        }
+        else
+        {
+            val seqLength: int = action CALL_METHOD(seq, "length", []);
+            this.length += seqLength;
+
+            var i: int = 0;
+            action LOOP_FOR(i, 0, seqLength, +1, _appendCharSequence_loop(i, seq));
+        }
+    }
+
+
+    fun *.append (@target self: StringBuilder, seq: CharSequence, start: int, end: int): StringBuilder
+    {
+        if (seq == null)
+            seq = "null";
+        val seqLength: int = action CALL_METHOD(seq, "length", []);
+        _checkRange(start, end, seqLength);
+        this.length += end - start;
+        var i: int = 0;
+        action LOOP_FOR(i, start, end, +1, _appendCharSequenceRange_loop(i, seq));
+    }
+
+
+    @Phantom proc _appendCharSequenceRange_loop(i: int, seq: CharSequence): void
+    {
+        var currentChar: char = action CALL_METHOD(seq, "charAt", [i]);
+        this.storage += action OBJECT_TO_STRING(currentChar);
     }
 
 
