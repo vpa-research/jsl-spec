@@ -29,14 +29,6 @@ import java/lang/_interfaces;
 
 // === CONSTANTS ===
 
-val MAX_LENGTH: int = 1073741823;
-val MAX_ARRAY_SIZE: int = 2147483639;
-val CODER: int = 1;
-val INTEGER_MAX_VALUE: int = 2147483647;
-// Problem: isBigIndian ?
-val HI_BYTE_SHIFT: int = 8;
-val LO_BYTE_SHIFT: int = 0;
-
 
 // automata
 
@@ -46,12 +38,8 @@ automaton StringBuilderAutomaton
 : StringBuilder
 {
 
-    var storage: array<byte>;
+    var storage: String;
     var length: int;
-    var count: int;
-    // Problem
-    // How can we get this value from "java.lang.String" ?
-    val coder: byte;
 
     // states and shifts
 
@@ -114,11 +102,7 @@ automaton StringBuilderAutomaton
 
     constructor *.StringBuilder (@target self: StringBuilder)
     {
-        assigns this.storage;
-        assigns this.length;
-        ensures this.storage != null;
-        ensures this.length == 32;
-        _newBytesFor(16);
+
     }
 
 
@@ -127,13 +111,28 @@ automaton StringBuilderAutomaton
         assigns this.storage;
         assigns this.length;
         ensures this.storage != null;
-        ensures this.length >= 32;
+        ensures this.length >= 0;
 
-        val seqLength: int = action CALL_METHOD(seq, "length", []);
-        val newLength: int = seqLength + 16;
+        if (seq == null)
+        {
+            this.storage = "null";
+            this.length = 4;
+        }
+        else
+        {
+            val seqLength: int = action CALL_METHOD(seq, "length", []);
+            this.length = seqLength;
 
-        _newBytesFor(newLength);
-        _append(seq);
+            var i: int = 0;
+            action LOOP_FOR(i, 0, seqLength, +1, _appendCharSequence_loop(i, seq));
+        }
+    }
+
+
+    @Phantom proc _appendCharSequence_loop(i: int, seq: CharSequence): void
+    {
+        var currentChar: char = action CALL_METHOD(seq, "charAt", [i]);
+        this.storage += action OBJECT_TO_STRING(currentChar);
     }
 
 
@@ -144,22 +143,23 @@ automaton StringBuilderAutomaton
         ensures this.storage != null;
         ensures this.length >= 0;
 
-        val strLength: int = action CALL_METHOD(str, "length", []);
-        val newLength: int = strLength + 16;
-
-        _newBytesFor(newLength);
-        //_append(str);
+        if (str == null)
+        {
+            this.storage = "null";
+            this.length = 4;
+        }
+        else
+        {
+            val strLength: int = action CALL_METHOD(str, "length", []);
+            this.length = strLength;
+            this.storage = str;
+        }
     }
 
 
     constructor *.StringBuilder (@target self: StringBuilder, capacity: int)
     {
-        assigns this.storage;
-        assigns this.length;
-        ensures this.storage != null;
-        ensures this.length == capacity;
 
-        _newBytesFor(capacity);
     }
 
 
@@ -167,128 +167,6 @@ automaton StringBuilderAutomaton
 
 
     // utilities
-
-    proc _newBytesFor (len: int): void
-    {
-        if (len < 0)
-            action THROW_NEW("java.lang.NegativeArraySizeException", []);
-        if (len > MAX_LENGTH)
-        {
-            val message: String = "UTF16 String size is " + action OBJECT_TO_STRING(len) + ", should be less than " + action OBJECT_TO_STRING(MAX_LENGTH);
-            action THROW_NEW("java.lang.OutOfMemoryError", [message]);
-        }
-        len = len << 1;
-        this.storage = action ARRAY_NEW("java.lang.Byte", len);
-        this.length = len;
-    }
-
-
-    proc _append (seq: CharSequence): void
-    {
-        if (seq == null)
-        {
-
-        }
-    }
-
-
-    proc _appendNull (): void
-    {
-        action CALL_METHOD("java.lang.StringUTF16", "putCharsAt", [this.storage, this.count, 55, 44, 33, 44]);
-
-        /*ensures this.count' == this.count + 4;
-        val end: int = this.count + 4;
-        _checkBoundsBeginEnd(end);
-
-        _ensureCapacityInternal(end);
-        _putChar(this.count, 'n');
-        this.count += 1;
-        _putChar(this.count, 'u');
-        this.count += 1;
-        _putChar(this.count, 'l');
-        this.count += 1;
-        _putChar(this.count, 'l');
-        this.count += 1;*/
-
-    }
-
-
-    proc _checkBoundsBeginEnd (end: int): void
-    {
-        val actualLength: int = this.length >> 1;
-        if (this.count < 0 || this.count > end || end > actualLength)
-        {
-            // ????? check after
-            val message: String = "begin " + action OBJECT_TO_STRING(end) + ", end " + action OBJECT_TO_STRING(end) + ", length " + action OBJECT_TO_STRING(length);
-            action THROW_NEW("java.lang.StringIndexOutOfBoundsException", [message]);
-        }
-    }
-
-
-    /*proc _putChar (index: int, ch: int): void
-    {
-        // How make assert ?
-        // assert index >= 0 && index < length(val) : "Trusted caller missed bounds check";
-
-        index <<= 1;
-        // Do we need to add "as byte" ?
-        var value: byte = (ch >> HI_BYTE_SHIFT) as byte;
-        action ARRAY_SET(this.storage, index, value);
-        index += 1;
-
-        value = (ch >> LO_BYTE_SHIFT) as byte;
-        action ARRAY_SET(this.storage, index, value);
-
-        this.count += 1;
-    }*/
-
-
-    proc _ensureCapacityInternal (minimumCapacity: int): void
-    {
-        val oldCapacity: int = this.length >> CODER;
-        if (minimumCapacity - oldCapacity > 0)
-        {
-            var newLength: int = _newCapacity(minimumCapacity);
-            newLength = newLength << CODER;
-            val dst: array<byte> = action ARRAY_NEW("java.lang.Byte", newLength);
-            this.storage = action ARRAY_COPY(this.storage, 0, dst, 0, this.length);
-            this.length = newLength;
-        }
-    }
-
-
-    proc _newCapacity (minCapacity: int): int
-    {
-        var oldCapacity: int = this.length >> CODER;
-        var newCapacity: int = (oldCapacity << 1) + 2;
-        if (newCapacity - minCapacity < 0)
-            newCapacity = minCapacity;
-        val SAFE_BOUND: int = MAX_ARRAY_SIZE >> CODER;
-
-        if (newCapacity <= 0 || SAFE_BOUND - newCapacity < 0)
-            result = _hugeCapacity(minCapacity);
-        else
-            result = newCapacity;
-    }
-
-
-    proc _hugeCapacity (minCapacity: int): int
-    {
-        val SAFE_BOUND: int = MAX_ARRAY_SIZE >> CODER;
-        val UNSAFE_BOUND: int = INTEGER_MAX_VALUE >> CODER;
-        if (UNSAFE_BOUND - minCapacity < 0)
-            action THROW_NEW("java.lang.OutOfMemoryError", []);
-        if (minCapacity > SAFE_BOUND)
-            result = minCapacity;
-        else
-            result = SAFE_BOUND;
-    }
-
-
-    /*proc _append (str: String): void
-    {
-        action TODO();
-    }*/
 
 
     // methods
