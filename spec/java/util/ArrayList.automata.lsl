@@ -751,12 +751,27 @@ automaton ArrayListAutomaton
 
     fun *.spliterator (@target self: ArrayList): Spliterator
     {
+        // collect fixed data collection from the current state of this automaton
+        val spliteratorDataArray: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            spliterator_loop(i, spliteratorDataArray)
+        );
+
         result = new ArrayListSpliteratorAutomaton(state = Initialized,
             parent = self,
+            data = spliteratorDataArray,
             index = 0,
             fence = this.length,
             expectedModCount = this.modCount,
         );
+    }
+
+    @Phantom proc spliterator_loop (i: int, spliteratorDataArray: array<Object>): void
+    {
+        spliteratorDataArray[i] = action LIST_GET(this.storage, i);
     }
 
 
@@ -1146,6 +1161,7 @@ automaton ArrayList_ListIteratorAutomaton
 automaton ArrayListSpliteratorAutomaton
 (
     var parent: ArrayList,
+    var data: array<Object>,
     var index: int,
     var fence: int,
     var expectedModCount: int
@@ -1188,7 +1204,7 @@ automaton ArrayListSpliteratorAutomaton
                 _this: ArrayList,
                 origin: int, fence: int, expectedModCount: int)
     {
-        // #problem: translator cannot generate and refer to private inner classes, so this is effectively useless
+        // #problem: translator cannot generate and refer to private and/or inner classes, so this is effectively useless
         action NOT_IMPLEMENTED("private constructor call");
     }
 
