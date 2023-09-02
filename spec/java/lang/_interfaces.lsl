@@ -24,6 +24,8 @@ type Float  is java.lang.Float  for Object, float32 {}
 type Double is java.lang.Double for Object, float64 {}
 
 
+// string-related operations
+
 type CharSequence
     is java.lang.CharSequence
     for Object
@@ -36,11 +38,16 @@ type CharSequence
 }
 
 type Character is java.lang.Character for Object, char {}
-type String    is java.lang.String    for CharSequence, string {}
+
+type String
+    is java.lang.String
+    for CharSequence, string
+{
+    fun compareTo(anotherString: string): int; // #problem: self-reference
+}
 
 
 // general interfaces
-
 
 type Runnable
     is java.lang.Runnable
@@ -57,16 +64,26 @@ type Throwable
 }
 
 
+@Parameterized(["E"])
+type Iterator
+    is java.util.Iterator
+    for Object
+{
+    fun hasNext(): boolean;
+
+    fun next(): Object;
+
+    fun remove(): void;
+}
+
+
 @Parameterized(["T"])
 type Iterable
     is java.lang.Iterable
     for Object
 {
+    fun iterator(): Iterator;
+
+    // #problem: cannot use Spliterator and Consumer here
+    // fun spliterator(): Spliterator;
 }
-
-
-
-// !!! temporary definitions
-
-type StringBuffer is java.lang.StringBuffer for Object {}
-type StringBuilder is java.lang.StringBuilder for Object {}

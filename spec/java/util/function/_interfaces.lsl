@@ -20,7 +20,7 @@ type BiConsumer
 {
     fun accept(t: Object, u: Object): void;
 
-    // #problem: there are other methods but it will break `is-functional-interface` detection mechanism
+    // #question: do we need combinational methods?
 }
 
 
