@@ -8,20 +8,19 @@ library std
 
 // imports
 
-import java.common;
 import java/lang/_interfaces;
+import java/util/OptionalLong;
 import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
 
 
-// local semantic types
+// globals
 
-@public @final type OptionalLong
-    is java.util.OptionalLong
-    for Object
-{
-    // NOTE: value is stored within the automaton
-}
+val EMPTY_OPTIONAL_LONG: OptionalLong
+    = new OptionalLongAutomaton(state = Initialized,
+        value = 0, // #problem: "0" should be int64
+        present = false
+    );
 
 
 // automata
@@ -285,13 +284,3 @@ automaton OptionalLongAutomaton
     }
 
 }
-
-
-// globals
-
-val EMPTY_OPTIONAL_LONG: OptionalLong
-    = new OptionalLongAutomaton(state = Initialized,
-        value = 0, // #problem: "0" should be int64
-        present = false
-    );
-

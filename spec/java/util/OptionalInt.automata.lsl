@@ -8,20 +8,19 @@ library std
 
 // imports
 
-import java.common;
 import java/lang/_interfaces;
+import java/util/OptionalInt;
 import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
 
 
-// local semantic types
+// globals
 
-@public @final type OptionalInt
-    is java.util.OptionalInt
-    for Object
-{
-    // NOTE: value is stored within the automaton
-}
+val EMPTY_OPTIONAL_INT: OptionalInt
+    = new OptionalIntAutomaton(state = Initialized,
+        value = 0,
+        present = false
+    );
 
 
 // automata
@@ -285,13 +284,3 @@ automaton OptionalIntAutomaton
     }
 
 }
-
-
-// globals
-
-val EMPTY_OPTIONAL_INT: OptionalInt
-    = new OptionalIntAutomaton(state = Initialized,
-        value = 0,
-        present = false
-    );
-

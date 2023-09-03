@@ -8,21 +8,16 @@ library std
 
 // imports
 
-import java.common;
 import java/lang/_interfaces;
+import java/util/Optional;
 import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
 
 
-// local semantic types
+// globals
 
-@Parameterized(["T"])
-@public @final type Optional
-    is java.util.Optional
-    for Object
-{
-    // NOTE: value is stored within the automaton
-}
+// #problem: type parameter is missing
+val EMPTY_OPTIONAL: Optional = new OptionalAutomaton(state=Initialized, value=null);
 
 
 // automata
@@ -432,10 +427,3 @@ automaton OptionalAutomaton
     }
 
 }
-
-
-// globals
-
-// #problem: type parameter is missing
-val EMPTY_OPTIONAL: Optional = new OptionalAutomaton(state=Initialized, value=null);
-

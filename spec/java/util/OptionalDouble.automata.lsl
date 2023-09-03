@@ -8,25 +8,25 @@ library std
 
 // imports
 
-import java.common;
 import java/lang/_interfaces;
+import java/util/OptionalDouble;
 import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
 
 
-// local semantic types
+// globals
 
-@public @final type OptionalDouble
-    is java.util.OptionalDouble
-    for Object
-{
-    // NOTE: value is stored within the automaton
-}
+val EMPTY_OPTIONAL_DOUBLE: OptionalDouble
+    = new OptionalDoubleAutomaton(state = Initialized,
+        value = 0.0d,
+        present = false
+    );
 
 
 // automata
 
 // TODO: find ways to get concepts working
+@Deprecated
 automaton concept TestConcept: Object
 {
     var value: double;
@@ -293,13 +293,3 @@ automaton OptionalDoubleAutomaton
     }
 
 }
-
-
-// globals
-
-val EMPTY_OPTIONAL_DOUBLE: OptionalDouble
-    = new OptionalDoubleAutomaton(state = Initialized,
-        value = 0.0d,
-        present = false
-    );
-
