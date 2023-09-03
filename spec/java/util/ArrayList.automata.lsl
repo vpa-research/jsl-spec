@@ -1162,9 +1162,6 @@ automaton ArrayList_SpliteratorAutomaton
 (
     var parent: ArrayList,
     var data: array<Object>,
-    var index: int,
-    var fence: int,
-    var expectedModCount: int
 )
 : ArrayList_Spliterator
 {
@@ -1195,7 +1192,26 @@ automaton ArrayList_SpliteratorAutomaton
 
     // internal variables
 
+    var index: int = 0;
+    var fence: int = -1;
+    var expectedModCount: int = 0;
+
+
     // utilities
+
+    proc _getFence (): int
+    {
+        // JDK comment: initialize fence to size on first use
+        if (this.fence < 0)
+        {
+            action ASSUME(this.parent != null);
+            this.expectedModCount = ArrayListAutomaton(this.parent).modCount;
+            this.fence = ArrayListAutomaton(this.parent).length;
+        }
+
+        result = this.fence;
+    }
+
 
     // constructors
 
@@ -1215,7 +1231,7 @@ automaton ArrayList_SpliteratorAutomaton
 
     fun *.characteristics (@target self: ArrayList_Spliterator): int
     {
-        action TODO();
+        result = SPLITERATOR_ORDERED | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED;
     }
 
 
@@ -1228,7 +1244,7 @@ automaton ArrayList_SpliteratorAutomaton
 
     fun *.estimateSize (@target self: ArrayList_Spliterator): long
     {
-        action TODO();
+        result = _getFence() - this.index;
     }
 
 
@@ -1239,23 +1255,23 @@ automaton ArrayList_SpliteratorAutomaton
 
 
     // within java.util.Spliterator
-    fun *.getComparator (@target self: ArrayList_Spliterator): Comparator
+    @Phantom fun *.getComparator (@target self: ArrayList_Spliterator): Comparator
     {
-        action TODO();
+        // NOTE: using the original method
     }
 
 
     // within java.util.Spliterator
     fun *.getExactSizeIfKnown (@target self: ArrayList_Spliterator): long
     {
-        action TODO();
+        result = _getFence() - this.index;
     }
 
 
     // within java.util.Spliterator
-    fun *.hasCharacteristics (@target self: ArrayList_Spliterator, characteristics: int): boolean
+    @Phantom fun *.hasCharacteristics (@target self: ArrayList_Spliterator, characteristics: int): boolean
     {
-        action TODO();
+        // NOTE: using the original method
     }
 
 
