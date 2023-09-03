@@ -33,8 +33,6 @@ type CharSequence
     fun length(): int;
 
     fun charAt(index: int): char;
-
-    fun toString(): string; // #problem: using forward-declared type
 }
 
 type Character is java.lang.Character for Object, char {}
