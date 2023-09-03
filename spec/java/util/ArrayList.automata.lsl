@@ -760,7 +760,7 @@ automaton ArrayListAutomaton
             spliterator_loop(i, spliteratorDataArray)
         );
 
-        result = new ArrayListSpliteratorAutomaton(state = Initialized,
+        result = new ArrayList_SpliteratorAutomaton(state = Initialized,
             parent = self,
             data = spliteratorDataArray,
             index = 0,
@@ -1158,7 +1158,7 @@ automaton ArrayList_ListIteratorAutomaton
 
 
 
-automaton ArrayListSpliteratorAutomaton
+automaton ArrayList_SpliteratorAutomaton
 (
     var parent: ArrayList,
     var data: array<Object>,
@@ -1166,7 +1166,7 @@ automaton ArrayListSpliteratorAutomaton
     var fence: int,
     var expectedModCount: int
 )
-: ArrayListSpliterator
+: ArrayList_Spliterator
 {
     // states and shifts
 
@@ -1175,7 +1175,7 @@ automaton ArrayListSpliteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        ArrayListSpliterator,
+        ArrayList_Spliterator,
     ];
 
     shift Initialized -> self by [
@@ -1199,13 +1199,13 @@ automaton ArrayListSpliteratorAutomaton
 
     // constructors
 
-    @private constructor *.ArrayListSpliterator (
-                @target self: ArrayListSpliterator,
+    @private constructor *.ArrayList_Spliterator (
+                @target self: ArrayList_Spliterator,
                 _this: ArrayList,
                 origin: int, fence: int, expectedModCount: int)
     {
         // #problem: translator cannot generate and refer to private and/or inner classes, so this is effectively useless
-        action NOT_IMPLEMENTED("private constructor call");
+        action NOT_IMPLEMENTED("inaccessible constructor");
     }
 
 
@@ -1213,73 +1213,73 @@ automaton ArrayListSpliteratorAutomaton
 
     // methods
 
-    fun *.characteristics (@target self: ArrayListSpliterator): int
+    fun *.characteristics (@target self: ArrayList_Spliterator): int
     {
         action TODO();
     }
 
 
     // within java.lang.Object
-    fun *.equals (@target self: ArrayListSpliterator, obj: Object): boolean
+    fun *.equals (@target self: ArrayList_Spliterator, obj: Object): boolean
     {
         action NOT_IMPLEMENTED("no final decision");
     }
 
 
-    fun *.estimateSize (@target self: ArrayListSpliterator): long
+    fun *.estimateSize (@target self: ArrayList_Spliterator): long
     {
         action TODO();
     }
 
 
-    fun *.forEachRemaining (@target self: ArrayListSpliterator, _action: Consumer): void
-    {
-        action TODO();
-    }
-
-
-    // within java.util.Spliterator
-    fun *.getComparator (@target self: ArrayListSpliterator): Comparator
+    fun *.forEachRemaining (@target self: ArrayList_Spliterator, _action: Consumer): void
     {
         action TODO();
     }
 
 
     // within java.util.Spliterator
-    fun *.getExactSizeIfKnown (@target self: ArrayListSpliterator): long
+    fun *.getComparator (@target self: ArrayList_Spliterator): Comparator
     {
         action TODO();
     }
 
 
     // within java.util.Spliterator
-    fun *.hasCharacteristics (@target self: ArrayListSpliterator, characteristics: int): boolean
+    fun *.getExactSizeIfKnown (@target self: ArrayList_Spliterator): long
+    {
+        action TODO();
+    }
+
+
+    // within java.util.Spliterator
+    fun *.hasCharacteristics (@target self: ArrayList_Spliterator, characteristics: int): boolean
     {
         action TODO();
     }
 
 
     // within java.lang.Object
-    fun *.hashCode (@target self: ArrayListSpliterator): int
+    fun *.hashCode (@target self: ArrayList_Spliterator): int
     {
         action NOT_IMPLEMENTED("no final decision");
     }
 
 
     // within java.lang.Object
-    fun *.toString (@target self: ArrayListSpliterator): String
+    fun *.toString (@target self: ArrayList_Spliterator): String
     {
         action NOT_IMPLEMENTED("no final decision");
     }
 
 
-    fun *.tryAdvance (@target self: ArrayListSpliterator, _action: Consumer): boolean
+    fun *.tryAdvance (@target self: ArrayList_Spliterator, _action: Consumer): boolean
     {
         action TODO();
     }
 
 
-    fun *.trySplit (@target self: ArrayListSpliterator): ArrayListSpliterator
+    fun *.trySplit (@target self: ArrayList_Spliterator): ArrayList_Spliterator
     {
         action TODO();
     }
@@ -1290,136 +1290,135 @@ automaton ArrayListSpliteratorAutomaton
 
 
 /*
-@extends("java.util.AbstractList")
-@implements("java.util.RandomAccess")
-automaton SubList: int(
-   @private @final var index: offset,
-   @private var length: int,
-   @transient var modCount: int,
-
+automaton ArrayList_SubListAutomaton
+(
+   var index: offset,
+   var length: int,
+   var modCount: int,
 )
+: ArrayList_SubList
 {
+    // states and shifts
 
-    initstate Initialized;
+    initstate Allocated;
+    state Initialized;
 
     shift Allocated -> Initialized by [
+        // constructors
+        SubList (ArrayList_SubList, ArrayList, int, int),
+        SubList (ArrayList_SubList, ArrayList_SubList, int, int),
     ];
 
     shift Initialized -> self by [
-        // read operations
+        // instance methods
+        add (ArrayList_SubList, Object),
+        add (ArrayList_SubList, int, Object),
+        addAll (ArrayList_SubList, Collection),
+        addAll (ArrayList_SubList, int, Collection),
+        clear,
+        contains,
+        containsAll,
+        equals,
+        forEach,
+        get,
+        hashCode,
+        indexOf,
+        isEmpty,
+        iterator,
+        lastIndexOf,
+        listIterator (ArrayList_SubList),
+        listIterator (ArrayList_SubList, int),
+        parallelStream,
+        remove (ArrayList_SubList, Object),
+        remove (ArrayList_SubList, int),
+        removeAll,
+        removeIf,
+        replaceAll,
+        retainAll,
+        set,
+        size,
+        sort,
+        spliterator,
+        stream,
+        subList,
+        toArray (ArrayList_SubList),
+        toArray (ArrayList_SubList, IntFunction),
+        toArray (ArrayList_SubList, array<Object>),
+        toString,
+    ];
 
-        // write operations
-    ]
+    // internal variables
 
+    // utilities
 
-    //constructors
-
-
-    constructor SubList(startIndex: int, endIndex: int)
-    {
-        offset = startIndex;
-        length = endIndex - startIndex;
-        modCount = this.parent.modCount;
-    }
-
-
-    @private
-    constructor SubList(parentList: SubList, startIndex: int, endIndex: int)
+    proc _addAllElements (index: int, c: Collection): boolean
     {
         // #problem
-        //???
-        offset = startIndex;
-        length = endIndex - startIndex;
-        modCount = this.parent.modCount;
-    }
+        //ArrayListAutomaton(this.parent)._rangeCheckForAdd(index);
+        action DEBUG_DO("((ArrayList) parent)._rangeCheckForAdd(index)");
 
-
-    //subs
-
-    proc _addAllElements (index:int, c:Collection): boolean
-    {
-        this.parent._rangeCheckForAdd(index);
-
-        //I use suppose that Collection interface will have size sub or analog
         val collectionSize: int = c.size();
-
         if (collectionSize == 0)
         {
             result = false;
         }
         else
         {
-            this.parent._checkForComodification(modCount);
-
-            val curIndex = offset + index;
-
-            this.parent._addAllElements(index, c);
-
-            _updateSizeAndModCount(collectionSize);
-
             result = true;
+
+            this.parent._checkForComodification(modCount);
+            this.parent._addAllElements(offset + index, c);
+            _updateSizeAndModCount(collectionSize);
         }
     }
 
 
     proc _updateSizeAndModCount (sizeChange: int): void
     {
-        // #problem
-        //Here is cycle
         action TODO();
     }
 
 
     proc _indexOfElement (o: Object): int
     {
+        ArrayListAutomaton(this.parent)._checkForComodification(this.modCount);
+
         val index: int = action LIST_FIND(this.parent.storage, o, 0, this.parent.length);
-        this.parent._checkForComodification(modCount);
-
         if (index >= 0)
-        {
             result = index - offset;
-        }
         else
-        {
             result = -1;
-        }
     }
 
 
-    //methods
+    // constructors
 
-
-    fun *.set (index: int, element: Object): void
+    constructor *.SubList (@target self: ArrayList_SubList, root: ArrayList, fromIndex: int, toIndex: int)
     {
-        this.parent._checkValidIndex(index);
-        this.parent._checkForComodification(modCount);
-
-        val curIndex: int = offset + index;
-
-        result = action LIST_GET(this.parent.storage, curIndex);
-        action LIST_SET(this.parent.storage, curIndex, element);
+        // #problem: this constructor is useless
+        action NOT_IMPLEMENTED("inaccessible constructor");
     }
 
 
-    fun *.get (index: int): Object
+    @private constructor *.SubList (@target self: ArrayList_SubList, parent: ArrayList_SubList, fromIndex: int, toIndex: int)
     {
-        this.parent._checkValidIndex(index);
-        this.parent._checkForComodification(modCount);
-
-        val curIndex: int = offset + index;
-
-        result = action LIST_GET(this.parent.storage, curIndex);
+        // #problem: this constructor is useless
+        action NOT_IMPLEMENTED("inaccessible constructor");
     }
 
 
-    fun *.size (): int
+    // static methods
+
+    // methods
+
+    // within java.util.AbstractList
+    fun *.add (@target self: ArrayList_SubList, e: Object): boolean
     {
-        this.parent._checkForComodification(modCount);
-        result = length;
+        action TODO();
     }
 
 
-    fun *.add (index: int, element: Object): void
+    fun *.add (@target self: ArrayList_SubList, index: int, element: Object): void
     {
         this.parent._rangeCheckForAdd(index);
         this.parent._checkForComodification(modCount);
@@ -1427,11 +1426,125 @@ automaton SubList: int(
         val curIndex: int = offset + index;
         this.parent._addElement(curIndex, element);
 
-        _updateSizeAndModCount(1);
+        _updateSizeAndModCount(+1);
     }
 
 
-    fun *.remove (index: int): Object
+    fun *.addAll (@target self: ArrayList_SubList, c: Collection): boolean
+    {
+        _addAllElements(length, c);
+    }
+
+
+    fun *.addAll (@target self: ArrayList_SubList, index: int, c: Collection): boolean
+    {
+        _addAllElements(index, c);
+    }
+
+
+    // within java.util.AbstractList
+    fun *.clear (@target self: ArrayList_SubList): void
+    {
+        action TODO();
+    }
+
+
+    fun *.contains (@target self: ArrayList_SubList, o: Object): boolean
+    {
+        result = _indexOfElement(o) >= 0;
+    }
+
+
+    // within java.util.AbstractCollection
+    fun *.containsAll (@target self: ArrayList_SubList, c: Collection): boolean
+    {
+        action TODO();
+    }
+
+
+    fun *.equals (@target self: ArrayList_SubList, o: Object): boolean
+    {
+        action TODO();
+    }
+
+
+    // within java.lang.Iterable
+    fun *.forEach (@target self: ArrayList_SubList, _action: Consumer): void
+    {
+        action TODO();
+    }
+
+
+    fun *.get (@target self: ArrayList_SubList, index: int): Object
+    {
+        this.parent._checkValidIndex(index);
+        this.parent._checkForComodification(modCount);
+
+        val curIndex: int = offset + index;
+
+        result = action LIST_GET(this.parent.storage, curIndex);
+    }
+
+
+    fun *.hashCode (@target self: ArrayList_SubList): int
+    {
+        action TODO();
+    }
+
+
+    fun *.indexOf (@target self: ArrayList_SubList, o: Object): int
+    {
+        result = _indexOfElement(o);
+    }
+
+
+    // within java.util.AbstractCollection
+    fun *.isEmpty (@target self: ArrayList_SubList): boolean
+    {
+        action TODO();
+    }
+
+
+    fun *.iterator (@target self: ArrayList_SubList): Iterator
+    {
+        action TODO();
+    }
+
+
+    fun *.lastIndexOf (@target self: ArrayList_SubList, o: Object): int
+    {
+        action TODO();
+    }
+
+
+    // within java.util.AbstractList
+    fun *.listIterator (@target self: ArrayList_SubList): ListIterator
+    {
+        action TODO();
+    }
+
+
+    fun *.listIterator (@target self: ArrayList_SubList, index: int): ListIterator
+    {
+        action TODO();
+    }
+
+
+    // within java.util.Collection
+    fun *.parallelStream (@target self: ArrayList_SubList): Stream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.AbstractCollection
+    fun *.remove (@target self: ArrayList_SubList, o: Object): boolean
+    {
+        action TODO();
+    }
+
+
+    fun *.remove (@target self: ArrayList_SubList, index: int): Object
     {
         this.parent._checkValidIndex(index);
         this.parent._checkForComodification(modCount);
@@ -1444,47 +1557,82 @@ automaton SubList: int(
     }
 
 
-    fun *.addAll (c: Collection): boolean
+    fun *.removeAll (@target self: ArrayList_SubList, c: Collection): boolean
     {
-        _addAllElements(length, c);
-    }
-
-
-    fun *.addAll (index: int, c: Collection): boolean
-    {
-        _addAllElements(index, c);
-    }
-
-
-    fun *.replaceAll (operator: UnaryOperator): void
-    {
-        // #problem
         action TODO();
     }
 
 
-    fun *.removeAll (c: Collection): boolean
+    fun *.removeIf (@target self: ArrayList_SubList, filter: Predicate): boolean
     {
-        // #problem
         action TODO();
     }
 
 
-    fun *.retainAll (c: Collection): boolean
+    fun *.replaceAll (@target self: ArrayList_SubList, operator: UnaryOperator): void
     {
-        // #problem
         action TODO();
     }
 
 
-    fun *.removeIf (filter: Predicate): boolean
+    fun *.retainAll (@target self: ArrayList_SubList, c: Collection): boolean
     {
-        // #problem
         action TODO();
     }
 
 
-    fun *.toArray (): array<Object>
+    fun *.set (@target self: ArrayList_SubList, index: int, element: Object): Object
+    {
+        this.parent._checkValidIndex(index);
+        this.parent._checkForComodification(modCount);
+
+        val curIndex: int = offset + index;
+
+        result = action LIST_GET(this.parent.storage, curIndex);
+        action LIST_SET(this.parent.storage, curIndex, element);
+    }
+
+
+    fun *.size (@target self: ArrayList_SubList): int
+    {
+        this.parent._checkForComodification(modCount);
+        result = this.length;
+    }
+
+
+    // within java.util.List
+    fun *.sort (@target self: ArrayList_SubList, c: Comparator): void
+    {
+        action TODO();
+    }
+
+
+    fun *.spliterator (@target self: ArrayList_SubList): Spliterator
+    {
+        action TODO();
+    }
+
+
+    // within java.util.Collection
+    fun *.stream (@target self: ArrayList_SubList): Stream
+    {
+        action TODO();
+    }
+
+
+    fun *.subList (@target self: ArrayList_SubList, fromIndex: int, toIndex: int): List
+    {
+        this.parent._subListRangeCheck(fromIndex, toIndex, length);
+
+        result = new ArrayList_SubListAutomaton(state = Created,
+            parentList = self,
+            startIndex = fromIndex,
+            endIndex = toIndex
+        );
+    }
+
+
+    fun *.toArray (@target self: ArrayList_SubList): array<Object>
     {
         val a: array<int> = action ARRAY_NEW("java.lang.Object", this.length);
 
@@ -1493,66 +1641,409 @@ automaton SubList: int(
     }
 
 
-    fun *.toArray (a: list<Object>): array<Object>
+    // within java.util.Collection
+    fun *.toArray (@target self: ArrayList_SubList, generator: IntFunction): array<Object>
+    {
+        action TODO();
+    }
+
+
+    fun *.toArray (@target self: ArrayList_SubList, a: array<Object>): array<Object>
     {
         val end: int = offset + length;
         result = action LIST_TO_ARRAY(storage, a, offset, end);
     }
 
 
-    fun *.equals (o: Object): boolean
-    {
-        // #problem
-        action TODO();
-    }
-
-
-    fun *.hashCode (): int
-    {
-        // result = action OBJECT_HASH_CODE(self);
-        // #problem
-        action TODO();
-    }
-
-
-    fun *.indexOf (o: Object): int
-    {
-        result = _indexOfElement(o);
-    }
-
-
-    fun *.lastIndexOf (o: Object): int
-    {
-        //I must think about this new action.
-        action TODO();
-    }
-
-
-    fun *.contains (o: Object): boolean
-    {
-        result = _indexOfElement(o) >= 0;
-    }
-
-
-    fun *.subList (fromIndex: int, toIndex: int): List
-    {
-        this.parent._subListRangeCheck(fromIndex, toIndex, length);
-        result = new SubList(state=Created,
-            //Think about THIS !
-            //TODO
-            parentList = self,
-            startIndex=fromIndex,
-            endIndex=toIndex);
-    }
-
-
-    fun *.iterator (): Iterator
+    // within java.util.AbstractCollection
+    fun *.toString (@target self: ArrayList_SubList): String
     {
         action TODO();
     }
 
+}
+// */
 
-    fun *.spliterator (): Spliterator
+
+
+
+/*
+automaton ArrayList_StreamAutomaton
+(
+)
+: ArrayList_Stream
+{
+    // states and shifts
+
+    initstate Initialized;
+
+    shift Initialized -> self by [
+        // instance methods
+        allMatch,
+        anyMatch,
+        close,
+        collect (ArrayList_Stream, Collector),
+        collect (ArrayList_Stream, Supplier, BiConsumer, BiConsumer),
+        count,
+        distinct,
+        dropWhile,
+        equals,
+        filter,
+        findAny,
+        findFirst,
+        flatMap,
+        flatMapToDouble,
+        flatMapToInt,
+        flatMapToLong,
+        forEach,
+        forEachOrdered,
+        hashCode,
+        isParallel,
+        iterator,
+        limit,
+        map,
+        mapToDouble,
+        mapToInt,
+        mapToLong,
+        max,
+        min,
+        noneMatch,
+        onClose,
+        parallel,
+        peek,
+        reduce (ArrayList_Stream, BinaryOperator),
+        reduce (ArrayList_Stream, Object, BiFunction, BinaryOperator),
+        reduce (ArrayList_Stream, Object, BinaryOperator),
+        sequential,
+        skip,
+        sorted (ArrayList_Stream),
+        sorted (ArrayList_Stream, Comparator),
+        spliterator,
+        takeWhile,
+        toArray (ArrayList_Stream),
+        toArray (ArrayList_Stream, IntFunction),
+        toString,
+        unordered,
+    ];
+
+    // internal variables
+
+    // utilities
+
+    // constructors
+
+    // static methods
+
+    // methods
+
+    // within java.util.stream.ReferencePipeline
+    fun *.allMatch (@target self: ArrayList_Stream, predicate: Predicate): boolean
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.anyMatch (@target self: ArrayList_Stream, predicate: Predicate): boolean
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.AbstractPipeline
+    fun *.close (@target self: ArrayList_Stream): void
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.collect (@target self: ArrayList_Stream, collector: Collector): Object
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.collect (@target self: ArrayList_Stream, supplier: Supplier, accumulator: BiConsumer, combiner: BiConsumer): Object
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.count (@target self: ArrayList_Stream): long
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.distinct (@target self: ArrayList_Stream): Stream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.dropWhile (@target self: ArrayList_Stream, predicate: Predicate): Stream
+    {
+        action TODO();
+    }
+
+
+    // within java.lang.Object
+    fun *.equals (@target self: ArrayList_Stream, obj: Object): boolean
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.filter (@target self: ArrayList_Stream, predicate: Predicate): Stream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.findAny (@target self: ArrayList_Stream): Optional
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.findFirst (@target self: ArrayList_Stream): Optional
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.flatMap (@target self: ArrayList_Stream, mapper: Function): Stream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.flatMapToDouble (@target self: ArrayList_Stream, mapper: Function): DoubleStream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.flatMapToInt (@target self: ArrayList_Stream, mapper: Function): IntStream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.flatMapToLong (@target self: ArrayList_Stream, mapper: Function): LongStream
+    {
+        action TODO();
+    }
+
+
+    fun *.forEach (@target self: ArrayList_Stream, _action: Consumer): void
+    {
+        action TODO();
+    }
+
+
+    fun *.forEachOrdered (@target self: ArrayList_Stream, _action: Consumer): void
+    {
+        action TODO();
+    }
+
+
+    // within java.lang.Object
+    fun *.hashCode (@target self: ArrayList_Stream): int
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.AbstractPipeline
+    fun *.isParallel (@target self: ArrayList_Stream): boolean
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.iterator (@target self: ArrayList_Stream): Iterator
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.limit (@target self: ArrayList_Stream, maxSize: long): Stream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.map (@target self: ArrayList_Stream, mapper: Function): Stream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.mapToDouble (@target self: ArrayList_Stream, mapper: ToDoubleFunction): DoubleStream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.mapToInt (@target self: ArrayList_Stream, mapper: ToIntFunction): IntStream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.mapToLong (@target self: ArrayList_Stream, mapper: ToLongFunction): LongStream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.max (@target self: ArrayList_Stream, comparator: Comparator): Optional
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.min (@target self: ArrayList_Stream, comparator: Comparator): Optional
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.noneMatch (@target self: ArrayList_Stream, predicate: Predicate): boolean
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.AbstractPipeline
+    fun *.onClose (@target self: ArrayList_Stream, closeHandler: Runnable): BaseStream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.AbstractPipeline
+    fun *.parallel (@target self: ArrayList_Stream): BaseStream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.peek (@target self: ArrayList_Stream, _action: Consumer): Stream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.reduce (@target self: ArrayList_Stream, accumulator: BinaryOperator): Optional
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.reduce (@target self: ArrayList_Stream, identity: Object, accumulator: BiFunction, combiner: BinaryOperator): Object
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.reduce (@target self: ArrayList_Stream, identity: Object, accumulator: BinaryOperator): Object
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.AbstractPipeline
+    fun *.sequential (@target self: ArrayList_Stream): BaseStream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.skip (@target self: ArrayList_Stream, n: long): Stream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.sorted (@target self: ArrayList_Stream): Stream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.sorted (@target self: ArrayList_Stream, comparator: Comparator): Stream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.AbstractPipeline
+    fun *.spliterator (@target self: ArrayList_Stream): Spliterator
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.takeWhile (@target self: ArrayList_Stream, predicate: Predicate): Stream
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.toArray (@target self: ArrayList_Stream): array<Object>
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.toArray (@target self: ArrayList_Stream, generator: IntFunction): array<Object>
+    {
+        action TODO();
+    }
+
+
+    // within java.lang.Object
+    fun *.toString (@target self: ArrayList_Stream): String
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.ReferencePipeline
+    fun *.unordered (@target self: ArrayList_Stream): Stream
     {
         action TODO();
     }

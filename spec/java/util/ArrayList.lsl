@@ -16,7 +16,7 @@ import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
 
 
-// local semantic types
+// primary types
 
 @extends("java.util.AbstractList")
 @implements("java.util.List")
@@ -32,6 +32,8 @@ import java/util/stream/_interfaces;
 }
 
 
+// new/introduced types
+
 @GenerateMe
 @implements("java.util.ListIterator")
 @public @final type ArrayList_ListIterator
@@ -43,9 +45,28 @@ import java/util/stream/_interfaces;
 
 @GenerateMe
 @implements("java.util.Spliterator")
-@public @final type ArrayListSpliterator
+@public @final type ArrayList_Spliterator
     is java.util.ArrayList_Spliterator  // NOTE: do not use inner classes
     for Spliterator
+{
+}
+
+
+@GenerateMe
+@extends("java.util.AbstractList")
+@implements("java.util.RandomAccess")
+@public @final type ArrayList_SubList
+    is java.util.ArrayList_SubList  // NOTE: do not use inner classes
+    for List
+{
+}
+
+
+@GenerateMe
+@implements("java.util.stream.Stream")
+@public @final type ArrayList_Stream
+    is java.util.ArrayList_Stream  // NOTE: do not use inner classes
+    for Stream
 {
 }
 
