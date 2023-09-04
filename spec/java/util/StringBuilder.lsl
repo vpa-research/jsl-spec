@@ -27,6 +27,18 @@ import java/lang/_interfaces;
 }
 
 
+@extends("java.lang.AbstractStringBuilder")
+@implements("java.io.Serializable")
+@implements("java.lang.Comparable")
+@implements("java.lang.CharSequence")
+@public @final type StringBuffer
+    is java.lang.StringBuffer
+    for Object
+{
+    //@private @static @final var serialVersionUID: long = 3388685877147921107;
+}
+
+
 // === CONSTANTS ===
 
 
@@ -327,7 +339,7 @@ automaton StringBuilderAutomaton
 
     @Phantom proc _appendCharsArray_loop(i: int, str: array<char>): void
     {
-        var currentChar: char = action ARRAY_GET(str, i);
+        var currentChar: char = str[i];
         this.storage += action OBJECT_TO_STRING(currentChar);
     }
 
