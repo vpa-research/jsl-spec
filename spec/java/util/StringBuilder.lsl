@@ -210,6 +210,15 @@ automaton StringBuilderAutomaton
     }
 
 
+    proc _checkOffset (offset: int): void
+    {
+        if (offset < 0 || offset > this.length) {
+            val message: String = "offset " + action OBJECT_TO_STRING(offset) + ",length " + action OBJECT_TO_STRING(this.length);
+            action THROW_NEW("java.lang.StringIndexOutOfBoundsException", [message]);
+        }
+    }
+
+
     // methods
 
     fun *.append (@target self: StringBuilder, seq: CharSequence): StringBuilder
@@ -436,7 +445,7 @@ automaton StringBuilderAutomaton
     {
         _checkIndex(index);
         //var newString: String = "";
-        var newString: array<char> = action ARRAY_NEW("char", this.length -1);
+        var newString: array<char> = action ARRAY_NEW("char", this.length - 1);
         var i: int = 0;
         var currentIndex: int = 0;
         action LOOP_FOR(i, 0, this.length, +1, _deleteCharAt_loop(i, index, currentIndex, newString));
@@ -472,7 +481,47 @@ automaton StringBuilderAutomaton
 
     fun *.insert (@target self: StringBuilder, dstOffset: int, s: CharSequence): StringBuilder
     {
-        action TODO();
+        _checkOffset(dstOffset);
+
+        if (s == null)
+            s = "null";
+
+        val len: int = action CALL_METHOD(s, "length", []);
+        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
+
+        var i: int = 0;
+        var currentIndex: int = dstOffset;
+        val endIndex: int = dstOffset + len;
+        this.length += len;
+
+        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
+
+        // Problem place:
+        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
+
+        result = self;
+    }
+
+
+    @Phantom proc _insertCharSequence_loop(i: int, dstOffset: int, endIndex: int, currentIndex:int, newStr: array<char>, s: CharSequence): void
+    {
+        if (i < dstOffset)
+        {
+            val currentChar_1: char = action CALL_METHOD(this.storage, "charAt", [i]);
+            newStr[i] = currentChar_1;
+        }
+        else if (i < endIndex)
+        {
+            val currentChar_2: char = action CALL_METHOD(s, "charAt", [currentIndex]);
+            newStr[i] = currentChar_2;
+            currentIndex += 1;
+        }
+        else
+        {
+            val index: int = i - dstOffset;
+            val currentChar_3: char = action CALL_METHOD(this.storage, "charAt", [index]);
+            newStr[i] = currentChar_3;
+        }
     }
 
 
