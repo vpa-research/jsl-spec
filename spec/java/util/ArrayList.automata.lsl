@@ -81,7 +81,7 @@ automaton ArrayListAutomaton
 
     // utilities
 
-    proc _checkValidIndex (index: int): void
+    @KeepVisible proc _checkValidIndex (index: int): void
     {
         if (index < 0 || this.length <= index)
         {
@@ -93,7 +93,7 @@ automaton ArrayListAutomaton
     }
 
 
-    proc _rangeCheckForAdd (index: int): void
+    @KeepVisible proc _rangeCheckForAdd (index: int): void
     {
         if (index > this.length || index < 0)
         {
@@ -105,7 +105,7 @@ automaton ArrayListAutomaton
     }
 
 
-    proc _addAllElements (index: int, c: Collection): boolean
+    @KeepVisible proc _addAllElements (index: int, c: Collection): boolean
     {
         val oldLength: int = this.length;
 
@@ -157,7 +157,7 @@ automaton ArrayListAutomaton
 
 
     // checks range [from, to) against [0, size)
-    proc _subListRangeCheck (fromIndex: int, toIndex: int, size: int): void
+    @KeepVisible proc _subListRangeCheck (fromIndex: int, toIndex: int, size: int): void
     {
         if (fromIndex < 0)
         {
@@ -188,7 +188,7 @@ automaton ArrayListAutomaton
     }
 
 
-    proc _deleteElement (index: int): Object
+    @KeepVisible proc _deleteElement (index: int): Object
     {
         _checkValidIndex(index);
 
@@ -200,7 +200,7 @@ automaton ArrayListAutomaton
     }
 
 
-    proc _addElement (index: int, element: Object): void
+    @KeepVisible proc _addElement (index: int, element: Object): void
     {
         _rangeCheckForAdd(index);
 
@@ -768,16 +768,13 @@ automaton ArrayListAutomaton
     {
         _subListRangeCheck(fromIndex, toIndex, this.length);
 
-        // #problem
-        //We don't have decision about sublists.
-        result = action SYMBOLIC("java.util.List");
-        action ASSUME(result != null);
-        /*
-        result = new ArrayList_SubListAutomaton(state = Created,
-            startIndex = fromIndex,
-            endIndex = toIndex
+        result = new ArrayList_SubListAutomaton(state = Initialized,
+            root = self,
+            parentList = null,
+            offset = fromIndex,
+            length = toIndex - fromIndex,
+            modCount = this.modCount,
         );
-        */
     }
 
 
@@ -1367,12 +1364,13 @@ automaton ArrayList_SpliteratorAutomaton
 
 
 
-/*
 automaton ArrayList_SubListAutomaton
 (
-   var index: offset,
-   var length: int,
-   var modCount: int,
+    var root: ArrayList,
+    var parentList: ArrayList_SubList,
+    var offset: int,
+    var length: int,
+    var modCount: int,
 )
 : ArrayList_SubList
 {
@@ -1429,11 +1427,19 @@ automaton ArrayList_SubListAutomaton
 
     // utilities
 
+    @AutoInline @Phantom proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
     proc _addAllElements (index: int, c: Collection): boolean
     {
-        ArrayListAutomaton(this.parent)._rangeCheckForAdd(index);
+        action ASSUME(this.root != null);
 
-        val collectionSize: int = c.size();
+        ArrayListAutomaton(this.root)._rangeCheckForAdd(index);
+
+        val collectionSize: int = action CALL_METHOD(c, "size", []);
         if (collectionSize == 0)
         {
             result = false;
@@ -1442,8 +1448,8 @@ automaton ArrayList_SubListAutomaton
         {
             result = true;
 
-            this.parent._checkForComodification(modCount);
-            this.parent._addAllElements(offset + index, c);
+            ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+            ArrayListAutomaton(this.root)._addAllElements(this.offset + index, c);
             _updateSizeAndModCount(collectionSize);
         }
     }
@@ -1457,9 +1463,13 @@ automaton ArrayList_SubListAutomaton
 
     proc _indexOfElement (o: Object): int
     {
-        ArrayListAutomaton(this.parent)._checkForComodification(this.modCount);
+        action ASSUME(this.root != null);
 
-        val index: int = action LIST_FIND(this.parent.storage, o, 0, this.parent.length);
+        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+        val parentStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+        val parentLength: int = ArrayListAutomaton(this.root).length;
+
+        val index: int = action LIST_FIND(parentStorage, o, 0, parentLength);
         if (index >= 0)
             result = index - offset;
         else
@@ -1496,11 +1506,13 @@ automaton ArrayList_SubListAutomaton
 
     fun *.add (@target self: ArrayList_SubList, index: int, element: Object): void
     {
-        this.parent._rangeCheckForAdd(index);
-        this.parent._checkForComodification(modCount);
+        action ASSUME(this.root != null);
 
-        val curIndex: int = offset + index;
-        this.parent._addElement(curIndex, element);
+        ArrayListAutomaton(this.root)._rangeCheckForAdd(index);
+        ArrayListAutomaton(this.root)._checkForComodification(modCount);
+
+        val curIndex: int = this.offset + index;
+        ArrayListAutomaton(this.root)._addElement(curIndex, element);
 
         _updateSizeAndModCount(+1);
     }
@@ -1508,7 +1520,7 @@ automaton ArrayList_SubListAutomaton
 
     fun *.addAll (@target self: ArrayList_SubList, c: Collection): boolean
     {
-        _addAllElements(length, c);
+        _addAllElements(this.length, c);
     }
 
 
@@ -1553,12 +1565,14 @@ automaton ArrayList_SubListAutomaton
 
     fun *.get (@target self: ArrayList_SubList, index: int): Object
     {
-        this.parent._checkValidIndex(index);
-        this.parent._checkForComodification(modCount);
+        action ASSUME(this.root != null);
 
-        val curIndex: int = offset + index;
+        ArrayListAutomaton(this.root)._checkValidIndex(index);
+        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
 
-        result = action LIST_GET(this.parent.storage, curIndex);
+        val curIndex: int = this.offset + index;
+        val parentStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+        result = action LIST_GET(parentStorage, curIndex);
     }
 
 
@@ -1622,12 +1636,14 @@ automaton ArrayList_SubListAutomaton
 
     fun *.remove (@target self: ArrayList_SubList, index: int): Object
     {
-        this.parent._checkValidIndex(index);
-        this.parent._checkForComodification(modCount);
+        action ASSUME(this.root != null);
 
-        val curIndex: int = offset + index;
+        ArrayListAutomaton(this.root)._checkValidIndex(index);
+        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
 
-        result = this.parent._deleteElement(curIndex);
+        val curIndex: int = this.offset + index;
+
+        result = ArrayListAutomaton(this.root)._deleteElement(curIndex);
 
         _updateSizeAndModCount(-1);
     }
@@ -1659,19 +1675,24 @@ automaton ArrayList_SubListAutomaton
 
     fun *.set (@target self: ArrayList_SubList, index: int, element: Object): Object
     {
-        this.parent._checkValidIndex(index);
-        this.parent._checkForComodification(modCount);
+        action ASSUME(this.root != null);
 
-        val curIndex: int = offset + index;
+        ArrayListAutomaton(this.root)._checkValidIndex(index);
+        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
 
-        result = action LIST_GET(this.parent.storage, curIndex);
-        action LIST_SET(this.parent.storage, curIndex, element);
+        val curIndex: int = this.offset + index;
+        val parentStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+
+        result = action LIST_GET(parentStorage, curIndex);
+        action LIST_SET(parentStorage, curIndex, element);
     }
 
 
     fun *.size (@target self: ArrayList_SubList): int
     {
-        this.parent._checkForComodification(modCount);
+        action ASSUME(this.root != null);
+
+        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
         result = this.length;
     }
 
@@ -1698,12 +1719,16 @@ automaton ArrayList_SubListAutomaton
 
     fun *.subList (@target self: ArrayList_SubList, fromIndex: int, toIndex: int): List
     {
-        this.parent._subListRangeCheck(fromIndex, toIndex, length);
+        action ASSUME(this.root != null);
 
-        result = new ArrayList_SubListAutomaton(state = Created,
+        ArrayListAutomaton(this.root)._subListRangeCheck(fromIndex, toIndex, length);
+
+        result = new ArrayList_SubListAutomaton(state = Initialized,
+            root = this.root,
             parentList = self,
-            startIndex = fromIndex,
-            endIndex = toIndex
+            offset = this.offset + fromIndex,
+            length = toIndex - fromIndex,
+            modCount = this.modCount,
         );
     }
 
@@ -1712,22 +1737,26 @@ automaton ArrayList_SubListAutomaton
     {
         val a: array<int> = action ARRAY_NEW("java.lang.Object", this.length);
 
-        val end: int = offset + length;
-        result = action LIST_TO_ARRAY(storage, a, offset, end);
+        val end: int = this.offset + this.length;
+        action TODO();
     }
 
 
     // within java.util.Collection
     fun *.toArray (@target self: ArrayList_SubList, generator: IntFunction): array<Object>
     {
+        val a: array<Object> = action CALL(generator, [0]);
+        if (a == null)
+            _throwNPE();
+
         action TODO();
     }
 
 
     fun *.toArray (@target self: ArrayList_SubList, a: array<Object>): array<Object>
     {
-        val end: int = offset + length;
-        result = action LIST_TO_ARRAY(storage, a, offset, end);
+        val end: int = this.offset + this.length;
+        action TODO();
     }
 
 
@@ -1738,12 +1767,10 @@ automaton ArrayList_SubListAutomaton
     }
 
 }
-// */
 
 
 
 
-/*
 automaton ArrayList_StreamAutomaton
 (
 )
@@ -2125,4 +2152,3 @@ automaton ArrayList_StreamAutomaton
     }
 
 }
-// */
