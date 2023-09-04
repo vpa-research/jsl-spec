@@ -418,10 +418,16 @@ automaton StringBuilderAutomaton
         _checkRangeSIOOBE(start, end, this.length);
 
         val len: int = end - start;
+        var newString: array<char> = action ARRAY_NEW("char", len);
 
-        // Problem with calling method "substring"
-        //if (len > 0)
-            //this.storage = action CALL_METHOD(this.storage, "substring", [start]);
+        var i: int = 0;
+        var currentIndex: int = 0;
+        val index: int = -1;
+        action LOOP_FOR(i, start, end, +1, _deleteCharAt_loop(i, index, currentIndex, newString));
+
+        // Problem place:
+        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
+
         result = self;
     }
 
