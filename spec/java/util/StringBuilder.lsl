@@ -260,8 +260,6 @@ automaton StringBuilderAutomaton
         }
         else
         {
-            // Problem !
-            //That's right ? In original: "obj.toString()"
             this.storage += action OBJECT_TO_STRING(obj);
             this.length = action CALL_METHOD(this.storage, "length", []);
         }
@@ -408,8 +406,7 @@ automaton StringBuilderAutomaton
             result = 0;
         }
         val anotherString: String = action OBJECT_TO_STRING(another);
-        // Problem
-        //result = action CALL_METHOD(this.storage, "compareTo", [anotherString]);
+        result = action CALL_METHOD(this.storage, "compareTo", [anotherString]);
     }
 
 
