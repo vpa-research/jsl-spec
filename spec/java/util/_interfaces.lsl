@@ -23,15 +23,7 @@ type Comparator
 }
 
 
-@Parameterized(["E"])
-type Iterator
-    is java.util.Iterator
-    for Object
-{
-    fun hasNext(): boolean;
-
-    fun next(): Object;
-}
+// Iterator is declared in 'java/lang/_interfaces.lsl'
 
 
 @Parameterized(["T"])
@@ -39,7 +31,23 @@ type Spliterator
     is java.util.Spliterator
     for Object
 {
+    fun tryAdvance(@Parameterized(["? super T"]) _action: Consumer): boolean;
+
+    fun forEachRemaining(@Parameterized(["? super T"]) _action: Consumer): void;
+
+    fun getExactSizeIfKnown(): long;
+
+    fun characteristics(): int;
 }
+
+val SPLITERATOR_DISTINCT:   int = 1;
+val SPLITERATOR_SORTED:     int = 4;
+val SPLITERATOR_ORDERED:    int = 16;
+val SPLITERATOR_SIZED:      int = 64;
+val SPLITERATOR_NONNULL:    int = 256;
+val SPLITERATOR_IMMUTABLE:  int = 1024;
+val SPLITERATOR_CONCURRENT: int = 4096;
+val SPLITERATOR_SUBSIZED:   int = 16384;
 
 
 @Parameterized(["K", "V"])
@@ -124,6 +132,8 @@ type Collection
     //fun retainAll(@Parameterized(["?"]) c: Collection): boolean;
 
     fun clear(): void;
+
+    // #problem: cannot use Stream here
 }
 
 
@@ -164,4 +174,15 @@ type ListIterator
     is java.util.ListIterator
     for Iterator
 {
+    fun add(e: Object): void;
+
+    fun hasPrevious(): boolean;
+
+    fun nextIndex(): int;
+
+    fun previous(): Object;
+
+    fun previousIndex(): int;
+
+    fun set(e: Object): void;
 }
