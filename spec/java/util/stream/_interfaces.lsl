@@ -10,10 +10,12 @@ library std
 
 import java.common;
 import java/lang/_interfaces;
+import java/util/function/_interfaces;
 
 
 // semantic types
 
+@Parameterized(["T", "S"])
 type BaseStream
     is java.util.stream.BaseStream
     for Object
@@ -27,6 +29,25 @@ type BaseStream
     fun isParallel(): boolean;
 
     fun close(): void;
+}
+
+
+@Parameterized(["T", "A", "R"])
+type Collector
+    is java.util.stream.Collector
+    for Object
+{
+    @ParameterizedResult(["A"])
+    fun supplier(): Supplier;
+
+    @ParameterizedResult(["A", "T"])
+    fun accumulator(): BiConsumer;
+
+    @ParameterizedResult(["A"])
+    fun combiner(): BinaryOperator;
+
+    @ParameterizedResult(["A", "R"])
+    fun finisher(): Function;
 }
 
 
