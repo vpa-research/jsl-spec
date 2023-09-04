@@ -1194,6 +1194,18 @@ automaton ArrayList_SpliteratorAutomaton
 
     // utilities
 
+    @AutoInline @Phantom proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
+    @AutoInline @Phantom proc _throwCME (): void
+    {
+        action THROW_NEW("java.util.ConcurrentModificationException", []);
+    }
+
+
     proc _getFence (): int
     {
         // JDK comment: initialize fence to size on first use
@@ -1245,7 +1257,40 @@ automaton ArrayList_SpliteratorAutomaton
 
     fun *.forEachRemaining (@target self: ArrayList_Spliterator, _action: Consumer): void
     {
-        action TODO();
+        if (_action == null)
+            _throwNPE();
+
+        action ASSUME(this.parent != null);
+        val a: list<Object> = ArrayListAutomaton(this.parent).storage;
+        if (a == null)
+            _throwCME();
+
+        var hi: int = this.fence;
+        var mc: int = this.expectedModCount;
+        if (hi < 0)
+        {
+            hi = ArrayListAutomaton(this.parent).length;
+            mc = ArrayListAutomaton(this.parent).modCount;
+        }
+
+        var i: int = this.index;
+        this.index = hi;
+        if (i < 0 || hi > ArrayListAutomaton(this.parent).length)
+            _throwCME();
+
+        action LOOP_FOR(
+            i, i, hi, +1,
+            forEachRemaining_loop(i, a, _action)
+        );
+
+        if (mc != ArrayListAutomaton(this.parent).modCount)
+            _throwCME();
+    }
+
+    @Phantom proc forEachRemaining_loop (i: int, a: list<Object>, _action: Consumer): void
+    {
+        val item: Object = action LIST_GET(a, i);
+        action CALL(_action, [item]);
     }
 
 
@@ -1286,13 +1331,52 @@ automaton ArrayList_SpliteratorAutomaton
 
     fun *.tryAdvance (@target self: ArrayList_Spliterator, _action: Consumer): boolean
     {
-        action TODO();
+        if (_action == null)
+            _throwNPE();
+
+        val hi: int = _getFence();
+        val i: int = this.index;
+
+        if (i < hi)
+        {
+            this.index = i + 1;
+
+            action ASSUME(this.parent != null);
+            val parentStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
+            val item: Object = action LIST_GET(parentStorage, i);
+            action CALL(_action, [item]);
+
+            if (ArrayListAutomaton(this.parent).modCount != this.expectedModCount)
+                _throwCME();
+
+            result = true;
+        }
+        else
+        {
+            result = false;
+        }
     }
 
 
     fun *.trySplit (@target self: ArrayList_Spliterator): ArrayList_Spliterator
     {
-        action TODO();
+        val hi: int = _getFence();
+        val lo: int = this.index;
+        val mid: int = (lo + hi) >>> 1;
+
+        // JDK comment: divide range in half unless too small
+        if (lo >= mid)
+            result = null;
+        else
+            result = new ArrayList_SpliteratorAutomaton(state = Initialized,
+                parent = this.parent,
+                data = this.data,
+                index = lo,
+                fence = mid,
+                expectedModCount = this.expectedModCount,
+            );
+
+        this.index = mid;
     }
 
 }
