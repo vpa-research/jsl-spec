@@ -429,21 +429,25 @@ automaton StringBuilderAutomaton
     fun *.deleteCharAt (@target self: StringBuilder, index: int): StringBuilder
     {
         _checkIndex(index);
-        var newString: String = "";
+        //var newString: String = "";
+        var newString: array<char> = action ARRAY_NEW("char", this.length -1);
         var i: int = 0;
-        action LOOP_FOR(i, 0, this.length, +1, _deleteCharAt_loop(i, index, newString));
-        this.storage = newString;
+        var currentIndex: int = 0;
+        action LOOP_FOR(i, 0, this.length, +1, _deleteCharAt_loop(i, index, currentIndex, newString));
+        // Problem place:
+        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
         this.length -= 1;
         result = self;
     }
 
 
-    @Phantom proc _deleteCharAt_loop(i: int, index: int, newString: String): void
+    @Phantom proc _deleteCharAt_loop(i: int, index: int, currentIndex:int, newString: array<char>): void
     {
         if (i != index)
         {
             val currentChar: char = action CALL_METHOD(this.storage, "charAt", [i]);
-            newString += action OBJECT_TO_STRING(currentChar);
+            newString[currentIndex] = currentChar;
+            currentIndex += 1;
         }
     }
 
