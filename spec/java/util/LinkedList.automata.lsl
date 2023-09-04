@@ -392,9 +392,7 @@ automaton LinkedListAutomaton
                     result = false;
                 }
 
-                // #problem: should be something like
-                // LinkedListAutomaton(o)._checkForComodification(otherExpectedModCount);
-                action DEBUG_DO("((LinkedList) o)._checkForComodification(otherExpectedModCount)");
+                LinkedListAutomaton(o)._checkForComodification(otherExpectedModCount);
                 _checkForComodification(expectedModCount);
             }
             else

@@ -442,9 +442,7 @@ automaton ArrayListAutomaton
                 else
                     result = false;
 
-                // #problem: should be something like
-                // ArrayListAutomaton(other)._checkForComodification(otherExpectedModCount);
-                action DEBUG_DO("((ArrayList) other)._checkForComodification(otherExpectedModCount)");
+                ArrayListAutomaton(other)._checkForComodification(otherExpectedModCount);
                 _checkForComodification(expectedModCount);
             }
             else
@@ -763,9 +761,6 @@ automaton ArrayListAutomaton
         result = new ArrayList_SpliteratorAutomaton(state = Initialized,
             parent = self,
             data = spliteratorDataArray,
-            index = 0,
-            fence = this.length,
-            expectedModCount = this.modCount,
         );
     }
 
@@ -1369,9 +1364,7 @@ automaton ArrayList_SubListAutomaton
 
     proc _addAllElements (index: int, c: Collection): boolean
     {
-        // #problem
-        //ArrayListAutomaton(this.parent)._rangeCheckForAdd(index);
-        action DEBUG_DO("((ArrayList) parent)._rangeCheckForAdd(index)");
+        ArrayListAutomaton(this.parent)._rangeCheckForAdd(index);
 
         val collectionSize: int = c.size();
         if (collectionSize == 0)
