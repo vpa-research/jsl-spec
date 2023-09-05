@@ -845,6 +845,17 @@ automaton StringBuilderAutomaton
     }
 
 
+    fun *.ensureCapacity(@target self: StringBuilder, minimumCapacity: int): void
+    {
+
+    }
+
+    fun *.length(@target self: StringBuilder): int
+    {
+        result = this.length;
+    }
+
+
     // special: serialization
 
     @throws(["java.io.IOException"])
