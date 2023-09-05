@@ -11,6 +11,7 @@ library std
 import java.common;
 //import java/lang/StringBuffer;
 import java/lang/_interfaces;
+import java/io/_interfaces;
 
 
 // local semantic types
@@ -832,6 +833,24 @@ automaton StringBuilderAutomaton
     fun *.toString (@target self: StringBuilder): String
     {
         action NOT_IMPLEMENTED("no final decision");
+    }
+
+
+    // special: serialization
+
+    @throws(["java.io.IOException"])
+    @private fun writeObject (@target self: StringBuilder, s: ObjectOutputStream): void
+    {
+        // #question: do we actually need this method?
+        action NOT_IMPLEMENTED("no serialization support yet");
+    }
+
+
+    @throws(["java.io.IOException", "java.lang.ClassNotFoundException"])
+    @private fun readObject (@target self: StringBuilder, s: ObjectInputStream): void
+    {
+        // #question: do we actually need this method?
+        action NOT_IMPLEMENTED("no serialization support yet");
     }
 
 }
