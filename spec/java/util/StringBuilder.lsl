@@ -434,8 +434,7 @@ automaton StringBuilderAutomaton
         val index: int = -1;
         action LOOP_FOR(i, start, end, +1, _deleteCharAt_loop(i, index, currentIndex, newString));
 
-        // Problem place:
-        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
+        this.storage = action OBJECT_TO_STRING(newString);
 
         result = self;
     }
@@ -449,8 +448,8 @@ automaton StringBuilderAutomaton
         var i: int = 0;
         var currentIndex: int = 0;
         action LOOP_FOR(i, 0, this.length, +1, _deleteCharAt_loop(i, index, currentIndex, newString));
-        // Problem place:
-        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
+
+        this.storage = action OBJECT_TO_STRING(newString);
         this.length -= 1;
         result = self;
     }
@@ -496,8 +495,7 @@ automaton StringBuilderAutomaton
 
         action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
 
-        // Problem place:
-        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
+        this.storage = action OBJECT_TO_STRING(newStr);
 
         result = self;
     }
@@ -546,8 +544,7 @@ automaton StringBuilderAutomaton
 
         action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
 
-        // Problem place:
-        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
+        this.storage = action OBJECT_TO_STRING(newStr);
 
         result = self;
     }
@@ -575,8 +572,7 @@ automaton StringBuilderAutomaton
 
         action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
 
-        // Problem place:
-        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
+        this.storage = action OBJECT_TO_STRING(newStr);
 
         result = self;
     }
@@ -602,8 +598,7 @@ automaton StringBuilderAutomaton
 
         action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
 
-        // Problem place:
-        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
+        this.storage = action OBJECT_TO_STRING(newStr);
 
         result = self;
     }
@@ -627,8 +622,7 @@ automaton StringBuilderAutomaton
 
         action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
 
-        // Problem place:
-        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
+        this.storage = action OBJECT_TO_STRING(newStr);
 
         result = self;
     }
@@ -649,8 +643,7 @@ automaton StringBuilderAutomaton
 
         action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
 
-        // Problem place:
-        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
+        this.storage = action OBJECT_TO_STRING(newStr);
 
         result = self;
     }
@@ -671,8 +664,7 @@ automaton StringBuilderAutomaton
 
         action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
 
-        // Problem place:
-        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
+        this.storage = action OBJECT_TO_STRING(newStr);
 
         result = self;
     }
@@ -695,8 +687,7 @@ automaton StringBuilderAutomaton
 
         action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
 
-        // Problem place:
-        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
+        this.storage = action OBJECT_TO_STRING(newStr);
 
         result = self;
     }
@@ -720,8 +711,7 @@ automaton StringBuilderAutomaton
 
         action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
 
-        // Problem place:
-        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
+        this.storage = action OBJECT_TO_STRING(newStr);
 
         result = self;
     }
@@ -745,8 +735,7 @@ automaton StringBuilderAutomaton
 
         action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
 
-        // Problem place:
-        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
+        this.storage = action OBJECT_TO_STRING(newStr);
 
         result = self;
     }
@@ -770,8 +759,7 @@ automaton StringBuilderAutomaton
 
         action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
 
-        // Problem place:
-        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
+        this.storage = action OBJECT_TO_STRING(newStr);
 
         result = self;
     }
@@ -795,8 +783,7 @@ automaton StringBuilderAutomaton
 
         action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
 
-        // Problem place:
-        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
+        this.storage = action OBJECT_TO_STRING(newStr);
 
         result = self;
     }
@@ -844,7 +831,7 @@ automaton StringBuilderAutomaton
 
     fun *.toString (@target self: StringBuilder): String
     {
-        action TODO();
+        action NOT_IMPLEMENTED("no final decision");
     }
 
 }
