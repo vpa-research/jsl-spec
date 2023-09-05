@@ -1457,7 +1457,26 @@ automaton ArrayList_SubListAutomaton
 
     proc _updateSizeAndModCount (sizeChange: int): void
     {
-        action TODO();
+        action ASSUME(this.root != null);
+
+        // update self first
+        this.length += sizeChange;
+        this.modCount = ArrayListAutomaton(this.root).modCount;
+
+        // then propagate changes up the chain
+        var aList: ArrayList_SubList = this.parentList;
+        action LOOP_WHILE(
+            aList != null,
+            _updateSizeAndModCount_loop(aList, sizeChange)
+        );
+    }
+
+    @Phantom proc _updateSizeAndModCount_loop (aList: ArrayList_SubList, sizeChange: int): void
+    {
+        ArrayList_SubListAutomaton(aList).length += sizeChange;
+        ArrayList_SubListAutomaton(aList).modCount = this.modCount;
+
+        aList = ArrayList_SubListAutomaton(aList).parentList;
     }
 
 
@@ -1591,7 +1610,7 @@ automaton ArrayList_SubListAutomaton
     // within java.util.AbstractCollection
     fun *.isEmpty (@target self: ArrayList_SubList): boolean
     {
-        action TODO();
+        result = this.length == 0;
     }
 
 
@@ -1623,7 +1642,8 @@ automaton ArrayList_SubListAutomaton
     // within java.util.Collection
     fun *.parallelStream (@target self: ArrayList_SubList): Stream
     {
-        action TODO();
+        result = action SYMBOLIC("java.util.stream.Stream");
+        action ASSUME(result != null);
     }
 
 
@@ -1638,12 +1658,11 @@ automaton ArrayList_SubListAutomaton
     {
         action ASSUME(this.root != null);
 
-        ArrayListAutomaton(this.root)._checkValidIndex(index);
+        val effectiveIndex: int = this.offset + index;
+
+        ArrayListAutomaton(this.root)._checkValidIndex(effectiveIndex);
         ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
-
-        val curIndex: int = this.offset + index;
-
-        result = ArrayListAutomaton(this.root)._deleteElement(curIndex);
+        result = ArrayListAutomaton(this.root)._deleteElement(effectiveIndex);
 
         _updateSizeAndModCount(-1);
     }
@@ -1713,7 +1732,8 @@ automaton ArrayList_SubListAutomaton
     // within java.util.Collection
     fun *.stream (@target self: ArrayList_SubList): Stream
     {
-        action TODO();
+        result = action SYMBOLIC("java.util.stream.Stream");
+        action ASSUME(result != null);
     }
 
 
