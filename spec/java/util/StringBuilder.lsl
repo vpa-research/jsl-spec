@@ -815,13 +815,13 @@ automaton StringBuilderAutomaton
         var k: int = -1;
         val newStr: array<char> = action ARRAY_NEW("char", this.length);
 
-        action LOOP_FOR(i, 0, -1, -1, _reverse_loop(i, k, n, newStr);
+        action LOOP_FOR(i, 0, -1, -1, _reverse_loop(i, k, n, newStr));
         this.storage = action OBJECT_TO_STRING(newStr);
         result = self;
     }
 
 
-    @Phantom proc _reverse_loop(i: int, k: int, n: int, newStr: array<char>): void
+    @Phantom proc _reverse_loop (i: int, k: int, n: int, newStr: array<char>): void
     {
         k = n - i;
         newStr[k] = action CALL_METHOD(this.storage, "charAt", [i]);
@@ -836,7 +836,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.capacity(@target self: StringBuilder): int
+    fun *.capacity (@target self: StringBuilder): int
     {
         // This is right realization ?
         // original: return value.length >> coder;
@@ -845,26 +845,26 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.ensureCapacity(@target self: StringBuilder, minimumCapacity: int): void
+    fun *.ensureCapacity (@target self: StringBuilder, minimumCapacity: int): void
     {
 
     }
 
 
-    fun *.length(@target self: StringBuilder): int
+    fun *.length (@target self: StringBuilder): int
     {
         result = this.length;
     }
 
 
-    fun *.charAt(@target self: StringBuilder, index: int): char
+    fun *.charAt (@target self: StringBuilder, index: int): char
     {
         _checkIndex(index);
         result = action CALL_METHOD(this.storage, "charAt", [index]);
     }
 
 
-    fun *.setLength(@target self: StringBuilder, newLength: int): void
+    fun *.setLength (@target self: StringBuilder, newLength: int): void
     {
         if (newLength < 0)
         {
@@ -875,7 +875,7 @@ automaton StringBuilderAutomaton
         {
             var i: int = 0;
             val newStr: array<char> = action ARRAY_NEW("char", newLength);
-            action LOOP_FOR(i, 0, newLength, +1, _setNewLength_loop(i, newStr);
+            action LOOP_FOR(i, 0, newLength, +1, _setNewLength_loop(i, newStr));
 
             this.storage = action OBJECT_TO_STRING(newStr);
             this.length = newLength;
@@ -883,23 +883,23 @@ automaton StringBuilderAutomaton
     }
 
 
-    @Phantom proc _setNewLength_loop(i: int, newStr: array<char>): void
+    @Phantom proc _setNewLength_loop (i: int, newStr: array<char>): void
     {
         newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
     }
 
 
-    fun .*setCharAt(@target self: StringBuilder, index: int, ch: char): void
+    fun *.setCharAt (@target self: StringBuilder, index: int, ch: char): void
     {
         _checkIndex(index);
         val newStr: array<char> = action ARRAY_NEW("char", this.length);
         var i: int = 0;
-        action LOOP_FOR(i, 0, this.length, +1, _setNewLength_loop(i, index, newStr, ch);
+        action LOOP_FOR(i, 0, this.length, +1, _setNewLength_loop(i, index, newStr, ch));
         this.storage = action OBJECT_TO_STRING(newStr);
     }
 
 
-    @Phantom proc _setNewLength_loop(i: int, index: int, newStr: array<char>, ch: char): void
+    @Phantom proc _setNewLength_loop (i: int, index: int, newStr: array<char>, ch: char): void
     {
         if(i != index)
             newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
@@ -908,51 +908,70 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun .*trimToSize(@target self: StringBuilder): void
+    fun *.trimToSize (@target self: StringBuilder): void
     {
 
     }
 
 
-    fun .*substring(@target self: StringBuilder, start: int): String
+    fun *.substring (@target self: StringBuilder, start: int): String
     {
         _checkRangeSIOOBE(start, this.length, this.length);
         val sizeNewString: int = this.length - start;
         val newStr: array<char> = action ARRAY_NEW("char", sizeNewString);
 
         var i: int = 0;
-        action LOOP_FOR(i, start, this.length, +1, _newSubString_loop(i, newStr);
+        action LOOP_FOR(i, start, this.length, +1, _newSubString_loop(i, newStr));
         result = action OBJECT_TO_STRING(newStr);
     }
 
 
-    @Phantom proc _newSubString_loop(i: int, newStr: array<char>): void
+    @Phantom proc _newSubString_loop (i: int, newStr: array<char>): void
     {
         newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
     }
 
 
-    fun .*substring(@target self: StringBuilder, start: int, end: int): String
+    fun *.substring (@target self: StringBuilder, start: int, end: int): String
     {
         _checkRangeSIOOBE(start, this.length, this.length);
         val sizeNewString: int = end - start;
         val newStr: array<char> = action ARRAY_NEW("char", sizeNewString);
 
         var i: int = 0;
-        action LOOP_FOR(i, start, end, +1, _newSubString_loop(i, newStr);
+        action LOOP_FOR(i, start, end, +1, _newSubString_loop(i, newStr));
         result = action OBJECT_TO_STRING(newStr);
     }
 
 
-    fun .*subSequence(@target self: StringBuilder, start: int, end: int): CharSequence
+    fun *.subSequence (@target self: StringBuilder, start: int, end: int): CharSequence
     {
         _checkRangeSIOOBE(start, this.length, this.length);
         val sizeNewString: int = end - start;
         val newStr: array<char> = action ARRAY_NEW("char", sizeNewString);
 
         var i: int = 0;
-        action LOOP_FOR(i, start, end, +1, _newSubString_loop(i, newStr);
+        action LOOP_FOR(i, start, end, +1, _newSubString_loop(i, newStr));
         result = action OBJECT_TO_STRING(newStr);
+    }
+
+
+    fun *.getChars (srcBegin: int, srcEnd: int, dst: array<char>, dstBegin: int): void
+    {
+        _checkRangeSIOOBE(srcBegin, srcEnd, this.length);
+        var n: int = srcEnd - srcBegin;
+        val dstLength: int = action ARRAY_SIZE(dst);
+        _checkRange(dstBegin, dstBegin + n, dstLength);
+
+        var i: int = 0;
+        action LOOP_FOR(i, srcBegin, srcEnd, +1, _getChars_loop(i, dstBegin, dst));
+    }
+
+
+    @Phantom proc _getChars_loop(i: int, dstBegin: int, dst: array<char>): void
+    {
+        dst[dstBegin] = action CALL_METHOD(this.storage, "charAt", [i]);
+        dstBegin += 1;
     }
 
 
