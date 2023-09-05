@@ -944,6 +944,18 @@ automaton StringBuilderAutomaton
     }
 
 
+    fun .*subSequence(@target self: StringBuilder, start: int, end: int): CharSequence
+    {
+        _checkRangeSIOOBE(start, this.length, this.length);
+        val sizeNewString: int = end - start;
+        val newStr: array<char> = action ARRAY_NEW("char", sizeNewString);
+
+        var i: int = 0;
+        action LOOP_FOR(i, start, end, +1, _newSubString_loop(i, newStr);
+        result = action OBJECT_TO_STRING(newStr);
+    }
+
+
     // special: serialization
 
     @throws(["java.io.IOException"])
