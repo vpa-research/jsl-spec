@@ -864,6 +864,31 @@ automaton StringBuilderAutomaton
     }
 
 
+    fun *.setLength(@target self: StringBuilder, newLength: int): void
+    {
+        if (newLength < 0)
+        {
+            val message: String = "String index out of range: " + action OBJECT_TO_STRING(newLength);
+            action THROW_NEW("java.lang.StringIndexOutOfBoundsException", [message]);
+        }
+        if (newLength < this.length)
+        {
+            var i: int = 0;
+            val newStr: array<char> = action ARRAY_NEW("char", newLength);
+            action LOOP_FOR(i, 0, newLength, -1, _setNewLength_loop(i, newStr);
+
+            this.storage = action OBJECT_TO_STRING(newStr);
+            this.length = newLength;
+        }
+    }
+
+
+    @Phantom proc _setNewLength_loop(i: int, newStr: array<char>): void
+    {
+        newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
+    }
+
+
     // special: serialization
 
     @throws(["java.io.IOException"])
