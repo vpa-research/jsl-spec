@@ -822,8 +822,24 @@ automaton StringBuilderAutomaton
 
     fun *.reverse (@target self: StringBuilder): StringBuilder
     {
-        action TODO();
+        var n: int = this.length - 1;
+        var i: int = (n-1) / 2;
+        var k: int = -1;
+        val newStr: array<char> = action ARRAY_NEW("char", this.length);
+
+        action LOOP_FOR(i, 0, -1, -1, _reverse_loop(i, k, n, newStr);
+        this.storage = action OBJECT_TO_STRING(newStr);
+        result = self;
     }
+
+
+    @Phantom proc _reverse_loop(i: int, k: int, n: int, newStr: array<char>): void
+    {
+        k = n - i;
+        newStr[k] = action CALL_METHOD(this.storage, "charAt", [i]);
+        newStr[i] = action CALL_METHOD(this.storage, "charAt", [k]);
+    }
+
 
 
     fun *.toString (@target self: StringBuilder): String
