@@ -609,9 +609,28 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuilder, offset: int, b: boolean): StringBuilder
+    fun *.insert (@target self: StringBuilder, dstOffset: int, b: boolean): StringBuilder
     {
-        action TODO();
+        _checkOffset(dstOffset);
+
+        var s: String = "false";
+        if (b)
+            s = "true";
+
+        val len: int = action CALL_METHOD(s, "length", []);
+        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
+
+        var i: int = 0;
+        var currentIndex: int = 0;
+        val endIndex: int = dstOffset + len;
+        this.length += len;
+
+        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
+
+        // Problem place:
+        // this.storage = action CALL_METHOD(this.storage, "String(char[])", [newString]);
+
+        result = self;
     }
 
 
