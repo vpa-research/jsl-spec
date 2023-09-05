@@ -850,9 +850,17 @@ automaton StringBuilderAutomaton
 
     }
 
+
     fun *.length(@target self: StringBuilder): int
     {
         result = this.length;
+    }
+
+
+    fun *.charAt(@target self: StringBuilder, index: int): char
+    {
+        _checkIndex(index);
+        result = action CALL_METHOD(this.storage, "charAt", [index]);
     }
 
 
