@@ -836,6 +836,15 @@ automaton StringBuilderAutomaton
     }
 
 
+    fun *.capacity(@target self: StringBuilder): int
+    {
+        // This is right realization ?
+        // original: return value.length >> coder;
+        // we will have another result, because we don't know "coder" value;
+        result = this.length;
+    }
+
+
     // special: serialization
 
     @throws(["java.io.IOException"])
