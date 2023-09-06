@@ -469,13 +469,13 @@ automaton StringBuilderAutomaton
 
     fun *.indexOf (@target self: StringBuilder, str: String): int
     {
-        action TODO();
+        result = action DEBUG_DO("this.storage.indexOf(str)");
     }
 
 
     fun *.indexOf (@target self: StringBuilder, str: String, fromIndex: int): int
     {
-        action TODO();
+        result = action DEBUG_DO("this.storage.indexOf(str, fromIndex)");
     }
 
 
