@@ -792,13 +792,13 @@ automaton StringBuilderAutomaton
 
     fun *.lastIndexOf (@target self: StringBuilder, str: String): int
     {
-        action TODO();
+        result = action DEBUG_DO("this.storage.lastIndexOf(str)");
     }
 
 
     fun *.lastIndexOf (@target self: StringBuilder, str: String, fromIndex: int): int
     {
-        action TODO();
+        result = action DEBUG_DO("this.storage.lastIndexOf(str, fromIndex)");
     }
 
 
