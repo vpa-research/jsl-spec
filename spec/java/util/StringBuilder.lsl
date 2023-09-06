@@ -105,6 +105,17 @@ automaton StringBuilderAutomaton
         replace,
         reverse,
         toString,
+        capacity,
+        ensureCapacity,
+        length,
+        charAt,
+        setLength,
+        setCharAt,
+        trimToSize,
+        substring (StringBuilder, int),
+        substring (StringBuilder, int, int),
+        subSequence,
+        getChars,
     ];
 
     // internal variables
