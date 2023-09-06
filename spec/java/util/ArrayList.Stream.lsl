@@ -307,7 +307,11 @@ automaton ArrayList_StreamAutomaton
     // within java.util.stream.ReferencePipeline
     fun *.reduce (@target self: ArrayList_Stream, accumulator: BinaryOperator): Optional
     {
+        var value: Object = null;
+
         action TODO();
+
+        result = action DEBUG_DO("Optional.of(value)");
     }
 
 

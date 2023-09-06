@@ -401,7 +401,7 @@ automaton ArrayList_SubListAutomaton
 
     fun *.toArray (@target self: ArrayList_SubList): array<Object>
     {
-        val a: array<int> = action ARRAY_NEW("java.lang.Object", this.length);
+        val a: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
 
         val end: int = this.offset + this.length;
         action TODO();
@@ -411,7 +411,7 @@ automaton ArrayList_SubListAutomaton
     // within java.util.Collection
     fun *.toArray (@target self: ArrayList_SubList, generator: IntFunction): array<Object>
     {
-        val a: array<Object> = action CALL(generator, [0]);
+        val a: array<Object> = action CALL(generator, [0]) as array<Object>;
         if (a == null)
             _throwNPE();
 

@@ -17,7 +17,7 @@ import java/util/stream/_interfaces;
 // globals
 
 // #problem: type parameter is missing
-val EMPTY_OPTIONAL: Optional = new OptionalAutomaton(state=Initialized, value=null);
+val EMPTY_OPTIONAL: LSLOptional = new OptionalAutomaton(state=Initialized, value=null);
 
 
 // automata
@@ -27,7 +27,7 @@ automaton OptionalAutomaton
 (
     var value: Object
 )
-: Optional
+: LSLOptional
 {
     // states and shifts
 
@@ -36,8 +36,8 @@ automaton OptionalAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        Optional (Optional),
-        Optional (Optional, Object),
+        LSLOptional (LSLOptional),
+        LSLOptional (LSLOptional, Object),
 
         // static methods
         empty,
@@ -59,8 +59,8 @@ automaton OptionalAutomaton
         stream,
         orElse,
         orElseGet,
-        orElseThrow (Optional),
-        orElseThrow (Optional, Supplier),
+        orElseThrow (LSLOptional),
+        orElseThrow (LSLOptional, Supplier),
         toString,
         hashCode,
         equals,
@@ -69,7 +69,7 @@ automaton OptionalAutomaton
 
     // utilities
 
-    @static proc _makeEmpty (): Optional
+    @static proc _makeEmpty (): LSLOptional
     {
         result = EMPTY_OPTIONAL;
     }
@@ -83,7 +83,7 @@ automaton OptionalAutomaton
 
     // constructors
 
-    @private constructor *.Optional (@target @Parameterized(["T"]) self: Optional)
+    @private constructor *.LSLOptional (@target @Parameterized(["T"]) self: LSLOptional)
     {
         action ERROR("Private constructor call");
         /*assigns this.value;
@@ -93,7 +93,7 @@ automaton OptionalAutomaton
     }
 
 
-    @private constructor *.Optional (@target @Parameterized(["T"]) self: Optional, obj: Object)
+    @private constructor *.LSLOptional (@target @Parameterized(["T"]) self: LSLOptional, obj: Object)
     {
         action ERROR("Private constructor call");
         /*requires obj != null;
@@ -111,7 +111,7 @@ automaton OptionalAutomaton
 
     @Parameterized(["T"])
     @ParameterizedResult(["T"])
-    @static fun *.empty (): Optional
+    @static fun *.empty (): LSLOptional
     {
         result = _makeEmpty();
     }
@@ -119,7 +119,7 @@ automaton OptionalAutomaton
 
     @Parameterized(["T"])
     @ParameterizedResult(["T"])
-    @static fun *.of (obj: Object): Optional
+    @static fun *.of (obj: Object): LSLOptional
     {
         requires obj != null;
 
@@ -134,7 +134,7 @@ automaton OptionalAutomaton
 
     @Parameterized(["T"])
     @ParameterizedResult(["T"])
-    @static fun *.ofNullable (obj: Object): Optional
+    @static fun *.ofNullable (obj: Object): LSLOptional
     {
         if (obj == null)
             result = _makeEmpty();
@@ -148,7 +148,7 @@ automaton OptionalAutomaton
     // methods
 
     @AnnotatedWith("java.lang.Override")
-    fun *.equals (@target @Parameterized(["T"]) self: Optional, other: Object): boolean
+    fun *.equals (@target @Parameterized(["T"]) self: LSLOptional, other: Object): boolean
     {
         if (other == self)
         {
@@ -171,8 +171,8 @@ automaton OptionalAutomaton
 
 
     @ParameterizedResult(["T"])
-    fun *.filter (@target @Parameterized(["T"]) self: Optional,
-                  @Parameterized(["? super T"]) predicate: Predicate): Optional
+    fun *.filter (@target @Parameterized(["T"]) self: LSLOptional,
+                  @Parameterized(["? super T"]) predicate: Predicate): LSLOptional
     {
         requires predicate != null;
 
@@ -198,8 +198,8 @@ automaton OptionalAutomaton
     @Parameterized(["U"])
     @ParameterizedResult(["U"])
     // #problem
-    fun *.flatMap (@target @Parameterized(["T"]) self: Optional,
-                   @Parameterized(["? super T", "? extends Optional<? extends U>"]) mapper: Function): Optional
+    fun *.flatMap (@target @Parameterized(["T"]) self: LSLOptional,
+                   @Parameterized(["? super T", "? extends LSLOptional<? extends U>"]) mapper: Function): LSLOptional
     {
         requires mapper != null;
 
@@ -212,8 +212,8 @@ automaton OptionalAutomaton
         }
         else
         {
-            // #problem: cast action return value to Optional
-            result = action CALL(mapper, [this.value]);
+            // #problem: cast action return value to LSLOptional
+            result = action CALL(mapper, [this.value]) as LSLOptional;
 
             if (result == null)
                 _throwNPE();
@@ -221,7 +221,7 @@ automaton OptionalAutomaton
     }
 
 
-    fun *.get (@target @Parameterized(["T"]) self: Optional): Object
+    fun *.get (@target @Parameterized(["T"]) self: LSLOptional): Object
     {
         if (this.value == null)
             action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
@@ -231,13 +231,13 @@ automaton OptionalAutomaton
 
 
     @AnnotatedWith("java.lang.Override")
-    fun *.hashCode (@target @Parameterized(["T"]) self: Optional): int
+    fun *.hashCode (@target @Parameterized(["T"]) self: LSLOptional): int
     {
         result = action OBJECT_HASH_CODE(this.value);
     }
 
 
-    fun *.ifPresent (@target @Parameterized(["T"]) self: Optional,
+    fun *.ifPresent (@target @Parameterized(["T"]) self: LSLOptional,
                      @Parameterized(["? super T"]) consumer: Consumer): void
     {
         requires this.value == null || (this.value != null && consumer != null);
@@ -252,7 +252,7 @@ automaton OptionalAutomaton
     }
 
 
-    fun *.ifPresentOrElse (@target @Parameterized(["T"]) self: Optional,
+    fun *.ifPresentOrElse (@target @Parameterized(["T"]) self: LSLOptional,
                            @Parameterized(["? super T"]) consumer: Consumer,
                            emptyAction: Runnable): void
     {
@@ -276,13 +276,13 @@ automaton OptionalAutomaton
     }
 
 
-    fun *.isEmpty (@target @Parameterized(["T"]) self: Optional): boolean
+    fun *.isEmpty (@target @Parameterized(["T"]) self: LSLOptional): boolean
     {
         result = this.value == null;
     }
 
 
-    fun *.isPresent (@target @Parameterized(["T"]) self: Optional): boolean
+    fun *.isPresent (@target @Parameterized(["T"]) self: LSLOptional): boolean
     {
         result = this.value != null;
     }
@@ -290,8 +290,8 @@ automaton OptionalAutomaton
 
     @Parameterized(["U"])
     @ParameterizedResult(["U"])
-    fun *.map (@target @Parameterized(["T"]) self: Optional,
-               @Parameterized(["? super T", "? extends U"]) mapper: Function): Optional
+    fun *.map (@target @Parameterized(["T"]) self: LSLOptional,
+               @Parameterized(["? super T", "? extends U"]) mapper: Function): LSLOptional
     {
         requires mapper != null;
 
@@ -319,8 +319,8 @@ automaton OptionalAutomaton
 
 
     @ParameterizedResult(["T"])
-    fun *.or (@target @Parameterized(["T"]) self: Optional,
-              @Parameterized(["? extends Optional<? extends T>"]) supplier: Supplier): Optional
+    fun *.or (@target @Parameterized(["T"]) self: LSLOptional,
+              @Parameterized(["? extends LSLOptional<? extends T>"]) supplier: Supplier): LSLOptional
     {
         requires supplier != null;
 
@@ -329,7 +329,7 @@ automaton OptionalAutomaton
 
         if (this.value == null)
         {
-            result = action CALL(supplier, []);
+            result = action CALL(supplier, []) as LSLOptional;
 
             if (result == null)
                 _throwNPE();
@@ -341,7 +341,7 @@ automaton OptionalAutomaton
     }
 
 
-    fun *.orElse (@target @Parameterized(["T"]) self: Optional, other: Object): Object
+    fun *.orElse (@target @Parameterized(["T"]) self: LSLOptional, other: Object): Object
     {
         if (this.value == null)
             result = other;
@@ -350,7 +350,7 @@ automaton OptionalAutomaton
     }
 
 
-    fun *.orElseGet (@target @Parameterized(["T"]) self: Optional,
+    fun *.orElseGet (@target @Parameterized(["T"]) self: LSLOptional,
                      @Parameterized(["? extends T"]) supplier: Supplier): Object
     {
         requires supplier != null;
@@ -365,7 +365,7 @@ automaton OptionalAutomaton
     }
 
 
-    fun *.orElseThrow (@target @Parameterized(["T"]) self: Optional): Object
+    fun *.orElseThrow (@target @Parameterized(["T"]) self: LSLOptional): Object
     {
         requires this.value != null;
 
@@ -378,7 +378,7 @@ automaton OptionalAutomaton
 
     @Parameterized(["X extends java.lang.Throwable"])
     @throws(["java.lang.Throwable"])
-    fun *.orElseThrow (@target @Parameterized(["T"]) self: Optional,
+    fun *.orElseThrow (@target @Parameterized(["T"]) self: LSLOptional,
                        @Parameterized(["? extends X"]) exceptionSupplier: Supplier): Object
     {
         requires exceptionSupplier != null;
@@ -399,7 +399,7 @@ automaton OptionalAutomaton
 
 
     @ParameterizedResult(["T"])
-    fun *.stream (@target @Parameterized(["T"]) self: Optional): Stream
+    fun *.stream (@target @Parameterized(["T"]) self: LSLOptional): Stream
     {
         action NOT_IMPLEMENTED("no decision");
 
@@ -413,7 +413,7 @@ automaton OptionalAutomaton
 
 
     @AnnotatedWith("java.lang.Override")
-    fun *.toString (@target @Parameterized(["T"]) self: Optional): String
+    fun *.toString (@target @Parameterized(["T"]) self: LSLOptional): String
     {
         if (this.value == null)
         {

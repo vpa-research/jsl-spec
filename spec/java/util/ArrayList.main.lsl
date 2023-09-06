@@ -675,7 +675,7 @@ automaton ArrayListAutomaton
     @Phantom proc retainAll_loop_optimized (i: int, otherStorage: list<Object>, otherLength: int): void
     {
         val item: Object = action LIST_GET(this.storage, i);
-        val otherHasItem: boolean = action LIST_FIND(otherStorage, item, 0, otherLength);
+        val otherHasItem: boolean = action LIST_FIND(otherStorage, item, 0, otherLength) >= 0;
 
         if (!otherHasItem)
             _deleteElement(i);
