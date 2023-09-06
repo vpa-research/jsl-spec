@@ -804,7 +804,39 @@ automaton StringBuilderAutomaton
 
     fun *.replace (@target self: StringBuilder, start: int, end: int, str: String): StringBuilder
     {
-        action TODO();
+        if (end > this.length)
+            end = this.length;
+
+        _checkRangeSIOOBE(start, end, this.length);
+
+        val strLength: int = action CALL_METHOD(str, "length", []);
+
+        val newLength: int = this.length + strLength - (end - start);
+        var i: int = 0;
+        var strIndex: int = 0;
+        val newStr: array<char> = action ARRAY_NEW("char", newLength);
+
+        action LOOP_FOR(i, 0, newLength, +1, _replace_loop(i, strIndex, start, end, newStr, str, strLength));
+
+        this.length = newLength;
+        result = self;
+    }
+
+
+    @Phantom proc _replace_loop (i: int, strIndex: int, start: int, end: int, newStr: array<char>, str: String, strLength: int): void
+    {
+        if (i < start)
+            newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
+        else if (i < start + strLength)
+        {
+            newStr[i] = action CALL_METHOD(str, "charAt", [strIndex]);
+            strIndex += 1;
+        }
+        else
+        {
+            newStr[i] = action CALL_METHOD(str, "charAt", [end]);
+            end += 1;
+        }
     }
 
 
