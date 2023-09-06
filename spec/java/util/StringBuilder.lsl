@@ -42,6 +42,11 @@ import java/io/_interfaces;
 
 // === CONSTANTS ===
 
+val MAX_CODE_POINT: int = 1114111;
+val MIN_LOW_SURROGATE: int = 56320;
+val MIN_HIGH_SURROGATE: int = 55296;
+val MIN_SUPPLEMENTARY_CODE_POINT: int = 65536;
+
 
 // automata
 
@@ -231,6 +236,31 @@ automaton StringBuilderAutomaton
     }
 
 
+    proc _isBmpCodePoint (codePoint: int): boolean
+    {
+        result = codePoint >>> 16 == 0;
+    }
+
+
+    proc _isValidCodePoint (codePoint: int): boolean
+    {
+        val plane: int = codePoint >>> 16;
+        result = plane < ((MAX_CODE_POINT + 1) >>> 16);
+    }
+
+
+    proc _lowSurrogate (codePoint: int): char
+    {
+        result = ((codePoint & 1023) + MIN_LOW_SURROGATE) as char;
+    }
+
+
+    proc _highSurrogate (codePoint: int): char
+    {
+        result = ((codePoint >>> 10) + (MIN_HIGH_SURROGATE - (MIN_SUPPLEMENTARY_CODE_POINT >>> 10))) as char;
+    }
+
+
     // methods
 
     fun *.append (@target self: StringBuilder, seq: CharSequence): StringBuilder
@@ -406,17 +436,29 @@ automaton StringBuilderAutomaton
     }
 
 
+    // I suppose that realization of this function can be more plain !
     fun *.appendCodePoint (@target self: StringBuilder, codePoint: int): StringBuilder
     {
-        action TODO();
-        /*if (codePoint >>> 16 == 0)
+        if (_isBmpCodePoint(codePoint))
         {
-
+            val curChar: char = codePoint as char;
+            this.storage += action OBJECT_TO_STRING(curChar);
+            this.length += 1;
+        }
+        else if (_isValidCodePoint(codePoint))
+        {
+            val firstChar: char = _lowSurrogate(codePoint);
+            val secondChar: char = _highSurrogate(codePoint);
+            this.storage += action OBJECT_TO_STRING(firstChar);
+            this.storage += action OBJECT_TO_STRING(secondChar);
+            this.length += 2;
         }
         else
         {
-
-        }*/
+            val message: String = "Not a valid Unicode code point: 0x%X" + action OBJECT_TO_STRING(codePoint);
+            action THROW_NEW("java.lang.IllegalArgumentException", [message]);
+        }
+        result = self;
     }
 
 
