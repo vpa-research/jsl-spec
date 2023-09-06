@@ -12,6 +12,8 @@ import java/util/ArrayList;
 
 // automata
 
+// TODO: use common array-based Stream automaton (see org.utbot.engine.overrides.stream.UtStream)
+
 automaton ArrayList_StreamAutomaton
 (
 )
