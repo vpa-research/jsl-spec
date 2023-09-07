@@ -1094,6 +1094,19 @@ automaton StringBuilderAutomaton
     }
 
 
+    fun *.codePointBefore (index: int): int
+    {
+        index -= 1;
+        _checkIndex(index);
+
+        val charArray: array<char> = action ARRAY_NEW("char", this.length);
+        var i: int = 0;
+        action LOOP_FOR(i, 0, this.length, +1, _strToCharArray_loop(i, charArray));
+
+        result = action DEBUG_DO("Character.codePointAt(charArray, index, this.length)");
+    }
+
+
     // special: serialization
 
     @throws(["java.io.IOException"])
