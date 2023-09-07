@@ -123,6 +123,8 @@ automaton StringBuilderAutomaton
         getChars,
         codePointCount,
         codePointAt,
+        codePointBefore,
+        offsetByCodePoints,
     ];
 
     // internal variables
@@ -1104,6 +1106,14 @@ automaton StringBuilderAutomaton
         action LOOP_FOR(i, 0, this.length, +1, _strToCharArray_loop(i, charArray));
 
         result = action DEBUG_DO("Character.codePointAt(charArray, index, this.length)");
+    }
+
+
+    fun *.offsetByCodePoints (index: int, codePointOffset: int): int
+    {
+        _checkIndex(index);
+
+        result = action DEBUG_DO("Character.offsetByCodePoints(this.storage, index, codePointOffset)");
     }
 
 
