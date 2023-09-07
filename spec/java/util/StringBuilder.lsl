@@ -121,6 +121,8 @@ automaton StringBuilderAutomaton
         substring (StringBuilder, int, int),
         subSequence,
         getChars,
+        codePointCount,
+        codePointAt,
     ];
 
     // internal variables
@@ -1080,10 +1082,15 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.codePointAt (): int
+    fun *.codePointAt (index: int): int
     {
-        action TODO();
-        //result = action DEBUG_DO("this.storage.indexOf(str)");
+        _checkIndex(index);
+
+        val charArray: array<char> = action ARRAY_NEW("char", this.length);
+        var i: int = 0;
+        action LOOP_FOR(i, 0, this.length, +1, _strToCharArray_loop(i, charArray));
+
+        result = action DEBUG_DO("Character.codePointAt(charArray, index, this.length)");
     }
 
 
