@@ -18,7 +18,7 @@ import java/util/stream/_interfaces;
 // local semantic types
 
 @implements("java.util.List")
-@public type CustomList
+@public @interface type CustomList
     is java.util.List
     for List
 {
@@ -100,7 +100,7 @@ automaton CustomListAutomaton
 
     // static methods
 
-    @static fun *.copyOf (coll: Collection): CustomList
+    @static fun *.copyOf (coll: Collection): List
     {
         val data: list<Object> = action LIST_NEW();
 
@@ -125,7 +125,7 @@ automaton CustomListAutomaton
     }
 
 
-    @static fun *.of (): CustomList
+    @static fun *.of (): List
     {
         result = new ArrayListAutomaton(state = Initialized,
             storage = action LIST_NEW(),
@@ -134,7 +134,7 @@ automaton CustomListAutomaton
     }
 
 
-    @static fun *.of (e1: Object): CustomList
+    @static fun *.of (e1: Object): List
     {
         val data: list<Object> = action LIST_NEW();
 
@@ -147,7 +147,7 @@ automaton CustomListAutomaton
     }
 
 
-    @static fun *.of (e1: Object, e2: Object): CustomList
+    @static fun *.of (e1: Object, e2: Object): List
     {
         val data: list<Object> = action LIST_NEW();
 
@@ -161,7 +161,7 @@ automaton CustomListAutomaton
     }
 
 
-    @static fun *.of (e1: Object, e2: Object, e3: Object): CustomList
+    @static fun *.of (e1: Object, e2: Object, e3: Object): List
     {
         val data: list<Object> = action LIST_NEW();
 
@@ -176,7 +176,7 @@ automaton CustomListAutomaton
     }
 
 
-    @static fun *.of (e1: Object, e2: Object, e3: Object, e4: Object): CustomList
+    @static fun *.of (e1: Object, e2: Object, e3: Object, e4: Object): List
     {
         val data: list<Object> = action LIST_NEW();
 
@@ -192,7 +192,7 @@ automaton CustomListAutomaton
     }
 
 
-    @static fun *.of (e1: Object, e2: Object, e3: Object, e4: Object, e5: Object): CustomList
+    @static fun *.of (e1: Object, e2: Object, e3: Object, e4: Object, e5: Object): List
     {
         val data: list<Object> = action LIST_NEW();
 
@@ -209,7 +209,7 @@ automaton CustomListAutomaton
     }
 
 
-    @static fun *.of (e1: Object, e2: Object, e3: Object, e4: Object, e5: Object, e6: Object): CustomList
+    @static fun *.of (e1: Object, e2: Object, e3: Object, e4: Object, e5: Object, e6: Object): List
     {
         val data: list<Object> = action LIST_NEW();
 
@@ -227,7 +227,7 @@ automaton CustomListAutomaton
     }
 
 
-    @static fun *.of (e1: Object, e2: Object, e3: Object, e4: Object, e5: Object, e6: Object, e7: Object): CustomList
+    @static fun *.of (e1: Object, e2: Object, e3: Object, e4: Object, e5: Object, e6: Object, e7: Object): List
     {
         val data: list<Object> = action LIST_NEW();
 
@@ -246,7 +246,7 @@ automaton CustomListAutomaton
     }
 
 
-    @static fun *.of (e1: Object, e2: Object, e3: Object, e4: Object, e5: Object, e6: Object, e7: Object, e8: Object): CustomList
+    @static fun *.of (e1: Object, e2: Object, e3: Object, e4: Object, e5: Object, e6: Object, e7: Object, e8: Object): List
     {
         val data: list<Object> = action LIST_NEW();
 
@@ -266,7 +266,7 @@ automaton CustomListAutomaton
     }
 
 
-    @static fun *.of (e1: Object, e2: Object, e3: Object, e4: Object, e5: Object, e6: Object, e7: Object, e8: Object, e9: Object): CustomList
+    @static fun *.of (e1: Object, e2: Object, e3: Object, e4: Object, e5: Object, e6: Object, e7: Object, e8: Object, e9: Object): List
     {
         val data: list<Object> = action LIST_NEW();
 
@@ -287,7 +287,7 @@ automaton CustomListAutomaton
     }
 
 
-    @static fun *.of (e1: Object, e2: Object, e3: Object, e4: Object, e5: Object, e6: Object, e7: Object, e8: Object, e9: Object, e10: Object): CustomList
+    @static fun *.of (e1: Object, e2: Object, e3: Object, e4: Object, e5: Object, e6: Object, e7: Object, e8: Object, e9: Object, e10: Object): List
     {
         val data: list<Object> = action LIST_NEW();
 
@@ -309,7 +309,7 @@ automaton CustomListAutomaton
     }
 
 
-    @static @varargs fun *.of (elements: array<Object>): CustomList
+    @static @varargs fun *.of (elements: array<Object>): List
     {
         val data: list<Object> = action LIST_NEW();
 
@@ -516,7 +516,7 @@ automaton CustomListAutomaton
     }
 
 
-    @Phantom fun *.subList (@target self: CustomList, arg0: int, arg1: int): CustomList
+    @Phantom fun *.subList (@target self: CustomList, arg0: int, arg1: int): List
     {
         // NOTE: using the original method
     }

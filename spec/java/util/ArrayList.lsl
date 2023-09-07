@@ -54,6 +54,7 @@ import java/util/stream/_interfaces;
 
 @GenerateMe
 @extends("java.util.AbstractList")
+@implements("java.util.List")
 @implements("java.util.RandomAccess")
 @public @final type ArrayList_SubList
     is java.util.ArrayList_SubList  // NOTE: do not use inner classes
