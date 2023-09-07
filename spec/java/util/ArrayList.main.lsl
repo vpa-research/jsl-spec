@@ -85,10 +85,10 @@ automaton ArrayListAutomaton
     {
         if (index < 0 || this.length <= index)
         {
-            val idx: String = action OBJECT_TO_STRING(index);
-            val len: String = action OBJECT_TO_STRING(this.length);
-            val message: String = "Index "+ idx + " out of bounds for length "+ len;
-            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
+            //val idx: String = action OBJECT_TO_STRING(index);
+            //val len: String = action OBJECT_TO_STRING(this.length);
+            //val message: String = "Index "+ idx + " out of bounds for length "+ len;
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
         }
     }
 
@@ -97,10 +97,10 @@ automaton ArrayListAutomaton
     {
         if (index > this.length || index < 0)
         {
-            val idx: String = action OBJECT_TO_STRING(index);
-            val len: String = action OBJECT_TO_STRING(this.length);
-            val message: String = "Index: " + idx + ", Size: " + len;
-            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
+            //val idx: String = action OBJECT_TO_STRING(index);
+            //val len: String = action OBJECT_TO_STRING(this.length);
+            //val message: String = "Index: " + idx + ", Size: " + len;
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
         }
     }
 
@@ -161,22 +161,22 @@ automaton ArrayListAutomaton
     {
         if (fromIndex < 0)
         {
-            val message1: String = "fromIndex = " + action OBJECT_TO_STRING(fromIndex);
-            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message1]);
+            //val message1: String = "fromIndex = " + action OBJECT_TO_STRING(fromIndex);
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
         }
 
         if (toIndex > size)
         {
-            val message2: String = "toIndex = " + action OBJECT_TO_STRING(toIndex);
-            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message2]);
+            //val message2: String = "toIndex = " + action OBJECT_TO_STRING(toIndex);
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
         }
 
         if (fromIndex > toIndex)
         {
-            val from: String = action OBJECT_TO_STRING(fromIndex);
-            val to: String = action OBJECT_TO_STRING(toIndex);
-            val message3: String = "fromIndex(" + from + ") > toIndex(" + to + ")";
-            action THROW_NEW("java.lang.IllegalArgumentException", [message3]);
+            //val from: String = action OBJECT_TO_STRING(fromIndex);
+            //val to: String = action OBJECT_TO_STRING(toIndex);
+            //val message3: String = "fromIndex(" + from + ") > toIndex(" + to + ")";
+            action THROW_NEW("java.lang.IllegalArgumentException", []);
         }
     }
 
@@ -304,8 +304,8 @@ automaton ArrayListAutomaton
     {
         if (initialCapacity < 0)
         {
-            val message: String = "Illegal Capacity: " + action OBJECT_TO_STRING(initialCapacity);
-            action THROW_NEW("java.lang.IllegalArgumentException", [message]);
+            //val message: String = "Illegal Capacity: " + action OBJECT_TO_STRING(initialCapacity);
+            action THROW_NEW("java.lang.IllegalArgumentException", []);
         }
         this.storage = action LIST_NEW();
         this.length = 0;

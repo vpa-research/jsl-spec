@@ -128,10 +128,10 @@ automaton LinkedListAutomaton
     {
         if (!_isValidIndex(index))
         {
-            val message: String =
-                "Index: " + action OBJECT_TO_STRING(index) +
-                ", Size: " + action OBJECT_TO_STRING(this.size);
-            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
+            //val message: String =
+            //    "Index: " + action OBJECT_TO_STRING(index) +
+            //    ", Size: " + action OBJECT_TO_STRING(this.size);
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
         }
     }
 
@@ -152,10 +152,10 @@ automaton LinkedListAutomaton
     {
         if (!_isPositionIndex(index))
         {
-            val message: String =
-                "Index: " + action OBJECT_TO_STRING(index) +
-                ", Size: " + action OBJECT_TO_STRING(this.size);
-            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
+            //val message: String =
+            //    "Index: " + action OBJECT_TO_STRING(index) +
+            //    ", Size: " + action OBJECT_TO_STRING(this.size);
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
         }
     }
 
