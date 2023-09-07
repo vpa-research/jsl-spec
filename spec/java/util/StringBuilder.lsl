@@ -125,6 +125,7 @@ automaton StringBuilderAutomaton
         codePointAt,
         codePointBefore,
         offsetByCodePoints,
+        hashCode,
     ];
 
     // internal variables
@@ -1045,7 +1046,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.getChars (srcBegin: int, srcEnd: int, dst: array<char>, dstBegin: int): void
+    fun *.getChars (@target self: StringBuilder, srcBegin: int, srcEnd: int, dst: array<char>, dstBegin: int): void
     {
         _checkRangeSIOOBE(srcBegin, srcEnd, this.length);
         var n: int = srcEnd - srcBegin;
@@ -1064,7 +1065,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.codePointCount (beginIndex: int, endIndex: int): int
+    fun *.codePointCount (@target self: StringBuilder, beginIndex: int, endIndex: int): int
     {
         if (beginIndex < 0 || endIndex > this.length || beginIndex > endIndex)
             action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
@@ -1084,7 +1085,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.codePointAt (index: int): int
+    fun *.codePointAt (@target self: StringBuilder, index: int): int
     {
         _checkIndex(index);
 
@@ -1096,7 +1097,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.codePointBefore (index: int): int
+    fun *.codePointBefore (@target self: StringBuilder, index: int): int
     {
         index -= 1;
         _checkIndex(index);
@@ -1109,11 +1110,17 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.offsetByCodePoints (index: int, codePointOffset: int): int
+    fun *.offsetByCodePoints (@target self: StringBuilder, index: int, codePointOffset: int): int
     {
         _checkIndex(index);
 
         result = action DEBUG_DO("Character.offsetByCodePoints(this.storage, index, codePointOffset)");
+    }
+
+
+    fun *.hashCode (@target self: StringBuilder): int
+    {
+        result = action OBJECT_HASH_CODE(this.storage);
     }
 
 
