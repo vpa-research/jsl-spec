@@ -1060,6 +1060,33 @@ automaton StringBuilderAutomaton
     }
 
 
+    fun *.codePointCount (beginIndex: int, endIndex: int): int
+    {
+        if (beginIndex < 0 || endIndex > this.length || beginIndex > endIndex)
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
+
+        val count: int = endIndex - beginIndex;
+        val charArray: array<char> = action ARRAY_NEW("char", this.length);
+        var i: int = 0;
+        action LOOP_FOR(i, 0, this.length, +1, _strToCharArray_loop(i, charArray));
+
+        result = action DEBUG_DO("Character.codePointCount(charArray, beginIndex, count)");
+    }
+
+
+    @Phantom proc _strToCharArray_loop(i: int, charArray: array<char>): void
+    {
+        charArray[i] = action CALL_METHOD(this.storage, "charAt", [i]);
+    }
+
+
+    fun *.codePointAt (): int
+    {
+        action TODO();
+        //result = action DEBUG_DO("this.storage.indexOf(str)");
+    }
+
+
     // special: serialization
 
     @throws(["java.io.IOException"])
