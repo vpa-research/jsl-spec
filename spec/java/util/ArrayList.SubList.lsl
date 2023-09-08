@@ -222,15 +222,45 @@ automaton ArrayList_SubListAutomaton
             val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
             val end: int = this.offset + this.length;
 
-            val iter: Iterator = action CALL_METHOD(c, "iterator", []);
-            action LOOP_WHILE(
-                action CALL_METHOD(iter, "hasNext", []) && result,
-                containsAll_loop(iter, rootStorage, end, result)
-            );
+            if (c has ArrayList_SubListAutomaton)
+            {
+                val otherRoot: ArrayList = ArrayList_SubListAutomaton(c).root;
+                action ASSUME(otherRoot != null);
+
+                val otherStorage: list<Object> = ArrayListAutomaton(otherRoot).storage;
+                val otherOffset: int = ArrayList_SubListAutomaton(c).offset;
+                val otherEnd: int = otherOffset + ArrayList_SubListAutomaton(c).length;
+
+                action ASSUME(otherStorage != null);
+                action ASSUME(otherOffset >= 0);
+                action ASSUME(otherEnd >= 0);
+
+                var i: int = otherOffset;
+                action LOOP_WHILE(
+                    result && i < otherEnd,
+                    containsAll_loop_optimized(rootStorage, end, otherStorage, i, result)
+                );
+            }
+            else
+            {
+                val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+                action LOOP_WHILE(
+                    action CALL_METHOD(iter, "hasNext", []) && result,
+                    containsAll_loop_regular(rootStorage, end, iter, result)
+                );
+            }
         }
     }
 
-    @Phantom proc containsAll_loop (iter: Iterator, rootStorage: list<Object>, end: int, result: boolean): void
+    @Phantom proc containsAll_loop_optimized (rootStorage: list<Object>, end: int, otherStorage: list<Object>, i: int, result: boolean): void
+    {
+        val item: Object = action LIST_GET(otherStorage, i);
+        result = action LIST_FIND(rootStorage, item, this.offset, end) >= 0;
+
+        i += 1;
+    }
+
+    @Phantom proc containsAll_loop_regular (rootStorage: list<Object>, end: int, iter: Iterator, result: boolean): void
     {
         val item: Object = action CALL_METHOD(iter, "next", []);
         result = action LIST_FIND(rootStorage, item, this.offset, end) >= 0;
