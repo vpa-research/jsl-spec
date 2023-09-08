@@ -233,7 +233,7 @@ automaton ArrayList_SubListAutomaton
     @Phantom proc containsAll_loop (iter: Iterator, rootStorage: list<Object>, end: int, result: boolean): void
     {
         val item: Object = action CALL_METHOD(iter, "next", []);
-        result = action LIST_FIND(rootStorage, item, this.offset, end);
+        result = action LIST_FIND(rootStorage, item, this.offset, end) >= 0;
     }
 
 
