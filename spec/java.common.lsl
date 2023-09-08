@@ -70,6 +70,10 @@ type Object is java.lang.Object for Object
     // WARNING: use OBJECT_HASH_CODE and OBJECT_EQUALS actions instead of calling these methods directly
 }
 
+type Class is java.lang.Class for Object
+{
+}
+
 
 // === ACTIONS ===
 

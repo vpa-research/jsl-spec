@@ -38,8 +38,14 @@ automaton ObjectAutomaton
     shift Initialized -> self by [
         // instance methods
         equals,
+        getClass,
         hashCode,
+        notify,
+        notifyAll,
         toString,
+        wait (Object),
+        wait (Object, long),
+        wait (Object, long, int),
     ];
 
     // internal variables
@@ -64,9 +70,27 @@ automaton ObjectAutomaton
     }
 
 
+    @Phantom @final fun *.getClass (@target self: Object): Class
+    {
+        // NOTE: using the original method
+    }
+
+
     fun *.hashCode (@target self: LSLObject): int
     {
         result = action SYMBOLIC("int");
+    }
+
+
+    @Phantom @final fun *.notify (@target self: Object): void
+    {
+        // NOTE: using the original method
+    }
+
+
+    @Phantom @final fun *.notifyAll (@target self: Object): void
+    {
+        // NOTE: using the original method
     }
 
 
@@ -74,6 +98,27 @@ automaton ObjectAutomaton
     {
         result = action SYMBOLIC("java.lang.String");
         action ASSUME(result != null);
+    }
+
+
+    @throws(["java.lang.InterruptedException"])
+    @Phantom @final fun *.wait (@target self: Object): void
+    {
+        // NOTE: using the original method
+    }
+
+
+    @throws(["java.lang.InterruptedException"])
+    @Phantom @final fun *.wait (@target self: Object, timeoutMillis: long): void
+    {
+        // NOTE: using the original method
+    }
+
+
+    @throws(["java.lang.InterruptedException"])
+    @Phantom @final fun *.wait (@target self: Object, timeoutMillis: long, nanos: int): void
+    {
+        // NOTE: using the original method
     }
 
 }
