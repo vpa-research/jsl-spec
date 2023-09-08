@@ -139,7 +139,7 @@ automaton ArrayList_SubListAutomaton
 
         val index: int = action LIST_FIND(parentStorage, o, 0, parentLength);
         if (index >= 0)
-            result = index - offset;
+            result = index - this.offset;
         else
             result = -1;
     }
@@ -213,7 +213,27 @@ automaton ArrayList_SubListAutomaton
     // within java.util.AbstractCollection
     fun *.containsAll (@target self: ArrayList_SubList, c: Collection): boolean
     {
-        action TODO();
+        result = true;
+
+        if (!action CALL_METHOD(c, "isEmpty", []))
+        {
+            action ASSUME(this.root != null);
+
+            val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+            val end: int = this.offset + this.length;
+
+            val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+            action LOOP_WHILE(
+                action CALL_METHOD(iter, "hasNext", []) && result,
+                containsAll_loop(iter, rootStorage, end, result)
+            );
+        }
+    }
+
+    @Phantom proc containsAll_loop (iter: Iterator, rootStorage: list<Object>, end: int, result: boolean): void
+    {
+        val item: Object = action CALL_METHOD(iter, "next", []);
+        result = action LIST_FIND(rootStorage, item, this.offset, end);
     }
 
 

@@ -35,10 +35,9 @@ automaton CustomListAutomaton
 {
     // states and shifts
 
-    initstate Allocated;
-    state Initialized;
+    initstate Initialized;
 
-    shift Allocated -> Initialized by [
+    shift Initialized -> self by [
         // static operations
         copyOf,
         of (),
