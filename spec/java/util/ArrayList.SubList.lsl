@@ -168,7 +168,13 @@ automaton ArrayList_SubListAutomaton
     // within java.util.AbstractList
     fun *.add (@target self: ArrayList_SubList, e: Object): boolean
     {
-        action TODO();
+        action ASSUME(this.root != null);
+
+        val effectiveIndex: int = this.offset + this.length;
+        ArrayListAutomaton(this.root)._checkForComodification(modCount);
+        ArrayListAutomaton(this.root)._addElement(effectiveIndex, e);
+
+        _updateSizeAndModCount(+1);
     }
 
 
@@ -245,7 +251,7 @@ automaton ArrayList_SubListAutomaton
             {
                 val iter: Iterator = action CALL_METHOD(c, "iterator", []);
                 action LOOP_WHILE(
-                    action CALL_METHOD(iter, "hasNext", []) && result,
+                    result && action CALL_METHOD(iter, "hasNext", []),
                     containsAll_loop_regular(rootStorage, end, iter, result)
                 );
             }
@@ -276,7 +282,32 @@ automaton ArrayList_SubListAutomaton
     // within java.lang.Iterable
     fun *.forEach (@target self: ArrayList_SubList, _action: Consumer): void
     {
-        action TODO();
+        if (this.length != 0)
+        {
+            action ASSUME(this.root != null);
+
+            val end: int = this.offset + this.length;
+            val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+            val expectedModCount: int = ArrayListAutomaton(this.root).modCount;
+
+            this.modCount = expectedModCount;
+
+            var i: int = this.offset;
+            action LOOP_WHILE(
+                i < end && ArrayListAutomaton(this.root).modCount == expectedModCount,
+                forEach_loop(i, rootStorage, _action)
+            );
+
+            ArrayListAutomaton(this.root)._checkForComodification(expectedModCount);
+        }
+    }
+
+    @Phantom proc forEach_loop (i: int, rootStorage: list<Object>, _action: Consumer): void
+    {
+        val item: Object = action LIST_GET(rootStorage, i);
+        action CALL(_action, [item]);
+
+        i += 1;
     }
 
 
@@ -294,7 +325,26 @@ automaton ArrayList_SubListAutomaton
 
     fun *.hashCode (@target self: ArrayList_SubList): int
     {
-        action TODO();
+        result = 1;
+
+        if (this.length != 0)
+        {
+            action ASSUME(this.root != null);
+            val end: int = this.offset + this.length;
+            val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+
+            var i: int = this.offset;
+            action LOOP_FOR(
+                i, i, end, +1,
+                hashCode_loop(i, rootStorage, result)
+            );
+        }
+    }
+
+    @Phantom proc hashCode_loop (i: int, rootStorage: list<Object>, result: int): void
+    {
+        val item: Object = action LIST_GET(rootStorage, i);
+        result = 31 * result + action OBJECT_HASH_CODE(item);
     }
 
 
@@ -347,7 +397,21 @@ automaton ArrayList_SubListAutomaton
     // within java.util.AbstractCollection
     fun *.remove (@target self: ArrayList_SubList, o: Object): boolean
     {
-        action TODO();
+        action ASSUME(this.root != null);
+
+        val end: int = this.offset + this.length;
+        val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+
+        val index: int = action LIST_FIND(rootStorage, o, this.offset, end);
+        result = index >= 0;
+
+        if (result)
+        {
+            ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+            ArrayListAutomaton(this.root)._deleteElement(index);
+
+            _updateSizeAndModCount(-1);
+        }
     }
 
 
@@ -367,7 +431,12 @@ automaton ArrayList_SubListAutomaton
 
     fun *.removeAll (@target self: ArrayList_SubList, c: Collection): boolean
     {
-        action TODO();
+        result = true;
+
+        if (this.length != 0)
+        {
+            action TODO();
+        }
     }
 
 
@@ -479,7 +548,14 @@ automaton ArrayList_SubListAutomaton
     // within java.util.AbstractCollection
     fun *.toString (@target self: ArrayList_SubList): String
     {
-        action TODO();
+        if (this.length == 0)
+        {
+            result = "[]"
+        }
+        else
+        {
+            action TODO();
+        }
     }
 
 }
