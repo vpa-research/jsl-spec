@@ -562,19 +562,24 @@ automaton ArrayList_SubListAutomaton
 
             var i: int = this.offset;
             val end: int = this.offset + this.length;
+            var counter: int = this.length;
             action LOOP_FOR(
                 i, i, end, +1,
-                toString_loop(i, rootStorage, result)
+                toString_loop(i, rootStorage, result, counter)
             );
 
             result += "]";
         }
     }
 
-    @Phantom proc toString_loop (i: int, rootStorage: list<Object>, result: String): void
+    @Phantom proc toString_loop (i: int, rootStorage: list<Object>, result: String, counter: int): void
     {
         val item: Object = action LIST_GET(rootStorage, i);
         result += action OBJECT_TO_STRING(item);
+
+        counter -= 1;
+        if (counter != 0)
+            result += ", ";
     }
 
 }
