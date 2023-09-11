@@ -286,13 +286,13 @@ automaton ArrayList_SubListAutomaton
         {
             action ASSUME(this.root != null);
 
-            val end: int = this.offset + this.length;
             val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
             val expectedModCount: int = ArrayListAutomaton(this.root).modCount;
 
             this.modCount = expectedModCount;
 
             var i: int = this.offset;
+            val end: int = this.offset + this.length;
             action LOOP_WHILE(
                 i < end && ArrayListAutomaton(this.root).modCount == expectedModCount,
                 forEach_loop(i, rootStorage, _action)
@@ -330,10 +330,10 @@ automaton ArrayList_SubListAutomaton
         if (this.length != 0)
         {
             action ASSUME(this.root != null);
-            val end: int = this.offset + this.length;
             val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
 
             var i: int = this.offset;
+            val end: int = this.offset + this.length;
             action LOOP_FOR(
                 i, i, end, +1,
                 hashCode_loop(i, rootStorage, result)
@@ -550,12 +550,31 @@ automaton ArrayList_SubListAutomaton
     {
         if (this.length == 0)
         {
-            result = "[]"
+            result = "[]";
         }
         else
         {
-            action TODO();
+            result = "[";
+
+            action ASSUME(this.root != null);
+
+            val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+
+            var i: int = this.offset;
+            val end: int = this.offset + this.length;
+            action LOOP_FOR(
+                i, i, end, +1,
+                toString_loop(i, rootStorage, result)
+            );
+
+            result += "]";
         }
+    }
+
+    @Phantom proc toString_loop (i: int, rootStorage: list<Object>, result: String): void
+    {
+        val item: Object = action LIST_GET(rootStorage, i);
+        result += action OBJECT_TO_STRING(item);
     }
 
 }
