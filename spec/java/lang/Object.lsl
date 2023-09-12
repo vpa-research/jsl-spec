@@ -38,6 +38,7 @@ automaton ObjectAutomaton
     shift Initialized -> self by [
         // instance methods
         equals,
+        clone,
         getClass,
         hashCode,
         notify,
@@ -67,6 +68,12 @@ automaton ObjectAutomaton
     fun *.equals (@target self: LSLObject, obj: Object): boolean
     {
         result = self == obj;
+    }
+
+
+    @Phantom @protected fun *.clone (@target self: LSLObject): Object
+    {
+        // NOTE: using the original method
     }
 
 
