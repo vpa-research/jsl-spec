@@ -21,7 +21,9 @@ import java/util/stream/_interfaces;
     is java.util.Random
     for Object
 {
-    //@private @static val serialVersionUID: long = 1; // #problem: should be 3905348978240129619
+    // #problem: no serialization support
+    // @private @static val serialVersionUID: long = 3905348978240129619L;
+    // @private @static val serialPersistentFields: array<ObjectStreamField> = [];
 }
 
 
