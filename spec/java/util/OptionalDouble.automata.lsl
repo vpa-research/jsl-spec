@@ -130,8 +130,7 @@ automaton OptionalDoubleAutomaton
                 val otherPresent: boolean = OptionalDoubleAutomaton(other).present;
 
                 if (this.present && otherPresent)
-                    // #problem: need `Double.compare(this.value, other.value) == 0`
-                    result = this.value == otherValue;
+                    result = action OBJECT_EQUALS(this.value, otherValue);
                 else
                     result = this.present == otherPresent;
             }
