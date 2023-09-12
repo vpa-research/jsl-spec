@@ -401,14 +401,9 @@ automaton OptionalAutomaton
     @ParameterizedResult(["T"])
     fun *.stream (@target @Parameterized(["T"]) self: LSLOptional): Stream
     {
-        action NOT_IMPLEMENTED("no decision");
-
-        /*
-        if (this.value == null)
-            result = Stream.empty(); // #problem
-        else
-            result = Stream.of(this.value); // #problem
-        */
+        // #todo: use custom stream implementation
+        result = action SYMBOLIC("java.util.stream.Stream");
+        action ASSUME(result != null);
     }
 
 

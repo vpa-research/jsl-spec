@@ -258,14 +258,9 @@ automaton OptionalIntAutomaton
 
     fun *.stream (@target self: OptionalInt): IntStream
     {
-        action NOT_IMPLEMENTED("no decision");
-
-        /*
-        if (this.present)
-            result = IntStream.of(this.value); // #problem
-        else
-            result = IntStream.empty(); // #problem
-        */
+        // #todo: use custom stream implementation
+        result = action SYMBOLIC("java.util.stream.IntStream");
+        action ASSUME(result != null);
     }
 
 
