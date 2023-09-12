@@ -4,7 +4,7 @@ libsl "1.1.0";
 library std
     version "11"
     language "Java"
-    url "-";
+    url "https://github.com/openjdk/jdk11/tree/master";
 
 // DO NOT REMOVE!
 import translator.annotations;
@@ -68,6 +68,10 @@ typealias double  = float64;
 type Object is java.lang.Object for Object
 {
     // WARNING: use OBJECT_HASH_CODE and OBJECT_EQUALS actions instead of calling these methods directly
+}
+
+type Class is java.lang.Class for Object
+{
 }
 
 
