@@ -53,9 +53,6 @@ automaton ArrayList_ListIteratorAutomaton
 
     proc _checkForComodification (): void
     {
-        // relax state/error discovery process
-        action ASSUME(this.parent != null);
-
         val modCount: int = ArrayListAutomaton(this.parent).modCount;
         if (modCount != this.expectedModCount)
             _throwCME();
@@ -181,13 +178,9 @@ automaton ArrayList_ListIteratorAutomaton
 
         val pStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
         if (this.lastRet >= action LIST_SIZE(pStorage))
-        {
             _throwCME();
-        }
         else
-        {
             action LIST_SET(pStorage, this.lastRet, e);
-        }
     }
 
 

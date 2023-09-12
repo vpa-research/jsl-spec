@@ -197,9 +197,10 @@ automaton ArrayList_SpliteratorAutomaton
 
         if (i < hi)
         {
+            action ASSUME(this.parent != null);
+
             this.index = i + 1;
 
-            action ASSUME(this.parent != null);
             val parentStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
             val item: Object = action LIST_GET(parentStorage, i);
             action CALL(_action, [item]);

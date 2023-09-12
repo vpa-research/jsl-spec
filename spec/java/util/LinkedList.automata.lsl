@@ -555,7 +555,7 @@ automaton LinkedListAutomaton
     // within java.util.Collection
     fun *.parallelStream (@target self: LinkedList): Stream
     {
-        // #problem: no streams
+        // #todo: use custom stream implementation
         result = action SYMBOLIC("java.util.stream.Stream");
         action ASSUME(result != null);
     }
@@ -746,12 +746,14 @@ automaton LinkedListAutomaton
             // Java has no unsigned primitive data types
             action ASSUME(this.size > 0);
 
-            // plain bubble sorting algorithm with no optimizations
+            // plain bubble sorting algorithm
+            val outerLimit: int = this.size - 1;
+            var innerLimit: int = 0;
             var i: int = 0;
             var j: int = 0;
             action LOOP_FOR(
                 i, 0, this.size, +1,
-                sort_loop_outer(i, j, c)
+                sort_loop_outer(i, j, innerLimit, c)
             );
 
             _checkForComodification(expectedModCount);
@@ -760,23 +762,26 @@ automaton LinkedListAutomaton
         this.modCount += 1;
     }
 
-    @Phantom proc sort_loop_outer (i: int, j: int, c: Comparator): void
+    @Phantom proc sort_loop_outer (i: int, j: int, innerLimit: int, c: Comparator): void
     {
+        innerLimit = this.size - i - 1;
         action LOOP_FOR(
-            j, 0, this.size, +1,
-            sort_loop_inner(i, j, c)
+            j, 0, innerLimit, +1,
+            sort_loop_inner(j, c)
         );
     }
 
-    @Phantom proc sort_loop_inner (i: int, j: int, c: Comparator): void
+    @Phantom proc sort_loop_inner (j: int, c: Comparator): void
     {
-        val a: Object = action LIST_GET(this.storage, i);
-        val b: Object = action LIST_GET(this.storage, j);
+        val idxA: int = j;
+        val idxB: int = j + 1;
+        val a: Object = action LIST_GET(this.storage, idxA);
+        val b: Object = action LIST_GET(this.storage, idxB);
 
         if (action CALL(c, [a, b]) > 0)
         {
-            action LIST_SET(this.storage, i, b);
-            action LIST_SET(this.storage, j, a);
+            action LIST_SET(this.storage, idxA, b);
+            action LIST_SET(this.storage, idxB, a);
         }
     }
 
@@ -799,7 +804,7 @@ automaton LinkedListAutomaton
     // within java.util.Collection
     fun *.stream (@target self: LinkedList): Stream
     {
-        // #problem: no streams
+        // #todo: use custom stream implementation
         result = action SYMBOLIC("java.util.stream.Stream");
         action ASSUME(result != null);
     }

@@ -171,7 +171,7 @@ automaton ArrayList_SubListAutomaton
         action ASSUME(this.root != null);
 
         val effectiveIndex: int = this.offset + this.length;
-        ArrayListAutomaton(this.root)._checkForComodification(modCount);
+        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
         ArrayListAutomaton(this.root)._addElement(effectiveIndex, e);
 
         _updateSizeAndModCount(+1);
@@ -183,8 +183,7 @@ automaton ArrayList_SubListAutomaton
         action ASSUME(this.root != null);
 
         val effectiveIndex: int = this.offset + index;
-        ArrayListAutomaton(this.root)._rangeCheckForAdd(effectiveIndex);
-        ArrayListAutomaton(this.root)._checkForComodification(modCount);
+        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
         ArrayListAutomaton(this.root)._addElement(effectiveIndex, element);
 
         _updateSizeAndModCount(+1);
@@ -338,6 +337,8 @@ automaton ArrayList_SubListAutomaton
                 i, i, end, +1,
                 hashCode_loop(i, rootStorage, result)
             );
+
+            ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
         }
     }
 
@@ -389,6 +390,7 @@ automaton ArrayList_SubListAutomaton
     // within java.util.Collection
     fun *.parallelStream (@target self: ArrayList_SubList): Stream
     {
+        // #todo: use custom stream implementation
         result = action SYMBOLIC("java.util.stream.Stream");
         action ASSUME(result != null);
     }
@@ -497,6 +499,7 @@ automaton ArrayList_SubListAutomaton
     // within java.util.Collection
     fun *.stream (@target self: ArrayList_SubList): Stream
     {
+        // #todo: use custom stream implementation
         result = action SYMBOLIC("java.util.stream.Stream");
         action ASSUME(result != null);
     }
