@@ -12,7 +12,6 @@ import java/lang/_interfaces;
 import java/util/_interfaces;
 import java/util/ArrayList;
 import java/util/function/_interfaces;
-import java/util/stream/_interfaces;
 
 
 // local semantic types
@@ -28,7 +27,7 @@ import java/util/stream/_interfaces;
 
 // automata
 
-automaton CustomListAutomaton
+automaton ListAutomaton
 (
 )
 : CustomList
@@ -56,39 +55,9 @@ automaton CustomListAutomaton
 
     shift Initialized -> self by [
         // instance methods
-        add (CustomList, Object),
-        add (CustomList, int, Object),
-        addAll (CustomList, Collection),
-        addAll (CustomList, int, Collection),
-        clear,
-        contains,
-        containsAll,
-        equals,
-        forEach,
-        get,
-        hashCode,
-        indexOf,
-        isEmpty,
-        iterator,
-        lastIndexOf,
-        listIterator (CustomList),
-        listIterator (CustomList, int),
-        parallelStream,
-        remove (CustomList, Object),
-        remove (CustomList, int),
-        removeAll,
-        removeIf,
         replaceAll,
-        retainAll,
-        set,
-        size,
         sort,
         spliterator,
-        stream,
-        subList,
-        toArray (CustomList),
-        toArray (CustomList, IntFunction),
-        toArray (CustomList, array<Object>),
     ];
 
     // internal variables
@@ -337,160 +306,7 @@ automaton CustomListAutomaton
 
     // methods
 
-    @Phantom fun *.add (@target self: CustomList, arg0: Object): boolean
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.add (@target self: CustomList, arg0: int, arg1: Object): void
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.addAll (@target self: CustomList, arg0: Collection): boolean
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.addAll (@target self: CustomList, arg0: int, arg1: Collection): boolean
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.clear (@target self: CustomList): void
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.contains (@target self: CustomList, arg0: Object): boolean
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.containsAll (@target self: CustomList, arg0: Collection): boolean
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.equals (@target self: CustomList, arg0: Object): boolean
-    {
-        // NOTE: using the original method
-    }
-
-
-    // within java.lang.Iterable
-    @Phantom fun *.forEach (@target self: CustomList, _action: Consumer): void
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.get (@target self: CustomList, arg0: int): Object
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.hashCode (@target self: CustomList): int
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.indexOf (@target self: CustomList, arg0: Object): int
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.isEmpty (@target self: CustomList): boolean
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.iterator (@target self: CustomList): Iterator
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.lastIndexOf (@target self: CustomList, arg0: Object): int
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.listIterator (@target self: CustomList): ListIterator
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.listIterator (@target self: CustomList, arg0: int): ListIterator
-    {
-        // NOTE: using the original method
-    }
-
-
-    // within java.util.Collection
-    @Phantom fun *.parallelStream (@target self: CustomList): Stream
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.remove (@target self: CustomList, arg0: Object): boolean
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.remove (@target self: CustomList, arg0: int): Object
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.removeAll (@target self: CustomList, arg0: Collection): boolean
-    {
-        // NOTE: using the original method
-    }
-
-
-    // within java.util.Collection
-    @Phantom fun *.removeIf (@target self: CustomList, filter: Predicate): boolean
-    {
-        // NOTE: using the original method
-    }
-
-
     @Phantom fun *.replaceAll (@target self: CustomList, operator: UnaryOperator): void
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.retainAll (@target self: CustomList, arg0: Collection): boolean
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.set (@target self: CustomList, arg0: int, arg1: Object): Object
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.size (@target self: CustomList): int
     {
         // NOTE: using the original method
     }
@@ -503,38 +319,6 @@ automaton CustomListAutomaton
 
 
     @Phantom fun *.spliterator (@target self: CustomList): Spliterator
-    {
-        // NOTE: using the original method
-    }
-
-
-    // within java.util.Collection
-    @Phantom fun *.stream (@target self: CustomList): Stream
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.subList (@target self: CustomList, arg0: int, arg1: int): List
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.toArray (@target self: CustomList): array<Object>
-    {
-        // NOTE: using the original method
-    }
-
-
-    // within java.util.Collection
-    @Phantom fun *.toArray (@target self: CustomList, generator: IntFunction): array<Object>
-    {
-        // NOTE: using the original method
-    }
-
-
-    @Phantom fun *.toArray (@target self: CustomList, arg0: array<Object>): array<Object>
     {
         // NOTE: using the original method
     }
