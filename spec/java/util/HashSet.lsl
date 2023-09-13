@@ -529,16 +529,18 @@ automaton HashSetAutomaton
         result = action SYMBOLIC_ARRAY("java.lang.Object", size);
 
         val visitedKeys: map<Object, Object> = action MAP_NEW();
+        val resultArray: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
         var i: int = 0;
         action LOOP_FOR(
             i, 0, size, +1,
-            toArray_loop(i, visitedKeys) // result assignment is implicit
+            toArray_loop(i, visitedKeys, resultArray) // result assignment is implicit
         );
         _checkForComodification(expectedModCount);
+        result = resultArray;
     }
 
 
-    @Phantom proc toArray_loop(i: int, visitedKeys: map<Object, Object>): array<Object>
+    @Phantom proc toArray_loop(i: int, visitedKeys: map<Object, Object>, resultArray: array<Object>): void
     {
         val key: Object = action SYMBOLIC("java.lang.Object");
         action ASSUME(key != null);
@@ -548,7 +550,7 @@ automaton HashSetAutomaton
         val isKeyWasVisited: boolean = action MAP_HAS_KEY(visitedKeys, key);
         action ASSUME(!isKeyWasVisited);
 
-        result[i] = key;
+        resultArray[i] = key;
 
         action MAP_SET(visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
     }
@@ -561,13 +563,14 @@ automaton HashSetAutomaton
         val size: int = this.length;
         var i: int = 0;
         val visitedKeys: map<Object, Object> = action MAP_NEW();
+        val resultArray: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
 
         if (aLen < size)
         {
             result = action SYMBOLIC_ARRAY("java.lang.Object", size);
             action LOOP_FOR(
                 i, 0, size, +1,
-                toArray_loop(i, visitedKeys) // result assignment is implicit
+                toArray_loop(i, visitedKeys, resultArray) // result assignment is implicit
             );
 
         }
@@ -576,11 +579,12 @@ automaton HashSetAutomaton
             result = a;
             action LOOP_FOR(
                 i, 0, size, +1,
-                toArray_loop(i, visitedKeys) // result assignment is implicit
+                toArray_loop(i, visitedKeys, resultArray) // result assignment is implicit
             );
 
         }
         _checkForComodification(expectedModCount);
+        result = resultArray;
     }
 
 
@@ -1026,7 +1030,7 @@ automaton HashSet_KeySpliteratorAutomaton
     }
 
 
-    @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int): boolean
+    @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int): void
     {
         val key: Object = action LIST_GET(this.keysStorage, this.index);
         action CALL(userAction, [key]);
