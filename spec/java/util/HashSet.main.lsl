@@ -150,10 +150,8 @@ automaton HashSetAutomaton
     {
         if (initialCapacity < 0)
         {
-            val initCapStr: String = action OBJECT_TO_STRING(initialCapacity);
-            action THROW_NEW(
-                "java.lang.IllegalArgumentException",
-                ["Illegal initial capacity: " + initCapStr]);
+            //val initCapStr: String = "Illegal initial capacity: " + action OBJECT_TO_STRING(initialCapacity);
+            action THROW_NEW("java.lang.IllegalArgumentException", []);
         }
 
         this.storage = action MAP_NEW();
@@ -167,19 +165,15 @@ automaton HashSetAutomaton
     {
         if (initialCapacity < 0)
         {
-            val initCapStr: String = action OBJECT_TO_STRING(initialCapacity);
-            action THROW_NEW(
-                "java.lang.IllegalArgumentException",
-                ["Illegal initial capacity: " + initCapStr]);
+            // val initCapStr: String = "Illegal initial capacity: " + action OBJECT_TO_STRING(initialCapacity);
+            action THROW_NEW("java.lang.IllegalArgumentException", []);
         }
 
         //if (loadFactor <= 0 || loadFactor.isNaN) // #problem
         if (loadFactor <= 0)
         {
-            val loadFactorStr: String = action OBJECT_TO_STRING(loadFactor);
-            action THROW_NEW(
-                "java.lang.IllegalArgumentException",
-                ["Illegal load factor: " + loadFactorStr]);
+            // val loadFactorStr: String = "Illegal load factor: " + action OBJECT_TO_STRING(loadFactor);
+            action THROW_NEW("java.lang.IllegalArgumentException", []);
         }
 
         this.storage = action MAP_NEW();
