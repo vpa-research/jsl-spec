@@ -315,7 +315,7 @@ automaton ArrayList_SubListAutomaton
         action ASSUME(this.root != null);
 
         val effectiveIndex: int = this.offset + index;
-        ArrayListAutomaton(this.root)._checkValidIndex(effectiveIndex);
+        ArrayListAutomaton(this.root)._checkValidIndex(index, this.length);
         ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
 
         result = action LIST_GET(ArrayListAutomaton(this.root).storage, effectiveIndex);
@@ -423,7 +423,7 @@ automaton ArrayList_SubListAutomaton
 
         val effectiveIndex: int = this.offset + index;
 
-        ArrayListAutomaton(this.root)._checkValidIndex(effectiveIndex);
+        ArrayListAutomaton(this.root)._checkValidIndex(index, this.length);
         ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
         result = ArrayListAutomaton(this.root)._deleteElement(effectiveIndex);
 
@@ -465,7 +465,7 @@ automaton ArrayList_SubListAutomaton
         action ASSUME(this.root != null);
 
         val effectiveIndex: int = this.offset + index;
-        ArrayListAutomaton(this.root)._checkValidIndex(effectiveIndex);
+        ArrayListAutomaton(this.root)._checkValidIndex(index, this.length);
         ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
 
         val parentStorage: list<Object> = ArrayListAutomaton(this.root).storage;

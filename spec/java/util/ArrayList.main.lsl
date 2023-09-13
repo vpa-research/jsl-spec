@@ -81,9 +81,9 @@ automaton ArrayListAutomaton
 
     // utilities
 
-    @KeepVisible proc _checkValidIndex (index: int): void
+    @KeepVisible proc _checkValidIndex (index: int, length: int): void
     {
-        if (index < 0 || this.length <= index)
+        if (index < 0 || length <= index)
         {
             //val idx: String = action OBJECT_TO_STRING(index);
             //val len: String = action OBJECT_TO_STRING(this.length);
@@ -190,7 +190,7 @@ automaton ArrayListAutomaton
 
     @KeepVisible proc _deleteElement (index: int): Object
     {
-        _checkValidIndex(index);
+        _checkValidIndex(index, this.length);
 
         result = action LIST_GET(this.storage, index);
         action LIST_REMOVE(this.storage, index);
@@ -213,7 +213,7 @@ automaton ArrayListAutomaton
 
     proc _setElement (index: int, element: Object): Object
     {
-        _checkValidIndex(index);
+        _checkValidIndex(index, this.length);
 
         result = action LIST_GET(this.storage, index);
         action LIST_SET(this.storage, index, element);
@@ -480,7 +480,7 @@ automaton ArrayListAutomaton
 
     fun *.get (@target self: ArrayList, index: int): Object
     {
-        _checkValidIndex(index);
+        _checkValidIndex(index, this.length);
 
         result = action LIST_GET(this.storage, index);
     }
