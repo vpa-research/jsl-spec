@@ -10,6 +10,7 @@ library std
 
 import java.common;
 import java/lang/_interfaces;
+import java/util/_interfaces;
 import java/util/function/_interfaces;
 
 

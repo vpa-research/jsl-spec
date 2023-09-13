@@ -37,22 +37,22 @@ define action DEBUG_DO (
     ): any;
 
 
-// note: result variable may be shared
+// note: result variable should be passed EXPLICITLY!
 // usage example: action LOOP_FOR(i, 0, 10, +1, loop_body_proc(i, list, x, y));
 define action LOOP_FOR (
         iterator: int32,   // variable!
         lowerBound: int32,
         upperBound: int32,
         step: int32,
-        bodyProc: any      // subroutine call!
+        bodyProc: void     // subroutine call!
     ): void;
 
 
-// note: result variable may be shared
+// note: result variable should be passed EXPLICITLY!
 // usage example: action LOOP_WHILE(a < b, loop_body_proc(a));
 define action LOOP_WHILE (
         predicate: bool,
-        bodyProc: any    // subroutine call!
+        bodyProc: void   // subroutine call!
     ): void;
 
 
