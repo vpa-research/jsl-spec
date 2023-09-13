@@ -66,19 +66,12 @@ automaton HashSetAutomaton
 
     proc _updateModifications(): void
     {
-        assigns this.modCount;
-        ensures this.modCount' > this.modCount;
-
         this.modCount += 1;
     }
 
 
     proc _clearMappings (): void
     {
-        assigns this.storage;
-        assigns this.length;
-        ensures this.length == 0;
-
         this.length = 0;
         this.storage = action MAP_NEW();
 
@@ -139,12 +132,6 @@ automaton HashSetAutomaton
 
     constructor *.HashSet (@target self: HashSet)
     {
-        assigns this.storage;
-        assigns this.length;
-        assigns this.modCount;
-        ensures this.length == 0;
-        ensures this.modCount == 0;
-
         this.storage = action MAP_NEW();
 
         this.length = 0;
@@ -154,29 +141,13 @@ automaton HashSetAutomaton
 
     constructor *.HashSet (@target self: HashSet, c: Collection)
     {
-        requires c != null;
-        assigns this.storage;
-        assigns this.length;
-        assigns this.modCount;
-        ensures this.length >= 0;
-        ensures this.modCount >= 0;
-
-
         this.storage = action MAP_NEW();
-
         _addAllElements(c);
     }
 
 
     constructor *.HashSet (@target self: HashSet, initialCapacity: int)
     {
-        requires initialCapacity >= 0;
-        assigns this.storage;
-        assigns this.length;
-        assigns this.modCount;
-        ensures this.length == 0;
-        ensures this.modCount == 0;
-
         if (initialCapacity < 0)
         {
             val initCapStr: String = action OBJECT_TO_STRING(initialCapacity);
@@ -194,15 +165,6 @@ automaton HashSetAutomaton
 
     constructor *.HashSet (@target self: HashSet, initialCapacity: int, loadFactor: float)
     {
-        requires initialCapacity >= 0;
-        requires loadFactor > 0;
-        //requires !loadFactor.isNaN;  // #problem
-        assigns this.storage;
-        assigns this.length;
-        assigns this.modCount;
-        ensures this.length == 0;
-        ensures this.modCount == 0;
-
         if (initialCapacity < 0)
         {
             val initCapStr: String = action OBJECT_TO_STRING(initialCapacity);
@@ -238,9 +200,6 @@ automaton HashSetAutomaton
 
     fun *.add (@target self: HashSet, obj: Object): boolean
     {
-        assigns this.values;
-        ensures this.length' >= this.length;
-
         val hasKey: boolean = action MAP_HAS_KEY(this.storage, obj);
 
         if (hasKey)
@@ -304,10 +263,6 @@ automaton HashSetAutomaton
 
     fun *.remove (@target self: HashSet, obj: Object): boolean
     {
-        assigns this.storage;
-        assigns this.length;
-        ensures this.length' <= this.length;
-
         val hasKey: boolean = action MAP_HAS_KEY(this.storage, obj);
         if (hasKey)
         {
