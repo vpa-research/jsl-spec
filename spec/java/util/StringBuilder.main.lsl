@@ -722,6 +722,7 @@ automaton StringBuilderAutomaton
 
         action LOOP_FOR(i, 0, newLength, +1, _replace_loop(i, strIndex, start, end, newStr, str, strLength));
 
+        this.storage = action OBJECT_TO_STRING(newStr);
         this.length = newLength;
         result = self;
     }
@@ -730,7 +731,9 @@ automaton StringBuilderAutomaton
     @Phantom proc _replace_loop (i: int, strIndex: int, start: int, end: int, newStr: array<char>, str: String, strLength: int): void
     {
         if (i < start)
+        {
             newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
+        }
         else if (i < start + strLength)
         {
             newStr[i] = action CALL_METHOD(str, "charAt", [strIndex]);
@@ -738,7 +741,7 @@ automaton StringBuilderAutomaton
         }
         else
         {
-            newStr[i] = action CALL_METHOD(str, "charAt", [end]);
+            newStr[i] = action CALL_METHOD(this.storage, "charAt", [end]);
             end += 1;
         }
     }
@@ -750,8 +753,8 @@ automaton StringBuilderAutomaton
         var i: int = (n-1) / 2;
         var k: int = -1;
         val newStr: array<char> = action ARRAY_NEW("char", this.length);
-
         action LOOP_FOR(i, 0, -1, -1, _reverse_loop(i, k, n, newStr));
+
         this.storage = action OBJECT_TO_STRING(newStr);
         result = self;
     }
@@ -811,21 +814,23 @@ automaton StringBuilderAutomaton
             //val message: String = "String index out of range: " + action OBJECT_TO_STRING(newLength);
             action THROW_NEW("java.lang.StringIndexOutOfBoundsException", []);
         }
-        if (newLength < this.length)
-        {
-            var i: int = 0;
-            val newStr: array<char> = action ARRAY_NEW("char", newLength);
-            action LOOP_FOR(i, 0, newLength, +1, _setNewLength_loop(i, newStr));
+        var i: int = 0;
+        val newStr: array<char> = action ARRAY_NEW("char", newLength);
+        action LOOP_FOR(i, 0, newLength, +1, _setNewLength_loop(i, newStr));
 
-            this.storage = action OBJECT_TO_STRING(newStr);
-            this.length = newLength;
-        }
+        this.storage = action OBJECT_TO_STRING(newStr);
+        this.length = newLength;
     }
 
 
     @Phantom proc _setNewLength_loop (i: int, newStr: array<char>): void
     {
-        newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
+        if (i < this.length)
+            newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
+        // TODO: problem with: ''
+        //else
+            // That's right ? Did I understand correctly ?
+        //    newStr[i] = '0';
     }
 
 
