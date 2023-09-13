@@ -166,6 +166,58 @@ automaton StringBuilderAutomaton
         result = ((codePoint >>> 10) + (MIN_HIGH_SURROGATE - (MIN_SUPPLEMENTARY_CODE_POINT >>> 10))) as char;
     }
 
+    proc _appendCharSequence (seq: CharSequence): void
+    {
+        if (seq == null)
+            seq = "null";
+
+        val seqLength: int = action CALL_METHOD(seq, "length", []);
+        this.length += seqLength;
+
+        var i: int = 0;
+        action LOOP_FOR(i, 0, seqLength, +1, _appendCharSequence_loop(i, seq));
+    }
+
+
+    @Phantom proc _appendCharSequence_loop(i: int, seq: CharSequence): void
+    {
+        var currentChar: char = action CALL_METHOD(seq, "charAt", [i]);
+        this.storage += action OBJECT_TO_STRING(currentChar);
+    }
+
+
+    proc _appendString (str: String): void
+    {
+        if (str == null)
+            str = "null";
+        this.storage += str;
+        this.length = action CALL_METHOD(this.storage, "length", []);
+    }
+
+
+    proc _delete (start: int, end: int): void
+    {
+        val len: int = this.length - end + start;
+        var newString: array<char> = action ARRAY_NEW("char", len);
+
+        var i: int = 0;
+        var currentIndex: int = 0;
+        action LOOP_FOR(i, 0, this.length, +1, _deleteCharAt_loop(i, start, end, currentIndex, newString));
+
+        this.storage = action OBJECT_TO_STRING(newString);
+        this.length = len;
+    }
+
+
+    @Phantom proc _deleteCharAt_loop (i: int, start: int, end:int, currentIndex:int, newString: array<char>): void
+    {
+        if (i < start || i >= end)
+        {
+            val currentChar: char = action CALL_METHOD(this.storage, "charAt", [i]);
+            newString[currentIndex] = currentChar;
+            currentIndex += 1;
+        }
+    }
 
     // constructors
 
@@ -177,42 +229,13 @@ automaton StringBuilderAutomaton
 
     constructor *.StringBuilder (@target self: StringBuilder, seq: CharSequence)
     {
-        if (seq == null)
-        {
-            this.storage = "null";
-            this.length = 4;
-        }
-        else
-        {
-            val seqLength: int = action CALL_METHOD(seq, "length", []);
-            this.length = seqLength;
-
-            var i: int = 0;
-            action LOOP_FOR(i, 0, seqLength, +1, _appendCharSequence_loop(i, seq));
-        }
-    }
-
-
-    @Phantom proc _appendCharSequence_loop(i: int, seq: CharSequence): void
-    {
-        var currentChar: char = action CALL_METHOD(seq, "charAt", [i]);
-        this.storage += action OBJECT_TO_STRING(currentChar);
+        _appendCharSequence(seq);
     }
 
 
     constructor *.StringBuilder (@target self: StringBuilder, str: String)
     {
-        if (str == null)
-        {
-            this.storage = "null";
-            this.length = 4;
-        }
-        else
-        {
-            val strLength: int = action CALL_METHOD(str, "length", []);
-            this.length = strLength;
-            this.storage = str;
-        }
+        _appendString(str);
     }
 
 
@@ -226,19 +249,8 @@ automaton StringBuilderAutomaton
 
     fun *.append (@target self: StringBuilder, seq: CharSequence): StringBuilder
     {
-        if (seq == null)
-        {
-            this.storage += "null";
-            this.length += 4;
-        }
-        else
-        {
-            val seqLength: int = action CALL_METHOD(seq, "length", []);
-            this.length += seqLength;
+        _appendCharSequence(seq);
 
-            var i: int = 0;
-            action LOOP_FOR(i, 0, seqLength, +1, _appendCharSequence_loop(i, seq));
-        }
         result = self;
     }
 
@@ -251,15 +263,8 @@ automaton StringBuilderAutomaton
         _checkRange(start, end, seqLength);
         this.length += end - start;
         var i: int = 0;
-        action LOOP_FOR(i, start, end, +1, _appendCharSequenceRange_loop(i, seq));
+        action LOOP_FOR(i, start, end, +1, _appendCharSequence_loop(i, seq));
         result = self;
-    }
-
-
-    @Phantom proc _appendCharSequenceRange_loop(i: int, seq: CharSequence): void
-    {
-        var currentChar: char = action CALL_METHOD(seq, "charAt", [i]);
-        this.storage += action OBJECT_TO_STRING(currentChar);
     }
 
 
@@ -281,16 +286,8 @@ automaton StringBuilderAutomaton
 
     fun *.append (@target self: StringBuilder, str: String): StringBuilder
     {
-        if (str == null)
-        {
-            this.storage += "null";
-            this.length += 4;
-        }
-        else
-        {
-            this.storage += str;
-            this.length = action CALL_METHOD(this.storage, "length", []);
-        }
+        _appendString(str);
+
         result = self;
     }
 
@@ -347,7 +344,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    @Phantom proc _appendCharsArray_loop(i: int, str: array<char>): void
+    @Phantom proc _appendCharsArray_loop (i: int, str: array<char>): void
     {
         var currentChar: char = str[i];
         this.storage += action OBJECT_TO_STRING(currentChar);
@@ -430,8 +427,11 @@ automaton StringBuilderAutomaton
         {
             result = 0;
         }
-        val anotherString: String = action OBJECT_TO_STRING(another);
-        result = action CALL_METHOD(this.storage, "compareTo", [anotherString]);
+        else
+        {
+            val anotherString: String = action OBJECT_TO_STRING(another);
+            result = action CALL_METHOD(this.storage, "compareTo", [anotherString]);
+        }
     }
 
 
@@ -442,15 +442,7 @@ automaton StringBuilderAutomaton
 
         _checkRangeSIOOBE(start, end, this.length);
 
-        val len: int = end - start;
-        var newString: array<char> = action ARRAY_NEW("char", len);
-
-        var i: int = 0;
-        var currentIndex: int = 0;
-        val index: int = -1;
-        action LOOP_FOR(i, start, end, +1, _deleteCharAt_loop(i, index, currentIndex, newString));
-
-        this.storage = action OBJECT_TO_STRING(newString);
+        _delete(start, end);
 
         result = self;
     }
@@ -459,26 +451,10 @@ automaton StringBuilderAutomaton
     fun *.deleteCharAt (@target self: StringBuilder, index: int): StringBuilder
     {
         _checkIndex(index);
-        //var newString: String = "";
-        var newString: array<char> = action ARRAY_NEW("char", this.length - 1);
-        var i: int = 0;
-        var currentIndex: int = 0;
-        action LOOP_FOR(i, 0, this.length, +1, _deleteCharAt_loop(i, index, currentIndex, newString));
 
-        this.storage = action OBJECT_TO_STRING(newString);
-        this.length -= 1;
+        _delete(index, index + 1);
+
         result = self;
-    }
-
-
-    @Phantom proc _deleteCharAt_loop(i: int, index: int, currentIndex:int, newString: array<char>): void
-    {
-        if (i != index)
-        {
-            val currentChar: char = action CALL_METHOD(this.storage, "charAt", [i]);
-            newString[currentIndex] = currentChar;
-            currentIndex += 1;
-        }
     }
 
 
