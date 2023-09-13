@@ -398,7 +398,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    // I suppose that realization of this function can be more plain !
+    // I suppose that realization of this function can be more plain ! Maybe use DEBUG_DO action with Character class ?
     fun *.appendCodePoint (@target self: StringBuilder, codePoint: int): StringBuilder
     {
         if (_isBmpCodePoint(codePoint))
@@ -882,6 +882,7 @@ automaton StringBuilderAutomaton
     }
 
 
+    // within java.lang.AbstractStringBuilder
     fun *.capacity (@target self: StringBuilder): int
     {
         // This is right realization ?
@@ -891,18 +892,21 @@ automaton StringBuilderAutomaton
     }
 
 
+    // within java.lang.AbstractStringBuilder
     fun *.ensureCapacity (@target self: StringBuilder, minimumCapacity: int): void
     {
 
     }
 
 
+    // within java.lang.AbstractStringBuilder
     fun *.length (@target self: StringBuilder): int
     {
         result = this.length;
     }
 
 
+    // within java.lang.AbstractStringBuilder
     fun *.charAt (@target self: StringBuilder, index: int): char
     {
         _checkIndex(index);
@@ -910,6 +914,7 @@ automaton StringBuilderAutomaton
     }
 
 
+    // within java.lang.AbstractStringBuilder
     fun *.setLength (@target self: StringBuilder, newLength: int): void
     {
         if (newLength < 0)
@@ -935,6 +940,7 @@ automaton StringBuilderAutomaton
     }
 
 
+    // within java.lang.AbstractStringBuilder
     fun *.setCharAt (@target self: StringBuilder, index: int, ch: char): void
     {
         _checkIndex(index);
@@ -954,12 +960,14 @@ automaton StringBuilderAutomaton
     }
 
 
+    // within java.lang.AbstractStringBuilder
     fun *.trimToSize (@target self: StringBuilder): void
     {
 
     }
 
 
+    // within java.lang.AbstractStringBuilder
     fun *.substring (@target self: StringBuilder, start: int): String
     {
         _checkRangeSIOOBE(start, this.length, this.length);
@@ -978,6 +986,7 @@ automaton StringBuilderAutomaton
     }
 
 
+    // within java.lang.AbstractStringBuilder
     fun *.substring (@target self: StringBuilder, start: int, end: int): String
     {
         _checkRangeSIOOBE(start, this.length, this.length);
@@ -990,6 +999,7 @@ automaton StringBuilderAutomaton
     }
 
 
+    // within java.lang.AbstractStringBuilder
     fun *.subSequence (@target self: StringBuilder, start: int, end: int): CharSequence
     {
         _checkRangeSIOOBE(start, this.length, this.length);
@@ -1002,6 +1012,7 @@ automaton StringBuilderAutomaton
     }
 
 
+    // within java.lang.AbstractStringBuilder
     fun *.getChars (@target self: StringBuilder, srcBegin: int, srcEnd: int, dst: array<char>, dstBegin: int): void
     {
         _checkRangeSIOOBE(srcBegin, srcEnd, this.length);
@@ -1021,6 +1032,7 @@ automaton StringBuilderAutomaton
     }
 
 
+    // within java.lang.AbstractStringBuilder
     fun *.codePointCount (@target self: StringBuilder, beginIndex: int, endIndex: int): int
     {
         if (beginIndex < 0 || endIndex > this.length || beginIndex > endIndex)
@@ -1041,6 +1053,7 @@ automaton StringBuilderAutomaton
     }
 
 
+    // within java.lang.AbstractStringBuilder
     fun *.codePointAt (@target self: StringBuilder, index: int): int
     {
         _checkIndex(index);
@@ -1053,6 +1066,7 @@ automaton StringBuilderAutomaton
     }
 
 
+    // within java.lang.AbstractStringBuilder
     fun *.codePointBefore (@target self: StringBuilder, index: int): int
     {
         index -= 1;
@@ -1066,6 +1080,7 @@ automaton StringBuilderAutomaton
     }
 
 
+    // within java.lang.AbstractStringBuilder
     fun *.offsetByCodePoints (@target self: StringBuilder, index: int, codePointOffset: int): int
     {
         _checkIndex(index);
@@ -1074,6 +1089,7 @@ automaton StringBuilderAutomaton
     }
 
 
+    // within java.lang.Object
     fun *.hashCode (@target self: StringBuilder): int
     {
         result = action OBJECT_HASH_CODE(this.storage);
