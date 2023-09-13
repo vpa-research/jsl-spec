@@ -227,6 +227,46 @@ automaton StringBuilderAutomaton
         action THROW_NEW("java.lang.NullPointerException", []);
     }
 
+
+    proc _insertCharSequence (dstOffset: int, s: CharSequence, len: int, start: int, end: int): void
+    {
+        _checkRange(start, end, len);
+
+        val countInsertedElements: int = end - start;
+        val newStr: array<char> = action ARRAY_NEW("char", this.length + countInsertedElements);
+
+        var i: int = 0;
+        var currentIndex: int = start;
+        val endIndex: int = dstOffset + countInsertedElements;
+
+        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
+
+        this.storage = action OBJECT_TO_STRING(newStr);
+        this.length += countInsertedElements;
+    }
+
+
+    @Phantom proc _insertCharSequence_loop(i: int, dstOffset: int, endIndex: int, currentIndex:int, newStr: array<char>, s: CharSequence): void
+    {
+        if (i < dstOffset)
+        {
+            val currentChar_1: char = action CALL_METHOD(this.storage, "charAt", [i]);
+            newStr[i] = currentChar_1;
+        }
+        else if (i < endIndex)
+        {
+            val currentChar_2: char = action CALL_METHOD(s, "charAt", [currentIndex]);
+            newStr[i] = currentChar_2;
+            currentIndex += 1;
+        }
+        else
+        {
+            val index: int = i - dstOffset;
+            val currentChar_3: char = action CALL_METHOD(this.storage, "charAt", [index]);
+            newStr[i] = currentChar_3;
+        }
+    }
+
     // constructors
 
     constructor *.StringBuilder (@target self: StringBuilder)
@@ -492,40 +532,9 @@ automaton StringBuilderAutomaton
             s = "null";
 
         val len: int = action CALL_METHOD(s, "length", []);
-        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
-
-        var i: int = 0;
-        var currentIndex: int = 0;
-        val endIndex: int = dstOffset + len;
-        this.length += len;
-
-        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
-
-        this.storage = action OBJECT_TO_STRING(newStr);
+        _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
-    }
-
-
-    @Phantom proc _insertCharSequence_loop(i: int, dstOffset: int, endIndex: int, currentIndex:int, newStr: array<char>, s: CharSequence): void
-    {
-        if (i < dstOffset)
-        {
-            val currentChar_1: char = action CALL_METHOD(this.storage, "charAt", [i]);
-            newStr[i] = currentChar_1;
-        }
-        else if (i < endIndex)
-        {
-            val currentChar_2: char = action CALL_METHOD(s, "charAt", [currentIndex]);
-            newStr[i] = currentChar_2;
-            currentIndex += 1;
-        }
-        else
-        {
-            val index: int = i - dstOffset;
-            val currentChar_3: char = action CALL_METHOD(this.storage, "charAt", [index]);
-            newStr[i] = currentChar_3;
-        }
     }
 
 
@@ -537,30 +546,14 @@ automaton StringBuilderAutomaton
             s = "null";
 
         val len: int = action CALL_METHOD(s, "length", []);
-
-        _checkRange(start, end, len);
-
-        val countInsertedElements: int = end - start;
-        val newStr: array<char> = action ARRAY_NEW("char", this.length + countInsertedElements);
-
-        var i: int = 0;
-        var currentIndex: int = start;
-        val endIndex: int = dstOffset + countInsertedElements;
-        this.length += countInsertedElements;
-
-        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
-
-        this.storage = action OBJECT_TO_STRING(newStr);
+        _insertCharSequence(dstOffset, s, len, start, end);
 
         result = self;
     }
 
 
-    fun *.insert (@target self: StringBuilder, offset: int, obj: Object): StringBuilder
+    fun *.insert (@target self: StringBuilder, dstOffset: int, obj: Object): StringBuilder
     {
-        // For cycle (names must be equals)
-        val dstOffset: int = offset;
-
         _checkOffset(dstOffset);
 
         var s: String = "null";
@@ -569,42 +562,21 @@ automaton StringBuilderAutomaton
             s = action OBJECT_TO_STRING(obj);
 
         val len: int = action CALL_METHOD(s, "length", []);
-        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
-
-        var i: int = 0;
-        var currentIndex: int = 0;
-        val endIndex: int = dstOffset + len;
-        this.length += len;
-
-        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
-
-        this.storage = action OBJECT_TO_STRING(newStr);
+        _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
     }
 
 
-    fun *.insert (@target self: StringBuilder, offset: int, s: String): StringBuilder
+    fun *.insert (@target self: StringBuilder, dstOffset: int, s: String): StringBuilder
     {
-        // For cycle (names must be equals)
-        val dstOffset: int = offset;
-
         _checkOffset(dstOffset);
 
         if (s == null)
             s = "null";
 
         val len: int = action CALL_METHOD(s, "length", []);
-        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
-
-        var i: int = 0;
-        var currentIndex: int = 0;
-        val endIndex: int = dstOffset + len;
-        this.length += len;
-
-        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
-
-        this.storage = action OBJECT_TO_STRING(newStr);
+        _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
     }
@@ -619,16 +591,7 @@ automaton StringBuilderAutomaton
             s = "true";
 
         val len: int = action CALL_METHOD(s, "length", []);
-        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
-
-        var i: int = 0;
-        var currentIndex: int = 0;
-        val endIndex: int = dstOffset + len;
-        this.length += len;
-
-        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
-
-        this.storage = action OBJECT_TO_STRING(newStr);
+        _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
     }
@@ -640,16 +603,7 @@ automaton StringBuilderAutomaton
         val s: String = action OBJECT_TO_STRING(c);
 
         val len: int = 1;
-        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
-
-        var i: int = 0;
-        var currentIndex: int = 0;
-        val endIndex: int = dstOffset + len;
-        this.length += len;
-
-        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
-
-        this.storage = action OBJECT_TO_STRING(newStr);
+        _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
     }
@@ -660,17 +614,8 @@ automaton StringBuilderAutomaton
         _checkOffset(dstOffset);
         val s: String = action OBJECT_TO_STRING(str);
 
-        val len: int = 1;
-        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
-
-        var i: int = 0;
-        var currentIndex: int = 0;
-        val endIndex: int = dstOffset + len;
-        this.length += len;
-
-        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
-
-        this.storage = action OBJECT_TO_STRING(newStr);
+        val len: int = action ARRAY_SIZE(str);
+        _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
     }
@@ -680,20 +625,10 @@ automaton StringBuilderAutomaton
     {
         _checkOffset(dstOffset);
         val s: String = action OBJECT_TO_STRING(str);
-        val strSize: int = action ARRAY_SIZE(str);
-        _checkRangeSIOOBE(start, start + end, strSize);
+        val len: int = action ARRAY_SIZE(str);
+        _checkRangeSIOOBE(start, start + end, len);
 
-        val countInsertedElements: int = end - start;
-        val newStr: array<char> = action ARRAY_NEW("char", this.length + countInsertedElements);
-
-        var i: int = 0;
-        var currentIndex: int = start;
-        val endIndex: int = dstOffset + countInsertedElements;
-        this.length += countInsertedElements;
-
-        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
-
-        this.storage = action OBJECT_TO_STRING(newStr);
+        _insertCharSequence(dstOffset, s, len, start, end);
 
         result = self;
     }
@@ -708,16 +643,7 @@ automaton StringBuilderAutomaton
             s = "null";
 
         val len: int = action CALL_METHOD(s, "length", []);
-        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
-
-        var i: int = 0;
-        var currentIndex: int = 0;
-        val endIndex: int = dstOffset + len;
-        this.length += len;
-
-        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
-
-        this.storage = action OBJECT_TO_STRING(newStr);
+        _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
     }
@@ -732,16 +658,7 @@ automaton StringBuilderAutomaton
             s = "null";
 
         val len: int = action CALL_METHOD(s, "length", []);
-        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
-
-        var i: int = 0;
-        var currentIndex: int = 0;
-        val endIndex: int = dstOffset + len;
-        this.length += len;
-
-        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
-
-        this.storage = action OBJECT_TO_STRING(newStr);
+        _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
     }
@@ -756,16 +673,7 @@ automaton StringBuilderAutomaton
             s = "null";
 
         val len: int = action CALL_METHOD(s, "length", []);
-        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
-
-        var i: int = 0;
-        var currentIndex: int = 0;
-        val endIndex: int = dstOffset + len;
-        this.length += len;
-
-        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
-
-        this.storage = action OBJECT_TO_STRING(newStr);
+        _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
     }
@@ -780,16 +688,7 @@ automaton StringBuilderAutomaton
             s = "null";
 
         val len: int = action CALL_METHOD(s, "length", []);
-        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
-
-        var i: int = 0;
-        var currentIndex: int = 0;
-        val endIndex: int = dstOffset + len;
-        this.length += len;
-
-        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
-
-        this.storage = action OBJECT_TO_STRING(newStr);
+        _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
     }
