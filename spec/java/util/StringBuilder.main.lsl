@@ -93,6 +93,8 @@ automaton StringBuilderAutomaton
         codePointBefore,
         offsetByCodePoints,
         hashCode,
+        codePoints,
+        chars,
     ];
 
     // internal variables
@@ -1074,6 +1076,24 @@ automaton StringBuilderAutomaton
         _checkIndex(index);
 
         result = action DEBUG_DO("Character.offsetByCodePoints(this.storage, index, codePointOffset)");
+    }
+
+
+    // within java.lang.AbstractStringBuilder
+    fun *.codePoints (@target self: StringBuilder): IntStream
+    {
+        // #todo: use custom stream implementation
+        result = action SYMBOLIC("java.util.stream.IntStream");
+        action ASSUME(result != null);
+    }
+
+
+    // within java.lang.AbstractStringBuilder
+    fun *.chars (@target self: StringBuilder): IntStream
+    {
+        // #todo: use custom stream implementation
+        result = action SYMBOLIC("java.util.stream.IntStream");
+        action ASSUME(result != null);
     }
 
 
