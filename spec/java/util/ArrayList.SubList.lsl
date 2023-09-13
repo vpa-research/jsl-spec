@@ -486,7 +486,92 @@ automaton ArrayList_SubListAutomaton
     // within java.util.List
     fun *.sort (@target self: ArrayList_SubList, c: Comparator): void
     {
-        action TODO();
+        if (this.length != 0)
+        {
+            // Java has no unsigned primitive data types
+            action ASSUME(this.length > 0);
+            action ASSUME(this.root != null);
+
+            ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+            val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+
+            // prepare common variables
+            val baseLimit: int = this.offset + this.length;
+            val outerLimit: int = baseLimit - 1;
+            var innerLimit: int = 0;
+            var i: int = 0;
+            var j: int = 0;
+
+            // check the comparator
+            if (c == null)
+            {
+                // using Comparable::compareTo as a comparator
+
+                // plain bubble sorting algorithm
+                action LOOP_FOR(
+                    i, this.offset, outerLimit, +1,
+                    sort_loop_outer_noComparator(i, j, baseLimit, innerLimit, rootStorage)
+                );
+            }
+            else
+            {
+                // using the provided comparator
+
+                // plain bubble sorting algorithm (with a comparator)
+                action LOOP_FOR(
+                    i, this.offset, outerLimit, +1,
+                    sort_loop_outer(i, j, baseLimit, innerLimit, rootStorage, c)
+                );
+            }
+
+            this.modCount = ArrayListAutomaton(this.root).modCount;
+        }
+    }
+
+    @Phantom proc sort_loop_outer_noComparator (i: int, j: int, baseLimit: int, innerLimit: int, rootStorage: list<Object>): void
+    {
+        innerLimit = baseLimit - i - 1;
+        action LOOP_FOR(
+            j, this.offset, innerLimit, +1,
+            sort_loop_inner_noComparator(j, rootStorage)
+        );
+    }
+
+    @Phantom proc sort_loop_inner_noComparator (j: int, rootStorage: list<Object>): void
+    {
+        val idxA: int = j;
+        val idxB: int = j + 1;
+        val a: Object = action LIST_GET(rootStorage, idxA);
+        val b: Object = action LIST_GET(rootStorage, idxB);
+
+        if (action CALL_METHOD(a as Comparable, "compareTo", [b]) > 0)
+        {
+            action LIST_SET(rootStorage, idxA, b);
+            action LIST_SET(rootStorage, idxB, a);
+        }
+    }
+
+    @Phantom proc sort_loop_outer (i: int, j: int, baseLimit: int, innerLimit: int, rootStorage: list<Object>, c: Comparator): void
+    {
+        innerLimit = baseLimit - i - 1;
+        action LOOP_FOR(
+            j, this.offset, innerLimit, +1,
+            sort_loop_inner(j, rootStorage, c)
+        );
+    }
+
+    @Phantom proc sort_loop_inner (j: int, rootStorage: list<Object>, c: Comparator): void
+    {
+        val idxA: int = j;
+        val idxB: int = j + 1;
+        val a: Object = action LIST_GET(rootStorage, idxA);
+        val b: Object = action LIST_GET(rootStorage, idxB);
+
+        if (action CALL(c, [a, b]) > 0)
+        {
+            action LIST_SET(rootStorage, idxA, b);
+            action LIST_SET(rootStorage, idxB, a);
+        }
     }
 
 
