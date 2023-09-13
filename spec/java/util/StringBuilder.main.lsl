@@ -219,6 +219,12 @@ automaton StringBuilderAutomaton
         }
     }
 
+
+    @AutoInline @Phantom proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
     // constructors
 
     constructor *.StringBuilder (@target self: StringBuilder)
@@ -229,12 +235,18 @@ automaton StringBuilderAutomaton
 
     constructor *.StringBuilder (@target self: StringBuilder, seq: CharSequence)
     {
+        if (seq == null)
+            _throwNPE();
+
         _appendCharSequence(seq);
     }
 
 
     constructor *.StringBuilder (@target self: StringBuilder, str: String)
     {
+        if (str == null)
+            _throwNPE();
+
         _appendString(str);
     }
 
