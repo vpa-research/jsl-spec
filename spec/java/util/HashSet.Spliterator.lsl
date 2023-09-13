@@ -46,17 +46,6 @@ automaton HashSet_KeySpliteratorAutomaton
     ];
 
 
-    // constructors
-
-    constructor *.HashSet_KeySpliterator (@target self: HashSet_KeySpliterator, source: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
-    {
-        this.index = origin;
-        this.fence = fence;
-        this.est = est;
-        this.expectedModCount = expectedModCount;
-    }
-
-
     // utilities
 
     proc _getFence(): int
@@ -90,6 +79,17 @@ automaton HashSet_KeySpliteratorAutomaton
         val modCount: int = HashSetAutomaton(this.parent).modCount;
         if (this.expectedModCount != modCount)
             action THROW_NEW("java.util.ConcurrentModificationException", []);
+    }
+
+
+    // constructors
+
+    constructor *.HashSet_KeySpliterator (@target self: HashSet_KeySpliterator, source: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
+    {
+        this.index = origin;
+        this.fence = fence;
+        this.est = est;
+        this.expectedModCount = expectedModCount;
     }
 
 
@@ -196,7 +196,9 @@ automaton HashSet_KeySpliteratorAutomaton
         var mid: int = (hi + lo) >>> 1;
 
         if (lo >= mid)
+        {
             result = null;
+        }
         else
         {
             this.est = this.est >>> 1;

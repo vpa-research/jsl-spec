@@ -46,13 +46,6 @@ automaton HashSet_KeyIteratorAutomaton
         remove,
     ];
 
-    // constructors
-
-    @private constructor *.HashSet_KeyIterator (@target self: HashSet_KeyIterator, source: HashMap)
-    {
-        action ERROR("Private constructor call");
-    }
-
 
     // utilities
 
@@ -62,6 +55,15 @@ automaton HashSet_KeyIteratorAutomaton
         if (this.expectedModCount != modCount)
             action THROW_NEW("java.util.ConcurrentModificationException", []);
     }
+
+
+    // constructors
+
+    @private constructor *.HashSet_KeyIterator (@target self: HashSet_KeyIterator, source: HashMap)
+    {
+        action ERROR("Private constructor call");
+    }
+
 
     // methods
 

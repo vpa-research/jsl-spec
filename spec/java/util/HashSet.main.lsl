@@ -62,6 +62,79 @@ automaton HashSetAutomaton
     ];
 
 
+    // utilities
+
+    proc _updateModifications(): void
+    {
+        assigns this.modCount;
+        ensures this.modCount' > this.modCount;
+
+        this.modCount += 1;
+    }
+
+
+    proc _clearMappings (): void
+    {
+        assigns this.storage;
+        assigns this.length;
+        ensures this.length == 0;
+
+        this.length = 0;
+        this.storage = action MAP_NEW();
+
+        this._updateModifications();
+    }
+
+
+    proc _checkForComodification (expectedModCount: int): void
+    {
+        if (this.modCount != expectedModCount)
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+    }
+
+
+    proc _addAllElements (c: Collection): boolean
+    {
+        val lengthBeforeAdd: int = this.length;
+        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+
+        action LOOP_WHILE(
+            action CALL_METHOD(iter, "hasNext", []),
+            _addAllElements_loop(iter)
+        );
+
+        if (lengthBeforeAdd < this.length)
+        {
+            this.modCount += 1;
+            result = true;
+        }
+        else
+        {
+            result = false;
+        }
+    }
+
+
+    @Phantom proc _addAllElements_loop(iter: Iterator): void
+    {
+        val key: Object = action CALL_METHOD(iter, "next", []);
+        val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);
+
+        if (!hasKey)
+        {
+            action MAP_SET(this.storage, key, HASHSET_VALUE);
+            this.length += 1;
+        }
+    }
+
+
+    @AutoInline
+    proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
     // constructors
 
     constructor *.HashSet (@target self: HashSet)
@@ -161,76 +234,6 @@ automaton HashSetAutomaton
     }
 
 
-    // utilities
-
-    proc _updateModifications(): void
-    {
-        assigns this.modCount;
-        ensures this.modCount' > this.modCount;
-
-        this.modCount += 1;
-    }
-
-    proc _clearMappings (): void
-    {
-        assigns this.storage;
-        assigns this.length;
-        ensures this.length == 0;
-
-        this.length = 0;
-        this.storage = action MAP_NEW();
-
-        this._updateModifications();
-    }
-
-
-    proc _checkForComodification (expectedModCount: int): void
-    {
-        if (this.modCount != expectedModCount)
-            action THROW_NEW("java.util.ConcurrentModificationException", []);
-    }
-
-
-    proc _addAllElements (c: Collection): boolean
-    {
-        val lengthBeforeAdd: int = this.length;
-        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
-
-        action LOOP_WHILE(
-            action CALL_METHOD(iter, "hasNext", []),
-            _addAllElements_loop(iter)
-        );
-
-        if (lengthBeforeAdd < this.length)
-        {
-            this.modCount += 1;
-            result = true;
-        }
-        else
-            result = false;
-    }
-
-
-    @Phantom proc _addAllElements_loop(iter: Iterator): void
-    {
-        val key: Object = action CALL_METHOD(iter, "next", []);
-        val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);
-
-        if (!hasKey)
-        {
-            action MAP_SET(this.storage, key, HASHSET_VALUE);
-            this.length += 1;
-        }
-    }
-
-
-    @AutoInline
-    proc _throwNPE (): void
-    {
-        action THROW_NEW("java.lang.NullPointerException", []);
-    }
-
-
     // methods
 
     fun *.add (@target self: HashSet, obj: Object): boolean
@@ -241,7 +244,9 @@ automaton HashSetAutomaton
         val hasKey: boolean = action MAP_HAS_KEY(this.storage, obj);
 
         if (hasKey)
+        {
             result = false;
+        }
         else
         {
             this.length = this.length + 1;
@@ -312,7 +317,9 @@ automaton HashSetAutomaton
             result = true;
         }
         else
+        {
             result = false;
+        }
     }
 
 
@@ -360,24 +367,12 @@ automaton HashSetAutomaton
     }
 
 
-    @throws(["java.io.IOException"])
-    @private fun *.writeObject (@target self: HashSet, s: ObjectOutputStream): void
-    {
-        action NOT_IMPLEMENTED("no serialization support yet");
-    }
-
-
-    @throws(["java.io.IOException", "java.lang.ClassNotFoundException"])
-    @private fun *.readObject (@target self: HashSet, s: ObjectInputStream): void
-    {
-        action NOT_IMPLEMENTED("no serialization support yet");
-    }
-
-
     fun *.equals (@target self: HashSet, other: Object): boolean
     {
         if (other == self)
+        {
             result = true;
+        }
         else
         {
             val isSameType: boolean = action OBJECT_SAME_TYPE(self, other);
@@ -422,10 +417,12 @@ automaton HashSetAutomaton
         val lengthBeforeRemoving: int = this.length;
 
         if (this.length > otherSize)
+        {
             action LOOP_WHILE(
                 action CALL_METHOD(iter, "hasNext", []),
                 _removeAllElements_loop_direct(iter)
             );
+        }
         else
         {
             val visitedKeys: map<Object, Object> = action MAP_NEW();
@@ -478,7 +475,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.toArray(@target self: HashSet): array<Object>
+    fun *.toArray (@target self: HashSet): array<Object>
     {
         val expectedModCount: int = this.modCount;
         val size: int = this.length;
@@ -565,9 +562,7 @@ automaton HashSetAutomaton
         val isKeyExist: boolean = action MAP_HAS_KEY(this.storage, key);
 
         if (!isKeyExist)
-        {
             isContainsAll = false;
-        }
     }
 
 
@@ -577,7 +572,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.retainAll(@target self: HashSet, c: Collection): boolean
+    fun *.retainAll (@target self: HashSet, c: Collection): boolean
     {
         if (c == null)
             _throwNPE();
@@ -597,7 +592,9 @@ automaton HashSetAutomaton
             result = true;
         }
         else
+        {
             result = false;
+        }
     }
 
 
@@ -635,7 +632,9 @@ automaton HashSetAutomaton
             result = true;
         }
         else
+        {
             result = false;
+        }
     }
 
 
@@ -692,5 +691,21 @@ automaton HashSetAutomaton
 
         i += 1;
         action MAP_SET(visitedKeys, key, HASHSET_VALUE);
+    }
+
+
+    // special: serialization
+
+    @throws(["java.io.IOException"])
+    @private fun *.writeObject (@target self: HashSet, s: ObjectOutputStream): void
+    {
+        action NOT_IMPLEMENTED("no serialization support yet");
+    }
+
+
+    @throws(["java.io.IOException", "java.lang.ClassNotFoundException"])
+    @private fun *.readObject (@target self: HashSet, s: ObjectInputStream): void
+    {
+        action NOT_IMPLEMENTED("no serialization support yet");
     }
 }
