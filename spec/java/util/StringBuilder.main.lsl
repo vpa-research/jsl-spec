@@ -846,9 +846,9 @@ automaton StringBuilderAutomaton
         if (i < this.length)
             newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
         // TODO: problem with: ''
-        //else
+        else
             // That's right ? Did I understand correctly ?
-        //    newStr[i] = '0';
+            newStr[i] = action DEBUG_DO("'0'");
     }
 
 
