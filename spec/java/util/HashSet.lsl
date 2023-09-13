@@ -16,6 +16,11 @@ import java/util/function/_interfaces;
 import java/util/HashMap;
 
 
+// === CONSTANTS ===
+
+val HASHSET_VALUE: Object = 0;
+
+
 // primary types
 
 @extends("java.util.AbstractSet")

@@ -95,7 +95,7 @@ automaton HashSet_KeyIteratorAutomaton
         this.currentKey = key;
         result = key;
 
-        action MAP_SET(this.visitedKeys, this.currentKey, HASHSET_KEYITERATOR_VALUE);
+        action MAP_SET(this.visitedKeys, this.currentKey, HASHSET_VALUE);
         this.index += 1;
         this.nextWasCalled = true;
     }
@@ -154,7 +154,7 @@ automaton HashSet_KeyIteratorAutomaton
         action ASSUME(!destStorageHasKey);
 
         this.currentKey = key;
-        action MAP_SET(this.visitedKeys, this.currentKey, HASHSET_KEYITERATOR_VALUE);
+        action MAP_SET(this.visitedKeys, this.currentKey, HASHSET_VALUE);
 
         action CALL(userAction, [key]);
         i += 1;

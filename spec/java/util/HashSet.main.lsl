@@ -10,10 +10,6 @@ library std
 
 import java/util/HashSet;
 
-// === CONSTANTS ===
-
-val HASHSET_KEYITERATOR_VALUE: Object = 0;
-
 
 // automata
 
@@ -222,7 +218,7 @@ automaton HashSetAutomaton
 
         if (!hasKey)
         {
-            action MAP_SET(this.storage, key, HASHSET_KEYITERATOR_VALUE);
+            action MAP_SET(this.storage, key, HASHSET_VALUE);
             this.length += 1;
         }
     }
@@ -250,7 +246,7 @@ automaton HashSetAutomaton
         {
             this.length = this.length + 1;
 
-            action MAP_SET(this.storage, obj, HASHSET_KEYITERATOR_VALUE);
+            action MAP_SET(this.storage, obj, HASHSET_VALUE);
 
             result = true;
         }
@@ -360,7 +356,7 @@ automaton HashSetAutomaton
         action LIST_INSERT_AT(keysStorageList, i, key);
 
         i += 1;
-        action MAP_SET(visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
+        action MAP_SET(visitedKeys, key, HASHSET_VALUE);
     }
 
 
@@ -477,7 +473,7 @@ automaton HashSetAutomaton
             this.length -= 1;
         }
 
-        action MAP_SET(visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
+        action MAP_SET(visitedKeys, key, HASHSET_VALUE);
         i += 1;
     }
 
@@ -512,7 +508,7 @@ automaton HashSetAutomaton
 
         resultArray[i] = key;
 
-        action MAP_SET(visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
+        action MAP_SET(visitedKeys, key, HASHSET_VALUE);
     }
 
 
@@ -662,7 +658,7 @@ automaton HashSetAutomaton
         }
 
         i += 1;
-        action MAP_SET(visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
+        action MAP_SET(visitedKeys, key, HASHSET_VALUE);
     }
 
 
@@ -695,6 +691,6 @@ automaton HashSetAutomaton
         action CALL_METHOD(userAction, "accept", [key]);
 
         i += 1;
-        action MAP_SET(visitedKeys, key, HASHSET_KEYITERATOR_VALUE);
+        action MAP_SET(visitedKeys, key, HASHSET_VALUE);
     }
 }
