@@ -1,3 +1,5 @@
+//#! pragma: non-synthesizable
+
 libsl "1.1.0";
 
 library std
@@ -14,7 +16,7 @@ import java/lang/_interfaces;
 
 // local semantic types
 
-@extends("java.lang.AbstractStringBuilder")
+//@extends("java.lang.AbstractStringBuilder") - убирать, так как он виден только в пакете джавы, оставлять только если паблик
 @implements("java.io.Serializable")
 @implements("java.lang.Comparable")
 @implements("java.lang.CharSequence")
@@ -22,15 +24,23 @@ import java/lang/_interfaces;
     is java.lang.StringBuffer
     for Object
 {
-    @private @static @final var serialVersionUID: long = 3388685877147921107;
+   // @private @static @final var serialVersionUID: long = 3388685877147921107;
 }
+
+
+// === CONSTANTS ===
+
+val MAX_CODE_POINT: int = 1114111;
+val MIN_LOW_SURROGATE: int = 56320;
+val MIN_HIGH_SURROGATE: int = 55296;
+val MIN_SUPPLEMENTARY_CODE_POINT: int = 65536;
 
 
 // automata
 
 automaton StringBufferAutomaton
 (
-    var transient: String,
+    @private @transient toStringCache: String,
 )
 : StringBuffer
 {
@@ -113,32 +123,149 @@ automaton StringBufferAutomaton
     ];
 
     // internal variables
+    var storage: String;
+    var length: int;
+
+    var toStringCache: String = action OBJECT_TO_STRING(object);
+
 
     // utilities
 
+     proc _checkRange (start: int, end: int, len: int): void
+    {
+        if (start < 0 || start > end || end > len)
+        {
+            val message: String = "start " + action OBJECT_TO_STRING(start) + ", end " + action OBJECT_TO_STRING(end) + ", length " + action OBJECT_TO_STRING(len);
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", [message]);
+        }
+    }
+
+
+    proc _checkRangeSIOOBE (start: int, end: int, len: int): void
+    {
+        if (start < 0 || start > end || end > len)
+        {
+            val message: String = "start " + action OBJECT_TO_STRING(start) + ", end " + action OBJECT_TO_STRING(end) + ", length " + action OBJECT_TO_STRING(len);
+            action THROW_NEW("java.lang.StringIndexOutOfBoundsException", [message]);
+        }
+    }
+
+
+    proc _checkIndex (index: int): void
+    {
+         if (index < 0 || index >= this.length)
+         {
+             val message: String = "index " + action OBJECT_TO_STRING(index) + ",length " + action OBJECT_TO_STRING(this.length);
+             action THROW_NEW("java.lang.StringIndexOutOfBoundsException", [message]);
+         }
+    }
+
+
+    proc _checkOffset (offset: int): void
+    {
+        if (offset < 0 || offset > this.length) {
+            val message: String = "offset " + action OBJECT_TO_STRING(offset) + ",length " + action OBJECT_TO_STRING(this.length);
+            action THROW_NEW("java.lang.StringIndexOutOfBoundsException", [message]);
+        }
+    }
+
+
+    proc _isBmpCodePoint (codePoint: int): boolean
+    {
+        result = codePoint >>> 16 == 0;
+    }
+
+
+    proc _isValidCodePoint (codePoint: int): boolean
+    {
+        val plane: int = codePoint >>> 16;
+        result = plane < ((MAX_CODE_POINT + 1) >>> 16);
+    }
+
+
+    proc _lowSurrogate (codePoint: int): char
+    {
+        result = ((codePoint & 1023) + MIN_LOW_SURROGATE) as char;
+    }
+
+
+    proc _highSurrogate (codePoint: int): char
+    {
+        result = ((codePoint >>> 10) + (MIN_HIGH_SURROGATE - (MIN_SUPPLEMENTARY_CODE_POINT >>> 10))) as char;
+    }
+
+
+    proc _appendCharSequence_loop(i: int, seq: CharSequence): void
+    {
+        var currentChar: char = action CALL_METHOD(seq, "charAt", [i]);
+        this.storage += action OBJECT_TO_STRING(currentChar);
+    }
+
+
     // constructors
-    @AnnotatedWith("jdk.internal.HotSpotIntrinsicCandidate")
+    @AnnotatedWith("jdk.internal.HotSpotIntrinsicCandidate") //убрать!
     constructor *.StringBuffer (@target self: StringBuffer)
     {
-        result = super(16);
+        assigns this.storage;
+        assigns this.length;
+        ensures this.storage != null;
+        ensures this.length >= 0;
+
+        this.storage = "";
+        this.length = 0;
     }
 
 
     constructor *.StringBuffer (@target self: StringBuffer, seq: CharSequence)
     {
-        action TODO();
+       assigns this.storage;
+       assigns this.length;
+       ensures this.storage != null;
+       ensures this.length >= 0;
+
+       if (seq == null)
+       {
+            action THROW_NEW("java.lang.NullPointerException");
+       }
+       else
+       {
+           val seqLength: int = action CALL_METHOD(seq, "length", []);
+           this.length = seqLength;
+
+           var i: int = 0;
+           action LOOP_FOR(i, 0, seqLength, +1, _appendCharSequence_loop(i, seq));
+       }
     }
 
-    @AnnotatedWith("jdk.internal.HotSpotIntrinsicCandidate")
+
     constructor *.StringBuffer (@target self: StringBuffer, str: String)
     {
-        action TODO();
+        assigns this.storage;
+        assigns this.length;
+        ensures this.storage != null;
+        ensures this.length >= 0;
+
+        if (str == null)
+        {
+            action THROW_NEW("java.lang.NullPointerException");
+        }
+        else
+        {
+            val strLength: int = action CALL_METHOD(str, "length", []);
+            this.length = strLength;
+            this.storage = str;
+        }
     }
 
-    @AnnotatedWith("jdk.internal.HotSpotIntrinsicCandidate")
     constructor *.StringBuffer (@target self: StringBuffer, capacity: int)
     {
-        action TODO();
+        assigns this.storage;
+        assigns this.length;
+        ensures this.storage != null;
+        ensures this.length >= 0;
+
+        this.storage = "";
+        this.length = 0;
     }
 
 
@@ -148,168 +275,358 @@ automaton StringBufferAutomaton
     @AnnotatedWith("java.lang.Override")
     @synchronized fun *.append (@target self: StringBuffer, s: CharSequence): StringBuffer
     {
-        val toStringCache: String = null;
+        if (seq == null)
+        {
+            action THROW_NEW("java.lang.NullPointerException");
+        }
+        else
+        {
+            val seqLength: int = action CALL_METHOD(seq, "length", []);
+            this.length += seqLength;
+
+            var i: int = 0;
+            action LOOP_FOR(i, 0, seqLength, +1, _appendCharSequence_loop(i, seq));
+        }
         result = self;
     }
 
 
     @synchronized fun *.append (@target self: StringBuffer, s: CharSequence, start: int, end: int): StringBuffer
     {
-        action TODO();
+        if (seq == null)
+            seq = "null";
+        val seqLength: int = action CALL_METHOD(seq, "length", []);
+        _checkRange(start, end, seqLength);
+        this.length += end - start;
+        var i: int = 0;
+        action LOOP_FOR(i, start, end, +1, _appendCharSequence_loop(i, seq));
+        result = self;
     }
 
-    @AnnotatedWith("java.lang.Override")
+
     @synchronized fun *.append (@target self: StringBuffer, obj: Object): StringBuffer
     {
-        action TODO();
+      if (obj == null)
+      {
+          this.storage += "null";
+          this.length += 4;
+      }
+      else
+      {
+          this.storage += action OBJECT_TO_STRING(obj);
+          this.length = action CALL_METHOD(this.storage, "length", []);
+      }
+      result = self;
     }
 
-    @AnnotatedWith("java.lang.Override")
-    @AnnotatedWith("jdk.internal.HotSpotIntrinsicCandidate")
     @synchronized fun *.append (@target self: StringBuffer, str: String): StringBuffer
     {
-        action TODO();
+     if (str == null)
+        {
+            this.storage += "null";
+            this.length += 4;
+        }
+        else
+        {
+            this.storage += str;
+            this.length = action CALL_METHOD(this.storage, "length", []);
+        }
+        result = self;
     }
 
 
     @synchronized fun *.append (@target self: StringBuffer, sb: StringBuffer): StringBuffer
     {
-        action TODO();
+        if (sb == null)
+        {
+            this.storage += "null";
+            this.length += 4;
+        }
+        else
+        {
+            // That's right for StringBuffer ?
+            this.storage += action OBJECT_TO_STRING(sb);
+            this.length = action CALL_METHOD(this.storage, "length", []);
+        }
+        result = self;
     }
 
 
     @synchronized fun *.append (@target self: StringBuffer, b: boolean): StringBuffer
     {
-        action TODO();
+        if (b)
+        {
+            this.storage += "true";
+            this.length += 4;
+        }
+        else
+        {
+            this.storage += "false";
+            this.length += 5;
+        }
+        result = self;
     }
 
 
     @synchronized fun *.append (@target self: StringBuffer, c: char): StringBuffer
     {
-        action TODO();
+        // That's right for char ?
+        this.storage += action OBJECT_TO_STRING(c);
+        this.length += 1;
+        result = self;
     }
 
 
     @synchronized fun *.append (@target self: StringBuffer, str: array<char>): StringBuffer
     {
-        action TODO();
+        val strSize: int = action ARRAY_SIZE(str);
+        this.length += strSize;
+        var i: int = 0;
+        action LOOP_FOR(i, 0, strSize, +1, _appendCharsArray_loop(i, str));
+        result = self;
+    }
+
+    @Phantom proc _appendCharsArray_loop(i: int, str: array<char>): void
+    {
+        var currentChar: char = str[i];
+        this.storage += action OBJECT_TO_STRING(currentChar);
     }
 
 
     @synchronized fun *.append (@target self: StringBuffer, str: array<char>, offset: int, len: int): StringBuffer
     {
-        action TODO();
+        val end: int = offset + len;
+        val strSize: int = action ARRAY_SIZE(str);
+        _checkRange(offset, end, strSize);
+        var i: int = 0;
+        action LOOP_FOR(i, 0, strSize, +1, _appendCharsArray_loop(i, str));
+        result = self;
     }
 
 
     @synchronized fun *.append (@target self: StringBuffer, d: double): StringBuffer
     {
-        action TODO();
+        this.storage += action OBJECT_TO_STRING(d);
+        this.length += 1;
+        result = self;
     }
 
 
     @synchronized fun *.append (@target self: StringBuffer, f: float): StringBuffer
     {
-        action TODO();
+        this.storage += action OBJECT_TO_STRING(f);
+        this.length += 1;
+        result = self;
     }
 
 
     @synchronized fun *.append (@target self: StringBuffer, i: int): StringBuffer
     {
-        action TODO();
+        this.storage += action OBJECT_TO_STRING(i);
+        this.length += 1;
+        result = self;
     }
 
 
     @synchronized fun *.append (@target self: StringBuffer, lng: long): StringBuffer
     {
-        action TODO();
+        this.storage += action OBJECT_TO_STRING(lng);
+        this.length += 1;
+        result = self;
     }
 
 
     @synchronized fun *.appendCodePoint (@target self: StringBuffer, codePoint: int): StringBuffer
     {
-        action TODO();
+        if (_isBmpCodePoint(codePoint))
+        {
+            val curChar: char = codePoint as char;
+            this.storage += action OBJECT_TO_STRING(curChar);
+            this.length += 1;
+        }
+        else if (_isValidCodePoint(codePoint))
+        {
+            val firstChar: char = _lowSurrogate(codePoint);
+            val secondChar: char = _highSurrogate(codePoint);
+            this.storage += action OBJECT_TO_STRING(firstChar);
+            this.storage += action OBJECT_TO_STRING(secondChar);
+            this.length += 2;
+        }
+        else
+        {
+            val message: String = "Not a valid Unicode code point: 0x%X" + action OBJECT_TO_STRING(codePoint);
+            action THROW_NEW("java.lang.IllegalArgumentException", [message]);
+        }
+        result = self;
     }
 
     @AnnotatedWith("java.lang.Override")
     @synchronized fun *.capacity (@target self: StringBuffer): int
     {
-        action TODO();
+        // This is right realization ?
+        // original: return value.length >> coder;
+        // we will have another result, because we don't know "coder" value;
+        result = this.length;
     }
 
 
     @synchronized fun *.charAt (@target self: StringBuffer, index: int): char
     {
-        action TODO();
+        _checkIndex(index);
+        result = action CALL_METHOD(this.storage, "charAt", [index]);
     }
 
 
-    // within java.lang.AbstractStringBuilder
+//  within java.lang.AbstractStringBuilder
+//  It is right? Example from Random.lsl.
     fun *.chars (@target self: StringBuffer): IntStream
     {
-        action TODO();
+      // #problem: no streams yet
+       result = action SYMBOLIC("java.util.stream.IntStream");
+       action ASSUME(result != null);
+    }
+
+    @Phantom proc _strToCharArray_loop(i: int, charArray: array<char>): void
+    {
+        charArray[i] = action CALL_METHOD(this.storage, "charAt", [i]);
     }
 
 
     @synchronized fun *.codePointAt (@target self: StringBuffer, index: int): int
     {
-        action TODO();
+        _checkIndex(index);
+
+        val charArray: array<char> = action ARRAY_NEW("char", this.length);
+        var i: int = 0;
+        action LOOP_FOR(i, 0, this.length, +1, _strToCharArray_loop(i, charArray));
+
+        result = action DEBUG_DO("Character.codePointAt(charArray, index, this.length)");
     }
 
 
     @synchronized fun *.codePointBefore (@target self: StringBuffer, index: int): int
     {
-        action TODO();
+        index -= 1;
+        _checkIndex(index);
+
+        val charArray: array<char> = action ARRAY_NEW("char", this.length);
+        var i: int = 0;
+        action LOOP_FOR(i, 0, this.length, +1, _strToCharArray_loop(i, charArray));
+
+        result = action DEBUG_DO("Character.codePointAt(charArray, index, this.length)");
     }
 
 
     @synchronized fun *.codePointCount (@target self: StringBuffer, beginIndex: int, endIndex: int): int
     {
-        action TODO();
+        if (beginIndex < 0 || endIndex > this.length || beginIndex > endIndex)
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
+
+        val count: int = endIndex - beginIndex;
+        val charArray: array<char> = action ARRAY_NEW("char", this.length);
+        var i: int = 0;
+        action LOOP_FOR(i, 0, this.length, +1, _strToCharArray_loop(i, charArray));
+
+        result = action DEBUG_DO("Character.codePointCount(charArray, beginIndex, count)");
     }
 
 
     // within java.lang.AbstractStringBuilder
+    //  It is right? Example from Random.lsl.
     fun *.codePoints (@target self: StringBuffer): IntStream
     {
-        action TODO();
+       // #problem: no streams yet
+       result = action SYMBOLIC("java.util.stream.IntStream");
+       action ASSUME(result != null);
     }
 
     @AnnotatedWith("java.lang.Override")
     @synchronized fun *.compareTo (@target self: StringBuffer, another: StringBuffer): int
     {
-        action TODO();
+        if (another == self)
+        {
+            result = 0;
+        }
+        val anotherString: String = action OBJECT_TO_STRING(another);
+        result = action CALL_METHOD(this.storage, "compareTo", [anotherString]);
     }
 
 
     @synchronized fun *.delete (@target self: StringBuffer, start: int, end: int): StringBuffer
     {
-        action TODO();
+        if (end > this.length)
+            end = this.length;
+
+        _checkRangeSIOOBE(start, end, this.length);
+
+        val len: int = end - start;
+        var newString: array<char> = action ARRAY_NEW("char", len);
+
+        var i: int = 0;
+        var currentIndex: int = 0;
+        val index: int = -1;
+        action LOOP_FOR(i, start, end, +1, _deleteCharAt_loop(i, index, currentIndex, newString));
+
+        this.storage = action OBJECT_TO_STRING(newString);
+
+        result = self;
     }
 
 
     @synchronized fun *.deleteCharAt (@target self: StringBuffer, index: int): StringBuffer
     {
-        action TODO();
+        _checkIndex(index);
+        //var newString: String = "";
+        var newString: array<char> = action ARRAY_NEW("char", this.length - 1);
+        var i: int = 0;
+        var currentIndex: int = 0;
+        action LOOP_FOR(i, 0, this.length, +1, _deleteCharAt_loop(i, index, currentIndex, newString));
+
+        this.storage = action OBJECT_TO_STRING(newString);
+        this.length -= 1;
+        result = self;
+    }
+
+    @Phantom proc _deleteCharAt_loop(i: int, index: int, currentIndex:int, newString: array<char>): void
+    {
+        if (i != index)
+        {
+            val currentChar: char = action CALL_METHOD(this.storage, "charAt", [i]);
+            newString[currentIndex] = currentChar;
+            currentIndex += 1;
+        }
     }
 
 
     @synchronized fun *.ensureCapacity (@target self: StringBuffer, minimumCapacity: int): void
     {
-        action TODO();
+
     }
 
 
     // within java.lang.Object
     fun *.equals (@target self: StringBuffer, obj: Object): boolean
     {
-        action TODO();
+        result = action OBJECT_EQUALS(self, obj);
     }
 
 
     @synchronized fun *.getChars (@target self: StringBuffer, srcBegin: int, srcEnd: int, dst: array<char>, dstBegin: int): void
     {
-        action TODO();
+        _checkRangeSIOOBE(srcBegin, srcEnd, this.length);
+        var n: int = srcEnd - srcBegin;
+        val dstLength: int = action ARRAY_SIZE(dst);
+        _checkRange(dstBegin, dstBegin + n, dstLength);
+
+        var i: int = 0;
+        action LOOP_FOR(i, srcBegin, srcEnd, +1, _getChars_loop(i, dstBegin, dst));
+    }
+
+
+    @Phantom proc _getChars_loop(i: int, dstBegin: int, dst: array<char>): void
+    {
+        dst[dstBegin] = action CALL_METHOD(this.storage, "charAt", [i]);
+        dstBegin += 1;
     }
 
 
@@ -323,61 +640,210 @@ automaton StringBufferAutomaton
     // within java.lang.Object
     fun *.hashCode (@target self: StringBuffer): int
     {
-        action TODO();
+         result = action OBJECT_HASH_CODE(this.storage);
     }
 
 
     fun *.indexOf (@target self: StringBuffer, str: String): int
     {
-        action TODO();
+        result = action DEBUG_DO("this.storage.indexOf(str)");
     }
 
 
     @synchronized fun *.indexOf (@target self: StringBuffer, str: String, fromIndex: int): int
     {
-        action TODO();
+        result = action DEBUG_DO("this.storage.indexOf(str, fromIndex)");
     }
 
 
     fun *.insert (@target self: StringBuffer, dstOffset: int, s: CharSequence): StringBuffer
     {
-        action TODO();
+        _checkOffset(dstOffset);
+
+        if (s == null)
+            s = "null";
+
+        val len: int = action CALL_METHOD(s, "length", []);
+        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
+
+        var i: int = 0;
+        var currentIndex: int = 0;
+        val endIndex: int = dstOffset + len;
+        this.length += len;
+
+        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
+
+        this.storage = action OBJECT_TO_STRING(newStr);
+
+        result = self;
+    }
+
+    @Phantom proc _insertCharSequence_loop(i: int, dstOffset: int, endIndex: int, currentIndex:int, newStr: array<char>, s: CharSequence): void
+    {
+        if (i < dstOffset)
+        {
+            val currentChar_1: char = action CALL_METHOD(this.storage, "charAt", [i]);
+            newStr[i] = currentChar_1;
+        }
+        else if (i < endIndex)
+        {
+            val currentChar_2: char = action CALL_METHOD(s, "charAt", [currentIndex]);
+            newStr[i] = currentChar_2;
+            currentIndex += 1;
+        }
+        else
+        {
+            val index: int = i - dstOffset;
+            val currentChar_3: char = action CALL_METHOD(this.storage, "charAt", [index]);
+            newStr[i] = currentChar_3;
+        }
     }
 
 
     @synchronized fun *.insert (@target self: StringBuffer, dstOffset: int, s: CharSequence, start: int, end: int): StringBuffer
     {
-        action TODO();
+        _checkOffset(dstOffset);
+
+        if (s == null)
+            s = "null";
+
+        val len: int = action CALL_METHOD(s, "length", []);
+
+        _checkRange(start, end, len);
+
+        val countInsertedElements: int = end - start;
+        val newStr: array<char> = action ARRAY_NEW("char", this.length + countInsertedElements);
+
+        var i: int = 0;
+        var currentIndex: int = start;
+        val endIndex: int = dstOffset + countInsertedElements;
+        this.length += countInsertedElements;
+
+        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
+
+        this.storage = action OBJECT_TO_STRING(newStr);
+
+        result = self;
     }
 
 
     @synchronized fun *.insert (@target self: StringBuffer, offset: int, obj: Object): StringBuffer
     {
-        action TODO();
+        // For cycle (names must be equals)
+        val dstOffset: int = offset;
+
+        _checkOffset(dstOffset);
+
+        var s: String = "null";
+
+        if (obj != null)
+            s = action OBJECT_TO_STRING(obj);
+
+        val len: int = action CALL_METHOD(s, "length", []);
+        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
+
+        var i: int = 0;
+        var currentIndex: int = 0;
+        val endIndex: int = dstOffset + len;
+        this.length += len;
+
+        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
+
+        this.storage = action OBJECT_TO_STRING(newStr);
+
+        result = self;
     }
 
 
-    @synchronized fun *.insert (@target self: StringBuffer, offset: int, str: String): StringBuffer
+    @synchronized fun *.insert (@target self: StringBuffer, offset: int, s: String): StringBuffer
     {
-        action TODO();
+        // For cycle (names must be equals)
+        val dstOffset: int = offset;
+
+        _checkOffset(dstOffset);
+
+        if (s == null)
+            s = "null";
+
+        val len: int = action CALL_METHOD(str, "length", []);
+        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
+
+        var i: int = 0;
+        var currentIndex: int = 0;
+        val endIndex: int = dstOffset + len;
+        this.length += len;
+
+        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, str));
+
+        this.storage = action OBJECT_TO_STRING(newStr);
+
+        result = self;
     }
 
 
-    fun *.insert (@target self: StringBuffer, offset: int, b: boolean): StringBuffer
+    fun *.insert (@target self: StringBuffer, dstOffset: int, b: boolean): StringBuffer
     {
-        action TODO();
+        _checkOffset(dstOffset);
+
+        var s: String = "false";
+        if (b)
+            s = "true";
+
+        val len: int = action CALL_METHOD(s, "length", []);
+        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
+
+        var i: int = 0;
+        var currentIndex: int = 0;
+        val endIndex: int = dstOffset + len;
+        this.length += len;
+
+        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
+
+        this.storage = action OBJECT_TO_STRING(newStr);
+
+        result = self;
     }
 
 
-    @synchronized fun *.insert (@target self: StringBuffer, offset: int, c: char): StringBuffer
+    @synchronized fun *.insert (@target self: StringBuffer, dstOffset: int, c: char): StringBuffer
     {
-        action TODO();
+        _checkOffset(dstOffset);
+        val s: String = action OBJECT_TO_STRING(c);
+
+        val len: int = 1;
+        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
+
+        var i: int = 0;
+        var currentIndex: int = 0;
+        val endIndex: int = dstOffset + len;
+        this.length += len;
+
+        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
+
+        this.storage = action OBJECT_TO_STRING(newStr);
+
+        result = self;
     }
 
 
-    @synchronized fun *.insert (@target self: StringBuffer, offset: int, str: array<char>): StringBuffer
+    @synchronized fun *.insert (@target self: StringBuffer, dstOffset: int, str: array<char>): StringBuffer
     {
-        action TODO();
+        _checkOffset(dstOffset);
+        val s: String = action OBJECT_TO_STRING(str);
+
+        val len: int = 1;
+        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
+
+        var i: int = 0;
+        var currentIndex: int = 0;
+        val endIndex: int = dstOffset + len;
+        this.length += len;
+
+        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
+
+        this.storage = action OBJECT_TO_STRING(newStr);
+
+        result = self;
     }
 
 
@@ -387,39 +853,112 @@ automaton StringBufferAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuffer, offset: int, d: double): StringBuffer
+    fun *.insert (@target self: StringBuffer, dstOffset: int, d: double): StringBuffer
     {
-        action TODO();
+        _checkOffset(dstOffset);
+        var s: String = action OBJECT_TO_STRING(d);
+
+        if (s == null)
+            s = "null";
+
+        val len: int = action CALL_METHOD(s, "length", []);
+        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
+
+        var i: int = 0;
+        var currentIndex: int = 0;
+        val endIndex: int = dstOffset + len;
+        this.length += len;
+
+        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
+
+        this.storage = action OBJECT_TO_STRING(newStr);
+
+        result = self;
     }
 
 
-    fun *.insert (@target self: StringBuffer, offset: int, f: float): StringBuffer
+    fun *.insert (@target self: StringBuffer, dstOffset: int, f: float): StringBuffer
     {
-        action TODO();
+        _checkOffset(dstOffset);
+        var s: String = action OBJECT_TO_STRING(f);
+
+        if (s == null)
+            s = "null";
+
+        val len: int = action CALL_METHOD(s, "length", []);
+        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
+
+        var i: int = 0;
+        var currentIndex: int = 0;
+        val endIndex: int = dstOffset + len;
+        this.length += len;
+
+        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
+
+        this.storage = action OBJECT_TO_STRING(newStr);
+
+        result = self;
     }
 
 
-    fun *.insert (@target self: StringBuffer, offset: int, i: int): StringBuffer
+    fun *.insert (@target self: StringBuffer, offset: int, ii: int): StringBuffer
     {
-        action TODO();
+        _checkOffset(dstOffset);
+        var s: String = action OBJECT_TO_STRING(ii);
+
+        if (s == null)
+            s = "null";
+
+        val len: int = action CALL_METHOD(s, "length", []);
+        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
+
+        var i: int = 0;
+        var currentIndex: int = 0;
+        val endIndex: int = dstOffset + len;
+        this.length += len;
+
+        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
+
+        this.storage = action OBJECT_TO_STRING(newStr);
+
+        result = self;
     }
 
 
     fun *.insert (@target self: StringBuffer, offset: int, l: long): StringBuffer
     {
-        action TODO();
+        _checkOffset(dstOffset);
+        var s: String = action OBJECT_TO_STRING(l);
+
+        if (s == null)
+            s = "null";
+
+        val len: int = action CALL_METHOD(s, "length", []);
+        val newStr: array<char> = action ARRAY_NEW("char", this.length + len);
+
+        var i: int = 0;
+        var currentIndex: int = 0;
+        val endIndex: int = dstOffset + len;
+        this.length += len;
+
+        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
+
+        this.storage = action OBJECT_TO_STRING(newStr);
+
+        result = self;
     }
 
 
     fun *.lastIndexOf (@target self: StringBuffer, str: String): int
     {
-        action TODO();
+        // May be = len - 1?
+        result = action DEBUG_DO("this.storage.lastIndexOf(str)");
     }
 
 
     @synchronized fun *.lastIndexOf (@target self: StringBuffer, str: String, fromIndex: int): int
     {
-        action TODO();
+        result = action DEBUG_DO("this.storage.lastIndexOf(str, fromIndex)");
     }
 
 
