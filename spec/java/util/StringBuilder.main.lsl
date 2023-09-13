@@ -144,7 +144,7 @@ automaton StringBuilderAutomaton
 
     proc _isBmpCodePoint (codePoint: int): boolean
     {
-        result = codePoint >>> 16 == 0;
+        result = (codePoint >>> 16) == 0;
     }
 
 
