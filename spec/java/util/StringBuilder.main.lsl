@@ -267,6 +267,24 @@ automaton StringBuilderAutomaton
         }
     }
 
+
+    proc _substring(start: int, end: int): String
+    {
+        _checkRangeSIOOBE(start, end, this.length);
+        val sizeNewString: int = end - start;
+        val newStr: array<char> = action ARRAY_NEW("char", sizeNewString);
+
+        var i: int = 0;
+        action LOOP_FOR(i, start, end, +1, _newSubString_loop(i, newStr));
+        result = action OBJECT_TO_STRING(newStr);
+    }
+
+
+    @Phantom proc _newSubString_loop (i: int, newStr: array<char>): void
+    {
+        newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
+    }
+
     // constructors
 
     constructor *.StringBuilder (@target self: StringBuilder)
@@ -864,32 +882,14 @@ automaton StringBuilderAutomaton
     // within java.lang.AbstractStringBuilder
     fun *.substring (@target self: StringBuilder, start: int): String
     {
-        _checkRangeSIOOBE(start, this.length, this.length);
-        val sizeNewString: int = this.length - start;
-        val newStr: array<char> = action ARRAY_NEW("char", sizeNewString);
-
-        var i: int = 0;
-        action LOOP_FOR(i, start, this.length, +1, _newSubString_loop(i, newStr));
-        result = action OBJECT_TO_STRING(newStr);
-    }
-
-
-    @Phantom proc _newSubString_loop (i: int, newStr: array<char>): void
-    {
-        newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
+        result = _substring(start, this.length);
     }
 
 
     // within java.lang.AbstractStringBuilder
     fun *.substring (@target self: StringBuilder, start: int, end: int): String
     {
-        _checkRangeSIOOBE(start, this.length, this.length);
-        val sizeNewString: int = end - start;
-        val newStr: array<char> = action ARRAY_NEW("char", sizeNewString);
-
-        var i: int = 0;
-        action LOOP_FOR(i, start, end, +1, _newSubString_loop(i, newStr));
-        result = action OBJECT_TO_STRING(newStr);
+        result = _substring(start, end);
     }
 
 
