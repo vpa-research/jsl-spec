@@ -717,15 +717,56 @@ automaton ArrayListAutomaton
             var innerLimit: int = 0;
             var i: int = 0;
             var j: int = 0;
-            action LOOP_FOR(
-                i, 0, outerLimit, +1,
-                sort_loop_outer(i, j, innerLimit, c)
-            );
+
+            // check the comparator
+            if (c == null)
+            {
+                // using Comparable::compareTo as a comparator
+
+                // plain bubble sorting algorithm
+                action LOOP_FOR(
+                    i, 0, outerLimit, +1,
+                    sort_loop_outer_noComparator(i, j, innerLimit)
+                );
+            }
+            else
+            {
+                // using the provided comparator
+
+                // plain bubble sorting algorithm (with a comparator)
+                action LOOP_FOR(
+                    i, 0, outerLimit, +1,
+                    sort_loop_outer(i, j, innerLimit, c)
+                );
+            }
 
             _checkForComodification(expectedModCount);
         }
 
         this.modCount += 1;
+    }
+
+    @Phantom proc sort_loop_outer_noComparator (i: int, j: int, innerLimit: int): void
+    {
+        innerLimit = this.length - i - 1;
+        action LOOP_FOR(
+            j, 0, innerLimit, +1,
+            sort_loop_inner_noComparator(j)
+        );
+    }
+
+    @Phantom proc sort_loop_inner_noComparator (j: int): void
+    {
+        val idxA: int = j;
+        val idxB: int = j + 1;
+        val a: Object = action LIST_GET(this.storage, idxA);
+        val b: Object = action LIST_GET(this.storage, idxB);
+
+        if (action CALL_METHOD(a as Comparable, "compareTo", [b]) > 0)
+        {
+            action LIST_SET(this.storage, idxA, b);
+            action LIST_SET(this.storage, idxB, a);
+        }
     }
 
     @Phantom proc sort_loop_outer (i: int, j: int, innerLimit: int, c: Comparator): void
@@ -825,30 +866,21 @@ automaton ArrayListAutomaton
     {
         val aLen: int = action ARRAY_SIZE(a);
         val len: int = this.length;
-        var i: int = 0;
 
         if (aLen < len)
-        {
             // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)
-            result = action ARRAY_NEW("java.lang.Object", len);
+            a = action ARRAY_NEW("java.lang.Object", len);
 
-            action LOOP_FOR(
-                i, 0, len, +1,
-                toArray_loop(i, result)
-            );
-        }
-        else
-        {
-            result = a;
+        result = a;
 
-            action LOOP_FOR(
-                i, 0, len, +1,
-                toArray_loop(i, result)
-            );
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, len, +1,
+            toArray_loop(i, result)
+        );
 
-            if (aLen > len)
-                result[len] = null;
-        }
+        if (aLen > len)
+            result[len] = null;
     }
 
 

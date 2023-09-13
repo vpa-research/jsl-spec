@@ -597,7 +597,7 @@ automaton ArrayList_SubListAutomaton
     {
         action ASSUME(this.root != null);
 
-        ArrayListAutomaton(this.root)._subListRangeCheck(fromIndex, toIndex, length);
+        ArrayListAutomaton(this.root)._subListRangeCheck(fromIndex, toIndex, this.length);
 
         result = new ArrayList_SubListAutomaton(state = Initialized,
             root = this.root,
@@ -611,28 +611,74 @@ automaton ArrayList_SubListAutomaton
 
     fun *.toArray (@target self: ArrayList_SubList): array<Object>
     {
-        val a: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
+        action ASSUME(this.root != null);
+        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
 
+        result = action ARRAY_NEW("java.lang.Object", this.length);
+
+        val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
         val end: int = this.offset + this.length;
-        action TODO();
+        var i: int = 0;
+        var j: int = 0;
+        action LOOP_FOR(
+            i, this.offset, end, +1,
+            toArray_loop(i, j, result, rootStorage)
+        );
+    }
+
+    @Phantom proc toArray_loop (i: int, j: int, result: array<Object>, rootStorage: list<Object>): void
+    {
+        result[j] = action LIST_GET(rootStorage, i);
+        j += 1;
     }
 
 
     // within java.util.Collection
     fun *.toArray (@target self: ArrayList_SubList, generator: IntFunction): array<Object>
     {
+        // acting just like JDK
         val a: array<Object> = action CALL(generator, [0]) as array<Object>;
-        if (a == null)
-            _throwNPE();
+        val aSize: int = action ARRAY_SIZE(a);
 
-        action TODO();
+        action ASSUME(this.root != null);
+        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+
+        result = action ARRAY_NEW("java.lang.Object", this.length);
+
+        val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+        val end: int = this.offset + this.length;
+        var i: int = 0;
+        var j: int = 0;
+        action LOOP_FOR(
+            i, this.offset, end, +1,
+            toArray_loop(i, j, result, rootStorage)
+        );
     }
 
 
     fun *.toArray (@target self: ArrayList_SubList, a: array<Object>): array<Object>
     {
+        action ASSUME(this.root != null);
+        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+
+        val aSize: int = action ARRAY_SIZE(a);
+        if (aSize < this.length)
+            // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)
+            a = action ARRAY_NEW("java.lang.Object", this.length);
+
+        result = a;
+
+        val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
         val end: int = this.offset + this.length;
-        action TODO();
+        var i: int = 0;
+        var j: int = 0;
+        action LOOP_FOR(
+            i, this.offset, end, +1,
+            toArray_loop(i, j, result, rootStorage)
+        );
+
+        if (aSize > this.length)
+            result[aSize] = null;
     }
 
 
