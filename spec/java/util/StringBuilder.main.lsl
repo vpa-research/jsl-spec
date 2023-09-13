@@ -177,11 +177,6 @@ automaton StringBuilderAutomaton
 
     constructor *.StringBuilder (@target self: StringBuilder, seq: CharSequence)
     {
-        assigns this.storage;
-        assigns this.length;
-        ensures this.storage != null;
-        ensures this.length >= 0;
-
         if (seq == null)
         {
             this.storage = "null";
@@ -207,11 +202,6 @@ automaton StringBuilderAutomaton
 
     constructor *.StringBuilder (@target self: StringBuilder, str: String)
     {
-        assigns this.storage;
-        assigns this.length;
-        ensures this.storage != null;
-        ensures this.length >= 0;
-
         if (str == null)
         {
             this.storage = "null";
@@ -342,7 +332,7 @@ automaton StringBuilderAutomaton
     {
         // That's right for char ?
         this.storage += action OBJECT_TO_STRING(c);
-        this.length += 1;
+        this.length = action CALL_METHOD(this.storage, "length", []);
         result = self;
     }
 
@@ -371,6 +361,7 @@ automaton StringBuilderAutomaton
         _checkRange(offset, end, strSize);
         var i: int = 0;
         action LOOP_FOR(i, 0, strSize, +1, _appendCharsArray_loop(i, str));
+        this.length += strSize;
         result = self;
     }
 
@@ -378,7 +369,7 @@ automaton StringBuilderAutomaton
     fun *.append (@target self: StringBuilder, d: double): StringBuilder
     {
         this.storage += action OBJECT_TO_STRING(d);
-        this.length += 1;
+        this.length = action CALL_METHOD(this.storage, "length", []);
         result = self;
     }
 
@@ -386,7 +377,7 @@ automaton StringBuilderAutomaton
     fun *.append (@target self: StringBuilder, f: float): StringBuilder
     {
         this.storage += action OBJECT_TO_STRING(f);
-        this.length += 1;
+        this.length = action CALL_METHOD(this.storage, "length", []);
         result = self;
     }
 
@@ -394,7 +385,7 @@ automaton StringBuilderAutomaton
     fun *.append (@target self: StringBuilder, i: int): StringBuilder
     {
         this.storage += action OBJECT_TO_STRING(i);
-        this.length += 1;
+        this.length = action CALL_METHOD(this.storage, "length", []);
         result = self;
     }
 
@@ -402,7 +393,7 @@ automaton StringBuilderAutomaton
     fun *.append (@target self: StringBuilder, lng: long): StringBuilder
     {
         this.storage += action OBJECT_TO_STRING(lng);
-        this.length += 1;
+        this.length = action CALL_METHOD(this.storage, "length", []);
         result = self;
     }
 

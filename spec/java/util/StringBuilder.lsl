@@ -15,7 +15,6 @@ import java/io/_interfaces;
 
 // primary types
 
-@extends("java.lang.AbstractStringBuilder")
 @implements("java.io.Serializable")
 @implements("java.lang.Comparable")
 @implements("java.lang.CharSequence")
@@ -27,7 +26,6 @@ import java/io/_interfaces;
 }
 
 
-@extends("java.lang.AbstractStringBuilder")
 @implements("java.io.Serializable")
 @implements("java.lang.Comparable")
 @implements("java.lang.CharSequence")
