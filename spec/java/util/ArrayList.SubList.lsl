@@ -492,7 +492,10 @@ automaton ArrayList_SubListAutomaton
 
     fun *.spliterator (@target self: ArrayList_SubList): Spliterator
     {
-        action TODO();
+        result = new ArrayList_SubList_SpliteratorAutomaton(state = Initialized,
+            root = this.root,
+            parent = self,
+        );
     }
 
 

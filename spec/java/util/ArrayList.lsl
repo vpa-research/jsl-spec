@@ -27,8 +27,7 @@ import java/util/stream/_interfaces;
     is java.util.ArrayList
     for List
 {
-    // #problem: should be 8683452581122892189 instead
-    @private @static val serialVersionUID: long = 1;
+    @private @static val serialVersionUID: long = 8683452581122892189L;
 }
 
 
@@ -64,10 +63,10 @@ import java/util/stream/_interfaces;
 
 
 @GenerateMe
-@implements("java.util.stream.Stream")
-@public @final type ArrayList_Stream
-    is java.util.ArrayList_Stream  // NOTE: do not use inner classes
-    for Stream
+@implements("java.util.Spliterator")
+@public @final type ArrayList_SubList_Spliterator
+    // NOTE: using a '$' sign here to hint on a potential solution to inability to overwrite private constructors
+    is java.util.ArrayList_SubList$Spliterator
+    for Spliterator
 {
 }
-
