@@ -9,15 +9,60 @@ library std
 // imports
 
 import java.common;
+import java/lang/_interfaces;
+import java/util/_interfaces;
+import java/util/function/_interfaces;
 
 
 // semantic types
 
+@Parameterized(["T", "S"])
+type BaseStream
+    is java.util.stream.BaseStream
+    for Object
+{
+    @ParameterizedResult(["T"])
+    fun iterator(): Iterator;
+
+    @ParameterizedResult(["T"])
+    fun spliterator(): Spliterator;
+
+    fun isParallel(): boolean;
+
+    fun close(): void;
+}
+
+
+@Parameterized(["T", "A", "R"])
+type Collector
+    is java.util.stream.Collector
+    for Object
+{
+    @ParameterizedResult(["A"])
+    fun supplier(): Supplier;
+
+    @ParameterizedResult(["A", "T"])
+    fun accumulator(): BiConsumer;
+
+    @ParameterizedResult(["A"])
+    fun combiner(): BinaryOperator;
+
+    @ParameterizedResult(["A", "R"])
+    fun finisher(): Function;
+}
+
+
+
 @Parameterized(["T"])
 type Stream
     is java.util.stream.Stream
-    for Object
+    for BaseStream
 {
+    fun forEach(@Parameterized(["? super T"]) _action: Consumer): void;
+
+    fun forEachOrdered(@Parameterized(["? super T"]) _action: Consumer): void;
+
+    fun toArray(): array<Object>;
 }
 
 

@@ -34,7 +34,7 @@ annotation Deprecated (
 annotation GenerateMe ();
 
 
-// Indicates that a subroutine should be callable by other automata types and instances.
+// Indicates that a subroutine should be accessible to other automata.
 annotation KeepVisible ();
 
 
@@ -42,12 +42,12 @@ annotation KeepVisible ();
 annotation NoReturn ();
 
 
-// unused
+// <unused>
 annotation Parameterized (
     typeParameters: array<string>,
 );
 
-// unused
+// <unused>
 annotation ParameterizedResult (
     typeParameters: array<string>,
 );
@@ -62,7 +62,7 @@ annotation Phantom ();
 annotation StopsControlFlow ();
 
 
-// unused
+// <unused>
 // Associates the type on the LEFT side of typealias with the specified type.
 //@Deprecated
 annotation TypeMapping (

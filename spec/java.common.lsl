@@ -4,7 +4,7 @@ libsl "1.1.0";
 library std
     version "11"
     language "Java"
-    url "-";
+    url "https://github.com/openjdk/jdk11/tree/master";
 
 // DO NOT REMOVE!
 import translator.annotations;
@@ -37,8 +37,7 @@ annotation implements (
 );
 
 annotation throws (
-    exceptionTypes: array<string> = [],
-    generic: bool = false,
+    exceptionTypes: array<string>,
 );
 
 annotation synchronized ();
@@ -71,12 +70,15 @@ type Object is java.lang.Object for Object
     // WARNING: use OBJECT_HASH_CODE and OBJECT_EQUALS actions instead of calling these methods directly
 }
 
+type Class is java.lang.Class for Object
+{
+}
+
 
 // === ACTIONS ===
 
 
 // language-specific features
-
 
 @StopsControlFlow
 define action THROW_NEW (
@@ -84,16 +86,35 @@ define action THROW_NEW (
         params: array<any>
     ): void;
 
+
 @StopsControlFlow
 define action THROW_VALUE (
         value: any
     ): void;
 
 
+/*
+Usage example:
+action TRY_CATCH(
+    _try_proc(),
+    [
+        ["java.lang.Error",     _catch_proc_a()],
+        ["java.util.Exception", _catch_proc_b()],
+    ]
+);
+*/
+define action TRY_CATCH (
+        tryBlock: void,               // subroutine call!
+        catchTable: array<array<any>> // pairs of {name: str, handler: call}
+    ): void;
+
+// Use to get reference to the caught exception within the 'catch' section of 'try-catch' block.
+// WARNING: applicable only within the exception handler ("catch") subroutine
+define action CATCH_GET_EXCEPTION_REF (
+    ): Object;
 
 
 // work-arounds
-
 
 define action CALL (
         callable: any,
@@ -108,41 +129,25 @@ define action CALL_METHOD (
     ): any;
 
 
-/*
-Usage example:
-action TRY_CATCH(
-    _try_proc(),
-    [
-        ["java.lang.Error",     _catch_proc_a()],
-        ["java.util.Exception", _catch_proc_b()],
-    ]
-);
-*/
-define action TRY_CATCH (
-        tryBlock: any,                // subroutine call!
-        catchTable: array<array<any>> // pairs of {name: str, handler: call}
-    ): void;
+// helper methods built into the language runtime
+
+define action OBJECT_EQUALS (
+        a: any,
+        b: any
+    ): boolean;
 
 
-// Used to get reference to the caught exception within the 'catch' section of 'try-catch' block.
-// WARNING: applicable only within the exception handler ("catch") subroutine
-define action CATCH_GET_EXCEPTION_REF (
-    ): Object;
+define action OBJECT_HASH_CODE (
+        value: any
+    ): int;
 
 
-
-// helper methods in runtime
+define action OBJECT_TO_STRING (
+        value: any
+    ): string;
 
 
 define action OBJECT_SAME_TYPE (
         a: any,
         b: any
     ): boolean;
-
-define action OBJECT_TO_STRING (
-        value: any
-    ): string;
-
-define action OBJECT_HASH_CODE (
-        value: any
-    ): int;
