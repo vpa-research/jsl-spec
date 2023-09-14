@@ -826,7 +826,8 @@ automaton StringBuilderAutomaton
     // within java.lang.AbstractStringBuilder
     fun *.ensureCapacity (@target self: StringBuilder, minimumCapacity: int): void
     {
-        action NOT_IMPLEMENTED("storage is dynamic, so nothing more");
+        // storage is dynamic, so nothing more
+        action DO_NOTHING();
     }
 
 
@@ -903,7 +904,8 @@ automaton StringBuilderAutomaton
     // within java.lang.AbstractStringBuilder
     fun *.trimToSize (@target self: StringBuilder): void
     {
-        action NOT_IMPLEMENTED("storage is dynamic, so nothing more");
+        // storage is dynamic, so nothing more
+        action DO_NOTHING();
     }
 
 
