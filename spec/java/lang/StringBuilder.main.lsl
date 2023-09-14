@@ -8,7 +8,7 @@ library std
 
 // imports
 
-import java/util/StringBuilder;
+import java/lang/StringBuilder;
 
 
 // === CONSTANTS ===

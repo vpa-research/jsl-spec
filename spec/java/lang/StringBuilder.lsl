@@ -1,4 +1,4 @@
-///#! pragma: non-synthesizable
+//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
