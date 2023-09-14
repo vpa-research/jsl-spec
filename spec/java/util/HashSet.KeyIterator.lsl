@@ -91,8 +91,8 @@ automaton HashSet_KeyIteratorAutomaton
         val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
         val sourceStorageHasKey: boolean = action MAP_HAS_KEY(parentStorage, key);
         action ASSUME(sourceStorageHasKey);
-        val destStorageHasKey: boolean = action MAP_HAS_KEY(this.visitedKeys, key);
-        action ASSUME(!destStorageHasKey);
+        val dstStorageHasKey: boolean = action MAP_HAS_KEY(this.visitedKeys, key);
+        action ASSUME(!dstStorageHasKey);
 
         this.currentKey = key;
         result = key;
@@ -106,6 +106,7 @@ automaton HashSet_KeyIteratorAutomaton
     fun *.remove (@target self: HashSet_KeyIterator): void
     {
         action ASSUME(this.parent != null);
+
         val length: int = HashSetAutomaton(this.parent).length;
         val atValidPosition: boolean = this.index < length;
         if (!atValidPosition || !this.nextWasCalled)
