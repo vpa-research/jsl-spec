@@ -64,15 +64,6 @@ automaton HashSetAutomaton
 
     // utilities
 
-    proc _clearMappings (): void
-    {
-        this.length = 0;
-        this.storage = action MAP_NEW();
-
-        this.modCount += 1;
-    }
-
-
     proc _checkForComodification (expectedModCount: int): void
     {
         if (this.modCount != expectedModCount)
@@ -208,7 +199,10 @@ automaton HashSetAutomaton
 
     fun *.clear (@target self: HashSet): void
     {
-        _clearMappings();
+        this.length = 0;
+        this.storage = action MAP_NEW();
+
+        this.modCount += 1;
     }
 
 
@@ -242,7 +236,6 @@ automaton HashSetAutomaton
         result = new HashSet_KeyIteratorAutomaton(state = Initialized,
             expectedModCount = this.modCount,
             visitedKeys = visitedKeysMap,
-            // This is right ?
             parent = self
         );
     }
@@ -303,9 +296,9 @@ automaton HashSetAutomaton
         action ASSUME(!isKeyWasVisited);
 
         action LIST_INSERT_AT(keysStorageList, i, key);
+        action MAP_SET(visitedKeys, key, HASHSET_VALUE);
 
         i += 1;
-        action MAP_SET(visitedKeys, key, HASHSET_VALUE);
     }
 
 
@@ -335,7 +328,9 @@ automaton HashSetAutomaton
                 _checkForComodification(expectedModCount);
             }
             else
+            {
                 result = false;
+            }
         }
     }
 
@@ -352,11 +347,10 @@ automaton HashSetAutomaton
             _throwNPE();
 
         val expectedModCount: int = this.modCount;
-
         val otherSize: int = action CALL_METHOD(c, "size", []);
         val iter: Iterator = action CALL_METHOD(c, "iterator", []);
-        var i: int = 0;
         val lengthBeforeRemoving: int = this.length;
+        var i: int = 0;
 
         if (this.length > otherSize)
         {
@@ -421,15 +415,15 @@ automaton HashSetAutomaton
     {
         val expectedModCount: int = this.modCount;
         val size: int = this.length;
-        result = action SYMBOLIC_ARRAY("java.lang.Object", size);
-
         val visitedKeys: map<Object, Object> = action MAP_NEW();
         val resultArray: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
         var i: int = 0;
+
         action LOOP_FOR(
             i, 0, size, +1,
-            toArray_loop(i, visitedKeys, resultArray) // result assignment is implicit
+            toArray_loop(i, visitedKeys, resultArray)
         );
+
         _checkForComodification(expectedModCount);
         result = resultArray;
     }
@@ -456,28 +450,29 @@ automaton HashSetAutomaton
         val expectedModCount: int = this.modCount;
         val aLen: int = action ARRAY_SIZE(a);
         val size: int = this.length;
-        var i: int = 0;
         val visitedKeys: map<Object, Object> = action MAP_NEW();
-        val resultArray: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
+        var resultArray: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
+        var i: int = 0;
 
         if (aLen < size)
         {
-            result = action SYMBOLIC_ARRAY("java.lang.Object", size);
             action LOOP_FOR(
                 i, 0, size, +1,
-                toArray_loop(i, visitedKeys, resultArray) // result assignment is implicit
+                toArray_loop(i, visitedKeys, resultArray)
             );
-
         }
         else
         {
-            result = a;
+            resultArray = a;
             action LOOP_FOR(
                 i, 0, size, +1,
-                toArray_loop(i, visitedKeys, resultArray) // result assignment is implicit
+                toArray_loop(i, visitedKeys, resultArray)
             );
 
+            if (aLen > this.length)
+                result[this.length] = null;
         }
+
         _checkForComodification(expectedModCount);
         result = resultArray;
     }
@@ -493,7 +488,7 @@ automaton HashSetAutomaton
             action CALL_METHOD(iter, "hasNext", []),
             _containsAllElements_loop(iter, isContainsAll)
         );
-        // This is right ? Can we understand that boolean value was changed in cycle ?
+
         result = isContainsAll;
     }
 
@@ -504,7 +499,10 @@ automaton HashSetAutomaton
         val isKeyExist: boolean = action MAP_HAS_KEY(this.storage, key);
 
         if (!isKeyExist)
+        {
             isContainsAll = false;
+            action LOOP_BREAK();
+        }
     }
 
 
@@ -590,7 +588,7 @@ automaton HashSetAutomaton
         val isKeyWasVisited: boolean = action MAP_HAS_KEY(visitedKeys, key);
         action ASSUME(!isKeyWasVisited);
 
-        var isDelete: boolean = action CALL_METHOD(filter, "test", [key]);
+        var isDelete: boolean = action CALL(filter, [key]);
 
         if(isDelete)
         {
@@ -611,15 +609,14 @@ automaton HashSetAutomaton
         var i: int = 0;
         val visitedKeys: map<Object, Object> = action MAP_NEW();
 
-
         action LOOP_WHILE(
             i < this.length,
-            _forEach_loop(i, visitedKeys, userAction)
+            forEach_loop(i, visitedKeys, userAction)
         );
     }
 
 
-    @Phantom proc _forEach_loop(i: int, visitedKeys: map<Object, Object>, userAction: Consumer): void
+    @Phantom proc forEach_loop(i: int, visitedKeys: map<Object, Object>, userAction: Consumer): void
     {
         val key: Object = action SYMBOLIC("java.lang.Object");
         action ASSUME(key != null);
@@ -629,7 +626,7 @@ automaton HashSetAutomaton
         val isKeyWasVisited: boolean = action MAP_HAS_KEY(visitedKeys, key);
         action ASSUME(!isKeyWasVisited);
 
-        action CALL_METHOD(userAction, "accept", [key]);
+        action CALL(userAction, [key]);
 
         i += 1;
         action MAP_SET(visitedKeys, key, HASHSET_VALUE);
