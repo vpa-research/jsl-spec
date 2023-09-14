@@ -112,6 +112,19 @@ automaton HashSetAutomaton
     }
 
 
+    proc _generateKey (visitedKeys: map<Object, Object>): Object
+    {
+        val key: Object = action SYMBOLIC("java.lang.Object");
+        action ASSUME(key != null);
+        val isKeyExist: boolean = action MAP_HAS_KEY(this.storage, key);
+        action ASSUME(isKeyExist);
+
+        val isKeyWasVisited: boolean = action MAP_HAS_KEY(visitedKeys, key);
+        action ASSUME(!isKeyWasVisited);
+        result = key;
+    }
+
+
     // constructors
 
     constructor *.HashSet (@target self: HashSet)
@@ -287,13 +300,7 @@ automaton HashSetAutomaton
 
     @Phantom proc fromMapToList_loop (i: int, keysStorageList: list<Object>, visitedKeys: map<Object, Object>): void
     {
-        val key: Object = action SYMBOLIC("java.lang.Object");
-        action ASSUME(key != null);
-        val isKeyExist: boolean = action MAP_HAS_KEY(this.storage, key);
-        action ASSUME(isKeyExist);
-
-        val isKeyWasVisited: boolean = action MAP_HAS_KEY(visitedKeys, key);
-        action ASSUME(!isKeyWasVisited);
+        val key: Object = _generateKey(visitedKeys);
 
         action LIST_INSERT_AT(keysStorageList, i, key);
         action MAP_SET(visitedKeys, key, HASHSET_VALUE);
@@ -356,7 +363,7 @@ automaton HashSetAutomaton
         {
             action LOOP_WHILE(
                 action CALL_METHOD(iter, "hasNext", []),
-                _removeAllElements_loop_direct(iter)
+                removeAllElements_loop_direct(iter)
             );
         }
         else
@@ -375,7 +382,7 @@ automaton HashSetAutomaton
     }
 
 
-    @Phantom proc _removeAllElements_loop_direct (iter: Iterator): void
+    @Phantom proc removeAllElements_loop_direct (iter: Iterator): void
     {
         val key: Object = action CALL_METHOD(iter, "next", []);
         val isKeyExist: boolean = action MAP_HAS_KEY(this.storage, key);
@@ -390,13 +397,7 @@ automaton HashSetAutomaton
 
     @Phantom proc _removeAllElements_loop_indirect (i: int, c: Collection, visitedKeys: map<Object, Object>): void
     {
-        val key: Object = action SYMBOLIC("java.lang.Object");
-        action ASSUME(key != null);
-        val isKeyExist: boolean = action MAP_HAS_KEY(this.storage, key);
-        action ASSUME(isKeyExist);
-
-        val isKeyWasVisited: boolean = action MAP_HAS_KEY(visitedKeys, key);
-        action ASSUME(!isKeyWasVisited);
+        val key: Object = _generateKey(visitedKeys);
 
         val isCollectionContainsKey: boolean = action CALL_METHOD(c, "contains", [key]);
 
@@ -431,13 +432,7 @@ automaton HashSetAutomaton
 
     @Phantom proc toArray_loop(i: int, visitedKeys: map<Object, Object>, resultArray: array<Object>): void
     {
-        val key: Object = action SYMBOLIC("java.lang.Object");
-        action ASSUME(key != null);
-        val isKeyExist: boolean = action MAP_HAS_KEY(this.storage, key);
-        action ASSUME(isKeyExist);
-
-        val isKeyWasVisited: boolean = action MAP_HAS_KEY(visitedKeys, key);
-        action ASSUME(!isKeyWasVisited);
+        val key: Object = _generateKey(visitedKeys);
 
         resultArray[i] = key;
 
@@ -580,13 +575,7 @@ automaton HashSetAutomaton
 
     @Phantom proc _removeIf_loop(i: int, visitedKeys: map<Object, Object>, filter: Predicate): void
     {
-        val key: Object = action SYMBOLIC("java.lang.Object");
-        action ASSUME(key != null);
-        val isKeyExist: boolean = action MAP_HAS_KEY(this.storage, key);
-        action ASSUME(isKeyExist);
-
-        val isKeyWasVisited: boolean = action MAP_HAS_KEY(visitedKeys, key);
-        action ASSUME(!isKeyWasVisited);
+        val key: Object = _generateKey(visitedKeys);
 
         var isDelete: boolean = action CALL(filter, [key]);
 
@@ -618,13 +607,7 @@ automaton HashSetAutomaton
 
     @Phantom proc forEach_loop(i: int, visitedKeys: map<Object, Object>, userAction: Consumer): void
     {
-        val key: Object = action SYMBOLIC("java.lang.Object");
-        action ASSUME(key != null);
-        val isKeyExist: boolean = action MAP_HAS_KEY(this.storage, key);
-        action ASSUME(isKeyExist);
-
-        val isKeyWasVisited: boolean = action MAP_HAS_KEY(visitedKeys, key);
-        action ASSUME(!isKeyWasVisited);
+        val key: Object = _generateKey(visitedKeys);
 
         action CALL(userAction, [key]);
 
