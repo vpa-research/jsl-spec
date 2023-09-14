@@ -43,7 +43,7 @@ type String
 {
     fun compareTo(anotherString: string): int; // #problem: self-reference
 
-    fun indexOf(anotherString: string): int; // #problem: self-reference
+    fun indexOf(anotherString: string, fromIndex: int): int; // #problem: self-reference
 }
 
 

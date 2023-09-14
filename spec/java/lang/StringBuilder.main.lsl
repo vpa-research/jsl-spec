@@ -552,13 +552,13 @@ automaton StringBuilderAutomaton
 
     fun *.indexOf (@target self: StringBuilder, str: String): int
     {
-        result = action CALL_METHOD(this.storage, "indexOf", [str]);
+        result = action CALL_METHOD(this.storage, "indexOf", [str, 0]);
     }
 
 
     fun *.indexOf (@target self: StringBuilder, str: String, fromIndex: int): int
     {
-        result = action DEBUG_DO("this.storage.indexOf(str, fromIndex)");
+        result = action CALL_METHOD(this.storage, "indexOf", [str, fromIndex]);
     }
 
 
