@@ -67,8 +67,7 @@ automaton HashSet_KeySpliteratorAutomaton
     }
 
 
-    @AutoInline
-    proc _throwNPE (): void
+    @AutoInline proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
     }

@@ -64,18 +64,12 @@ automaton HashSetAutomaton
 
     // utilities
 
-    proc _updateModifications(): void
-    {
-        this.modCount += 1;
-    }
-
-
     proc _clearMappings (): void
     {
         this.length = 0;
         this.storage = action MAP_NEW();
 
-        this._updateModifications();
+        this.modCount += 1;
     }
 
 
@@ -121,8 +115,7 @@ automaton HashSetAutomaton
     }
 
 
-    @AutoInline
-    proc _throwNPE (): void
+    @AutoInline proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
     }
@@ -202,20 +195,20 @@ automaton HashSetAutomaton
         }
         else
         {
-            this.length = this.length + 1;
+            this.length += 1;
 
             action MAP_SET(this.storage, obj, HASHSET_VALUE);
 
             result = true;
         }
 
-        this._updateModifications();
+        this.modCount += 1;
     }
 
 
     fun *.clear (@target self: HashSet): void
     {
-        this._clearMappings();
+        _clearMappings();
     }
 
 
@@ -262,7 +255,7 @@ automaton HashSetAutomaton
         {
             action MAP_REMOVE(this.storage, obj);
             this.length -= 1;
-            this._updateModifications();
+            this.modCount += 1;
             result = true;
         }
         else
