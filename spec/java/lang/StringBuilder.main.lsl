@@ -684,11 +684,7 @@ automaton StringBuilderAutomaton
     {
         _checkOffset(dstOffset);
         var s: String = action OBJECT_TO_STRING(d);
-        var len: int = 4;
-        if (s == null)
-            s = "null";
-        else
-            len = action CALL_METHOD(s, "length", []);
+        var len: = action CALL_METHOD(s, "length", []);
 
         _insertCharSequence(dstOffset, s, len, 0, len);
 
@@ -700,11 +696,7 @@ automaton StringBuilderAutomaton
     {
         _checkOffset(dstOffset);
         var s: String = action OBJECT_TO_STRING(f);
-        var len: int = 4;
-        if (s == null)
-            s = "null";
-        else
-            len = action CALL_METHOD(s, "length", []);
+        var len: = action CALL_METHOD(s, "length", []);
 
         _insertCharSequence(dstOffset, s, len, 0, len);
 
@@ -716,11 +708,7 @@ automaton StringBuilderAutomaton
     {
         _checkOffset(dstOffset);
         var s: String = action OBJECT_TO_STRING(ii);
-        var len: int = 4;
-        if (s == null)
-            s = "null";
-        else
-            len = action CALL_METHOD(s, "length", []);
+        var len: = action CALL_METHOD(s, "length", []);
 
         _insertCharSequence(dstOffset, s, len, 0, len);
 
@@ -732,11 +720,7 @@ automaton StringBuilderAutomaton
     {
         _checkOffset(dstOffset);
         var s: String = action OBJECT_TO_STRING(l);
-        var len: int = 4;
-        if (s == null)
-            s = "null";
-        else
-            len = action CALL_METHOD(s, "length", []);
+        var len: = action CALL_METHOD(s, "length", []);
 
         _insertCharSequence(dstOffset, s, len, 0, len);
 
