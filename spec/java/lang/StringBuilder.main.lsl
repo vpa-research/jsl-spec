@@ -186,9 +186,15 @@ automaton StringBuilderAutomaton
     proc _appendString (str: String): void
     {
         if (str == null)
+        {
             str = "null";
+            this.length += 4;
+        }
+        else
+        {
+            this.length += action CALL_METHOD(str, "length", []);
+        }
         this.storage += str;
-        this.length = action CALL_METHOD(this.storage, "length", []);
     }
 
 
@@ -198,10 +204,15 @@ automaton StringBuilderAutomaton
         var newString: array<char> = action ARRAY_NEW("char", len);
 
         var i: int = 0;
-        var currentIndex: int = 0;
+        var arrayIndex: int = 0;
         action LOOP_FOR(
-            i, 0, this.length, +1,
-            _deleteCharAt_loop(i, start, end, currentIndex, newString)
+            i, 0, start, +1,
+            _copyToCharArray_loop(i, arrayIndex, newString)
+        );
+
+        action LOOP_FOR(
+            i, end, this.length, +1,
+            _copyToCharArray_loop(i, arrayIndex, newString)
         );
 
         this.storage = action OBJECT_TO_STRING(newString);
@@ -209,14 +220,10 @@ automaton StringBuilderAutomaton
     }
 
 
-    @Phantom proc _deleteCharAt_loop (i: int, start: int, end:int, currentIndex:int, newString: array<char>): void
+    @Phantom proc _copyToCharArray_loop (i: int, arrayIndex:int, newString: array<char>): void
     {
-        if (i < start || i >= end)
-        {
-            val currentChar: char = action CALL_METHOD(this.storage, "charAt", [i]);
-            newString[currentIndex] = currentChar;
-            currentIndex += 1;
-        }
+        newString[arrayIndex] = action CALL_METHOD(this.storage, "charAt", [i]);
+        arrayIndex += 1;
     }
 
 
