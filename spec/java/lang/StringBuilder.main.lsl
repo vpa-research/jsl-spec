@@ -294,7 +294,8 @@ automaton StringBuilderAutomaton
 
     constructor *.StringBuilder (@target self: StringBuilder)
     {
-
+        // This constructor's body is empty, because in original class is used byte array and this initializes 16 size;
+        // In this realization is used "String" instead of to array; And this string initializes in "internal variables";
     }
 
 
@@ -318,7 +319,8 @@ automaton StringBuilderAutomaton
 
     constructor *.StringBuilder (@target self: StringBuilder, capacity: int)
     {
-
+        // This constructor's body is empty, because in original class is used byte array and this initializes 16 + capacity size;
+        // In this realization is used "String" instead of to array; And this string initializes in "internal variables";
     }
 
 
