@@ -646,10 +646,8 @@ automaton StringBuilderAutomaton
     fun *.insert (@target self: StringBuilder, dstOffset: int, c: char): StringBuilder
     {
         _checkOffset(dstOffset);
-        val s: String = action OBJECT_TO_STRING(c);
-
-        val len: int = 1;
-        _insertCharSequence(dstOffset, s, len, 0, len);
+        this.storage += action OBJECT_TO_STRING(c);
+        this.length += 1;
 
         result = self;
     }
