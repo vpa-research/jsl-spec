@@ -497,10 +497,10 @@ automaton StringBuilderAutomaton
         }
         else if (_isValidCodePoint(codePoint))
         {
-            val firstChar: char = _lowSurrogate(codePoint);
-            val secondChar: char = _highSurrogate(codePoint);
-            this.storage += action OBJECT_TO_STRING(firstChar);
-            this.storage += action OBJECT_TO_STRING(secondChar);
+            val charsArray: array<char> = action ARRAY_NEW("char", 2);
+            charsArray[0] = _lowSurrogate(codePoint);
+            charsArray[1] = _highSurrogate(codePoint);
+            this.storage += action OBJECT_TO_STRING(charsArray);
             this.length += 2;
         }
         else
