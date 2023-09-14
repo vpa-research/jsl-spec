@@ -421,19 +421,14 @@ automaton StringBuilderAutomaton
     {
         val strSize: int = action ARRAY_SIZE(str);
         this.length += strSize;
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, strSize, +1,
-            _appendCharsArray_loop(i, str)
-        );
+        this.storage += action OBJECT_TO_STRING(str);
         result = self;
     }
 
 
-    @Phantom proc _appendCharsArray_loop (i: int, str: array<char>): void
+    @Phantom proc _fromSrcArrayToDstArray_loop (i: int, arrayIndex: int, str: array<char>, subArray: array<char>): void
     {
-        var currentChar: char = str[i];
-        this.storage += action OBJECT_TO_STRING(currentChar);
+        subArray[arrayIndex] = str[i];
     }
 
 
@@ -442,12 +437,15 @@ automaton StringBuilderAutomaton
         val end: int = offset + len;
         val strSize: int = action ARRAY_SIZE(str);
         _checkRange(offset, end, strSize);
+        val subArray: array<char> = action ARRAY_NEW("char", len);
+        var arrayIndex: int = 0;
         var i: int = 0;
         action LOOP_FOR(
-            i, 0, strSize, +1,
-            _appendCharsArray_loop(i, str)
+            i, offset, end, +1,
+            _fromSrcArrayToDstArray_loop(i, arrayIndex, str, subArray)
         );
-        this.length += strSize;
+        this.length += len;
+        this.storage += action OBJECT_TO_STRING(subArray);
         result = self;
     }
 
