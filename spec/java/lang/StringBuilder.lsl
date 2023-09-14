@@ -13,6 +13,14 @@ import java/lang/_interfaces;
 import java/io/_interfaces;
 
 
+// === CONSTANTS ===
+
+val MAX_CODE_POINT: int = 1114111;
+val MIN_LOW_SURROGATE: int = 56320;
+val MIN_HIGH_SURROGATE: int = 55296;
+val MIN_SUPPLEMENTARY_CODE_POINT: int = 65536;
+
+
 // primary types
 
 @implements("java.io.Serializable")
