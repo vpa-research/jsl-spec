@@ -899,22 +899,19 @@ automaton StringBuilderAutomaton
     {
         _checkIndex(index);
         val newStr: array<char> = action ARRAY_NEW("char", this.length);
+        var arrayIndex: int = 0;
         var i: int = 0;
         action LOOP_FOR(
-            i, 0, this.length, +1,
-            _setNewLength_loop(i, index, newStr, ch)
+            i, 0, index, +1,
+            _copyToCharArray_loop(i, arrayIndex, newStr)
+        );
+        newStr[index] = ch;
+        action LOOP_FOR(
+            i, index + 1, this.length, +1,
+            _copyToCharArray_loop(i, index, newStr)
         );
 
         this.storage = action OBJECT_TO_STRING(newStr);
-    }
-
-
-    @Phantom proc _setNewLength_loop (i: int, index: int, newStr: array<char>, ch: char): void
-    {
-        if(i != index)
-            newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
-        else
-            newStr[i] = ch;
     }
 
 
