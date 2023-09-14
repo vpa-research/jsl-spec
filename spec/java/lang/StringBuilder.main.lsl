@@ -399,6 +399,9 @@ automaton StringBuilderAutomaton
                 this.storage += StringBufferAutomaton(sb).storage;
                 this.length += StringBufferAutomaton(sb).length;
             } */
+
+            this.storage += action OBJECT_TO_STRING(sb);
+            this.length = action CALL_METHOD(this.storage, "length", []);
         }
         result = self;
     }
