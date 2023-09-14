@@ -92,6 +92,7 @@ automaton StringBuilderAutomaton
     // internal variables
 
     var storage: String = "";
+    // The length is equal to the number of Unicode code units in the String.
     var length: int = 0;
 
 
