@@ -242,7 +242,7 @@ automaton StringBuilderAutomaton
         val newStr: array<char> = action ARRAY_NEW("char", this.length + countInsertedElements);
 
         var i: int = 0;
-        var arrayIndex: int = start;
+        var arrayIndex: int = 0;
 
         action LOOP_FOR(
             i, 0, dstOffset, +1,
@@ -682,7 +682,7 @@ automaton StringBuilderAutomaton
     {
         _checkOffset(dstOffset);
         var s: String = action OBJECT_TO_STRING(d);
-        var len: = action CALL_METHOD(s, "length", []);
+        var len: int = action CALL_METHOD(s, "length", []);
 
         _insertCharSequence(dstOffset, s, len, 0, len);
 
@@ -694,7 +694,7 @@ automaton StringBuilderAutomaton
     {
         _checkOffset(dstOffset);
         var s: String = action OBJECT_TO_STRING(f);
-        var len: = action CALL_METHOD(s, "length", []);
+        var len: int = action CALL_METHOD(s, "length", []);
 
         _insertCharSequence(dstOffset, s, len, 0, len);
 
@@ -706,7 +706,7 @@ automaton StringBuilderAutomaton
     {
         _checkOffset(dstOffset);
         var s: String = action OBJECT_TO_STRING(ii);
-        var len: = action CALL_METHOD(s, "length", []);
+        var len: int = action CALL_METHOD(s, "length", []);
 
         _insertCharSequence(dstOffset, s, len, 0, len);
 
@@ -718,7 +718,7 @@ automaton StringBuilderAutomaton
     {
         _checkOffset(dstOffset);
         var s: String = action OBJECT_TO_STRING(l);
-        var len: = action CALL_METHOD(s, "length", []);
+        var len: int = action CALL_METHOD(s, "length", []);
 
         _insertCharSequence(dstOffset, s, len, 0, len);
 
@@ -738,47 +738,37 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.replace (@target self: StringBuilder, start: int, end: int, str: String): StringBuilder
+    fun *.replace (@target self: StringBuilder, start: int, end: int, s: String): StringBuilder
     {
         if (end > this.length)
             end = this.length;
 
         _checkRangeSIOOBE(start, end, this.length);
 
-        val strLength: int = action CALL_METHOD(str, "length", []);
+        val strLength: int = action CALL_METHOD(s, "length", []);
 
         val newLength: int = this.length + strLength - (end - start);
-        var i: int = 0;
-        var strIndex: int = 0;
         val newStr: array<char> = action ARRAY_NEW("char", newLength);
+        var strIndex: int = 0;
+        var arrayIndex: int = 0;
+        var i: int = 0;
 
         action LOOP_FOR(
-            i, 0, newLength, +1,
-            _replace_loop(i, strIndex, start, end, newStr, str, strLength)
+            i, 0, start, +1,
+            _copyToCharArray_loop(i, arrayIndex, newStr)
+        );
+        action LOOP_FOR(
+            i, 0, strLength, +1,
+            _insertSequence_loop(i, arrayIndex, newStr, s)
+        );
+        action LOOP_FOR(
+            i, end, this.length, +1,
+            _copyToCharArray_loop(i, arrayIndex, newStr)
         );
 
         this.storage = action OBJECT_TO_STRING(newStr);
         this.length = newLength;
         result = self;
-    }
-
-
-    @Phantom proc _replace_loop (i: int, strIndex: int, start: int, end: int, newStr: array<char>, str: String, strLength: int): void
-    {
-        if (i < start)
-        {
-            newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
-        }
-        else if (i < start + strLength)
-        {
-            newStr[i] = action CALL_METHOD(str, "charAt", [strIndex]);
-            strIndex += 1;
-        }
-        else
-        {
-            newStr[i] = action CALL_METHOD(this.storage, "charAt", [end]);
-            end += 1;
-        }
     }
 
 
