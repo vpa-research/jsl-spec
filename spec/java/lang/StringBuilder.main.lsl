@@ -854,15 +854,31 @@ automaton StringBuilderAutomaton
             //val message: String = "String index out of range: " + action OBJECT_TO_STRING(newLength);
             action THROW_NEW("java.lang.StringIndexOutOfBoundsException", []);
         }
-        var i: int = 0;
-        val newStr: array<char> = action ARRAY_NEW("char", newLength);
-        action LOOP_FOR(
-            i, 0, newLength, +1,
-            _setNewLength_loop(i, newStr)
-        );
+        else if (newLength == 0)
+        {
+            this.storage = "";
+            this.length = 0;
+        }
+        else
+        {
+            var i: int = 0;
+            val newStr: array<char> = action ARRAY_NEW("char", newLength);
+            action LOOP_FOR(
+                i, 0, newLength, +1,
+                _setNewLength_loop(i, newStr)
+            );
+            if (newLength > this.length)
+            {
+                action LOOP_FOR(
+                    i, this.length, newLength, +1,
+                    _fillZeros_loop(i, newStr)
+                );
+            }
 
-        this.storage = action OBJECT_TO_STRING(newStr);
-        this.length = newLength;
+
+            this.storage = action OBJECT_TO_STRING(newStr);
+            this.length = newLength;
+        }
     }
 
 
@@ -870,10 +886,11 @@ automaton StringBuilderAutomaton
     {
         if (i < this.length)
             newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
-        // TODO: problem with: ''
-        else
-            // That's right ? Did I understand correctly ?
-            newStr[i] = action DEBUG_DO("'0'");
+    }
+
+    @Phantom proc _fillZeros_loop (i: int, newStr: array<char>): void
+    {
+        newStr[i] = action DEBUG_DO("'0'");
     }
 
 
