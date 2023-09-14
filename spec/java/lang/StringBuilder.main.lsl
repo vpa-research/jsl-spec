@@ -170,7 +170,10 @@ automaton StringBuilderAutomaton
         this.length += seqLength;
 
         var i: int = 0;
-        action LOOP_FOR(i, 0, seqLength, +1, _appendCharSequence_loop(i, seq));
+        action LOOP_FOR(
+            i, 0, seqLength, +1,
+            _appendCharSequence_loop(i, seq)
+        );
     }
 
 
@@ -197,7 +200,10 @@ automaton StringBuilderAutomaton
 
         var i: int = 0;
         var currentIndex: int = 0;
-        action LOOP_FOR(i, 0, this.length, +1, _deleteCharAt_loop(i, start, end, currentIndex, newString));
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _deleteCharAt_loop(i, start, end, currentIndex, newString)
+        );
 
         this.storage = action OBJECT_TO_STRING(newString);
         this.length = len;
@@ -232,7 +238,10 @@ automaton StringBuilderAutomaton
         var currentIndex: int = start;
         val endIndex: int = dstOffset + countInsertedElements;
 
-        action LOOP_FOR(i, 0, this.length, +1, _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s));
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s)
+        );
 
         this.storage = action OBJECT_TO_STRING(newStr);
         this.length += countInsertedElements;
@@ -268,7 +277,10 @@ automaton StringBuilderAutomaton
         val newStr: array<char> = action ARRAY_NEW("char", sizeNewString);
 
         var i: int = 0;
-        action LOOP_FOR(i, start, end, +1, _newSubString_loop(i, newStr));
+        action LOOP_FOR(
+            i, start, end, +1,
+            _newSubString_loop(i, newStr)
+        );
         result = action OBJECT_TO_STRING(newStr);
     }
 
@@ -328,7 +340,10 @@ automaton StringBuilderAutomaton
         _checkRange(start, end, seqLength);
         this.length += end - start;
         var i: int = 0;
-        action LOOP_FOR(i, start, end, +1, _appendCharSequence_loop(i, seq));
+        action LOOP_FOR(
+            i, start, end, +1,
+            _appendCharSequence_loop(i, seq)
+        );
         result = self;
     }
 
@@ -404,7 +419,10 @@ automaton StringBuilderAutomaton
         val strSize: int = action ARRAY_SIZE(str);
         this.length += strSize;
         var i: int = 0;
-        action LOOP_FOR(i, 0, strSize, +1, _appendCharsArray_loop(i, str));
+        action LOOP_FOR(
+            i, 0, strSize, +1,
+            _appendCharsArray_loop(i, str)
+        );
         result = self;
     }
 
@@ -422,7 +440,10 @@ automaton StringBuilderAutomaton
         val strSize: int = action ARRAY_SIZE(str);
         _checkRange(offset, end, strSize);
         var i: int = 0;
-        action LOOP_FOR(i, 0, strSize, +1, _appendCharsArray_loop(i, str));
+        action LOOP_FOR(
+            i, 0, strSize, +1,
+            _appendCharsArray_loop(i, str)
+        );
         this.length += strSize;
         result = self;
     }
@@ -731,7 +752,10 @@ automaton StringBuilderAutomaton
         var strIndex: int = 0;
         val newStr: array<char> = action ARRAY_NEW("char", newLength);
 
-        action LOOP_FOR(i, 0, newLength, +1, _replace_loop(i, strIndex, start, end, newStr, str, strLength));
+        action LOOP_FOR(
+            i, 0, newLength, +1,
+            _replace_loop(i, strIndex, start, end, newStr, str, strLength)
+        );
 
         this.storage = action OBJECT_TO_STRING(newStr);
         this.length = newLength;
@@ -764,7 +788,11 @@ automaton StringBuilderAutomaton
         var i: int = (n-1) / 2;
         var k: int = -1;
         val newStr: array<char> = action ARRAY_NEW("char", this.length);
-        action LOOP_FOR(i, 0, -1, -1, _reverse_loop(i, k, n, newStr));
+
+        action LOOP_FOR(
+            i, 0, -1, -1,
+            _reverse_loop(i, k, n, newStr)
+        );
 
         this.storage = action OBJECT_TO_STRING(newStr);
         result = self;
@@ -827,7 +855,10 @@ automaton StringBuilderAutomaton
         }
         var i: int = 0;
         val newStr: array<char> = action ARRAY_NEW("char", newLength);
-        action LOOP_FOR(i, 0, newLength, +1, _setNewLength_loop(i, newStr));
+        action LOOP_FOR(
+            i, 0, newLength, +1,
+            _setNewLength_loop(i, newStr)
+        );
 
         this.storage = action OBJECT_TO_STRING(newStr);
         this.length = newLength;
@@ -851,7 +882,11 @@ automaton StringBuilderAutomaton
         _checkIndex(index);
         val newStr: array<char> = action ARRAY_NEW("char", this.length);
         var i: int = 0;
-        action LOOP_FOR(i, 0, this.length, +1, _setNewLength_loop(i, index, newStr, ch));
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _setNewLength_loop(i, index, newStr, ch)
+        );
+
         this.storage = action OBJECT_TO_STRING(newStr);
     }
 
@@ -894,7 +929,10 @@ automaton StringBuilderAutomaton
         val newStr: array<char> = action ARRAY_NEW("char", sizeNewString);
 
         var i: int = 0;
-        action LOOP_FOR(i, start, end, +1, _newSubString_loop(i, newStr));
+        action LOOP_FOR(
+            i, start, end, +1,
+            _newSubString_loop(i, newStr)
+        );
         result = action OBJECT_TO_STRING(newStr);
     }
 
@@ -908,7 +946,10 @@ automaton StringBuilderAutomaton
         _checkRange(dstBegin, dstBegin + n, dstLength);
 
         var i: int = 0;
-        action LOOP_FOR(i, srcBegin, srcEnd, +1, _getChars_loop(i, dstBegin, dst));
+        action LOOP_FOR(
+            i, srcBegin, srcEnd, +1,
+            _getChars_loop(i, dstBegin, dst)
+        );
     }
 
 
@@ -928,7 +969,10 @@ automaton StringBuilderAutomaton
         val count: int = endIndex - beginIndex;
         val newStr: array<char> = action ARRAY_NEW("char", this.length);
         var i: int = 0;
-        action LOOP_FOR(i, 0, this.length, +1, _newSubString_loop(i, newStr));
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _newSubString_loop(i, newStr)
+        );
 
         result = action DEBUG_DO("Character.codePointCount(newStr, beginIndex, count)");
     }
@@ -941,7 +985,10 @@ automaton StringBuilderAutomaton
 
         val newStr: array<char> = action ARRAY_NEW("char", this.length);
         var i: int = 0;
-        action LOOP_FOR(i, 0, this.length, +1, _newSubString_loop(i, newStr));
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _newSubString_loop(i, newStr)
+        );
 
         result = action DEBUG_DO("Character.codePointAt(newStr, index, this.length)");
     }
@@ -955,7 +1002,10 @@ automaton StringBuilderAutomaton
 
         val newStr: array<char> = action ARRAY_NEW("char", this.length);
         var i: int = 0;
-        action LOOP_FOR(i, 0, this.length, +1, _newSubString_loop(i, newStr));
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _newSubString_loop(i, newStr)
+        );
 
         result = action DEBUG_DO("Character.codePointAt(newStr, index, this.length)");
     }
