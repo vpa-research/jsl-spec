@@ -393,9 +393,12 @@ automaton StringBuilderAutomaton
         }
         else
         {
-            // That's right for StringBuffer ?
-            this.storage += action OBJECT_TO_STRING(sb);
-            this.length = action CALL_METHOD(this.storage, "length", []);
+            // #problem: StringBufferAutomaton isn't finished now;
+           /* if (sb has StringBufferAutomaton)
+            {
+                this.storage += StringBufferAutomaton(sb).storage;
+                this.length += StringBufferAutomaton(sb).length;
+            } */
         }
         result = self;
     }
