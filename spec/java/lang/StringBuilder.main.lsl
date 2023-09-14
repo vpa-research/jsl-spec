@@ -521,7 +521,7 @@ automaton StringBuilderAutomaton
         }
         else
         {
-            val anotherString: String = action OBJECT_TO_STRING(another);
+            val anotherString: String = StringBuilderAutomaton(another).storage;
             result = action CALL_METHOD(this.storage, "compareTo", [anotherString]);
         }
     }
@@ -552,7 +552,7 @@ automaton StringBuilderAutomaton
 
     fun *.indexOf (@target self: StringBuilder, str: String): int
     {
-        result = action DEBUG_DO("this.storage.indexOf(str)");
+        result = action CALL_METHOD(this.storage, "indexOf", [str]);
     }
 
 

@@ -42,6 +42,8 @@ type String
     for CharSequence, string
 {
     fun compareTo(anotherString: string): int; // #problem: self-reference
+
+    fun indexOf(anotherString: string): int; // #problem: self-reference
 }
 
 
