@@ -811,7 +811,7 @@ automaton StringBuilderAutomaton
 
     fun *.toString (@target self: StringBuilder): String
     {
-        action NOT_IMPLEMENTED("no final decision");
+        result = this.storage;
     }
 
 
