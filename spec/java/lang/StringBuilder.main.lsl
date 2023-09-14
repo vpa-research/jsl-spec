@@ -201,28 +201,28 @@ automaton StringBuilderAutomaton
     proc _delete (start: int, end: int): void
     {
         val len: int = this.length - end + start;
-        var newString: array<char> = action ARRAY_NEW("char", len);
+        var newStr: array<char> = action ARRAY_NEW("char", len);
 
         var i: int = 0;
         var arrayIndex: int = 0;
         action LOOP_FOR(
             i, 0, start, +1,
-            _copyToCharArray_loop(i, arrayIndex, newString)
+            _copyToCharArray_loop(i, arrayIndex, newStr)
         );
 
         action LOOP_FOR(
             i, end, this.length, +1,
-            _copyToCharArray_loop(i, arrayIndex, newString)
+            _copyToCharArray_loop(i, arrayIndex, newStr)
         );
 
-        this.storage = action OBJECT_TO_STRING(newString);
+        this.storage = action OBJECT_TO_STRING(newStr);
         this.length = len;
     }
 
 
-    @Phantom proc _copyToCharArray_loop (i: int, arrayIndex:int, newString: array<char>): void
+    @Phantom proc _copyToCharArray_loop (i: int, arrayIndex:int, newStr: array<char>): void
     {
-        newString[arrayIndex] = action CALL_METHOD(this.storage, "charAt", [i]);
+        newStr[arrayIndex] = action CALL_METHOD(this.storage, "charAt", [i]);
         arrayIndex += 1;
     }
 
@@ -241,12 +241,19 @@ automaton StringBuilderAutomaton
         val newStr: array<char> = action ARRAY_NEW("char", this.length + countInsertedElements);
 
         var i: int = 0;
-        var currentIndex: int = start;
-        val endIndex: int = dstOffset + countInsertedElements;
+        var arrayIndex: int = start;
 
         action LOOP_FOR(
-            i, 0, this.length, +1,
-            _insertCharSequence_loop(i, dstOffset, endIndex, currentIndex, newStr, s)
+            i, 0, dstOffset, +1,
+            _copyToCharArray_loop(i, arrayIndex, newStr)
+        );
+        action LOOP_FOR(
+            i, start, end, +1,
+            _insertSequence_loop(i, arrayIndex, newStr, s)
+        );
+        action LOOP_FOR(
+            i, dstOffset, this.length, +1,
+            _copyToCharArray_loop(i, arrayIndex, newStr)
         );
 
         this.storage = action OBJECT_TO_STRING(newStr);
@@ -254,25 +261,10 @@ automaton StringBuilderAutomaton
     }
 
 
-    @Phantom proc _insertCharSequence_loop(i: int, dstOffset: int, endIndex: int, currentIndex:int, newStr: array<char>, s: CharSequence): void
+    @Phantom proc _insertSequence_loop(i: int, arrayIndex: int, newStr: array<char>, s: CharSequence): void
     {
-        if (i < dstOffset)
-        {
-            val currentChar_1: char = action CALL_METHOD(this.storage, "charAt", [i]);
-            newStr[i] = currentChar_1;
-        }
-        else if (i < endIndex)
-        {
-            val currentChar_2: char = action CALL_METHOD(s, "charAt", [currentIndex]);
-            newStr[i] = currentChar_2;
-            currentIndex += 1;
-        }
-        else
-        {
-            val index: int = i - dstOffset;
-            val currentChar_3: char = action CALL_METHOD(this.storage, "charAt", [index]);
-            newStr[i] = currentChar_3;
-        }
+            newStr[arrayIndex] = action CALL_METHOD(s, "charAt", [i]);
+            arrayIndex += 1;
     }
 
 
