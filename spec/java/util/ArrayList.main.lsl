@@ -279,6 +279,86 @@ automaton ArrayListAutomaton
     }
 
 
+    @KeepVisible proc _equalsRange (other: List, from: int, to: int): boolean
+    {
+        result = true;
+        var i: int = from;
+
+        var otherLength: int = 0;
+        var otherStorage: list<Object> = null;
+
+        if (other has ArrayListAutomaton)
+        {
+            otherLength = ArrayListAutomaton(other).length;
+            action ASSUME(otherLength >= 0);
+
+            // assumptions: no multithreading, from == 0
+            result = to == otherLength;
+            if (result)
+            {
+                otherStorage = ArrayListAutomaton(other).storage;
+                action ASSUME(otherStorage != null);
+
+                action LOOP_WHILE(
+                    result && i < to,
+                    _equalsRange_loop_optimized(i, otherStorage, result)
+                );
+            }
+        }
+        else if (other has ArrayList_SubListAutomaton)
+        {
+            otherLength = ArrayList_SubListAutomaton(other).length;
+            action ASSUME(otherLength >= 0);
+
+            // assumptions: no multithreading, from >= 0
+            result = to == otherLength;
+            if (result)
+            {
+                val otherRoot: ArrayList = ArrayList_SubListAutomaton(other).root;
+                action ASSUME(otherRoot != null);
+
+                otherStorage = ArrayListAutomaton(otherRoot).storage;
+                action ASSUME(otherStorage != null);
+
+                action LOOP_WHILE(
+                    result && i < to,
+                    _equalsRange_loop_optimized(i, otherStorage, result)
+                );
+            }
+        }
+        else
+        {
+            val iter: Iterator = action CALL_METHOD(other, "iterator", []);
+            action LOOP_WHILE(
+                result && i < to && action CALL_METHOD(iter, "hasNext", []),
+                _equalsRange_loop_regular(iter, i, result)
+            );
+
+            result &= !action CALL_METHOD(iter, "hasNext", []);
+        }
+    }
+
+    @Phantom proc _equalsRange_loop_optimized (i: int, otherStorage: list<Object>, result: boolean): void
+    {
+        val a: Object = action LIST_GET(otherStorage, i);
+        val b: Object = action LIST_GET(this.storage, i);
+
+        result = action OBJECT_EQUALS(a, b);
+
+        i += 1;
+    }
+
+    @Phantom proc _equalsRange_loop_regular (iter: Iterator, i: int, result: boolean): void
+    {
+        val a: Object = action CALL_METHOD(iter, "next", []);
+        val b: Object = action LIST_GET(this.storage, i);
+
+        result = action OBJECT_EQUALS(a, b);
+
+        i += 1;
+    }
+
+
     // constructors
 
     constructor *.ArrayList (@target self: ArrayList)

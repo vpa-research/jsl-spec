@@ -274,7 +274,28 @@ automaton ArrayList_SubListAutomaton
 
     fun *.equals (@target self: ArrayList_SubList, o: Object): boolean
     {
-        action TODO();
+        if (o == self)
+        {
+            result = true;
+        }
+        else
+        {
+            result = o has ArrayList_SubListAutomaton;
+            if (result)
+            {
+                action ASSUME(this.root != null);
+
+                val otherLength: int = ArrayList_SubListAutomaton(o).length;
+                action ASSUME(otherLength >= 0);
+
+                result = this.length == otherLength;
+                if (result)
+                {
+                    result = ArrayListAutomaton(this.root)._equalsRange(o as List, this.offset, this.offset + this.length);
+                    ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+                }
+            }
+        }
     }
 
 
