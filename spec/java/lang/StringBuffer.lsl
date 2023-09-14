@@ -15,12 +15,14 @@ import java/io/_interfaces;
 
 // primary types
 
+
+
 @implements("java.io.Serializable")
-@implements("java.lang.Comparable<StringBuilder>")
+@implements("java.lang.Comparable")
 @implements("java.lang.CharSequence")
-@public @final type StringBuilder
-    is java.lang.StringBuilder
+@public @final type StringBuffer
+    is java.lang.StringBuffer
     for Object
 {
-    //@private @static @final var serialVersionUID: long = 4383685877147921099;
+    //@private @static @final var serialVersionUID: long = 3388685877147921107;
 }

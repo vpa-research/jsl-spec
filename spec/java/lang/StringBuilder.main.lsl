@@ -9,6 +9,7 @@ library std
 // imports
 
 import java/lang/StringBuilder;
+import java/lang/StringBuffer;
 
 
 // === CONSTANTS ===
