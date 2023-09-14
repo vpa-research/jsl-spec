@@ -334,9 +334,12 @@ automaton StringBuilderAutomaton
 
     fun *.append (@target self: StringBuilder, seq: CharSequence, start: int, end: int): StringBuilder
     {
+        var seqLength: int = 4;
         if (seq == null)
             seq = "null";
-        val seqLength: int = action CALL_METHOD(seq, "length", []);
+        else
+            seqLength = action CALL_METHOD(seq, "length", []);
+
         _checkRange(start, end, seqLength);
         this.length += end - start;
         var i: int = 0;
@@ -357,8 +360,9 @@ automaton StringBuilderAutomaton
         }
         else
         {
-            this.storage += action OBJECT_TO_STRING(obj);
-            this.length = action CALL_METHOD(this.storage, "length", []);
+            val objString: String = action OBJECT_TO_STRING(obj);
+            this.storage += objString;
+            this.length += action CALL_METHOD(objString, "length", []);
         }
         result = self;
     }
@@ -407,9 +411,8 @@ automaton StringBuilderAutomaton
 
     fun *.append (@target self: StringBuilder, c: char): StringBuilder
     {
-        // That's right for char ?
         this.storage += action OBJECT_TO_STRING(c);
-        this.length = action CALL_METHOD(this.storage, "length", []);
+        this.length += 1;
         result = self;
     }
 
@@ -451,32 +454,36 @@ automaton StringBuilderAutomaton
 
     fun *.append (@target self: StringBuilder, d: double): StringBuilder
     {
-        this.storage += action OBJECT_TO_STRING(d);
-        this.length = action CALL_METHOD(this.storage, "length", []);
+        val dString: String = action OBJECT_TO_STRING(d);
+        this.storage += dString;
+        this.length += action CALL_METHOD(dString, "length", []);
         result = self;
     }
 
 
     fun *.append (@target self: StringBuilder, f: float): StringBuilder
     {
-        this.storage += action OBJECT_TO_STRING(f);
-        this.length = action CALL_METHOD(this.storage, "length", []);
+        val fString: String = action OBJECT_TO_STRING(f);
+        this.storage += fString;
+        this.length += action CALL_METHOD(fString, "length", []);
         result = self;
     }
 
 
     fun *.append (@target self: StringBuilder, i: int): StringBuilder
     {
-        this.storage += action OBJECT_TO_STRING(i);
-        this.length = action CALL_METHOD(this.storage, "length", []);
+        val iString: String = action OBJECT_TO_STRING(i);
+        this.storage += iString;
+        this.length += action CALL_METHOD(iString, "length", []);
         result = self;
     }
 
 
     fun *.append (@target self: StringBuilder, lng: long): StringBuilder
     {
-        this.storage += action OBJECT_TO_STRING(lng);
-        this.length = action CALL_METHOD(this.storage, "length", []);
+        val lngString: String = action OBJECT_TO_STRING(lng);
+        this.storage += lngString;
+        this.length += action CALL_METHOD(lngString, "length", []);
         result = self;
     }
 
@@ -559,11 +566,12 @@ automaton StringBuilderAutomaton
     fun *.insert (@target self: StringBuilder, dstOffset: int, s: CharSequence): StringBuilder
     {
         _checkOffset(dstOffset);
-
+        var len: int = 4;
         if (s == null)
             s = "null";
+        else
+            len = action CALL_METHOD(s, "length", []);
 
-        val len: int = action CALL_METHOD(s, "length", []);
         _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
@@ -573,11 +581,12 @@ automaton StringBuilderAutomaton
     fun *.insert (@target self: StringBuilder, dstOffset: int, s: CharSequence, start: int, end: int): StringBuilder
     {
         _checkOffset(dstOffset);
-
+        var len: int = 4;
         if (s == null)
             s = "null";
+        else
+            len = action CALL_METHOD(s, "length", []);
 
-        val len: int = action CALL_METHOD(s, "length", []);
         _insertCharSequence(dstOffset, s, len, start, end);
 
         result = self;
@@ -589,11 +598,13 @@ automaton StringBuilderAutomaton
         _checkOffset(dstOffset);
 
         var s: String = "null";
+        var len: int = 4;
 
         if (obj != null)
             s = action OBJECT_TO_STRING(obj);
+        else
+            len = action CALL_METHOD(s, "length", []);
 
-        val len: int = action CALL_METHOD(s, "length", []);
         _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
@@ -603,11 +614,12 @@ automaton StringBuilderAutomaton
     fun *.insert (@target self: StringBuilder, dstOffset: int, s: String): StringBuilder
     {
         _checkOffset(dstOffset);
-
+        var len: int = 4;
         if (s == null)
             s = "null";
+        else
+            len = action CALL_METHOD(s, "length", []);
 
-        val len: int = action CALL_METHOD(s, "length", []);
         _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
@@ -619,10 +631,13 @@ automaton StringBuilderAutomaton
         _checkOffset(dstOffset);
 
         var s: String = "false";
+        var len: int =  5;
         if (b)
+        {
             s = "true";
+            len = 4;
+        }
 
-        val len: int = action CALL_METHOD(s, "length", []);
         _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
@@ -670,11 +685,12 @@ automaton StringBuilderAutomaton
     {
         _checkOffset(dstOffset);
         var s: String = action OBJECT_TO_STRING(d);
-
+        var len: int = 4;
         if (s == null)
             s = "null";
+        else
+            len = action CALL_METHOD(s, "length", []);
 
-        val len: int = action CALL_METHOD(s, "length", []);
         _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
@@ -685,11 +701,12 @@ automaton StringBuilderAutomaton
     {
         _checkOffset(dstOffset);
         var s: String = action OBJECT_TO_STRING(f);
-
+        var len: int = 4;
         if (s == null)
             s = "null";
+        else
+            len = action CALL_METHOD(s, "length", []);
 
-        val len: int = action CALL_METHOD(s, "length", []);
         _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
@@ -700,11 +717,12 @@ automaton StringBuilderAutomaton
     {
         _checkOffset(dstOffset);
         var s: String = action OBJECT_TO_STRING(ii);
-
+        var len: int = 4;
         if (s == null)
             s = "null";
+        else
+            len = action CALL_METHOD(s, "length", []);
 
-        val len: int = action CALL_METHOD(s, "length", []);
         _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
@@ -715,11 +733,12 @@ automaton StringBuilderAutomaton
     {
         _checkOffset(dstOffset);
         var s: String = action OBJECT_TO_STRING(l);
-
+        var len: int = 4;
         if (s == null)
             s = "null";
+        else
+            len = action CALL_METHOD(s, "length", []);
 
-        val len: int = action CALL_METHOD(s, "length", []);
         _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
