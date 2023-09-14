@@ -64,7 +64,7 @@ automaton HashSetAutomaton
 
     // utilities
 
-    proc _checkForComodification (expectedModCount: int): void
+    @KeepVisible proc _checkForComodification (expectedModCount: int): void
     {
         if (this.modCount != expectedModCount)
             action THROW_NEW("java.util.ConcurrentModificationException", []);
@@ -331,7 +331,7 @@ automaton HashSetAutomaton
                 else
                     result = false;
 
-                action DEBUG_DO("other._checkForComodification(otherExpectedModCount)"); // #problem
+                HashSetAutomaton(other)._checkForComodification(otherExpectedModCount);// #problem
                 _checkForComodification(expectedModCount);
             }
             else

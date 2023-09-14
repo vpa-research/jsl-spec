@@ -36,10 +36,8 @@ val HASHSET_VALUE: Object = 0;
 
 
 @GenerateMe
-// Problem: inner class extends
-@extends("java.util.HashMap$HashMapSpliterator")
 @implements("java.util.Spliterator")
-@public @static @final type HashSet_KeySpliterator
+@public @final type HashSet_KeySpliterator
     is java.util.HashSet_KeySpliterator
     for Spliterator
 {

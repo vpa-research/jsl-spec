@@ -143,7 +143,10 @@ automaton HashSet_KeySpliteratorAutomaton
         if (length > 0 && length >= hi && i >= 0 && i < this.index)
         {
             // I must think about this:
-            action LOOP_WHILE(i < hi, forEachRemaining_loop(userAction, i));
+            action LOOP_WHILE(
+                i < hi,
+                forEachRemaining_loop(userAction, i)
+            );
 
             val modCount: int = HashSetAutomaton(this.parent).modCount;
             if (modCount != mc)
