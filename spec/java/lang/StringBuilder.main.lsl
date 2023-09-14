@@ -749,7 +749,6 @@ automaton StringBuilderAutomaton
 
         val newLength: int = this.length + strLength - (end - start);
         val newStr: array<char> = action ARRAY_NEW("char", newLength);
-        var strIndex: int = 0;
         var arrayIndex: int = 0;
         var i: int = 0;
 
@@ -914,16 +913,7 @@ automaton StringBuilderAutomaton
     // within java.lang.AbstractStringBuilder
     fun *.subSequence (@target self: StringBuilder, start: int, end: int): CharSequence
     {
-        _checkRangeSIOOBE(start, this.length, this.length);
-        val sizeNewString: int = end - start;
-        val newStr: array<char> = action ARRAY_NEW("char", sizeNewString);
-
-        var i: int = 0;
-        action LOOP_FOR(
-            i, start, end, +1,
-            _newSubString_loop(i, newStr)
-        );
-        result = action OBJECT_TO_STRING(newStr);
+        result = _substring(start, end);
     }
 
 
