@@ -218,6 +218,15 @@ automaton LinkedListAutomaton
     }
 
 
+    proc _makeStream (parallel: boolean): Stream
+    {
+        // #todo: use custom stream implementation
+        result = action SYMBOLIC("java.util.stream.Stream");
+        action ASSUME(result != null);
+        action ASSUME(action CALL_METHOD(result, "isParallel", []) == parallel);
+    }
+
+
     // constructors
 
     constructor *.LinkedList (@target self: LinkedList)
@@ -555,9 +564,7 @@ automaton LinkedListAutomaton
     // within java.util.Collection
     fun *.parallelStream (@target self: LinkedList): Stream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
+        result = _makeStream(/* parallel = */true);
     }
 
 
@@ -845,9 +852,7 @@ automaton LinkedListAutomaton
     // within java.util.Collection
     fun *.stream (@target self: LinkedList): Stream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
+        result = _makeStream(/* parallel = */false);
     }
 
 

@@ -359,6 +359,15 @@ automaton ArrayListAutomaton
     }
 
 
+    proc _makeStream (parallel: boolean): Stream
+    {
+        // #todo: use custom stream implementation
+        result = action SYMBOLIC("java.util.stream.Stream");
+        action ASSUME(result != null);
+        action ASSUME(action CALL_METHOD(result, "isParallel", []) == parallel);
+    }
+
+
     // constructors
 
     constructor *.ArrayList (@target self: ArrayList)
@@ -635,9 +644,7 @@ automaton ArrayListAutomaton
     // within java.util.Collection
     fun *.parallelStream (@target self: ArrayList): Stream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
+        result = _makeStream(/* parallel = */true);
     }
 
 
@@ -884,9 +891,7 @@ automaton ArrayListAutomaton
     // within java.util.Collection
     fun *.stream (@target self: ArrayList): Stream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
+        result = _makeStream(/* parallel = */false);
     }
 
 
