@@ -85,7 +85,6 @@ automaton StringBuilderAutomaton
         codePointAt,
         codePointBefore,
         offsetByCodePoints,
-        hashCode,
         codePoints,
         chars,
     ];
@@ -828,7 +827,7 @@ automaton StringBuilderAutomaton
     // within java.lang.AbstractStringBuilder
     fun *.ensureCapacity (@target self: StringBuilder, minimumCapacity: int): void
     {
-
+        action NOT_IMPLEMENTED("storage is dynamic, so nothing more");
     }
 
 
@@ -905,7 +904,7 @@ automaton StringBuilderAutomaton
     // within java.lang.AbstractStringBuilder
     fun *.trimToSize (@target self: StringBuilder): void
     {
-
+        action NOT_IMPLEMENTED("storage is dynamic, so nothing more");
     }
 
 
@@ -1037,13 +1036,6 @@ automaton StringBuilderAutomaton
         // #todo: use custom stream implementation
         result = action SYMBOLIC("java.util.stream.IntStream");
         action ASSUME(result != null);
-    }
-
-
-    // within java.lang.Object
-    fun *.hashCode (@target self: StringBuilder): int
-    {
-        result = action OBJECT_HASH_CODE(this.storage);
     }
 
 
