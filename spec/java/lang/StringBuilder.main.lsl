@@ -952,17 +952,19 @@ automaton StringBuilderAutomaton
         val dstLength: int = action ARRAY_SIZE(dst);
         _checkRange(dstBegin, dstBegin + n, dstLength);
 
+        var storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
+
         var i: int = 0;
         action LOOP_FOR(
             i, srcBegin, srcEnd, +1,
-            _getChars_loop(i, dstBegin, dst)
+            _getChars_loop(i, dstBegin, dst, storageChars)
         );
     }
 
 
-    @Phantom proc _getChars_loop(i: int, dstBegin: int, dst: array<char>): void
+    @Phantom proc _getChars_loop(i: int, dstBegin: int, dst: array<char>, storageChars: array<char>): void
     {
-        dst[dstBegin] = action CALL_METHOD(this.storage, "charAt", [i]);
+        dst[dstBegin] = storageChars[i];
         dstBegin += 1;
     }
 
