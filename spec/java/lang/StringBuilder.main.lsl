@@ -341,23 +341,19 @@ automaton StringBuilderAutomaton
     {
         var seqLength: int = 4;
         if (seq == null)
-        {
-            _checkRange(start, end, seqLength);
-            this.length += 4;
-            this.storage += "null";
-        }
-        else
-        {
-            seqLength = action CALL_METHOD(seq, "length", []);
+            seq = "null";
 
-            _checkRange(start, end, seqLength);
-            this.length += end - start;
-            var i: int = 0;
-            action LOOP_FOR(
-                i, start, end, +1,
-                _appendCharSequence_loop(i, seq)
-            );
-        }
+        seqLength = action CALL_METHOD(seq, "length", []);
+
+        _checkRange(start, end, seqLength);
+        this.length += end - start;
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, start, end, +1,
+            _appendCharSequence_loop(i, seq)
+        );
+
         result = self;
     }
 
