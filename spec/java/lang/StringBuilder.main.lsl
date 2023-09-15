@@ -163,16 +163,21 @@ automaton StringBuilderAutomaton
     proc _appendCharSequence (seq: CharSequence): void
     {
         if (seq == null)
-            seq = "null";
+        {
+            this.storage += action OBJECT_TO_STRING("null");
+            this.length += 4;
+        }
+        else
+        {
+            val seqLength: int = action CALL_METHOD(seq, "length", []);
+            this.length += seqLength;
 
-        val seqLength: int = action CALL_METHOD(seq, "length", []);
-        this.length += seqLength;
-
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, seqLength, +1,
-            _appendCharSequence_loop(i, seq)
-        );
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, seqLength, +1,
+                _appendCharSequence_loop(i, seq)
+            );
+        }
     }
 
 
