@@ -337,10 +337,9 @@ automaton StringBuilderAutomaton
         var seqLength: int = 4;
         if (seq == null)
         {
-            seq = "null";
             _checkRange(start, end, seqLength);
             this.length += 4;
-            this.storage += seq;
+            this.storage += "null";
         }
         else
         {
@@ -661,20 +660,20 @@ automaton StringBuilderAutomaton
         _checkOffset(dstOffset);
 
         val subArray: array<char> = action ARRAY_NEW("char", this.length + 1);
-        val newStr: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
+        val str: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
 
         var i: int = 0;
         var arrayIndex: int = 0;
 
         action LOOP_FOR(
             i, 0, dstOffset, +1,
-            _fromSrcArrayToDstArray_loop(i, arrayIndex, newStr, subArray)
+            _fromSrcArrayToDstArray_loop(i, arrayIndex, str, subArray)
         );
-        subArray[i] = action OBJECT_TO_STRING(c);
+        subArray[i] = c;
         arrayIndex += 1;
         action LOOP_FOR(
             i, dstOffset, this.length, +1,
-            _fromSrcArrayToDstArray_loop(i, arrayIndex, newStr, subArray)
+            _fromSrcArrayToDstArray_loop(i, arrayIndex, str, subArray)
         );
 
         this.storage = action OBJECT_TO_STRING(subArray);
