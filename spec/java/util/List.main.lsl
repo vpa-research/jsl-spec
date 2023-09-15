@@ -17,7 +17,7 @@ import java/util/function/_interfaces;
 // local semantic types
 
 @implements("java.util.List")
-@public @interface type CustomList
+@public @interface type LSLList
     is java.util.List
     for List
 {
@@ -30,7 +30,7 @@ import java/util/function/_interfaces;
 automaton ListAutomaton
 (
 )
-: CustomList
+: LSLList
 {
     // states and shifts
 
@@ -306,19 +306,19 @@ automaton ListAutomaton
 
     // methods
 
-    @Phantom fun *.replaceAll (@target self: CustomList, operator: UnaryOperator): void
+    @Phantom fun *.replaceAll (@target self: LSLList, operator: UnaryOperator): void
     {
         // NOTE: using the original method
     }
 
 
-    @Phantom fun *.sort (@target self: CustomList, c: Comparator): void
+    @Phantom fun *.sort (@target self: LSLList, c: Comparator): void
     {
         // NOTE: using the original method
     }
 
 
-    @Phantom fun *.spliterator (@target self: CustomList): Spliterator
+    @Phantom fun *.spliterator (@target self: LSLList): Spliterator
     {
         // NOTE: using the original method
     }
