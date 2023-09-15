@@ -863,34 +863,40 @@ automaton StringBuilderAutomaton
         {
             var i: int = 0;
             val newStr: array<char> = action ARRAY_NEW("char", newLength);
-            action LOOP_FOR(
-                i, 0, newLength, +1,
-                _setNewLength_loop(i, newStr)
-            );
             if (newLength > this.length)
             {
+                action LOOP_FOR(
+                    i, 0, this.length, +1,
+                    _setNewLength_loop(i, newStr)
+                );
                 action LOOP_FOR(
                     i, this.length, newLength, +1,
                     _fillZeros_loop(i, newStr)
                 );
             }
+            else
+            {
+                action LOOP_FOR(
+                    i, 0, newLength, +1,
+                    _setNewLength_loop(i, newStr)
+                );
+            }
+        }
 
 
             this.storage = action OBJECT_TO_STRING(newStr);
             this.length = newLength;
-        }
     }
 
 
     @Phantom proc _setNewLength_loop (i: int, newStr: array<char>): void
     {
-        if (i < this.length)
-            newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
+        newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
     }
 
     @Phantom proc _fillZeros_loop (i: int, newStr: array<char>): void
     {
-        newStr[i] = action DEBUG_DO("'0'");
+        newStr[i] = 0;
     }
 
 
