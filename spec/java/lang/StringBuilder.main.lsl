@@ -145,8 +145,7 @@ automaton StringBuilderAutomaton
 
     proc _isValidCodePoint (codePoint: int): boolean
     {
-        val plane: int = codePoint >>> 16;
-        result = plane < ((MAX_CODE_POINT + 1) >>> 16);
+        result = (codePoint >= MIN_CODE_POINT && codePoint <= MAX_CODE_POINT);
     }
 
 
@@ -1011,6 +1010,7 @@ automaton StringBuilderAutomaton
         _checkIndex(index);
 
         val codePoint: int = action SYMBOLIC("int");
+        action ASSUME(_isValidCodePoint(codePoint));
         result = codePoint;
     }
 
@@ -1022,6 +1022,7 @@ automaton StringBuilderAutomaton
         _checkIndex(index);
 
         val codePoint: int = action SYMBOLIC("int");
+        action ASSUME(_isValidCodePoint(codePoint));
         result = codePoint;
     }
 
