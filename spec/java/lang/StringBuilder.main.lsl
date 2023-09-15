@@ -988,14 +988,8 @@ automaton StringBuilderAutomaton
     {
         _checkIndex(index);
 
-        val newStr: array<char> = action ARRAY_NEW("char", this.length);
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, this.length, +1,
-            _newSubString_loop(i, newStr)
-        );
-
-        result = action DEBUG_DO("Character.codePointAt(newStr, index, this.length)");
+        val codePoint: int = action SYMBOLIC("int");
+        result = codePoint;
     }
 
 
@@ -1005,14 +999,8 @@ automaton StringBuilderAutomaton
         index -= 1;
         _checkIndex(index);
 
-        val newStr: array<char> = action ARRAY_NEW("char", this.length);
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, this.length, +1,
-            _newSubString_loop(i, newStr)
-        );
-
-        result = action DEBUG_DO("Character.codePointAt(newStr, index, this.length)");
+        val codePoint: int = action SYMBOLIC("int");
+        result = codePoint;
     }
 
 
