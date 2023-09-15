@@ -26,3 +26,17 @@ type ObjectOutputStream
     for Object
 {
 }
+
+
+type PrintStream
+    is java.io.PrintStream
+    for Object
+{
+}
+
+
+type PrintWriter
+    is java.io.PrintWriter
+    for Object
+{
+}

@@ -55,8 +55,17 @@ type Runnable
 }
 
 
+@implements("java.io.Serializable")
 type Throwable
     is java.lang.Throwable
+    for Object
+{
+}
+
+
+@implements("java.io.Serializable")
+type StackTraceElement
+    is java.lang.StackTraceElement
     for Object
 {
 }
