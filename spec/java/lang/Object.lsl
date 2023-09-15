@@ -33,9 +33,7 @@ automaton ObjectAutomaton
     shift Initialized -> self by [
         // constructors
         LSLObject,
-    ];
 
-    shift Initialized -> self by [
         // instance methods
         equals,
         clone,
@@ -126,6 +124,14 @@ automaton ObjectAutomaton
     @Phantom @final fun *.wait (@target self: LSLObject, timeoutMillis: long, nanos: int): void
     {
         // NOTE: using the original method
+    }
+
+
+    // special: static initialization
+
+    @Phantom fun *.__clinit__ (): void
+    {
+        action DO_NOTHING();
     }
 
 }

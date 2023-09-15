@@ -8,7 +8,7 @@ library any
     url "-";
 
 
-/// generator-specific aspects
+/// translator-specific aspects
 
 
 // Adds an annotation to on specified element in the output code
@@ -70,3 +70,9 @@ annotation TypeMapping (
     builtin: bool = false,
     typeVariable: bool = false, // unused
 );
+
+
+/// special cases and workarounds
+
+// unused
+annotation TranslatorNoRuntime ();
