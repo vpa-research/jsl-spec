@@ -443,6 +443,7 @@ automaton StringBuilderAutomaton
     @Phantom proc _fromSrcArrayToDstArray_loop (i: int, arrayIndex: int, str: array<char>, subArray: array<char>): void
     {
         subArray[arrayIndex] = str[i];
+        arrayIndex += 1;
     }
 
 
@@ -659,9 +660,26 @@ automaton StringBuilderAutomaton
     fun *.insert (@target self: StringBuilder, dstOffset: int, c: char): StringBuilder
     {
         _checkOffset(dstOffset);
-        this.storage += action OBJECT_TO_STRING(c);
-        this.length += 1;
 
+        val subArray: array<char> = action ARRAY_NEW("char", this.length + 1);
+        val newStr: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
+
+        var i: int = 0;
+        var arrayIndex: int = 0;
+
+        action LOOP_FOR(
+            i, 0, dstOffset, +1,
+            _fromSrcArrayToDstArray_loop(i, arrayIndex, newStr, subArray)
+        );
+        subArray[i] = action OBJECT_TO_STRING(c);
+        arrayIndex += 1;
+        action LOOP_FOR(
+            i, dstOffset, this.length, +1,
+            _fromSrcArrayToDstArray_loop(i, arrayIndex, newStr, subArray)
+        );
+
+        this.storage = action OBJECT_TO_STRING(subArray);
+        this.length += 1;
         result = self;
     }
 
@@ -881,11 +899,9 @@ automaton StringBuilderAutomaton
                     _setNewLength_loop(i, newStr)
                 );
             }
-        }
-
-
             this.storage = action OBJECT_TO_STRING(newStr);
             this.length = newLength;
+        }
     }
 
 
