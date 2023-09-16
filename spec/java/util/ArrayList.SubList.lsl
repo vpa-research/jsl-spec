@@ -135,10 +135,9 @@ automaton ArrayList_SubListAutomaton
 
         ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
         val parentStorage: list<Object> = ArrayListAutomaton(this.root).storage;
-        val parentLength: int = ArrayListAutomaton(this.root).length;
 
-        val index: int = action LIST_FIND(parentStorage, o, 0, parentLength);
-        if (index >= 0)
+        val index: int = action LIST_FIND(parentStorage, o, this.offset, this.offset + this.length);
+        if (index != -1)
             result = index - this.offset;
         else
             result = -1;
@@ -220,7 +219,7 @@ automaton ArrayList_SubListAutomaton
 
     fun *.contains (@target self: ArrayList_SubList, o: Object): boolean
     {
-        result = _indexOfElement(o) >= 0;
+        result = _indexOfElement(o) != -1;
     }
 
 
@@ -269,7 +268,7 @@ automaton ArrayList_SubListAutomaton
     @Phantom proc containsAll_loop_optimized (rootStorage: list<Object>, end: int, otherStorage: list<Object>, i: int, result: boolean): void
     {
         val item: Object = action LIST_GET(otherStorage, i);
-        result = action LIST_FIND(rootStorage, item, this.offset, end) >= 0;
+        result = action LIST_FIND(rootStorage, item, this.offset, end) != -1;
 
         i += 1;
     }
@@ -277,7 +276,7 @@ automaton ArrayList_SubListAutomaton
     @Phantom proc containsAll_loop_regular (rootStorage: list<Object>, end: int, iter: Iterator, result: boolean): void
     {
         val item: Object = action CALL_METHOD(iter, "next", []);
-        result = action LIST_FIND(rootStorage, item, this.offset, end) >= 0;
+        result = action LIST_FIND(rootStorage, item, this.offset, end) != -1;
     }
 
 
@@ -400,7 +399,34 @@ automaton ArrayList_SubListAutomaton
 
     fun *.lastIndexOf (@target self: ArrayList_SubList, o: Object): int
     {
-        action TODO();
+        action ASSUME(this.root != null);
+        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+
+        if (this.length == 0)
+        {
+            result = -1;
+        }
+        else
+        {
+            action ASSUME(this.length > 0);
+
+            val end: int = this.offset + this.length;
+            val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+
+            result = action LIST_FIND(rootStorage, o, this.offset, end);
+            if (result != -1)
+            {
+                // there should be no elements to the right of the previously found position
+                val nextIndex: int = result + 1;
+                if (nextIndex < end)
+                {
+                    val rightIndex: int = action LIST_FIND(rootStorage, o, nextIndex, end);
+                    action ASSUME(rightIndex == -1);
+                }
+
+                result -= this.offset;
+            }
+        }
     }
 
 
@@ -433,7 +459,7 @@ automaton ArrayList_SubListAutomaton
         val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
 
         val index: int = action LIST_FIND(rootStorage, o, this.offset, end);
-        result = index >= 0;
+        result = index != -1;
 
         if (result)
         {

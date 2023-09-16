@@ -172,8 +172,7 @@ automaton LinkedListAutomaton
     proc _unlinkByFirstEqualsObject (o: Object): boolean
     {
         val index: int = action LIST_FIND(this.storage, o, 0, this.size);
-
-        result = index >= 0;
+        result = index != -1;
         if (result)
         {
             action LIST_REMOVE(this.storage, index);
@@ -310,7 +309,7 @@ automaton LinkedListAutomaton
 
     fun *.contains (@target self: LinkedList, o: Object): boolean
     {
-        result = action LIST_FIND(this.storage, o, 0, this.size) >= 0;
+        result = action LIST_FIND(this.storage, o, 0, this.size) != -1;
     }
 
 
@@ -346,7 +345,7 @@ automaton LinkedListAutomaton
     @Phantom proc containsAll_loop_optimized (otherStorage: list<Object>, i: int, result: boolean): void
     {
         val item: Object = action LIST_GET(otherStorage, i);
-        result = action LIST_FIND(this.storage, item, 0, this.size) >= 0;
+        result = action LIST_FIND(this.storage, item, 0, this.size) != -1;
 
         i += 1;
     }
@@ -354,7 +353,7 @@ automaton LinkedListAutomaton
     @Phantom proc containsAll_loop_regular (iter: Iterator, result: boolean): void
     {
         val item: Object = action CALL_METHOD(iter, "next", []);
-        result = action LIST_FIND(this.storage, item, 0, this.size) >= 0;
+        result = action LIST_FIND(this.storage, item, 0, this.size) != -1;
     }
 
 

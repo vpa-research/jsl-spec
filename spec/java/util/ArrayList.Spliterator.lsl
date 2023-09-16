@@ -64,7 +64,7 @@ automaton ArrayList_SpliteratorAutomaton
     proc _getFence (): int
     {
         // JDK comment: initialize fence to size on first use
-        if (this.fence < 0)
+        if (this.fence == -1)
         {
             action ASSUME(this.parent != null);
             this.expectedModCount = ArrayListAutomaton(this.parent).modCount;
@@ -115,7 +115,7 @@ automaton ArrayList_SpliteratorAutomaton
 
         var hi: int = this.fence;
         var mc: int = this.expectedModCount;
-        if (hi < 0)
+        if (hi == -1)
         {
             hi = ArrayListAutomaton(this.parent).length;
             mc = ArrayListAutomaton(this.parent).modCount;

@@ -455,7 +455,7 @@ automaton ArrayListAutomaton
 
     fun *.contains (@target self: ArrayList, o: Object): boolean
     {
-        result = action LIST_FIND(this.storage, o, 0, this.length) >= 0;
+        result = action LIST_FIND(this.storage, o, 0, this.length) != -1;
     }
 
 
@@ -491,7 +491,7 @@ automaton ArrayListAutomaton
     @Phantom proc containsAll_loop_optimized (otherStorage: list<Object>, i: int, result: boolean): void
     {
         val item: Object = action LIST_GET(otherStorage, i);
-        result = action LIST_FIND(this.storage, item, 0, this.length) >= 0;
+        result = action LIST_FIND(this.storage, item, 0, this.length) != -1;
 
         i += 1;
     }
@@ -499,7 +499,7 @@ automaton ArrayListAutomaton
     @Phantom proc containsAll_loop_regular (iter: Iterator, result: boolean): void
     {
         val item: Object = action CALL_METHOD(iter, "next", []);
-        result = action LIST_FIND(this.storage, item, 0, this.length) >= 0;
+        result = action LIST_FIND(this.storage, item, 0, this.length) != -1;
     }
 
 
@@ -605,15 +605,24 @@ automaton ArrayListAutomaton
 
     fun *.lastIndexOf (@target self: ArrayList, o: Object): int
     {
-        result = action LIST_FIND(this.storage, o, 0, this.length);
-        if (result != -1)
+        if (this.length == 0)
         {
-            // there should be no elements to the right of the previously found position
-            val nextIndex: int = result + 1;
-            if (nextIndex < this.length)
+            result = -1;
+        }
+        else
+        {
+            action ASSUME(this.length > 0);
+
+            result = action LIST_FIND(this.storage, o, 0, this.length);
+            if (result != -1)
             {
-                val rightIndex: int = action LIST_FIND(this.storage, o, nextIndex, this.length);
-                action ASSUME(rightIndex == -1);
+                // there should be no elements to the right of the previously found position
+                val nextIndex: int = result + 1;
+                if (nextIndex < this.length)
+                {
+                    val rightIndex: int = action LIST_FIND(this.storage, o, nextIndex, this.length);
+                    action ASSUME(rightIndex == -1);
+                }
             }
         }
     }
@@ -651,9 +660,7 @@ automaton ArrayListAutomaton
     fun *.remove (@target self: ArrayList, o: Object): boolean
     {
         val index: int = action LIST_FIND(this.storage, o, 0, this.length);
-
-        result = index >= 0;
-
+        result = index != -1;
         if (result)
             _deleteElement(index);
     }
@@ -699,8 +706,7 @@ automaton ArrayListAutomaton
     {
         val o: Object = action LIST_GET(otherStorage, i);
         val index: int = action LIST_FIND(this.storage, o, 0, this.length);
-
-        if (index >= 0)
+        if (index != -1)
             _deleteElement(index);
     }
 
@@ -708,8 +714,7 @@ automaton ArrayListAutomaton
     {
         val o: Object = action CALL_METHOD(iter, "next", []);
         val index: int = action LIST_FIND(this.storage, o, 0, this.length);
-
-        if (index >= 0)
+        if (index != -1)
             _deleteElement(index);
     }
 
@@ -762,8 +767,7 @@ automaton ArrayListAutomaton
     @Phantom proc retainAll_loop_optimized (i: int, otherStorage: list<Object>, otherLength: int): void
     {
         val item: Object = action LIST_GET(this.storage, i);
-        val otherHasItem: boolean = action LIST_FIND(otherStorage, item, 0, otherLength) >= 0;
-
+        val otherHasItem: boolean = action LIST_FIND(otherStorage, item, 0, otherLength) != -1;
         if (!otherHasItem)
             _deleteElement(i);
     }
@@ -772,7 +776,6 @@ automaton ArrayListAutomaton
     {
         val item: Object = action LIST_GET(this.storage, i);
         val otherHasItem: boolean = action CALL_METHOD(c, "contains", [item]);
-
         if (!otherHasItem)
             _deleteElement(i);
     }
