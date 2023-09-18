@@ -55,8 +55,17 @@ type Runnable
 }
 
 
+@implements("java.io.Serializable")
 type Throwable
     is java.lang.Throwable
+    for Object
+{
+}
+
+
+@implements("java.io.Serializable")
+type StackTraceElement
+    is java.lang.StackTraceElement
     for Object
 {
 }
@@ -84,4 +93,13 @@ type Iterable
 
     // #problem: cannot use Spliterator and Consumer here
     // fun spliterator(): Spliterator;
+}
+
+
+@Parameterized(["T"])
+type Comparable
+    is java.lang.Comparable
+    for Object
+{
+    fun compareTo(o: Object): int;
 }

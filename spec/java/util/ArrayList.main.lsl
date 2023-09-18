@@ -81,9 +81,9 @@ automaton ArrayListAutomaton
 
     // utilities
 
-    @KeepVisible proc _checkValidIndex (index: int): void
+    @KeepVisible proc _checkValidIndex (index: int, length: int): void
     {
-        if (index < 0 || this.length <= index)
+        if (index < 0 || length <= index)
         {
             //val idx: String = action OBJECT_TO_STRING(index);
             //val len: String = action OBJECT_TO_STRING(this.length);
@@ -190,7 +190,7 @@ automaton ArrayListAutomaton
 
     @KeepVisible proc _deleteElement (index: int): Object
     {
-        _checkValidIndex(index);
+        _checkValidIndex(index, this.length);
 
         result = action LIST_GET(this.storage, index);
         action LIST_REMOVE(this.storage, index);
@@ -213,7 +213,7 @@ automaton ArrayListAutomaton
 
     proc _setElement (index: int, element: Object): Object
     {
-        _checkValidIndex(index);
+        _checkValidIndex(index, this.length);
 
         result = action LIST_GET(this.storage, index);
         action LIST_SET(this.storage, index, element);
@@ -276,6 +276,95 @@ automaton ArrayListAutomaton
             action LIST_REMOVE(this.storage, i);
             this.length -= 1;
         }
+    }
+
+
+    @KeepVisible proc _equalsRange (other: List, from: int, to: int): boolean
+    {
+        result = true;
+        var i: int = from;
+
+        var otherLength: int = 0;
+        var otherStorage: list<Object> = null;
+
+        if (other has ArrayListAutomaton)
+        {
+            otherLength = ArrayListAutomaton(other).length;
+            action ASSUME(otherLength >= 0);
+
+            // assumptions: no multithreading, from == 0
+            result = to == otherLength;
+            if (result)
+            {
+                otherStorage = ArrayListAutomaton(other).storage;
+                action ASSUME(otherStorage != null);
+
+                action LOOP_WHILE(
+                    result && i < to,
+                    _equalsRange_loop_optimized(i, otherStorage, result)
+                );
+            }
+        }
+        else if (other has ArrayList_SubListAutomaton)
+        {
+            otherLength = ArrayList_SubListAutomaton(other).length;
+            action ASSUME(otherLength >= 0);
+
+            // assumptions: no multithreading, from >= 0
+            result = to == otherLength;
+            if (result)
+            {
+                val otherRoot: ArrayList = ArrayList_SubListAutomaton(other).root;
+                action ASSUME(otherRoot != null);
+
+                otherStorage = ArrayListAutomaton(otherRoot).storage;
+                action ASSUME(otherStorage != null);
+
+                action LOOP_WHILE(
+                    result && i < to,
+                    _equalsRange_loop_optimized(i, otherStorage, result)
+                );
+            }
+        }
+        else
+        {
+            val iter: Iterator = action CALL_METHOD(other, "iterator", []);
+            action LOOP_WHILE(
+                result && i < to && action CALL_METHOD(iter, "hasNext", []),
+                _equalsRange_loop_regular(iter, i, result)
+            );
+
+            result &= !action CALL_METHOD(iter, "hasNext", []);
+        }
+    }
+
+    @Phantom proc _equalsRange_loop_optimized (i: int, otherStorage: list<Object>, result: boolean): void
+    {
+        val a: Object = action LIST_GET(otherStorage, i);
+        val b: Object = action LIST_GET(this.storage, i);
+
+        result = action OBJECT_EQUALS(a, b);
+
+        i += 1;
+    }
+
+    @Phantom proc _equalsRange_loop_regular (iter: Iterator, i: int, result: boolean): void
+    {
+        val a: Object = action CALL_METHOD(iter, "next", []);
+        val b: Object = action LIST_GET(this.storage, i);
+
+        result = action OBJECT_EQUALS(a, b);
+
+        i += 1;
+    }
+
+
+    proc _makeStream (parallel: boolean): Stream
+    {
+        // #todo: use custom stream implementation
+        result = action SYMBOLIC("java.util.stream.Stream");
+        action ASSUME(result != null);
+        action ASSUME(action CALL_METHOD(result, "isParallel", []) == parallel);
     }
 
 
@@ -480,7 +569,7 @@ automaton ArrayListAutomaton
 
     fun *.get (@target self: ArrayList, index: int): Object
     {
-        _checkValidIndex(index);
+        _checkValidIndex(index, this.length);
 
         result = action LIST_GET(this.storage, index);
     }
@@ -555,9 +644,7 @@ automaton ArrayListAutomaton
     // within java.util.Collection
     fun *.parallelStream (@target self: ArrayList): Stream
     {
-        // #problem: no streams
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
+        result = _makeStream(/* parallel = */true);
     }
 
 
@@ -712,13 +799,33 @@ automaton ArrayListAutomaton
             // Java has no unsigned primitive data types
             action ASSUME(this.length > 0);
 
-            // plain bubble sorting algorithm with no optimizations
+            // plain bubble sorting algorithm
+            val outerLimit: int = this.length - 1;
+            var innerLimit: int = 0;
             var i: int = 0;
             var j: int = 0;
-            action LOOP_FOR(
-                i, 0, this.length, +1,
-                sort_loop_outer(i, j, c)
-            );
+
+            // check the comparator
+            if (c == null)
+            {
+                // using Comparable::compareTo as a comparator
+
+                // plain bubble sorting algorithm
+                action LOOP_FOR(
+                    i, 0, outerLimit, +1,
+                    sort_loop_outer_noComparator(i, j, innerLimit)
+                );
+            }
+            else
+            {
+                // using the provided comparator
+
+                // plain bubble sorting algorithm (with a comparator)
+                action LOOP_FOR(
+                    i, 0, outerLimit, +1,
+                    sort_loop_outer(i, j, innerLimit, c)
+                );
+            }
 
             _checkForComodification(expectedModCount);
         }
@@ -726,23 +833,49 @@ automaton ArrayListAutomaton
         this.modCount += 1;
     }
 
-    @Phantom proc sort_loop_outer (i: int, j: int, c: Comparator): void
+    @Phantom proc sort_loop_outer_noComparator (i: int, j: int, innerLimit: int): void
     {
+        innerLimit = this.length - i - 1;
         action LOOP_FOR(
-            j, 0, this.length, +1,
-            sort_loop_inner(i, j, c)
+            j, 0, innerLimit, +1,
+            sort_loop_inner_noComparator(j)
         );
     }
 
-    @Phantom proc sort_loop_inner (i: int, j: int, c: Comparator): void
+    @Phantom proc sort_loop_inner_noComparator (j: int): void
     {
-        val a: Object = action LIST_GET(this.storage, i);
-        val b: Object = action LIST_GET(this.storage, j);
+        val idxA: int = j;
+        val idxB: int = j + 1;
+        val a: Object = action LIST_GET(this.storage, idxA);
+        val b: Object = action LIST_GET(this.storage, idxB);
+
+        if (action CALL_METHOD(a as Comparable, "compareTo", [b]) > 0)
+        {
+            action LIST_SET(this.storage, idxA, b);
+            action LIST_SET(this.storage, idxB, a);
+        }
+    }
+
+    @Phantom proc sort_loop_outer (i: int, j: int, innerLimit: int, c: Comparator): void
+    {
+        innerLimit = this.length - i - 1;
+        action LOOP_FOR(
+            j, 0, innerLimit, +1,
+            sort_loop_inner(j, c)
+        );
+    }
+
+    @Phantom proc sort_loop_inner (j: int, c: Comparator): void
+    {
+        val idxA: int = j;
+        val idxB: int = j + 1;
+        val a: Object = action LIST_GET(this.storage, idxA);
+        val b: Object = action LIST_GET(this.storage, idxB);
 
         if (action CALL(c, [a, b]) > 0)
         {
-            action LIST_SET(this.storage, i, b);
-            action LIST_SET(this.storage, j, a);
+            action LIST_SET(this.storage, idxA, b);
+            action LIST_SET(this.storage, idxB, a);
         }
     }
 
@@ -758,9 +891,7 @@ automaton ArrayListAutomaton
     // within java.util.Collection
     fun *.stream (@target self: ArrayList): Stream
     {
-        // #problem: no streams
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
+        result = _makeStream(/* parallel = */false);
     }
 
 
@@ -820,30 +951,21 @@ automaton ArrayListAutomaton
     {
         val aLen: int = action ARRAY_SIZE(a);
         val len: int = this.length;
-        var i: int = 0;
 
         if (aLen < len)
-        {
             // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)
-            result = action ARRAY_NEW("java.lang.Object", len);
+            a = action ARRAY_NEW("java.lang.Object", len);
 
-            action LOOP_FOR(
-                i, 0, len, +1,
-                toArray_loop(i, result)
-            );
-        }
-        else
-        {
-            result = a;
+        result = a;
 
-            action LOOP_FOR(
-                i, 0, len, +1,
-                toArray_loop(i, result)
-            );
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, len, +1,
+            toArray_loop(i, result)
+        );
 
-            if (aLen > len)
-                result[len] = null;
-        }
+        if (aLen > len)
+            result[len] = null;
     }
 
 

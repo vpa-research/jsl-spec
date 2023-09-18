@@ -18,7 +18,7 @@ import java/util/stream/_interfaces;
 
 val EMPTY_OPTIONAL_LONG: OptionalLong
     = new OptionalLongAutomaton(state = Initialized,
-        value = 0, // #problem: "0" should be int64
+        value = 0L,
         present = false
     );
 
@@ -258,14 +258,9 @@ automaton OptionalLongAutomaton
 
     fun *.stream (@target self: OptionalLong): LongStream
     {
-        action NOT_IMPLEMENTED("no decision");
-
-        /*
-        if (this.present)
-            result = LongStream.of(this.value); // #problem
-        else
-            result = LongStream.empty(); // #problem
-        */
+        // #todo: use custom stream implementation
+        result = action SYMBOLIC("java.util.stream.LongStream");
+        action ASSUME(result != null);
     }
 
 

@@ -186,3 +186,17 @@ type ListIterator
 
     fun set(e: Object): void;
 }
+
+
+@Parameterized(["E"])
+type Enumeration
+    is java.util.Enumeration
+    for Object
+{
+    fun hasMoreElements(): boolean;
+
+    fun nextElement(): Object;
+
+    @ParameterizedResult(["E"])
+    @default fun asIterator(): Iterator;
+}

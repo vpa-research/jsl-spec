@@ -9,6 +9,7 @@ library std
 // imports
 
 import java.common;
+import java/io/_interfaces;
 import java/lang/_interfaces;
 import java/util/stream/_interfaces;
 
@@ -20,13 +21,18 @@ import java/util/stream/_interfaces;
     is java.util.Random
     for Object
 {
-    //@private @static val serialVersionUID: long = 1; // #problem: should be 3905348978240129619
+    // #problem: no serialization support
+    // @private @static val serialVersionUID: long = 3905348978240129619L;
+    // @private @static val serialPersistentFields: array<ObjectStreamField> = [];
 }
 
 
 // automata
 
-automaton RandomAutomaton: Random
+automaton RandomAutomaton
+(
+)
+: Random
 {
     // states and shifts
 
@@ -40,21 +46,19 @@ automaton RandomAutomaton: Random
     ];
 
     shift Initialized -> self by [
+        // instance methods
         doubles (Random),
         doubles (Random, double, double),
         doubles (Random, long),
         doubles (Random, long, double, double),
-
         ints (Random),
         ints (Random, int, int),
         ints (Random, long),
         ints (Random, long, int, int),
-
         longs (Random),
         longs (Random, long),
         longs (Random, long, long),
         longs (Random, long, long, long),
-
         nextBoolean,
         nextBytes,
         nextDouble,
@@ -62,33 +66,33 @@ automaton RandomAutomaton: Random
         nextGaussian,
         nextInt (Random),
         nextInt (Random, int),
-        nextLong (),
-
+        nextLong,
         setSeed,
     ];
 
+    // internal variables
+
+    // utilities
 
     // constructors
 
-    constructor Random (@target self: Random)
+    constructor *.Random (@target self: Random)
     {
-        // nothing
+        action DO_NOTHING();
     }
 
 
-    constructor Random (@target self: Random, seed: long)
+    constructor *.Random (@target self: Random, seed: long)
     {
-        // nothing
+        action DO_NOTHING();
     }
 
-
-    // utilities
 
     // static methods
 
     // methods
 
-    fun doubles (@target self: Random): DoubleStream
+    fun *.doubles (@target self: Random): DoubleStream
     {
         // #problem: no streams yet
         result = action SYMBOLIC("java.util.stream.DoubleStream");
@@ -96,7 +100,7 @@ automaton RandomAutomaton: Random
     }
 
 
-    fun doubles (@target self: Random, arg0: double, arg1: double): DoubleStream
+    fun *.doubles (@target self: Random, randomNumberOrigin: double, randomNumberBound: double): DoubleStream
     {
         // #problem: no streams yet
         result = action SYMBOLIC("java.util.stream.DoubleStream");
@@ -104,7 +108,7 @@ automaton RandomAutomaton: Random
     }
 
 
-    fun doubles (@target self: Random, arg0: long): DoubleStream
+    fun *.doubles (@target self: Random, streamSize: long): DoubleStream
     {
         // #problem: no streams yet
         result = action SYMBOLIC("java.util.stream.DoubleStream");
@@ -112,7 +116,7 @@ automaton RandomAutomaton: Random
     }
 
 
-    fun doubles (@target self: Random, arg0: long, arg1: double, arg2: double): DoubleStream
+    fun *.doubles (@target self: Random, streamSize: long, randomNumberOrigin: double, randomNumberBound: double): DoubleStream
     {
         // #problem: no streams yet
         result = action SYMBOLIC("java.util.stream.DoubleStream");
@@ -120,7 +124,7 @@ automaton RandomAutomaton: Random
     }
 
 
-    fun ints (@target self: Random): IntStream
+    fun *.ints (@target self: Random): IntStream
     {
         // #problem: no streams yet
         result = action SYMBOLIC("java.util.stream.IntStream");
@@ -128,7 +132,7 @@ automaton RandomAutomaton: Random
     }
 
 
-    fun ints (@target self: Random, arg0: int, arg1: int): IntStream
+    fun *.ints (@target self: Random, randomNumberOrigin: int, randomNumberBound: int): IntStream
     {
         // #problem: no streams yet
         result = action SYMBOLIC("java.util.stream.IntStream");
@@ -136,7 +140,7 @@ automaton RandomAutomaton: Random
     }
 
 
-    fun ints (@target self: Random, arg0: long): IntStream
+    fun *.ints (@target self: Random, streamSize: long): IntStream
     {
         // #problem: no streams yet
         result = action SYMBOLIC("java.util.stream.IntStream");
@@ -144,7 +148,7 @@ automaton RandomAutomaton: Random
     }
 
 
-    fun ints (@target self: Random, arg0: long, arg1: int, arg2: int): IntStream
+    fun *.ints (@target self: Random, streamSize: long, randomNumberOrigin: int, randomNumberBound: int): IntStream
     {
         // #problem: no streams yet
         result = action SYMBOLIC("java.util.stream.IntStream");
@@ -152,7 +156,7 @@ automaton RandomAutomaton: Random
     }
 
 
-    fun longs (@target self: Random): LongStream
+    fun *.longs (@target self: Random): LongStream
     {
         // #problem: no streams yet
         result = action SYMBOLIC("java.util.stream.LongStream");
@@ -160,7 +164,7 @@ automaton RandomAutomaton: Random
     }
 
 
-    fun longs (@target self: Random, arg0: long): LongStream
+    fun *.longs (@target self: Random, streamSize: long): LongStream
     {
         // #problem: no streams yet
         result = action SYMBOLIC("java.util.stream.LongStream");
@@ -168,7 +172,7 @@ automaton RandomAutomaton: Random
     }
 
 
-    fun longs (@target self: Random, arg0: long, arg1: long): LongStream
+    fun *.longs (@target self: Random, randomNumberOrigin: long, randomNumberBound: long): LongStream
     {
         // #problem: no streams yet
         result = action SYMBOLIC("java.util.stream.LongStream");
@@ -176,7 +180,7 @@ automaton RandomAutomaton: Random
     }
 
 
-    fun longs (@target self: Random, arg0: long, arg1: long, arg2: long): LongStream
+    fun *.longs (@target self: Random, streamSize: long, randomNumberOrigin: long, randomNumberBound: long): LongStream
     {
         // #problem: no streams yet
         result = action SYMBOLIC("java.util.stream.LongStream");
@@ -184,15 +188,15 @@ automaton RandomAutomaton: Random
     }
 
 
-    fun nextBoolean (@target self: Random): boolean
+    fun *.nextBoolean (@target self: Random): boolean
     {
         result = action SYMBOLIC("boolean");
     }
 
 
-    fun nextBytes (@target self: Random, bytes: array<byte>): void
+    fun *.nextBytes (@target self: Random, bytes: array<byte>): void
     {
-        // #problem: is there a more efficient way?
+        // #question: is there a more efficient way?
         val size: int = action ARRAY_SIZE(bytes);
         var i: int = 0;
         action LOOP_FOR(
@@ -207,16 +211,16 @@ automaton RandomAutomaton: Random
     }
 
 
-    fun nextDouble (@target self: Random): double
+    fun *.nextDouble (@target self: Random): double
     {
         result = action SYMBOLIC("double");
 
-        action ASSUME(0.0d <= result);
-        action ASSUME(result < 1.0d);
+        action ASSUME(0.0 <= result);
+        action ASSUME(result < 1.0);
     }
 
 
-    fun nextFloat (@target self: Random): float
+    fun *.nextFloat (@target self: Random): float
     {
         result = action SYMBOLIC("float");
 
@@ -225,25 +229,24 @@ automaton RandomAutomaton: Random
     }
 
 
-    @synchronized fun nextGaussian (@target self: Random): double
+    @synchronized fun *.nextGaussian (@target self: Random): double
     {
         result = action SYMBOLIC("double");
-        // #problem: result should not be NaN
+        val isNaN: boolean = action DEBUG_DO("Double.isNaN(result)");
+        action ASSUME(isNaN == false);
     }
 
 
-    fun nextInt (@target self: Random): int
+    fun *.nextInt (@target self: Random): int
     {
         result = action SYMBOLIC("int");
     }
 
 
-    fun nextInt (@target self: Random, bound: int): int
+    fun *.nextInt (@target self: Random, bound: int): int
     {
         if (bound <= 0)
-        {
             action THROW_NEW("java.lang.IllegalArgumentException", ["bound must be positive"]);
-        }
 
         result = action SYMBOLIC("int");
 
@@ -252,15 +255,30 @@ automaton RandomAutomaton: Random
     }
 
 
-    fun nextLong (@target self: Random): long
+    fun *.nextLong (@target self: Random): long
     {
         result = action SYMBOLIC("long");
     }
 
 
-    @synchronized fun setSeed (@target self: Random, seed: long): void
+    @synchronized fun *.setSeed (@target self: Random, seed: long): void
     {
-        // nothing
+        action DO_NOTHING();
+    }
+
+
+    // serialization
+
+    @throws(["java.io.IOException", "java.lang.ClassNotFoundException"])
+    @private fun *.readObject (s: ObjectInputStream): void
+    {
+        action NOT_IMPLEMENTED("no serialization support");
+    }
+
+    @throws(["java.io.IOException"])
+    @private @synchronized fun *.writeObject(s: ObjectOutputStream): void
+    {
+        action NOT_IMPLEMENTED("no serialization support");
     }
 
 }

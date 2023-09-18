@@ -218,6 +218,15 @@ automaton LinkedListAutomaton
     }
 
 
+    proc _makeStream (parallel: boolean): Stream
+    {
+        // #todo: use custom stream implementation
+        result = action SYMBOLIC("java.util.stream.Stream");
+        action ASSUME(result != null);
+        action ASSUME(action CALL_METHOD(result, "isParallel", []) == parallel);
+    }
+
+
     // constructors
 
     constructor *.LinkedList (@target self: LinkedList)
@@ -555,9 +564,7 @@ automaton LinkedListAutomaton
     // within java.util.Collection
     fun *.parallelStream (@target self: LinkedList): Stream
     {
-        // #problem: no streams
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
+        result = _makeStream(/* parallel = */true);
     }
 
 
@@ -746,13 +753,33 @@ automaton LinkedListAutomaton
             // Java has no unsigned primitive data types
             action ASSUME(this.size > 0);
 
-            // plain bubble sorting algorithm with no optimizations
+            // plain bubble sorting algorithm
+            val outerLimit: int = this.size - 1;
+            var innerLimit: int = 0;
             var i: int = 0;
             var j: int = 0;
-            action LOOP_FOR(
-                i, 0, this.size, +1,
-                sort_loop_outer(i, j, c)
-            );
+
+            // check the comparator
+            if (c == null)
+            {
+                // using Comparable::compareTo as a comparator
+
+                // plain bubble sorting algorithm
+                action LOOP_FOR(
+                    i, 0, outerLimit, +1,
+                    sort_loop_outer_noComparator(i, j, innerLimit)
+                );
+            }
+            else
+            {
+                // using the provided comparator
+
+                // plain bubble sorting algorithm (with a comparator)
+                action LOOP_FOR(
+                    i, 0, outerLimit, +1,
+                    sort_loop_outer(i, j, innerLimit, c)
+                );
+            }
 
             _checkForComodification(expectedModCount);
         }
@@ -760,23 +787,49 @@ automaton LinkedListAutomaton
         this.modCount += 1;
     }
 
-    @Phantom proc sort_loop_outer (i: int, j: int, c: Comparator): void
+    @Phantom proc sort_loop_outer_noComparator (i: int, j: int, innerLimit: int): void
     {
+        innerLimit = this.size - i - 1;
         action LOOP_FOR(
-            j, 0, this.size, +1,
-            sort_loop_inner(i, j, c)
+            j, 0, innerLimit, +1,
+            sort_loop_inner_noComparator(j)
         );
     }
 
-    @Phantom proc sort_loop_inner (i: int, j: int, c: Comparator): void
+    @Phantom proc sort_loop_inner_noComparator (j: int): void
     {
-        val a: Object = action LIST_GET(this.storage, i);
-        val b: Object = action LIST_GET(this.storage, j);
+        val idxA: int = j;
+        val idxB: int = j + 1;
+        val a: Object = action LIST_GET(this.storage, idxA);
+        val b: Object = action LIST_GET(this.storage, idxB);
+
+        if (action CALL_METHOD(a as Comparable, "compareTo", [b]) > 0)
+        {
+            action LIST_SET(this.storage, idxA, b);
+            action LIST_SET(this.storage, idxB, a);
+        }
+    }
+
+    @Phantom proc sort_loop_outer (i: int, j: int, innerLimit: int, c: Comparator): void
+    {
+        innerLimit = this.size - i - 1;
+        action LOOP_FOR(
+            j, 0, innerLimit, +1,
+            sort_loop_inner(j, c)
+        );
+    }
+
+    @Phantom proc sort_loop_inner (j: int, c: Comparator): void
+    {
+        val idxA: int = j;
+        val idxB: int = j + 1;
+        val a: Object = action LIST_GET(this.storage, idxA);
+        val b: Object = action LIST_GET(this.storage, idxB);
 
         if (action CALL(c, [a, b]) > 0)
         {
-            action LIST_SET(this.storage, i, b);
-            action LIST_SET(this.storage, j, a);
+            action LIST_SET(this.storage, idxA, b);
+            action LIST_SET(this.storage, idxB, a);
         }
     }
 
@@ -799,9 +852,7 @@ automaton LinkedListAutomaton
     // within java.util.Collection
     fun *.stream (@target self: LinkedList): Stream
     {
-        // #problem: no streams
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
+        result = _makeStream(/* parallel = */false);
     }
 
 

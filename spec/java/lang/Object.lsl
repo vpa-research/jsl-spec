@@ -33,19 +33,18 @@ automaton ObjectAutomaton
     shift Initialized -> self by [
         // constructors
         LSLObject,
-    ];
 
-    shift Initialized -> self by [
         // instance methods
         equals,
+        clone,
         getClass,
         hashCode,
         notify,
         notifyAll,
         toString,
-        wait (Object),
-        wait (Object, long),
-        wait (Object, long, int),
+        wait (LSLObject),
+        wait (LSLObject, long),
+        wait (LSLObject, long, int),
     ];
 
     // internal variables
@@ -70,7 +69,13 @@ automaton ObjectAutomaton
     }
 
 
-    @Phantom @final fun *.getClass (@target self: Object): Class
+    @Phantom @protected fun *.clone (@target self: LSLObject): Object
+    {
+        // NOTE: using the original method
+    }
+
+
+    @Phantom @final fun *.getClass (@target self: LSLObject): Class
     {
         // NOTE: using the original method
     }
@@ -82,13 +87,13 @@ automaton ObjectAutomaton
     }
 
 
-    @Phantom @final fun *.notify (@target self: Object): void
+    @Phantom @final fun *.notify (@target self: LSLObject): void
     {
         // NOTE: using the original method
     }
 
 
-    @Phantom @final fun *.notifyAll (@target self: Object): void
+    @Phantom @final fun *.notifyAll (@target self: LSLObject): void
     {
         // NOTE: using the original method
     }
@@ -102,23 +107,31 @@ automaton ObjectAutomaton
 
 
     @throws(["java.lang.InterruptedException"])
-    @Phantom @final fun *.wait (@target self: Object): void
+    @Phantom @final fun *.wait (@target self: LSLObject): void
     {
         // NOTE: using the original method
     }
 
 
     @throws(["java.lang.InterruptedException"])
-    @Phantom @final fun *.wait (@target self: Object, timeoutMillis: long): void
+    @Phantom @final fun *.wait (@target self: LSLObject, timeoutMillis: long): void
     {
         // NOTE: using the original method
     }
 
 
     @throws(["java.lang.InterruptedException"])
-    @Phantom @final fun *.wait (@target self: Object, timeoutMillis: long, nanos: int): void
+    @Phantom @final fun *.wait (@target self: LSLObject, timeoutMillis: long, nanos: int): void
     {
         // NOTE: using the original method
+    }
+
+
+    // special: static initialization
+
+    @Phantom fun *.__clinit__ (): void
+    {
+        action DO_NOTHING();
     }
 
 }

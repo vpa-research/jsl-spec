@@ -18,19 +18,12 @@ import java/util/stream/_interfaces;
 
 val EMPTY_OPTIONAL_DOUBLE: OptionalDouble
     = new OptionalDoubleAutomaton(state = Initialized,
-        value = 0.0d,
+        value = 0.0,
         present = false
     );
 
 
 // automata
-
-// TODO: find ways to get concepts working
-@Deprecated
-automaton concept TestConcept: Object
-{
-    var value: double;
-}
 
 automaton OptionalDoubleAutomaton
 (
@@ -38,7 +31,6 @@ automaton OptionalDoubleAutomaton
     var present: boolean
 )
 : OptionalDouble
-    implements TestConcept
 {
     // states and shifts
 
@@ -130,8 +122,7 @@ automaton OptionalDoubleAutomaton
                 val otherPresent: boolean = OptionalDoubleAutomaton(other).present;
 
                 if (this.present && otherPresent)
-                    // #problem: need `Double.compare(this.value, other.value) == 0`
-                    result = this.value == otherValue;
+                    result = action OBJECT_EQUALS(this.value, otherValue);
                 else
                     result = this.present == otherPresent;
             }
@@ -267,14 +258,9 @@ automaton OptionalDoubleAutomaton
 
     fun *.stream (@target self: OptionalDouble): DoubleStream
     {
-        action NOT_IMPLEMENTED("no decision");
-
-        /*
-        if (this.present)
-            result = DoubleStream.of(this.value); // #problem
-        else
-            result = DoubleStream.empty(); // #problem
-        */
+        // #todo: use custom stream implementation
+        result = action SYMBOLIC("java.util.stream.DoubleStream");
+        action ASSUME(result != null);
     }
 
 
