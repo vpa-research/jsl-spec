@@ -45,7 +45,7 @@ type String
 
     fun indexOf(anotherString: string, fromIndex: int): int; // #problem: self-reference
 
-    fun toCharArray(): array<char>; // #problem: self-reference
+    fun toCharArray(): array<char>;
 }
 
 
