@@ -1010,7 +1010,8 @@ automaton StringBuilderAutomaton
         _checkIndex(index);
 
         val codePoint: int = action SYMBOLIC("int");
-        action ASSUME(_isValidCodePoint(codePoint));
+        action ASSUME(codePoint >= MIN_CODE_POINT);
+        action ASSUME(codePoint <= MAX_CODE_POINT);
         result = codePoint;
     }
 
@@ -1022,7 +1023,8 @@ automaton StringBuilderAutomaton
         _checkIndex(index);
 
         val codePoint: int = action SYMBOLIC("int");
-        action ASSUME(_isValidCodePoint(codePoint));
+        action ASSUME(codePoint >= MIN_CODE_POINT);
+        action ASSUME(codePoint <= MAX_CODE_POINT);
         result = codePoint;
     }
 
