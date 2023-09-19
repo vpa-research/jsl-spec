@@ -552,6 +552,7 @@ automaton HashSetAutomaton
             _throwNPE();
 
         val lengthBeforeAdd: int = this.length;
+        val expectedModCount: int = this.modCount;
         var i: int = 0;
         val visitedKeys: map<Object, Object> = action MAP_NEW();
 
@@ -561,6 +562,7 @@ automaton HashSetAutomaton
             _removeIf_loop(i, visitedKeys, filter)
         );
 
+        _checkForComodification(expectedModCount);
         if (lengthBeforeAdd != this.length)
         {
             this.modCount += 1;
@@ -596,12 +598,15 @@ automaton HashSetAutomaton
             _throwNPE();
 
         var i: int = 0;
+        val expectedModCount: int = this.modCount;
         val visitedKeys: map<Object, Object> = action MAP_NEW();
 
         action LOOP_WHILE(
             i < this.length,
             forEach_loop(i, visitedKeys, userAction)
         );
+
+        _checkForComodification(expectedModCount);
     }
 
 
