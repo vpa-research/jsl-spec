@@ -164,8 +164,7 @@ automaton HashSetAutomaton
             action THROW_NEW("java.lang.IllegalArgumentException", []);
         }
 
-        //if (loadFactor <= 0 || loadFactor.isNaN) // #problem
-        if (loadFactor <= 0)
+        if (loadFactor <= 0 || action DEBUG_DO("Float.isNaN(loadFactor)"))
         {
             // val loadFactorStr: String = "Illegal load factor: " + action OBJECT_TO_STRING(loadFactor);
             action THROW_NEW("java.lang.IllegalArgumentException", []);
