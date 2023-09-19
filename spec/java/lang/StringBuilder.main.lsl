@@ -803,23 +803,33 @@ automaton StringBuilderAutomaton
 
     fun *.reverse (@target self: StringBuilder): StringBuilder
     {
-        var i: int = 0;
-        var j: int = this.length - 1;
-        val newStr: array<char> = action ARRAY_NEW("char", this.length);
+        if (this.length != 0)
+        {
+            action ASSUME(this.length > 0);
+            // serialize current state of storage string
+            val oldStorage: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
 
-        action LOOP_FOR(
-            i, 0, this.length, +1,
-            _reverse_loop(i, j, newStr)
-        );
+            // prepare a new serialized but processed version of the storage
+            val newStorage: array<char> = action ARRAY_NEW("char", this.length);
+            action ASSUME(action ARRAY_SIZE(newStorage) == this.length);
+            action ASSUME(action ARRAY_SIZE(oldStorage) == action ARRAY_SIZE(newStorage));
 
-        this.storage = action OBJECT_TO_STRING(newStr);
+            var j: int = this.length - 1;
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, this.length, +1,
+                _reverse_loop(i, oldStorage, j, newStorage)
+            );
+
+            // replace the old state with a reversed (buffer) version
+            this.storage = action OBJECT_TO_STRING(newStorage);
+        }
         result = self;
     }
 
-
-    @Phantom proc _reverse_loop (i: int, j: int, newStr: array<char>): void
+    @Phantom proc _reverse_loop (i: int, oldStorage: array<char>, j: int, newStorage: array<char>): void
     {
-        newStr[j] = action CALL_METHOD(this.storage, "charAt", [i]);
+        newStorage[j] = oldStorage[i];
         j -= 1;
     }
 
