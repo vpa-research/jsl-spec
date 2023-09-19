@@ -16,8 +16,7 @@ import java/util/HashSet;
 automaton HashSetAutomaton
 (
     var storage: map<Object, Object> = null,
-    @transient var length: int = 0,
-    @transient var modCount: int = 0
+    @transient var length: int = 0
 )
 : HashSet
 {
@@ -62,6 +61,10 @@ automaton HashSetAutomaton
         removeIf,
         forEach,
     ];
+
+    // internal variables
+
+    @transient var modCount: int = 0;
 
 
     // utilities
@@ -213,10 +216,14 @@ automaton HashSetAutomaton
 
     fun *.clone (@target self: HashSet): Object
     {
-        val clonedStorage: map<Object, Object> = action MAP_NEW();
+        val storageCopy: map<Object, Object> = action MAP_NEW();
 
-        action MAP_UNITE_WITH(clonedStorage, this.storage);
-        result = clonedStorage;
+        action MAP_UNITE_WITH(storageCopy, this.storage);
+
+        result = new HashSetAutomaton(state = Initialized,
+            storage = storageCopy,
+            length = this.length
+        );
     }
 
 
