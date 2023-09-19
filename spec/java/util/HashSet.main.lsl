@@ -131,9 +131,6 @@ automaton HashSetAutomaton
     constructor *.HashSet (@target self: HashSet)
     {
         this.storage = action MAP_NEW();
-
-        this.length = 0;
-        this.modCount = 0;
     }
 
 
@@ -153,9 +150,6 @@ automaton HashSetAutomaton
         }
 
         this.storage = action MAP_NEW();
-
-        this.length = 0;
-        this.modCount = 0;
     }
 
 
@@ -175,9 +169,6 @@ automaton HashSetAutomaton
         }
 
         this.storage = action MAP_NEW();
-
-        this.length = 0;
-        this.modCount = 0;
     }
 
 
