@@ -413,27 +413,26 @@ automaton HashSetAutomaton
 
     fun *.toArray (@target self: HashSet): array<Object>
     {
+        val len: int = this.length;
+        result = action ARRAY_NEW("java.lang.Object", len);
         val expectedModCount: int = this.modCount;
-        val size: int = this.length;
         val visitedKeys: map<Object, Object> = action MAP_NEW();
-        val resultArray: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
         var i: int = 0;
 
         action LOOP_FOR(
-            i, 0, size, +1,
-            toArray_loop(i, visitedKeys, resultArray)
+            i, 0, len, +1,
+            toArray_loop(i, visitedKeys, result)
         );
 
         _checkForComodification(expectedModCount);
-        result = resultArray;
     }
 
 
-    @Phantom proc toArray_loop(i: int, visitedKeys: map<Object, Object>, resultArray: array<Object>): void
+    @Phantom proc toArray_loop(i: int, visitedKeys: map<Object, Object>, result: array<Object>): void
     {
         val key: Object = _generateKey(visitedKeys);
 
-        resultArray[i] = key;
+        result[i] = key;
 
         action MAP_SET(visitedKeys, key, HASHSET_VALUE);
     }
@@ -443,32 +442,24 @@ automaton HashSetAutomaton
     {
         val expectedModCount: int = this.modCount;
         val aLen: int = action ARRAY_SIZE(a);
-        val size: int = this.length;
+        val len: int = this.length;
         val visitedKeys: map<Object, Object> = action MAP_NEW();
-        var resultArray: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
         var i: int = 0;
 
-        if (aLen < size)
-        {
-            action LOOP_FOR(
-                i, 0, size, +1,
-                toArray_loop(i, visitedKeys, resultArray)
-            );
-        }
-        else
-        {
-            resultArray = a;
-            action LOOP_FOR(
-                i, 0, size, +1,
-                toArray_loop(i, visitedKeys, resultArray)
-            );
+        if (aLen < len)
+            a = action ARRAY_NEW("java.lang.Object", len);
 
-            if (aLen > this.length)
-                result[this.length] = null;
-        }
+        result = a;
+
+        action LOOP_FOR(
+            i, 0, len, +1,
+            toArray_loop(i, visitedKeys, result)
+        );
+
+        if (aLen > this.length)
+            result[this.length] = null;
 
         _checkForComodification(expectedModCount);
-        result = resultArray;
     }
 
 
