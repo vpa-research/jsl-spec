@@ -83,7 +83,7 @@ automaton HashSet_KeySpliteratorAutomaton
 
     // constructors
 
-    constructor *.HashSet_KeySpliterator (@target self: HashSet_KeySpliterator, source: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
+    @private constructor *.HashSet_KeySpliterator (@target self: HashSet_KeySpliterator, source: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
     {
         this.index = origin;
         this.fence = fence;
@@ -108,9 +108,9 @@ automaton HashSet_KeySpliteratorAutomaton
         var mask: int = 0;
         val length: int = HashSetAutomaton(this.parent).length;
         if (this.fence < 0 || this.est == length)
-            mask = 64;
+            mask = SPLITERATOR_SIZED;
 
-        result = mask | 1;
+        result = mask | SPLITERATOR_DISTINCT;
     }
 
 

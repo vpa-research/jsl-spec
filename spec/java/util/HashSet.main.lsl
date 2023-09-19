@@ -47,6 +47,8 @@ automaton HashSetAutomaton
 
         iterator,
         spliterator,
+        stream,
+        parallelStream,
         toArray(HashSet),
         toArray(HashSet, array<Object>),
 
@@ -81,7 +83,7 @@ automaton HashSetAutomaton
             _addAllElements_loop(iter)
         );
 
-        if (lengthBeforeAdd < this.length)
+        if (lengthBeforeAdd != this.length)
         {
             this.modCount += 1;
             result = true;
@@ -294,7 +296,8 @@ automaton HashSetAutomaton
             fence = -1,
             est = 0,
             expectedModCount = this.modCount,
-            parent = self);
+            parent = self
+        );
     }
 
 
@@ -331,7 +334,7 @@ automaton HashSetAutomaton
                 else
                     result = false;
 
-                HashSetAutomaton(other)._checkForComodification(otherExpectedModCount);// #problem
+                HashSetAutomaton(other)._checkForComodification(otherExpectedModCount);
                 _checkForComodification(expectedModCount);
             }
             else
@@ -613,6 +616,24 @@ automaton HashSetAutomaton
 
         i += 1;
         action MAP_SET(visitedKeys, key, HASHSET_VALUE);
+    }
+
+
+    // within java.util.Collection
+    fun *.stream (@target self: HashSet): Stream
+    {
+        // #todo: use custom stream implementation
+        result = action SYMBOLIC("java.util.stream.Stream");
+        action ASSUME(result != null);
+    }
+
+
+    // within java.util.Collection
+    fun *.parallelStream (@target self: HashSet): Stream
+    {
+        // #todo: use custom stream implementation
+        result = action SYMBOLIC("java.util.stream.Stream");
+        action ASSUME(result != null);
     }
 
 
