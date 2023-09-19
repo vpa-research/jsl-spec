@@ -157,7 +157,7 @@ automaton HashSet_KeySpliteratorAutomaton
 
     @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int): void
     {
-        val key: Object = action LIST_GET(this.keysStorage, this.index);
+        val key: Object = action LIST_GET(this.keysStorage, i);
         action CALL(userAction, [key]);
         i += 1;
     }
