@@ -104,7 +104,7 @@ automaton ArrayList_SubListAutomaton
     }
 
 
-    proc _updateSizeAndModCount (sizeChange: int): void
+    @KeepVisible proc _updateSizeAndModCount (sizeChange: int): void
     {
         action ASSUME(this.root != null);
 
@@ -393,7 +393,14 @@ automaton ArrayList_SubListAutomaton
 
     fun *.iterator (@target self: ArrayList_SubList): Iterator
     {
-        action TODO();
+        result = new ArrayList_SubList_ListIteratorAutomaton(state = Initialized,
+            root = this.root,
+            sublist = self,
+            cursor = 0,
+            expectedModCount = this.modCount,
+            offset = this.offset,
+            size = this.length,
+        );
     }
 
 
@@ -433,13 +440,29 @@ automaton ArrayList_SubListAutomaton
     // within java.util.AbstractList
     fun *.listIterator (@target self: ArrayList_SubList): ListIterator
     {
-        action TODO();
+        result = new ArrayList_SubList_ListIteratorAutomaton(state = Initialized,
+            root = this.root,
+            sublist = self,
+            cursor = 0,
+            expectedModCount = this.modCount,
+            offset = this.offset,
+            size = this.length,
+        );
     }
 
 
     fun *.listIterator (@target self: ArrayList_SubList, index: int): ListIterator
     {
         action TODO();
+
+        result = new ArrayList_SubList_ListIteratorAutomaton(state = Initialized,
+            root = this.root,
+            sublist = self,
+            cursor = index,
+            expectedModCount = this.modCount,
+            offset = this.offset,
+            size = this.length,
+        );
     }
 
 

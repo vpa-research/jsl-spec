@@ -70,3 +70,12 @@ import java/util/stream/_interfaces;
     for Spliterator
 {
 }
+
+
+@GenerateMe
+@implements("java.util.ListIterator")
+@public @final type ArrayList_SubList_ListIterator
+    is java.util.ArrayList_SubList$ListIterator  // NOTE: do not use inner classes
+    for ListIterator
+{
+}
