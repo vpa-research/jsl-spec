@@ -15,7 +15,7 @@ import java/util/HashSet;
 
 automaton HashSet_KeySpliteratorAutomaton
 (
-    var keysStorage: list<Object>,
+    var keysStorage: array<Object>,
     var index: int,
     var fence: int,
     var est: int,
@@ -157,7 +157,7 @@ automaton HashSet_KeySpliteratorAutomaton
 
     @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int): void
     {
-        val key: Object = action LIST_GET(this.keysStorage, i);
+        val key: Object = this.keysStorage[i];
         action CALL(userAction, [key]);
         i += 1;
     }
@@ -176,7 +176,7 @@ automaton HashSet_KeySpliteratorAutomaton
         // this is correct condition ? It is enough ?
         if(length >= hi && this.index >= 0)
         {
-            val key: Object = action LIST_GET(this.keysStorage, this.index);
+            val key: Object = this.keysStorage[this.index];
             action CALL(userAction, [key]);
 
             this.index += 1;

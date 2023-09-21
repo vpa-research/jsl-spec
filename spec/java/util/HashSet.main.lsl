@@ -277,17 +277,17 @@ automaton HashSetAutomaton
 
     fun *.spliterator (@target self: HashSet): Spliterator
     {
-        val keysStorageList: list<Object> = action LIST_NEW();
+        val keysStorageArray: list<Object> = action ARRAY_NEW("java.lang.Object", this.length);
         val visitedKeys: map<Object, Object> = action MAP_NEW();
         var i: int = 0;
         action LOOP_FOR(
             i, 0, this.length, +1,
-            fromMapToList_loop(i, keysStorageList, visitedKeys)
+            fromMapToList_loop(i, keysStorageArray, visitedKeys)
         );
 
 
         result = new HashSet_KeySpliteratorAutomaton(state=Initialized,
-            keysStorage = keysStorageList,
+            keysStorage = keysStorageArray,
             index = 0,
             fence = -1,
             est = 0,
@@ -297,14 +297,12 @@ automaton HashSetAutomaton
     }
 
 
-    @Phantom proc fromMapToList_loop (i: int, keysStorageList: list<Object>, visitedKeys: map<Object, Object>): void
+    @Phantom proc fromMapToList_loop (i: int, keysStorageArray: array<Object>, visitedKeys: map<Object, Object>): void
     {
         val key: Object = _generateKey(visitedKeys);
 
-        action LIST_INSERT_AT(keysStorageList, i, key);
+        keysStorageArray[i] = key;
         action MAP_SET(visitedKeys, key, HASHSET_VALUE);
-
-        i += 1;
     }
 
 
