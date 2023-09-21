@@ -174,10 +174,9 @@ automaton HashSetAutomaton
     }
 
 
-    constructor *.HashSet (@target self: HashSet, initialCapacity: int, loadFactor: float, dummy: boolean)
+    @private constructor *.HashSet (@target self: HashSet, initialCapacity: int, loadFactor: float, dummy: boolean)
     {
-        // Problem; We don't have LinkedHashMap automaton at this moment !
-        action TODO();
+        action ERROR("Private constructor call");
     }
 
 
