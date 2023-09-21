@@ -276,7 +276,7 @@ automaton HashSetAutomaton
 
     fun *.spliterator (@target self: HashSet): Spliterator
     {
-        val keysStorageArray: list<Object> = action ARRAY_NEW("java.lang.Object", this.length);
+        val keysStorageArray: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
         val visitedKeys: map<Object, Object> = action MAP_NEW();
         var i: int = 0;
         action LOOP_FOR(
