@@ -171,12 +171,11 @@ automaton HashSet_KeySpliteratorAutomaton
             _throwNPE();
 
         var hi: int = _getFence();
-        val length: int = HashSetAutomaton(this.parent).length;
+        var i: int = this.index;
 
-        // this is correct condition ? It is enough ?
-        if(length >= hi && this.index >= 0)
+        if(i < hi)
         {
-            val key: Object = this.keysStorage[this.index];
+            val key: Object = this.keysStorage[i];
             action CALL(userAction, [key]);
 
             this.index += 1;
