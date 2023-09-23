@@ -157,7 +157,7 @@ automaton HashSet_KeySpliteratorAutomaton
 
     @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int): void
     {
-        val key: Object = keysStorage[i];
+        val key: Object = this.keysStorage[i];
         action CALL(userAction, [key]);
         i += 1;
     }
@@ -175,7 +175,7 @@ automaton HashSet_KeySpliteratorAutomaton
 
         if(i < hi)
         {
-            val key: Object = keysStorage[i];
+            val key: Object = this.keysStorage[i];
             action CALL(userAction, [key]);
 
             this.index += 1;
