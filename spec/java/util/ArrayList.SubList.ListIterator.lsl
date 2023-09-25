@@ -62,6 +62,14 @@ automaton ArrayList_SubList_ListIteratorAutomaton
     }
 
 
+    proc qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq(a: boolean, b: boolean): boolean
+    {
+        result = !a || !b;
+        result = !a && !b;
+        result = !a ^ !b;
+    }
+
+
     // methods
 
     fun *.hasPrevious (@target self: ArrayList_SubList_ListIterator): boolean
