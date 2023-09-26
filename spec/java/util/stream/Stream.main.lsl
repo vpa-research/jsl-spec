@@ -43,6 +43,7 @@ automaton StreamAutomaton
     shift Initialized -> self by [
         // instance methods
         filter,
+        map,
         /*close,
         dropWhile,
         isParallel,
@@ -154,6 +155,32 @@ automaton StreamAutomaton
             filteredStorage[filteredLength] = this.storage[i];
             filteredLength += 1;
         }
+    }
+
+
+    fun *.map (@target self: Stream, mapper: Function): Stream
+    {
+        if (mapper == null)
+            _throwNPE();
+
+        var mappedStorage: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _mapped_loop(i, mapper, mappedStorage)
+        );
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = mappedStorage,
+            length = this.length,
+        );
+    }
+
+
+    @Phantom proc _mapped_loop (i: int, mapper: Function, mappedStorage: array<Object>): void
+    {
+        mappedStorage[i] = action CALL(mapper, [this.storage[i]]);
     }
 
     /*
