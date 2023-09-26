@@ -307,6 +307,42 @@ automaton StreamAutomaton
         result = _flatMap(mapper);
     }
 
+
+    fun *.distinct (@target self: Stream): Stream
+    {
+        action ASSUME(this.length == 3);
+
+        val first: int = this.storage[0];
+        val second: int = this.storage[1];
+        val third: int = this.storage[2];
+
+        val distinctStorage: array<int> = action ARRAY_NEW("java.lang.Object", 3);
+        var distinctLength: int = 0;
+
+        if (first != second && first != third)
+        {
+            distinctStorage[distinctLength] = first;
+            distinctLength += 1;
+        }
+
+        if (second != first && second != third)
+        {
+            distinctStorage[distinctLength] = second;
+            distinctLength += 1;
+        }
+
+        if (third != second && third != first)
+        {
+            distinctStorage[distinctLength] = third;
+            distinctLength += 1;
+        }
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = distinctStorage,
+            length = distinctLength,
+        );
+    }
+
     /*
     @throws(["java.lang.Exception"])
     // within java.lang.AutoCloseable
