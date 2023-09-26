@@ -44,7 +44,13 @@ automaton StreamAutomaton
         // instance methods
         filter,
         map,
+        mapToInt,
+        mapToLong,
+        mapToDouble,
         flatMap,
+        flatMapToInt,
+        flatMapToLong,
+        flatMapToDouble,
         /*close,
         dropWhile,
         isParallel,
@@ -64,6 +70,21 @@ automaton StreamAutomaton
     @AutoInline @Phantom proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
+    proc _flatMap (mapper: Function): Stream
+    {
+        if (mapper == null)
+            _throwNPE();
+
+        var mappedStorage: array<Object> = action DEBUG_DO("Arrays.stream(this.storage).flatMap(mapper).collect(Collectors.toList()).toArray()");
+        val mappedLength: int = action ARRAY_SIZE(mappedStorage);
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = mappedStorage,
+            length = mappedLength,
+        );
     }
 
     // constructors
@@ -263,18 +284,27 @@ automaton StreamAutomaton
     }
 
 
-    fun *.flatMap(@target self: Stream, mapper: Function): Stream
+    fun *.flatMap (@target self: Stream, mapper: Function): Stream
     {
-        if (mapper == null)
-            _throwNPE();
+        result = _flatMap(mapper);
+    }
 
-        var mappedStorage: array<Object> = action DEBUG_DO("Arrays.stream(this.storage).flatMap(mapper).collect(Collectors.toList()).toArray()");
-        val mappedLength: int = action ARRAY_SIZE(mappedStorage);
 
-        result = new StreamAutomaton(state = Initialized,
-            storage = mappedStorage,
-            length = mappedLength,
-        );
+    fun *.flatMapToInt (@target self: Stream, mapper: Function): IntStream
+    {
+        result = _flatMap(mapper);
+    }
+
+
+    fun *.flatMapToLong (@target self: Stream, mapper: Function): LongStream
+    {
+        result = _flatMap(mapper);
+    }
+
+
+    fun *.flatMapToDouble (@target self: Stream, mapper: Function): DoubleStream
+    {
+        result = _flatMap(mapper);
     }
 
     /*
