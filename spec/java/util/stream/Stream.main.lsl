@@ -13,20 +13,12 @@ import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
 
 
-// local semantic types
-
-@implements("java.util.stream.BaseStream")
-@public type Stream
-    is java.util.stream.Stream
-    for Object
-{
-}
-
-
 // automata
 
 automaton StreamAutomaton
 (
+    var storage: array<Object>,
+    @transient  var length: int
 )
 : Stream
 {
@@ -37,7 +29,7 @@ automaton StreamAutomaton
 
     shift Allocated -> Initialized by [
         // static operations
-        builder,
+        /*builder,
         concat,
         empty,
         generate,
@@ -45,12 +37,13 @@ automaton StreamAutomaton
         iterate (Object, UnaryOperator),
         of (Object),
         of (array<Object>),
-        ofNullable,
+        ofNullable,*/
     ];
 
     shift Initialized -> self by [
         // instance methods
-        close,
+        filter,
+        /*close,
         dropWhile,
         isParallel,
         iterator,
@@ -59,17 +52,23 @@ automaton StreamAutomaton
         sequential,
         spliterator,
         takeWhile,
-        unordered,
+        unordered,*/
     ];
 
     // internal variables
 
     // utilities
 
+    @AutoInline @Phantom proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
     // constructors
 
     // static methods
 
+    /*
     @static fun *.builder (): Builder
     {
         action TODO();
@@ -122,10 +121,42 @@ automaton StreamAutomaton
     {
         action TODO();
     }
+    */
 
 
     // methods
 
+    fun *.filter (@target self: Stream, predicate: Predicate): Stream
+    {
+        if (predicate == null)
+            _throwNPE();
+
+        var filteredStorage: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
+        var filteredLength: int = 0;
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _filter_loop(i, predicate, filteredLength, filteredStorage)
+        );
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = filteredStorage,
+            length = filteredLength,
+        );
+    }
+
+
+    @Phantom proc _filter_loop (i: int, predicate: Predicate, filteredLength: int, filteredStorage: array<Object>): void
+    {
+        if (action CALL(predicate, [this.storage[i]]))
+        {
+            filteredStorage[filteredLength] = this.storage[i];
+            filteredLength += 1;
+        }
+    }
+
+    /*
     @throws(["java.lang.Exception"])
     // within java.lang.AutoCloseable
     fun *.close (@target self: Stream): void
@@ -193,5 +224,5 @@ automaton StreamAutomaton
     {
         action TODO();
     }
-
+    */
 }
