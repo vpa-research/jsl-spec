@@ -54,6 +54,7 @@ automaton StreamAutomaton
         sorted (Stream),
         sorted (Stream, Comparator),
         peek,
+        limit,
         /*close,
         dropWhile,
         isParallel,
@@ -474,9 +475,50 @@ automaton StreamAutomaton
         );
     }
 
+
     @Phantom proc _peek_loop (i: int, _action: Consumer): void
     {
         this.storage[i] = action CALL(_action, [this.storage[i]]);
+    }
+
+
+    // maxSize: long - what to do with this ? Array
+    fun *.limit (@target self: Stream, maxSize: long): Stream
+    {
+        if (maxSize < 0)
+            action THROW_NEW("java.lang.IllegalArgumentException", []);
+
+        if (maxSize == 0)
+        {
+            result = new StreamAutomaton(state = Initialized,
+                storage = this.storage,
+                length = 0,
+            );
+        }
+        // Maybe only change length field ? And don't change storage ?
+        else
+        {
+            // what will be if will be overflow ?
+            val maxSizeInt: int = maxSize as int;
+            val limitStorage: array<Object> = action ARRAY_NEW("java.lang.Object", maxSizeInt);
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, maxSizeInt, +1,
+                _limit_loop(i, limitStorage)
+            );
+
+            result = new StreamAutomaton(state = Initialized,
+                storage = limitStorage,
+                length = maxSizeInt,
+            );
+        }
+    }
+
+
+    @Phantom proc _limit_loop (i: int, limitStorage: array<Object>): void
+    {
+        limitStorage[i] = this.storage[i];
     }
 
     /*
