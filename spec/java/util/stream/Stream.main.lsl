@@ -183,6 +183,32 @@ automaton StreamAutomaton
         mappedStorage[i] = action CALL(mapper, [this.storage[i]]);
     }
 
+
+    fun *.mapToInt (@target self: Stream, mapper: ToIntFunction): Stream
+    {
+        if (mapper == null)
+            _throwNPE();
+
+        var mappedStorage: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _mapToInt_loop(i, mapper, mappedStorage)
+        );
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = mappedStorage,
+            length = this.length,
+        );
+    }
+
+
+    @Phantom proc _mapToInt_loop (i: int, mapper: ToIntFunction, mappedStorage: array<Object>): void
+    {
+        mappedStorage[i] = action CALL(mapper, [this.storage[i]]);
+    }
+
     /*
     @throws(["java.lang.Exception"])
     // within java.lang.AutoCloseable
