@@ -53,6 +53,7 @@ automaton StreamAutomaton
         flatMapToDouble,
         sorted (Stream),
         sorted (Stream, Comparator),
+        peek,
         /*close,
         dropWhile,
         isParallel,
@@ -417,10 +418,10 @@ automaton StreamAutomaton
             var innerLimit: int = 0;
             var i: int = 0;
             var j: int = 0;
-            /*action LOOP_FOR(
+            action LOOP_FOR(
                 i, 0, outerLimit, +1,
                 sort_loop_outer_with_comparator(i, j, innerLimit, comparator)
-            );*/
+            );
 
             result = new StreamAutomaton(state = Initialized,
                 storage = this.storage,
@@ -453,6 +454,29 @@ automaton StreamAutomaton
             this.storage[idxA] = b;
             this.storage[idxB] = a;
         }
+    }
+
+
+    fun *.peek (@target self: Stream, _action: Consumer): Stream
+    {
+        if (_action == null)
+            _throwNPE();
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _peek_loop(i, _action)
+        );
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = this.storage,
+            length = this.length,
+        );
+    }
+
+    @Phantom proc _peek_loop (i: int, _action: Consumer): void
+    {
+        this.storage[i] = action CALL(_action, [this.storage[i]]);
     }
 
     /*
