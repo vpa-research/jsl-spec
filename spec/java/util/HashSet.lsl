@@ -10,6 +10,7 @@ library std
 
 import java.common;
 import java/lang/_interfaces;
+import java/lang/Object;
 import java/io/_interfaces;
 import java/util/_interfaces;
 import java/util/function/_interfaces;
@@ -18,7 +19,7 @@ import java/util/HashMap;
 
 // === CONSTANTS ===
 
-val HASHSET_VALUE: Object = 0;
+val HASHSET_VALUE: Object = new ObjectAutomaton(state = Initialized);
 
 
 // primary types
