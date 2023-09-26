@@ -184,7 +184,7 @@ automaton StreamAutomaton
     }
 
 
-    fun *.mapToInt (@target self: Stream, mapper: ToIntFunction): Stream
+    fun *.mapToInt (@target self: Stream, mapper: ToIntFunction): IntStream
     {
         if (mapper == null)
             _throwNPE();
@@ -210,7 +210,7 @@ automaton StreamAutomaton
     }
 
 
-    fun *.mapToLong (@target self: Stream, mapper: ToLongFunction): Stream
+    fun *.mapToLong (@target self: Stream, mapper: ToLongFunction): LongStream
     {
         if (mapper == null)
             _throwNPE();
@@ -231,6 +231,32 @@ automaton StreamAutomaton
 
 
     @Phantom proc _mapToLong_loop (i: int, mapper: ToLongFunction, mappedStorage: array<Object>): void
+    {
+        mappedStorage[i] = action CALL(mapper, [this.storage[i]]);
+    }
+
+
+    fun *.mapToDouble (@target self: Stream, mapper: ToDoubleFunction): DoubleStream
+    {
+        if (mapper == null)
+            _throwNPE();
+
+        var mappedStorage: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _mapToDouble_loop(i, mapper, mappedStorage)
+        );
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = mappedStorage,
+            length = this.length,
+        );
+    }
+
+
+    @Phantom proc _mapToDouble_loop (i: int, mapper: ToDoubleFunction, mappedStorage: array<Object>): void
     {
         mappedStorage[i] = action CALL(mapper, [this.storage[i]]);
     }
