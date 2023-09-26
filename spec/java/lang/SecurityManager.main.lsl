@@ -14,6 +14,7 @@ import java/lang/ThreadGroup;
 import java/lang/SecurityManager;
 import java/net/InetAddress;
 import java/security/_interfaces;
+import java/security/AccessControlContext;
 
 
 // local semantic types
@@ -85,9 +86,15 @@ automaton LSLSecurityManagerAutomaton
     }
 
 
-    @AutoInline @Phantom proc _throwSE (): void
+    @AutoInline @Phantom proc _throwIAE (): void
     {
-        action THROW_NEW("java.lang.SecurityException", []);
+        action THROW_NEW("java.lang.IllegalArgumentException", []);
+    }
+
+
+    @AutoInline @Phantom proc _throwACE (): void
+    {
+        action THROW_NEW("java.security.AccessControlException", []);
     }
 
 
@@ -96,7 +103,7 @@ automaton LSLSecurityManagerAutomaton
     constructor *.LSLSecurityManager (@target self: LSLSecurityManager)
     {
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
@@ -109,52 +116,83 @@ automaton LSLSecurityManagerAutomaton
         if (host == null)
             _throwNPE();
 
-        action TODO(); // check host correctness
+        // 'host' correctness check is too complex
+        if (action SYMBOLIC("boolean"))
+            _throwIAE();
 
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkAccess (@target self: LSLSecurityManager, t: Thread): void
     {
+        if (t == null)
+            action THROW_NEW("java.lang.NullPointerException", ["thread can't be null"]);
+
+        // #todo: check thread group?
+
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkAccess (@target self: LSLSecurityManager, g: ThreadGroup): void
     {
+        if (g == null)
+            action THROW_NEW("java.lang.NullPointerException", ["thread group can't be null"]);
+
+        // #todo: check thread group?
+
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkConnect (@target self: LSLSecurityManager, host: String, port: int): void
     {
+        if (host == null)
+            action THROW_NEW("java.lang.NullPointerException", ["host can't be null"]);
+
+        // host correctness check is too complex
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwIAE();
+
+        if (action SYMBOLIC("boolean"))
+            _throwACE();
     }
 
 
     fun *.checkConnect (@target self: LSLSecurityManager, host: String, port: int, context: Object): void
     {
+        if (host == null)
+            _throwNPE();
+
+        // host correctness check is too complex
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwIAE();
+
+        if (action SYMBOLIC("boolean"))
+            _throwACE();
     }
 
 
     fun *.checkCreateClassLoader (@target self: LSLSecurityManager): void
     {
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkDelete (@target self: LSLSecurityManager, file: String): void
     {
+        if (file == null)
+            _throwNPE();
+
+        // 'action' check during construction of a FilePermission object does not throw an exception
+
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
@@ -163,113 +201,143 @@ automaton LSLSecurityManagerAutomaton
         if (cmd == null)
             _throwNPE();
 
+        // 'action' check during construction of a FilePermission object does not throw an exception
+
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkExit (@target self: LSLSecurityManager, status: int): void
     {
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkLink (@target self: LSLSecurityManager, lib: String): void
     {
+        if (lib == null)
+            _throwNPE();
+
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkListen (@target self: LSLSecurityManager, port: int): void
     {
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkMulticast (@target self: LSLSecurityManager, maddr: InetAddress): void
     {
+        if (maddr == null)
+            _throwNPE();
+
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkMulticast (@target self: LSLSecurityManager, maddr: InetAddress, ttl: byte): void
     {
+        if (maddr == null)
+            _throwNPE();
+
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkPackageAccess (@target self: LSLSecurityManager, pkg: String): void
     {
+        if (pkg == null)
+            _throwNPE();
+
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkPackageDefinition (@target self: LSLSecurityManager, pkg: String): void
     {
+        if (pkg == null)
+            _throwNPE();
+
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkPermission (@target self: LSLSecurityManager, perm: Permission): void
     {
+        if (perm == null)
+            _throwNPE();
+
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkPermission (@target self: LSLSecurityManager, perm: Permission, context: Object): void
     {
-        if (action SYMBOLIC("boolean"))
-            _throwSE();
+        if (context is AccessControlContext)
+        {
+            if (perm == null)
+                _throwNPE();
+
+            if (action SYMBOLIC("boolean"))
+                _throwACE();
+        }
+        else
+        {
+            action THROW_NEW("java.lang.SecurityException", []);
+        }
     }
 
 
     fun *.checkPrintJobAccess (@target self: LSLSecurityManager): void
     {
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkPropertiesAccess (@target self: LSLSecurityManager): void
     {
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkPropertyAccess (@target self: LSLSecurityManager, key: String): void
     {
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkRead (@target self: LSLSecurityManager, fd: FileDescriptor): void
     {
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkRead (@target self: LSLSecurityManager, file: String): void
     {
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkRead (@target self: LSLSecurityManager, file: String, context: Object): void
     {
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
@@ -279,37 +347,38 @@ automaton LSLSecurityManagerAutomaton
             _throwNPE();
 
         if (action CALL_METHOD(_target, "isEmpty", []))
-            action THROW_NEW("java.lang.IllegalArgumentException", []);
+            _throwIAE();
 
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkSetFactory (@target self: LSLSecurityManager): void
     {
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkWrite (@target self: LSLSecurityManager, fd: FileDescriptor): void
     {
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.checkWrite (@target self: LSLSecurityManager, file: String): void
     {
         if (action SYMBOLIC("boolean"))
-            _throwSE();
+            _throwACE();
     }
 
 
     fun *.getSecurityContext (@target self: LSLSecurityManager): Object
     {
-        result = action SYMBOLIC("java.lang.Object");
+        result = action SYMBOLIC("java.security.AccessControlContext");
+        action ASSUME(result != null);
     }
 
 
