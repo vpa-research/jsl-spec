@@ -28,7 +28,7 @@ import java/security/AccessControlContext;
 
 // automata
 
-automaton LSLSecurityManagerAutomaton
+automaton SecurityManagerAutomaton
 (
 )
 : LSLSecurityManager
@@ -92,9 +92,13 @@ automaton LSLSecurityManagerAutomaton
     }
 
 
-    @AutoInline @Phantom proc _throwACE (): void
+    proc _do_checkPermission (perm: Permission): void
     {
-        action THROW_NEW("java.security.AccessControlException", []);
+        if (action SYMBOLIC("boolean"))
+            action THROW_NEW("java.security.AccessControlException", [
+                "access denied" /* + perm */,
+                perm
+            ]);
     }
 
 
@@ -102,8 +106,10 @@ automaton LSLSecurityManagerAutomaton
 
     constructor *.LSLSecurityManager (@target self: LSLSecurityManager)
     {
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        val a: String = "createSecurityManager";
+        _do_checkPermission(
+            action DEBUG_DO("new RuntimePermission(a)")
+        );
     }
 
 
@@ -120,8 +126,7 @@ automaton LSLSecurityManagerAutomaton
         if (action SYMBOLIC("boolean"))
             _throwIAE();
 
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
@@ -132,8 +137,7 @@ automaton LSLSecurityManagerAutomaton
 
         // #todo: check thread group?
 
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
@@ -144,8 +148,7 @@ automaton LSLSecurityManagerAutomaton
 
         // #todo: check thread group?
 
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
@@ -158,8 +161,7 @@ automaton LSLSecurityManagerAutomaton
         if (action SYMBOLIC("boolean"))
             _throwIAE();
 
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
@@ -172,15 +174,13 @@ automaton LSLSecurityManagerAutomaton
         if (action SYMBOLIC("boolean"))
             _throwIAE();
 
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
     fun *.checkCreateClassLoader (@target self: LSLSecurityManager): void
     {
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
@@ -191,8 +191,7 @@ automaton LSLSecurityManagerAutomaton
 
         // 'action' check during construction of a FilePermission object does not throw an exception
 
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
@@ -203,15 +202,13 @@ automaton LSLSecurityManagerAutomaton
 
         // 'action' check during construction of a FilePermission object does not throw an exception
 
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
     fun *.checkExit (@target self: LSLSecurityManager, status: int): void
     {
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
@@ -220,15 +217,13 @@ automaton LSLSecurityManagerAutomaton
         if (lib == null)
             _throwNPE();
 
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
     fun *.checkListen (@target self: LSLSecurityManager, port: int): void
     {
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
@@ -237,8 +232,7 @@ automaton LSLSecurityManagerAutomaton
         if (maddr == null)
             _throwNPE();
 
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
@@ -247,8 +241,7 @@ automaton LSLSecurityManagerAutomaton
         if (maddr == null)
             _throwNPE();
 
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
@@ -257,8 +250,7 @@ automaton LSLSecurityManagerAutomaton
         if (pkg == null)
             _throwNPE();
 
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
@@ -267,8 +259,7 @@ automaton LSLSecurityManagerAutomaton
         if (pkg == null)
             _throwNPE();
 
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
@@ -277,8 +268,7 @@ automaton LSLSecurityManagerAutomaton
         if (perm == null)
             _throwNPE();
 
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(perm);
     }
 
 
@@ -289,8 +279,7 @@ automaton LSLSecurityManagerAutomaton
             if (perm == null)
                 _throwNPE();
 
-            if (action SYMBOLIC("boolean"))
-                _throwACE();
+            _do_checkPermission(perm);
         }
         else
         {
@@ -301,43 +290,37 @@ automaton LSLSecurityManagerAutomaton
 
     fun *.checkPrintJobAccess (@target self: LSLSecurityManager): void
     {
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
     fun *.checkPropertiesAccess (@target self: LSLSecurityManager): void
     {
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
     fun *.checkPropertyAccess (@target self: LSLSecurityManager, key: String): void
     {
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
     fun *.checkRead (@target self: LSLSecurityManager, fd: FileDescriptor): void
     {
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
     fun *.checkRead (@target self: LSLSecurityManager, file: String): void
     {
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
     fun *.checkRead (@target self: LSLSecurityManager, file: String, context: Object): void
     {
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
@@ -349,34 +332,31 @@ automaton LSLSecurityManagerAutomaton
         if (action CALL_METHOD(_target, "isEmpty", []))
             _throwIAE();
 
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
     fun *.checkSetFactory (@target self: LSLSecurityManager): void
     {
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
     fun *.checkWrite (@target self: LSLSecurityManager, fd: FileDescriptor): void
     {
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
     fun *.checkWrite (@target self: LSLSecurityManager, file: String): void
     {
-        if (action SYMBOLIC("boolean"))
-            _throwACE();
+        _do_checkPermission(null); // #todo
     }
 
 
     fun *.getSecurityContext (@target self: LSLSecurityManager): Object
     {
+        // #problem: type clash with 'Object'
         result = action SYMBOLIC("java.security.AccessControlContext");
         action ASSUME(result != null);
     }
