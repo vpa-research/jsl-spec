@@ -51,7 +51,8 @@ automaton StreamAutomaton
         flatMapToInt,
         flatMapToLong,
         flatMapToDouble,
-        sorted,
+        sorted (Stream),
+        sorted (Stream, Comparator),
         /*close,
         dropWhile,
         isParallel,
@@ -373,6 +374,7 @@ automaton StreamAutomaton
         }
     }
 
+
     @Phantom proc sort_loop_outer (i: int, j: int, innerLimit: int): void
     {
         innerLimit = this.length - i - 1;
@@ -381,6 +383,7 @@ automaton StreamAutomaton
             sort_loop_inner(j)
         );
     }
+
 
     @Phantom proc sort_loop_inner (j: int): void
     {
@@ -391,6 +394,61 @@ automaton StreamAutomaton
 
         // "compareTo" - that's right ??
         if (action DEBUG_DO("a.compareTo(b)") > 0)
+        {
+            this.storage[idxA] = b;
+            this.storage[idxB] = a;
+        }
+    }
+
+
+    fun *.sorted (@target self: Stream, comparator: Comparator): Stream
+    {
+        if (this.length == 0)
+        {
+            result = new StreamAutomaton(state = Initialized,
+                storage = this.storage,
+                length = this.length,
+            );
+        }
+        else
+        {
+            // plain bubble sorting algorithm
+            val outerLimit: int = this.length - 1;
+            var innerLimit: int = 0;
+            var i: int = 0;
+            var j: int = 0;
+            /*action LOOP_FOR(
+                i, 0, outerLimit, +1,
+                sort_loop_outer_with_comparator(i, j, innerLimit, comparator)
+            );*/
+
+            result = new StreamAutomaton(state = Initialized,
+                storage = this.storage,
+                length = this.length,
+            );
+        }
+    }
+
+
+    @Phantom proc sort_loop_outer_with_comparator (i: int, j: int, innerLimit: int, comparator: Comparator): void
+    {
+        innerLimit = this.length - i - 1;
+        action LOOP_FOR(
+            j, 0, innerLimit, +1,
+            sort_loop_inner_with_comparator(j, comparator)
+        );
+    }
+
+
+    @Phantom proc sort_loop_inner_with_comparator (j: int, comparator: Comparator): void
+    {
+        val idxA: int = j;
+        val idxB: int = j + 1;
+        val a: Object = this.storage[idxA];
+        val b: Object = this.storage[idxB];
+
+        // "compareTo" - that's right ??
+        if (action CALL(comparator, [a, b]) > 0)
         {
             this.storage[idxA] = b;
             this.storage[idxB] = a;
