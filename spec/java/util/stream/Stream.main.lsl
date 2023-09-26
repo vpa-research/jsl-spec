@@ -44,6 +44,7 @@ automaton StreamAutomaton
         // instance methods
         filter,
         map,
+        flatMap,
         /*close,
         dropWhile,
         isParallel,
@@ -259,6 +260,21 @@ automaton StreamAutomaton
     @Phantom proc _mapToDouble_loop (i: int, mapper: ToDoubleFunction, mappedStorage: array<Object>): void
     {
         mappedStorage[i] = action CALL(mapper, [this.storage[i]]);
+    }
+
+
+    fun *.flatMap(@target self: Stream, mapper: Function): Stream
+    {
+        if (mapper == null)
+            _throwNPE();
+
+        var mappedStorage: array<Object> = action DEBUG_DO("Arrays.stream(this.storage).flatMap(mapper).collect(Collectors.toList()).toArray()");
+        val mappedLength: int = action ARRAY_SIZE(mappedStorage);
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = mappedStorage,
+            length = mappedLength,
+        );
     }
 
     /*
