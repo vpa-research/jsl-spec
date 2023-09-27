@@ -55,6 +55,7 @@ automaton StreamAutomaton
         sorted (Stream, Comparator),
         peek,
         limit,
+        skip,
         /*close,
         dropWhile,
         isParallel,
@@ -519,6 +520,47 @@ automaton StreamAutomaton
     @Phantom proc _limit_loop (i: int, limitStorage: array<Object>): void
     {
         limitStorage[i] = this.storage[i];
+    }
+
+
+    fun *.skip (n: long): Stream
+    {
+        if (n < 0)
+            action THROW_NEW("java.lang.IllegalArgumentException", []);
+
+        if (n == 0)
+        {
+            result = new StreamAutomaton(state = Initialized,
+                storage = this.storage,
+                length = this.length,
+            );
+        }
+        else
+        {
+            // what will be if will be overflow ?
+            val offset: int = n as int;
+            val newLength: int = this.length - offset;
+            val skipStorage: array<Object> = action ARRAY_NEW("java.lang.Object", newLength);
+
+            var i: int = 0;
+            var skipIndex: int = 0;
+            action LOOP_FOR(
+                i, offset, this.length, +1,
+                _skip_loop(i, skipIndex, skipStorage)
+            );
+
+            result = new StreamAutomaton(state = Initialized,
+                storage = skipStorage,
+                length = newLength,
+            );
+        }
+    }
+
+
+    @Phantom proc _skip_loop (i: int, skipIndex: int, skipStorage: array<Object>): void
+    {
+        skipStorage[skipIndex] = this.storage[i];
+        skipIndex += 1;
     }
 
     /*
