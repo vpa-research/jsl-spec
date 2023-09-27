@@ -74,21 +74,18 @@ automaton ThrowableAutomaton
     @Phantom constructor *.Throwable (@target self: LSLThrowable)
     {
         // Note: using the original method
-        action TODO();
     }
 
 
     @Phantom constructor *.Throwable (@target self: LSLThrowable, message: String)
     {
         // Note: using the original method
-        action TODO();
     }
 
 
     @Phantom constructor *.Throwable (@target self: LSLThrowable, message: String, cause: Throwable)
     {
         // Note: using the original method
-        action TODO();
     }
 
 
@@ -96,14 +93,12 @@ automaton ThrowableAutomaton
             message: String, cause: Throwable, enableSuppression: boolean, writableStackTrace: boolean)
     {
         // Note: using the original method
-        action TODO();
     }
 
 
     @Phantom constructor *.Throwable (@target self: LSLThrowable, cause: Throwable)
     {
         // Note: using the original method
-        action TODO();
     }
 
 
@@ -126,21 +121,18 @@ automaton ThrowableAutomaton
     @Phantom @synchronized fun *.getCause (@target self: LSLThrowable): Throwable
     {
         // Note: using the original method
-        action TODO();
     }
 
 
     @Phantom fun *.getLocalizedMessage (@target self: LSLThrowable): String
     {
         // Note: using the original method
-        action TODO();
     }
 
 
     @Phantom fun *.getMessage (@target self: LSLThrowable): String
     {
         // Note: using the original method
-        action TODO();
     }
 
 
@@ -167,7 +159,6 @@ automaton ThrowableAutomaton
     @Phantom @synchronized fun *.initCause (@target self: LSLThrowable, cause: Throwable): Throwable
     {
         // Note: using the original method
-        action TODO();
     }
 
 
@@ -180,14 +171,12 @@ automaton ThrowableAutomaton
     @Phantom fun *.printStackTrace (@target self: LSLThrowable, s: PrintStream): void
     {
         // Note: using the original method
-        action TODO();
     }
 
 
     @Phantom fun *.printStackTrace (@target self: LSLThrowable, s: PrintWriter): void
     {
         // Note: using the original method
-        action TODO();
     }
 
 
@@ -200,7 +189,6 @@ automaton ThrowableAutomaton
     @Phantom fun *.toString (@target self: LSLThrowable): String
     {
         // Note: using the original method
-        action TODO();
     }
 
 }
