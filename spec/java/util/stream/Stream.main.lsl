@@ -58,6 +58,8 @@ automaton StreamAutomaton
         skip,
         forEach,
         forEachOrdered,
+        toArray (Stream),
+        toArray (Stream, IntFunction),
         /*close,
         dropWhile,
         isParallel,
@@ -582,6 +584,32 @@ automaton StreamAutomaton
     {
         _actionApply(_action);
     }
+
+
+    fun *.toArray (@target self: Stream): array<Object>
+    {
+        result = this.storage;
+    }
+
+
+    fun *.toArray (@target self: Stream, generator: IntFunction): array<Object>
+    {
+        val generatedArray: array<Object> = action CALL(generator,[this.length]);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _copyToArray_loop(i, generatedArray)
+        );
+        result = generatedArray;
+    }
+
+
+    @Phantom proc _copyToArray_loop (i: int, generatedArray: array<Object>): void
+    {
+        generatedArray[i] = this.storage[i];
+    }
+
 
     /*
     @throws(["java.lang.Exception"])
