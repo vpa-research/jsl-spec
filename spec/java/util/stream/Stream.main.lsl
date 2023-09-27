@@ -11,6 +11,7 @@ import java.common;
 import java/lang/_interfaces;
 import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
+import java/util/Optional;
 
 
 // automata
@@ -60,7 +61,8 @@ automaton StreamAutomaton
         forEachOrdered,
         toArray (Stream),
         toArray (Stream, IntFunction),
-        reduce,
+        reduce (Stream, Object, BinaryOperator),
+        reduce (Stream, BinaryOperator),
         /*close,
         dropWhile,
         isParallel,
@@ -630,6 +632,34 @@ automaton StreamAutomaton
     @Phantom proc _accumulate_loop (i: int, accumulator: BinaryOperator, result: Object): void
     {
         result = action CALL(accumulator, [result, this.storage[i]]);
+    }
+
+
+    fun *.reduce (@target self: Stream, accumulator: BinaryOperator): Optional
+    {
+        if (accumulator == null)
+            _throwNPE();
+
+        var value: Object = null;
+
+        if (this.length > 0)
+        {
+            value = this.storage[0];
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 1, this.length, +1,
+                _accumulate_optional_loop(i, accumulator, value)
+            );
+        }
+
+        result = action DEBUG_DO("Optional.of(value)");
+    }
+
+
+    @Phantom proc _accumulate_optional_loop (i: int, accumulator: BinaryOperator, value: Object): void
+    {
+        value = action CALL(accumulator, [value, this.storage[i]]);
     }
 
 
