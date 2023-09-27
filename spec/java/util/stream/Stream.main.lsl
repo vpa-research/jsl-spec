@@ -60,6 +60,7 @@ automaton StreamAutomaton
         forEachOrdered,
         toArray (Stream),
         toArray (Stream, IntFunction),
+        reduce,
         /*close,
         dropWhile,
         isParallel,
@@ -608,6 +609,27 @@ automaton StreamAutomaton
     @Phantom proc _copyToArray_loop (i: int, generatedArray: array<Object>): void
     {
         generatedArray[i] = this.storage[i];
+    }
+
+
+    fun *.reduce (@target self: Stream, identity: Object, accumulator: BinaryOperator): Object
+    {
+        if (accumulator == null || identity == null)
+            _throwNPE();
+
+        result = identity;
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _accumulate_loop(i, accumulator, result)
+        );
+    }
+
+
+    @Phantom proc _accumulate_loop (i: int, accumulator: BinaryOperator, result: Object): void
+    {
+        result = action CALL(accumulator, [result, this.storage[i]]);
     }
 
 
