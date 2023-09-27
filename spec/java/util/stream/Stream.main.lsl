@@ -63,6 +63,7 @@ automaton StreamAutomaton
         toArray (Stream, IntFunction),
         reduce (Stream, Object, BinaryOperator),
         reduce (Stream, BinaryOperator),
+        reduce (Stream, Object, BiFunction, BinaryOperator),
         /*close,
         dropWhile,
         isParallel,
@@ -660,6 +661,28 @@ automaton StreamAutomaton
     @Phantom proc _accumulate_optional_loop (i: int, accumulator: BinaryOperator, value: Object): void
     {
         value = action CALL(accumulator, [value, this.storage[i]]);
+    }
+
+
+    fun *.reduce (@target self: Stream, identity:Object, accumulator: BiFunction, combiner: BinaryOperator): Object
+    {
+        if (accumulator == null || identity == null || combiner == null)
+            _throwNPE();
+
+        result = identity;
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _accumulate_with_biFunction_loop(i, accumulator, result)
+        );
+        // since this implementation is always sequential, we do not need to use the combiner
+    }
+
+
+    @Phantom proc _accumulate_with_biFunction_loop (i: int, accumulator: BiFunction, result: Object): void
+    {
+        result = action CALL(accumulator, [result, this.storage[i]]);
     }
 
 
