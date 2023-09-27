@@ -96,7 +96,7 @@ automaton SecurityManagerAutomaton
     {
         if (action SYMBOLIC("boolean"))
             action THROW_NEW("java.security.AccessControlException", [
-                "access denied" /* + perm */,
+                "access denied " /* + action OBJECT_TO_STRING(perm) */,
                 perm
             ]);
     }
@@ -106,9 +106,9 @@ automaton SecurityManagerAutomaton
 
     constructor *.LSLSecurityManager (@target self: LSLSecurityManager)
     {
-        val a: String = "createSecurityManager";
+        val actionName: String = "createSecurityManager";
         _do_checkPermission(
-            action DEBUG_DO("new RuntimePermission(a)")
+            action DEBUG_DO("new RuntimePermission(actionName)")
         );
     }
 
@@ -168,9 +168,9 @@ automaton SecurityManagerAutomaton
     fun *.checkConnect (@target self: LSLSecurityManager, host: String, port: int, context: Object): void
     {
         if (host == null)
-            _throwNPE();
+            action THROW_NEW("java.lang.NullPointerException", ["host can't be null"]);
 
-        // host correctness check is too complex
+        // 'host' correctness check is too complex
         if (action SYMBOLIC("boolean"))
             _throwIAE();
 
@@ -356,7 +356,6 @@ automaton SecurityManagerAutomaton
 
     fun *.getSecurityContext (@target self: LSLSecurityManager): Object
     {
-        // #problem: type clash with 'Object'
         result = action SYMBOLIC("java.security.AccessControlContext");
         action ASSUME(result != null);
     }
