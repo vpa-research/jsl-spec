@@ -56,6 +56,8 @@ automaton StreamAutomaton
         peek,
         limit,
         skip,
+        forEach,
+        forEachOrdered,
         /*close,
         dropWhile,
         isParallel,
@@ -90,6 +92,30 @@ automaton StreamAutomaton
             storage = mappedStorage,
             length = mappedLength,
         );
+    }
+
+
+    proc _actionApply (_action: Consumer): Stream
+    {
+        if (_action == null)
+            _throwNPE();
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _actionApply_loop(i, _action)
+        );
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = this.storage,
+            length = this.length,
+        );
+    }
+
+
+    @Phantom proc _actionApply_loop (i: int, _action: Consumer): void
+    {
+        this.storage[i] = action CALL(_action, [this.storage[i]]);
     }
 
     // constructors
@@ -461,25 +487,7 @@ automaton StreamAutomaton
 
     fun *.peek (@target self: Stream, _action: Consumer): Stream
     {
-        if (_action == null)
-            _throwNPE();
-
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, this.length, +1,
-            _peek_loop(i, _action)
-        );
-
-        result = new StreamAutomaton(state = Initialized,
-            storage = this.storage,
-            length = this.length,
-        );
-    }
-
-
-    @Phantom proc _peek_loop (i: int, _action: Consumer): void
-    {
-        this.storage[i] = action CALL(_action, [this.storage[i]]);
+        result = _actionApply(_action);
     }
 
 
@@ -523,7 +531,7 @@ automaton StreamAutomaton
     }
 
 
-    fun *.skip (n: long): Stream
+    fun *.skip (@target self: Stream, n: long): Stream
     {
         if (n < 0)
             action THROW_NEW("java.lang.IllegalArgumentException", []);
@@ -561,6 +569,18 @@ automaton StreamAutomaton
     {
         skipStorage[skipIndex] = this.storage[i];
         skipIndex += 1;
+    }
+
+
+    fun *.forEach (@target self: Stream, _action: Consumer): void
+    {
+        _actionApply(_action);
+    }
+
+
+    fun *.forEachOrdered (@target self: Stream, _action: Consumer): void
+    {
+        _actionApply(_action);
     }
 
     /*
