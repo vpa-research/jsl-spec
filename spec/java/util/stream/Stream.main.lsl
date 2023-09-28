@@ -754,6 +754,37 @@ automaton StreamAutomaton
             min = this.storage[i];
     }
 
+
+    fun *.max (@target self: Stream, comparator: Comparator): Optional
+    {
+        if (comparator == null)
+            _throwNPE();
+
+        if (this.length == 0)
+        {
+            result = action DEBUG_DO("Optional.empty()");
+        }
+        else
+        {
+            var max: Object = this.storage[0];
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 1, this.length, +1,
+                _find_max_loop(i, comparator, max)
+            );
+
+            result = action DEBUG_DO("Optional.of(max)");
+        }
+    }
+
+
+    @Phantom proc _find_max_loop (i: int, comparator: Comparator, max: int): void
+    {
+        if (action CALL(comparator, [max, this.storage[i]]) < 0)
+            max = this.storage[i];
+    }
+
     /*
     @throws(["java.lang.Exception"])
     // within java.lang.AutoCloseable
