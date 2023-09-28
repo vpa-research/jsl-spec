@@ -64,6 +64,8 @@ automaton StreamAutomaton
         reduce (Stream, Object, BinaryOperator),
         reduce (Stream, BinaryOperator),
         reduce (Stream, Object, BiFunction, BinaryOperator),
+        collect (Stream, Supplier, BiConsumer, BiConsumer),
+        collect (Stream, Collector),
         /*close,
         dropWhile,
         isParallel,
@@ -701,11 +703,25 @@ automaton StreamAutomaton
 
     }
 
+
     @Phantom proc _accumulate_with_biConsumer_loop (i: int, accumulator: BiConsumer, result: Object): void
     {
         result = action CALL(accumulator, [result, this.storage[i]]);
     }
 
+
+    fun *.collect (@target self: Stream, collector: Collector): Object
+    {
+        if (collector == null)
+            _throwNPE();
+
+        var i: int = 0;
+        val accumulator: BiConsumer = action CALL_METHOD(collector, "accumulator", []);
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _accumulate_with_biConsumer_loop(i, collector, result)
+        );
+    }
 
     /*
     @throws(["java.lang.Exception"])
