@@ -686,6 +686,27 @@ automaton StreamAutomaton
     }
 
 
+    fun *.collect (@target self: Stream, supplier: Supplier, accumulator: BiConsumer, combiner: BiConsumer): Object
+    {
+        if (supplier == null || accumulator == null || combiner == null)
+            _throwNPE();
+        // since this implementation is always sequential, we do not need to use the combiner
+        result = action CALL(supplier, []);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _accumulate_with_biConsumer_loop(i, accumulator, result)
+        );
+
+    }
+
+    @Phantom proc _accumulate_with_biConsumer_loop (i: int, accumulator: BiConsumer, result: Object): void
+    {
+        result = action CALL(accumulator, [result, this.storage[i]]);
+    }
+
+
     /*
     @throws(["java.lang.Exception"])
     // within java.lang.AutoCloseable
