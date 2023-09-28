@@ -723,6 +723,37 @@ automaton StreamAutomaton
         );
     }
 
+
+    fun *.min (@target self: Stream, comparator: Comparator): Optional
+    {
+        if (comparator == null)
+            _throwNPE();
+
+        if (this.length == 0)
+        {
+            result = action DEBUG_DO("Optional.empty()");
+        }
+        else
+        {
+            var min: Object = this.storage[0];
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 1, this.length, +1,
+                _find_min_loop(i, comparator, min)
+            );
+
+            result = action DEBUG_DO("Optional.of(min)");
+        }
+    }
+
+
+    @Phantom proc _find_min_loop (i: int, comparator: Comparator, min: int): void
+    {
+        if (action CALL(comparator, [min, this.storage[i]]) > 0)
+            min = this.storage[i];
+    }
+
     /*
     @throws(["java.lang.Exception"])
     // within java.lang.AutoCloseable
