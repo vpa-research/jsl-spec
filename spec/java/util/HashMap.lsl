@@ -7,7 +7,8 @@ library std
     url "https://github.com/openjdk/jdk11/blob/master/src/java.base/share/classes/java/util/HashMap.java";
 
 // imports
-import java.common;
+
+import java/lang/_interfaces;
 import java/util/_interfaces;
 
 
@@ -21,7 +22,6 @@ import java/util/_interfaces;
     is java.util.HashMap
     for Map
 {
-    // #problem: should be 362498820763181265 instead
-    @private @static val serialVersionUID: long = 2;
+    @private @static val serialVersionUID: long = 362498820763181265L;
 }
 
