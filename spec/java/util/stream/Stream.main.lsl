@@ -72,6 +72,8 @@ automaton StreamAutomaton
         anyMatch,
         allMatch,
         noneMatch,
+        findFirst,
+        findAny,
         /*close,
         dropWhile,
         isParallel,
@@ -130,6 +132,20 @@ automaton StreamAutomaton
     @Phantom proc _actionApply_loop (i: int, _action: Consumer): void
     {
         this.storage[i] = action CALL(_action, [this.storage[i]]);
+    }
+
+
+    proc _findFirst (): Optional
+    {
+        if (this.length == 0)
+        {
+            result = action DEBUG_DO("Optional.empty()");
+        }
+        else
+        {
+            val first: Object = this.storage[0];
+            result = action DEBUG_DO("Optional.of(first)");
+        }
     }
 
     // constructors
@@ -870,6 +886,18 @@ automaton StreamAutomaton
             result = false;
             action LOOP_BREAK();
         }
+    }
+
+
+    fun *.findFirst (@target self: Stream): Optional
+    {
+        result = _findFirst();
+    }
+
+
+    fun *.findAny (@target self: Stream): Optional
+    {
+        result = _findFirst();
     }
 
     /*
