@@ -126,7 +126,9 @@ automaton SecurityManagerAutomaton
         if (action SYMBOLIC("boolean"))
             _throwIAE();
 
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
@@ -137,7 +139,9 @@ automaton SecurityManagerAutomaton
 
         // #todo: check thread group?
 
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
@@ -148,7 +152,9 @@ automaton SecurityManagerAutomaton
 
         // #todo: check thread group?
 
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
@@ -161,7 +167,9 @@ automaton SecurityManagerAutomaton
         if (action SYMBOLIC("boolean"))
             _throwIAE();
 
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
@@ -174,13 +182,17 @@ automaton SecurityManagerAutomaton
         if (action SYMBOLIC("boolean"))
             _throwIAE();
 
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
     fun *.checkCreateClassLoader (@target self: LSLSecurityManager): void
     {
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
@@ -191,7 +203,9 @@ automaton SecurityManagerAutomaton
 
         // 'action' check during construction of a FilePermission object does not throw an exception
 
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
@@ -202,13 +216,17 @@ automaton SecurityManagerAutomaton
 
         // 'action' check during construction of a FilePermission object does not throw an exception
 
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
     fun *.checkExit (@target self: LSLSecurityManager, status: int): void
     {
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
@@ -217,13 +235,17 @@ automaton SecurityManagerAutomaton
         if (lib == null)
             _throwNPE();
 
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
     fun *.checkListen (@target self: LSLSecurityManager, port: int): void
     {
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
@@ -232,7 +254,9 @@ automaton SecurityManagerAutomaton
         if (maddr == null)
             _throwNPE();
 
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
@@ -241,7 +265,9 @@ automaton SecurityManagerAutomaton
         if (maddr == null)
             _throwNPE();
 
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
@@ -250,7 +276,9 @@ automaton SecurityManagerAutomaton
         if (pkg == null)
             _throwNPE();
 
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
@@ -259,7 +287,9 @@ automaton SecurityManagerAutomaton
         if (pkg == null)
             _throwNPE();
 
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
@@ -290,37 +320,49 @@ automaton SecurityManagerAutomaton
 
     fun *.checkPrintJobAccess (@target self: LSLSecurityManager): void
     {
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
     fun *.checkPropertiesAccess (@target self: LSLSecurityManager): void
     {
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
     fun *.checkPropertyAccess (@target self: LSLSecurityManager, key: String): void
     {
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
     fun *.checkRead (@target self: LSLSecurityManager, fd: FileDescriptor): void
     {
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
     fun *.checkRead (@target self: LSLSecurityManager, file: String): void
     {
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
     fun *.checkRead (@target self: LSLSecurityManager, file: String, context: Object): void
     {
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
@@ -332,25 +374,33 @@ automaton SecurityManagerAutomaton
         if (action CALL_METHOD(_target, "isEmpty", []))
             _throwIAE();
 
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
     fun *.checkSetFactory (@target self: LSLSecurityManager): void
     {
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
     fun *.checkWrite (@target self: LSLSecurityManager, fd: FileDescriptor): void
     {
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
     fun *.checkWrite (@target self: LSLSecurityManager, file: String): void
     {
-        _do_checkPermission(null); // #todo
+        _do_checkPermission(
+            null // #todo
+        );
     }
 
 
