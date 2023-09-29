@@ -785,6 +785,12 @@ automaton StreamAutomaton
             max = this.storage[i];
     }
 
+
+    fun *.count (): long
+    {
+        result = this.length;
+    }
+
     /*
     @throws(["java.lang.Exception"])
     // within java.lang.AutoCloseable
