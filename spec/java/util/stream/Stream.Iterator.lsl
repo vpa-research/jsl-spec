@@ -33,6 +33,8 @@ automaton StreamIteratorAutomaton
 
     // local variables
 
+    var lastRet: int = -1;
+
 
     // utilities
 
@@ -58,24 +60,52 @@ automaton StreamIteratorAutomaton
         // relax state/error discovery process
         action ASSUME(this.parent != null);
 
-        val parentStorage: list<Object> = StreamAutomaton(this.parent).storage;
+        val parentStorage: array<Object> = StreamAutomaton(this.parent).storage;
 
         val i: int = this.cursor;
         if (i >= StreamAutomaton(this.parent).length)
             action THROW_NEW("java.util.NoSuchElementException", []);
 
         // iterrator validity check
-        if (i >= action LIST_SIZE(parentStorage))
+        if (i >= action ARRAY_SIZE(parentStorage))
             _throwCME();
 
         this.cursor = i + 1;
+        this.lastRet = i;
         result = parentStorage[i];
     }
 
 
     fun *.remove (@target self: StreamIterator): void
     {
-        action TODO();
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        if (this.lastRet < 0)
+            action THROW_NEW("java.lang.IllegalStateException", []);
+
+        val pStorage: array<Object> = StreamAutomaton(this.parent).storage;
+        val pLength: array<Object> = StreamAutomaton(this.parent).length;
+
+        if (this.lastRet >= action ARRAY_SIZE(pStorage))
+        {
+            _throwCME();
+        }
+        else
+        {
+            val newLength: int = pLength - 1;
+            val newStorage: array<Object> = action ARRAY_NEW("java.lang.Object", newLength);
+
+            // That's right ?
+            action ARRAY_COPY(pStorage, 0, newStorage, 0, this.lastRet);
+            action ARRAY_COPY(pStorage, this.lastRet + 1, newStorage, this.lastRet, pLength - this.lastRet - 1);
+
+            StreamAutomaton(this.parent).storage = pStorage;
+            StreamAutomaton(this.parent).length = newLength;
+        }
+
+        this.cursor = this.lastRet;
+        this.lastRet = -1;
     }
 
 
