@@ -8,7 +8,6 @@ library std
 
 // imports
 
-import java.common;
 import java/lang/_interfaces;
 import java/io/_interfaces;
 import java/util/_interfaces;
@@ -31,7 +30,7 @@ val HASHSET_VALUE: Object = 0;
     is java.util.HashSet
     for Set
 {
-    //@static @final var serialVersionUID: long = -5024744406713321676;
+    @private @static val serialVersionUID: long = -5024744406713321676L;
 }
 
 
