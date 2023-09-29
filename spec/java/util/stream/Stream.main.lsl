@@ -7,11 +7,7 @@ library std
 
 // imports
 
-import java.common;
-import java/lang/_interfaces;
-import java/util/function/_interfaces;
-import java/util/stream/_interfaces;
-import java/util/Optional;
+import java/util/stream/Stream;
 
 
 // automata
@@ -21,7 +17,7 @@ automaton StreamAutomaton
     var storage: array<Object>,
     @transient  var length: int
 )
-: Stream
+: StreamLSL
 {
     // states and shifts
 
