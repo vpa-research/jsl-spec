@@ -902,7 +902,10 @@ automaton StreamAutomaton
     // within java.util.stream.BaseStream
     fun *.iterator (@target self: Stream): Iterator
     {
-        action TODO();
+        result = new StreamIteratorAutomaton(state = Initialized,
+            parent = self,
+            cursor = 0
+        );
     }
 
 
