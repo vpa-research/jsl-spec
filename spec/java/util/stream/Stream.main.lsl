@@ -74,19 +74,21 @@ automaton StreamAutomaton
         noneMatch,
         findFirst,
         findAny,
+        iterator,
+        spliterator,
+        isParallel,
         /*close,
         dropWhile,
-        isParallel,
-        iterator,
         onClose,
         parallel,
         sequential,
-        spliterator,
         takeWhile,
         unordered,*/
     ];
 
     // internal variables
+    // #problem Can we have parallel streams ? Or not ?
+    val isParallel: boolean = false;
 
     // utilities
 
@@ -900,6 +902,27 @@ automaton StreamAutomaton
         result = _findFirst();
     }
 
+
+    // within java.util.stream.BaseStream
+    fun *.iterator (@target self: Stream): Iterator
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.BaseStream
+    fun *.spliterator (@target self: Stream): Spliterator
+    {
+        action TODO();
+    }
+
+
+    // within java.util.stream.BaseStream
+    fun *.isParallel (@target self: Stream): boolean
+    {
+        result = this.isParallel;
+    }
+
     /*
     @throws(["java.lang.Exception"])
     // within java.lang.AutoCloseable
@@ -910,20 +933,6 @@ automaton StreamAutomaton
 
 
     @default fun *.dropWhile (@target self: Stream, predicate: Predicate): Stream
-    {
-        action TODO();
-    }
-
-
-    // within java.util.stream.BaseStream
-    fun *.isParallel (@target self: Stream): boolean
-    {
-        action TODO();
-    }
-
-
-    // within java.util.stream.BaseStream
-    fun *.iterator (@target self: Stream): Iterator
     {
         action TODO();
     }
@@ -945,13 +954,6 @@ automaton StreamAutomaton
 
     // within java.util.stream.BaseStream
     fun *.sequential (@target self: Stream): BaseStream
-    {
-        action TODO();
-    }
-
-
-    // within java.util.stream.BaseStream
-    fun *.spliterator (@target self: Stream): Spliterator
     {
         action TODO();
     }
