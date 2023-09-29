@@ -71,6 +71,7 @@ automaton StreamAutomaton
         count,
         anyMatch,
         allMatch,
+        noneMatch,
         /*close,
         dropWhile,
         isParallel,
@@ -791,13 +792,13 @@ automaton StreamAutomaton
     }
 
 
-    fun *.count (): long
+    fun *.count (@target self: Stream): long
     {
         result = this.length;
     }
 
 
-    fun *.anyMatch (predicate: Predicate): boolean
+    fun *.anyMatch (@target self: Stream, predicate: Predicate): boolean
     {
         if (predicate == null)
             _throwNPE();
@@ -822,7 +823,7 @@ automaton StreamAutomaton
     }
 
 
-    fun *.allMatch (predicate: Predicate): boolean
+    fun *.allMatch (@target self: Stream, predicate: Predicate): boolean
     {
         if (predicate == null)
             _throwNPE();
@@ -840,6 +841,31 @@ automaton StreamAutomaton
     @Phantom proc _allMatch_loop (i: int, predicate: Predicate, result: boolean): void
     {
         if (!action CALL(predicate, [this.storage[i]]))
+        {
+            result = false;
+            action LOOP_BREAK();
+        }
+    }
+
+
+    fun *.noneMatch (@target self: Stream, predicate: Predicate): boolean
+    {
+        if (predicate == null)
+            _throwNPE();
+
+        result = true;
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _noneMatch_loop(i, predicate, result)
+        );
+    }
+
+
+    @Phantom proc _noneMatch_loop (i: int, predicate: Predicate, result: boolean): void
+    {
+        if (action CALL(predicate, [this.storage[i]]))
         {
             result = false;
             action LOOP_BREAK();
