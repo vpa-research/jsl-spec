@@ -66,6 +66,10 @@ automaton StreamAutomaton
         reduce (Stream, Object, BiFunction, BinaryOperator),
         collect (Stream, Supplier, BiConsumer, BiConsumer),
         collect (Stream, Collector),
+        min,
+        max,
+        count,
+        anyMatch,
         /*close,
         dropWhile,
         isParallel,
@@ -789,6 +793,31 @@ automaton StreamAutomaton
     fun *.count (): long
     {
         result = this.length;
+    }
+
+
+    fun *.anyMatch (predicate: Predicate): boolean
+    {
+        if (predicate == null)
+            _throwNPE();
+
+        result = false;
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _anyMatch_loop(i, predicate, result)
+        );
+    }
+
+
+    @Phantom proc _anyMatch_loop (i: int, predicate: Predicate, result: boolean): void
+    {
+        if (action CALL(predicate, [this.storage[i]]))
+        {
+            result = true;
+            action LOOP_BREAK();
+        }
     }
 
     /*
