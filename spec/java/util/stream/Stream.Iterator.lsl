@@ -111,6 +111,38 @@ automaton StreamIteratorAutomaton
 
     fun *.forEachRemaining (@target self: StreamIterator, userAction: Consumer): void
     {
-        action TODO();
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        if (userAction == null)
+            action THROW_NEW("java.lang.NullPointerException", []);
+
+        var i: int = this.cursor;
+        val size: int = StreamAutomaton(this.parent).length;
+
+        if (i < size)
+        {
+            val pStorage: array<Object> = StreamAutomaton(this.parent).storage;
+
+            if (i >= action ARRAY_SIZE(pStorage))
+                _throwCME();
+
+            action LOOP_WHILE(
+                i < size,
+                forEachRemaining_loop(userAction, pStorage, i)
+            );
+
+            this.cursor = i;
+            this.lastRet = i - 1;
+        }
+    }
+
+
+    @Phantom proc forEachRemaining_loop (userAction: Consumer, pStorage: array<Object>, i: int): void
+    {
+        val item: Object = pStorage[i];
+        action CALL(userAction, [item]);
+
+        i += 1;
     }
 }
