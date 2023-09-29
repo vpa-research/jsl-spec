@@ -36,6 +36,11 @@ automaton StreamIteratorAutomaton
 
     // utilities
 
+    @AutoInline @Phantom proc _throwCME (): void
+    {
+        action THROW_NEW("java.util.ConcurrentModificationException", []);
+    }
+
 
     // methods
 
@@ -44,13 +49,27 @@ automaton StreamIteratorAutomaton
         // relax state/error discovery process
         action ASSUME(this.parent != null);
 
-        result = this.cursor != ArrayListAutomaton(this.parent).length;
+        result = this.cursor != StreamAutomaton(this.parent).length;
     }
 
 
     fun *.next (@target self: StreamIterator): Object
     {
-        action TODO();
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        val parentStorage: list<Object> = StreamAutomaton(this.parent).storage;
+
+        val i: int = this.cursor;
+        if (i >= StreamAutomaton(this.parent).length)
+            action THROW_NEW("java.util.NoSuchElementException", []);
+
+        // iterrator validity check
+        if (i >= action LIST_SIZE(parentStorage))
+            _throwCME();
+
+        this.cursor = i + 1;
+        result = parentStorage[i];
     }
 
 
