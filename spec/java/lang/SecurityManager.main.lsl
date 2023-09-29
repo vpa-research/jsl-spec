@@ -7,7 +7,6 @@ library std
 
 // imports
 
-import java.common;
 import java/io/FileDescriptor;
 import java/lang/Thread;
 import java/lang/ThreadGroup;

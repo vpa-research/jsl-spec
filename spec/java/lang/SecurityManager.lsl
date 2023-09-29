@@ -8,7 +8,7 @@ library std
 
 // imports
 
-import java.common;
+import java/lang/_interfaces;
 
 
 // primary semantic types
