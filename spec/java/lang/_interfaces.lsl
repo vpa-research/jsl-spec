@@ -24,6 +24,12 @@ type Float  is java.lang.Float  for Object, float32 {}
 type Double is java.lang.Double for Object, float64 {}
 
 
+// WARNING: use OBJECT_HASH_CODE and OBJECT_EQUALS actions instead of calling these methods directly
+type Object is java.lang.Object for Object {}
+
+type Class is java.lang.Class for Object {}
+
+
 // string-related operations
 
 type CharSequence
