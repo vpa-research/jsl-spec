@@ -70,6 +70,7 @@ automaton StreamAutomaton
         max,
         count,
         anyMatch,
+        allMatch,
         /*close,
         dropWhile,
         isParallel,
@@ -816,6 +817,31 @@ automaton StreamAutomaton
         if (action CALL(predicate, [this.storage[i]]))
         {
             result = true;
+            action LOOP_BREAK();
+        }
+    }
+
+
+    fun *.allMatch (predicate: Predicate): boolean
+    {
+        if (predicate == null)
+            _throwNPE();
+
+        result = true;
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _allMatch_loop(i, predicate, result)
+        );
+    }
+
+
+    @Phantom proc _allMatch_loop (i: int, predicate: Predicate, result: boolean): void
+    {
+        if (!action CALL(predicate, [this.storage[i]]))
+        {
+            result = false;
             action LOOP_BREAK();
         }
     }
