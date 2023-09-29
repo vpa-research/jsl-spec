@@ -15,12 +15,21 @@ import java/util/stream/_interfaces;
 import java/util/Optional;
 
 
-// primary types
+// new/introduced types
 
 @GenerateMe
 @implements("java.util.stream.Stream")
 @public type StreamLSL
     is java.util.stream.StreamLSL
     for Stream
+{
+}
+
+
+@GenerateMe
+@implements("java.util.Iterator")
+@public type StreamIterator
+    is java.util.stream.StreamIterator
+    for Iterator
 {
 }
