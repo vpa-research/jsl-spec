@@ -81,6 +81,12 @@ automaton ArrayList_SubListAutomaton
     }
 
 
+    @AutoInline @Phantom proc _checkForComodification(): void
+    {
+        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+    }
+
+
     proc _addAllElements (index: int, c: Collection): boolean
     {
         action ASSUME(this.root != null);
@@ -97,7 +103,7 @@ automaton ArrayList_SubListAutomaton
         {
             result = true;
 
-            ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+            _checkForComodification();
             ArrayListAutomaton(this.root)._addAllElements(effectiveIndex, c);
             _updateSizeAndModCount(collectionSize);
         }
@@ -133,7 +139,7 @@ automaton ArrayList_SubListAutomaton
     {
         action ASSUME(this.root != null);
 
-        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+        _checkForComodification();
         val parentStorage: list<Object> = ArrayListAutomaton(this.root).storage;
 
         val index: int = action LIST_FIND(parentStorage, o, this.offset, this.offset + this.length);
@@ -178,7 +184,7 @@ automaton ArrayList_SubListAutomaton
     {
         action ASSUME(this.root != null);
 
-        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+        _checkForComodification();
 
         val effectiveIndex: int = this.offset + this.length;
         ArrayListAutomaton(this.root)._addElement(effectiveIndex, e);
@@ -191,7 +197,7 @@ automaton ArrayList_SubListAutomaton
     {
         action ASSUME(this.root != null);
 
-        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+        _checkForComodification();
 
         val effectiveIndex: int = this.offset + index;
         ArrayListAutomaton(this.root)._addElement(effectiveIndex, element);
@@ -216,7 +222,7 @@ automaton ArrayList_SubListAutomaton
     fun *.clear (@target self: ArrayList_SubList): void
     {
         action ASSUME(this.root != null);
-        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+        _checkForComodification();
 
         val size: int = this.length;
         if (size != 0)
@@ -329,7 +335,7 @@ automaton ArrayList_SubListAutomaton
                 if (result)
                 {
                     result = ArrayListAutomaton(this.root)._equalsRange(o as List, this.offset, this.offset + this.length);
-                    ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+                    _checkForComodification();
                 }
             }
         }
@@ -373,7 +379,7 @@ automaton ArrayList_SubListAutomaton
         action ASSUME(this.root != null);
 
         ArrayListAutomaton(this.root)._checkValidIndex(index, this.length);
-        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+        _checkForComodification();
 
         val effectiveIndex: int = this.offset + index;
         result = action LIST_GET(ArrayListAutomaton(this.root).storage, effectiveIndex);
@@ -396,7 +402,7 @@ automaton ArrayList_SubListAutomaton
                 hashCode_loop(i, rootStorage, result)
             );
 
-            ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+            _checkForComodification();
         }
     }
 
@@ -436,7 +442,7 @@ automaton ArrayList_SubListAutomaton
     fun *.lastIndexOf (@target self: ArrayList_SubList, o: Object): int
     {
         action ASSUME(this.root != null);
-        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+        _checkForComodification();
 
         if (this.length == 0)
         {
@@ -513,7 +519,7 @@ automaton ArrayList_SubListAutomaton
 
         if (result)
         {
-            ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+            _checkForComodification();
             ArrayListAutomaton(this.root)._deleteElement(index);
 
             _updateSizeAndModCount(-1);
@@ -526,7 +532,7 @@ automaton ArrayList_SubListAutomaton
         action ASSUME(this.root != null);
 
         ArrayListAutomaton(this.root)._checkValidIndex(index, this.length);
-        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+        _checkForComodification();
 
         val effectiveIndex: int = this.offset + index;
         result = ArrayListAutomaton(this.root)._deleteElement(effectiveIndex);
@@ -537,24 +543,107 @@ automaton ArrayList_SubListAutomaton
 
     fun *.removeAll (@target self: ArrayList_SubList, c: Collection): boolean
     {
-        result = true;
-
-        if (this.length != 0)
+        val size: int = this.length;
+        if (size != 0)
         {
+            action ASSUME(size > 0);
+            action ASSUME(this.root != null);
+
+            val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
             action TODO();
+
+            result = this.length != size;
+        }
+        else
+        {
+            result = false;
         }
     }
 
 
     fun *.removeIf (@target self: ArrayList_SubList, filter: Predicate): boolean
     {
-        action TODO();
+        action ASSUME(this.root != null);
+        _checkForComodification();
+
+        if (filter == null)
+            _throwNPE();
+
+        val size: int = this.length;
+        if (size != 0)
+        {
+            action ASSUME(size > 0);
+
+            val expectedModCount: int = this.modCount;
+            val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+
+            val end: int = this.offset - 1;
+            val start: int = end + size;
+            var delta: int = 0;
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, start, end, -1,
+                removeIf_loop(i, rootStorage, filter, delta)
+            );
+
+            ArrayListAutomaton(this.root)._checkForComodification(expectedModCount);
+
+            ArrayListAutomaton(this.root).length += delta;
+            ArrayListAutomaton(this.root).modCount += 1;
+            _updateSizeAndModCount(delta);
+
+            result = delta != 0;
+        }
+        else
+        {
+            result = false;
+        }
+    }
+
+    @Phantom proc removeIf_loop (i: int, rootStorage: list<Object>, filter: Predicate, delta: int): void
+    {
+        val item: Object = action LIST_GET(rootStorage, i);
+        if (action CALL(filter, [item]))
+        {
+            action LIST_REMOVE(rootStorage, i);
+            delta -= 1;
+        }
     }
 
 
     fun *.replaceAll (@target self: ArrayList_SubList, operator: UnaryOperator): void
     {
-        action TODO();
+        action ASSUME(this.root != null);
+        _checkForComodification();
+
+        if (operator == null)
+            _throwNPE();
+
+        val size: int = this.length;
+        if (size != 0)
+        {
+            action ASSUME(size > 0);
+
+            val expectedModCount: int = this.modCount;
+            val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+
+            val end: int = this.offset + size;
+            var i: int = 0;
+            action LOOP_FOR(
+                i, this.offset, end, +1,
+                replaceAll_loop(i, rootStorage, operator)
+            );
+
+            ArrayListAutomaton(this.root)._checkForComodification(expectedModCount);
+        }
+    }
+
+    @Phantom proc replaceAll_loop (i: int, rootStorage: list<Object>, operator: UnaryOperator): void
+    {
+        var item: Object = action LIST_GET(rootStorage, i);
+        item = action CALL(operator, [item]);
+        action LIST_SET(rootStorage, i, item);
     }
 
 
@@ -569,7 +658,7 @@ automaton ArrayList_SubListAutomaton
         action ASSUME(this.root != null);
 
         ArrayListAutomaton(this.root)._checkValidIndex(index, this.length);
-        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+        _checkForComodification();
 
         val parentStorage: list<Object> = ArrayListAutomaton(this.root).storage;
         val effectiveIndex: int = this.offset + index;
@@ -582,7 +671,7 @@ automaton ArrayList_SubListAutomaton
     {
         action ASSUME(this.root != null);
 
-        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+        _checkForComodification();
         result = this.length;
     }
 
@@ -596,7 +685,7 @@ automaton ArrayList_SubListAutomaton
             action ASSUME(this.length > 0);
             action ASSUME(this.root != null);
 
-            ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+            _checkForComodification();
             val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
 
             // prepare common variables
@@ -714,7 +803,7 @@ automaton ArrayList_SubListAutomaton
     fun *.toArray (@target self: ArrayList_SubList): array<Object>
     {
         action ASSUME(this.root != null);
-        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+        _checkForComodification();
 
         result = action ARRAY_NEW("java.lang.Object", this.length);
 
@@ -743,7 +832,7 @@ automaton ArrayList_SubListAutomaton
         val aSize: int = action ARRAY_SIZE(a);
 
         action ASSUME(this.root != null);
-        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+        _checkForComodification();
 
         result = action ARRAY_NEW("java.lang.Object", this.length);
 
@@ -761,7 +850,7 @@ automaton ArrayList_SubListAutomaton
     fun *.toArray (@target self: ArrayList_SubList, a: array<Object>): array<Object>
     {
         action ASSUME(this.root != null);
-        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+        _checkForComodification();
 
         val aSize: int = action ARRAY_SIZE(a);
         if (aSize < this.length)
