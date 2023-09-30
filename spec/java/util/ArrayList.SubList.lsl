@@ -178,8 +178,9 @@ automaton ArrayList_SubListAutomaton
     {
         action ASSUME(this.root != null);
 
-        val effectiveIndex: int = this.offset + this.length;
         ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+
+        val effectiveIndex: int = this.offset + this.length;
         ArrayListAutomaton(this.root)._addElement(effectiveIndex, e);
 
         _updateSizeAndModCount(+1);
@@ -190,8 +191,9 @@ automaton ArrayList_SubListAutomaton
     {
         action ASSUME(this.root != null);
 
-        val effectiveIndex: int = this.offset + index;
         ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+
+        val effectiveIndex: int = this.offset + index;
         ArrayListAutomaton(this.root)._addElement(effectiveIndex, element);
 
         _updateSizeAndModCount(+1);
@@ -213,7 +215,34 @@ automaton ArrayList_SubListAutomaton
     // within java.util.AbstractList
     fun *.clear (@target self: ArrayList_SubList): void
     {
-        action TODO();
+        action ASSUME(this.root != null);
+        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+
+        val size: int = this.length;
+        if (size != 0)
+        {
+            action ASSUME(size > 0);
+            val end: int = this.offset - 1;
+            val start: int = end + size;
+
+            val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, start, end, -1,
+                clear_loop(i, rootStorage)
+            );
+
+            ArrayListAutomaton(this.root).length -= size;
+            ArrayListAutomaton(this.root).modCount += 1;
+
+            _updateSizeAndModCount(-size);
+        }
+    }
+
+    @Phantom proc clear_loop (i: int, rootStorage: list<Object>): void
+    {
+        action LIST_REMOVE(rootStorage, i);
     }
 
 
@@ -343,10 +372,10 @@ automaton ArrayList_SubListAutomaton
     {
         action ASSUME(this.root != null);
 
-        val effectiveIndex: int = this.offset + index;
         ArrayListAutomaton(this.root)._checkValidIndex(index, this.length);
         ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
 
+        val effectiveIndex: int = this.offset + index;
         result = action LIST_GET(ArrayListAutomaton(this.root).storage, effectiveIndex);
     }
 
@@ -453,8 +482,6 @@ automaton ArrayList_SubListAutomaton
 
     fun *.listIterator (@target self: ArrayList_SubList, index: int): ListIterator
     {
-        action TODO();
-
         result = new ArrayList_SubList_ListIteratorAutomaton(state = Initialized,
             root = this.root,
             sublist = self,
@@ -498,10 +525,10 @@ automaton ArrayList_SubListAutomaton
     {
         action ASSUME(this.root != null);
 
-        val effectiveIndex: int = this.offset + index;
-
         ArrayListAutomaton(this.root)._checkValidIndex(index, this.length);
         ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+
+        val effectiveIndex: int = this.offset + index;
         result = ArrayListAutomaton(this.root)._deleteElement(effectiveIndex);
 
         _updateSizeAndModCount(-1);
@@ -541,11 +568,11 @@ automaton ArrayList_SubListAutomaton
     {
         action ASSUME(this.root != null);
 
-        val effectiveIndex: int = this.offset + index;
         ArrayListAutomaton(this.root)._checkValidIndex(index, this.length);
         ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
 
         val parentStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+        val effectiveIndex: int = this.offset + index;
         result = action LIST_GET(parentStorage, effectiveIndex);
         action LIST_SET(parentStorage, effectiveIndex, element);
     }
