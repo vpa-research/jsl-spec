@@ -675,31 +675,37 @@ automaton ArrayListAutomaton
     fun *.removeAll (@target self: ArrayList, c: Collection): boolean
     {
         val oldLength: int = this.length;
-
-        if (c has ArrayListAutomaton)
+        if (oldLength != 0)
         {
-            val otherStorage: list<Object> = ArrayListAutomaton(c).storage;
-            val otherLength: int = ArrayListAutomaton(c).length;
+            if (c has ArrayListAutomaton)
+            {
+                val otherStorage: list<Object> = ArrayListAutomaton(c).storage;
+                val otherLength: int = ArrayListAutomaton(c).length;
 
-            action ASSUME(otherStorage != null);
-            action ASSUME(otherLength >= 0);
+                action ASSUME(otherStorage != null);
+                action ASSUME(otherLength >= 0);
 
-            var i: int = 0;
-            action LOOP_FOR(
-                i, 0, otherLength, +1,
-                removeAll_loop_optimized(i, otherStorage)
-            );
+                var i: int = 0;
+                action LOOP_FOR(
+                    i, 0, otherLength, +1,
+                    removeAll_loop_optimized(i, otherStorage)
+                );
+            }
+            else
+            {
+                val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+                action LOOP_WHILE(
+                    action CALL_METHOD(iter, "hasNext", []),
+                    removeAll_loop_regular(iter)
+                );
+            }
+
+            result = oldLength != this.length;
         }
         else
         {
-            val iter: Iterator = action CALL_METHOD(c, "iterator", []);
-            action LOOP_WHILE(
-                action CALL_METHOD(iter, "hasNext", []),
-                removeAll_loop_regular(iter)
-            );
+            result = false;
         }
-
-        result = oldLength != this.length;
     }
 
     @Phantom proc removeAll_loop_optimized (i: int, otherStorage: list<Object>): void

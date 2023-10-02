@@ -347,6 +347,7 @@ automaton ArrayList_SubListAutomaton
     {
         if (this.length != 0)
         {
+            action ASSUME(this.length > 0);
             action ASSUME(this.root != null);
 
             val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
@@ -392,6 +393,7 @@ automaton ArrayList_SubListAutomaton
 
         if (this.length != 0)
         {
+            action ASSUME(this.length > 0);
             action ASSUME(this.root != null);
             val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
 
@@ -543,20 +545,47 @@ automaton ArrayList_SubListAutomaton
 
     fun *.removeAll (@target self: ArrayList_SubList, c: Collection): boolean
     {
+        action ASSUME(this.root != null);
+        _checkForComodification();
+
         val size: int = this.length;
         if (size != 0)
         {
             action ASSUME(size > 0);
-            action ASSUME(this.root != null);
+
+            // #todo: add optimized version based on automata checks
 
             val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
-            action TODO();
+            var end: int = this.offset + size;
+            var delta: int = 0;
 
-            result = this.length != size;
+            val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+            action LOOP_WHILE(
+                action CALL_METHOD(iter, "hasNext", []),
+                removeAll_loop(iter, rootStorage, end, delta)
+            );
+
+            result = delta != 0;
+            if (result)
+                _updateSizeAndModCount(delta);
         }
         else
         {
             result = false;
+        }
+    }
+
+    @Phantom proc removeAll_loop (iter: Iterator, rootStorage: list<Object>, end: int, delta: int): void
+    {
+        val item: Object = action CALL_METHOD(iter, "next", []);
+        val idx: int = action LIST_FIND(rootStorage, item, this.offset, end);
+        if (idx != -1)
+        {
+            action LIST_REMOVE(rootStorage, idx);
+            end -= 1;
+            delta -= 1;
+
+            ArrayListAutomaton(this.rootStorage).length -= 1;
         }
     }
 
@@ -591,9 +620,10 @@ automaton ArrayList_SubListAutomaton
 
             ArrayListAutomaton(this.root).length += delta;
             ArrayListAutomaton(this.root).modCount += 1;
-            _updateSizeAndModCount(delta);
 
             result = delta != 0;
+            if (result)
+                _updateSizeAndModCount(delta);
         }
         else
         {
