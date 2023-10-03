@@ -142,10 +142,11 @@ automaton HashSet_KeySpliteratorAutomaton
         this.index = hi;
         if (length > 0 && length >= hi && i >= 0 && i < this.index)
         {
-            // I must think about this:
+            val storage: array<Object> = this.keysStorage;
+            action ASSUME(storage != null);
             action LOOP_WHILE(
                 i < hi,
-                forEachRemaining_loop(userAction, i)
+                forEachRemaining_loop(userAction, i, storage)
             );
 
             val modCount: int = HashSetAutomaton(this.parent).modCount;
@@ -155,9 +156,9 @@ automaton HashSet_KeySpliteratorAutomaton
     }
 
 
-    @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int): void
+    @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int, storage: array<Object>): void
     {
-        val key: Object = this.keysStorage[i];
+        val key: Object = storage[i];
         action CALL(userAction, [key]);
         i += 1;
     }
