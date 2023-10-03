@@ -23,6 +23,7 @@ import java/util/Optional;
     is java.util.stream.StreamLSL
     for Stream
 {
+    @static val STREAM_VALUE: Object = 1;
 }
 
 

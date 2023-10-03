@@ -26,16 +26,6 @@ automaton StreamAutomaton
     state Initialized;
 
     shift Allocated -> Initialized by [
-        // static operations
-        /*builder,
-        concat,
-        empty,
-        generate,
-        iterate (Object, Predicate, UnaryOperator),
-        iterate (Object, UnaryOperator),
-        of (Object),
-        of (array<Object>),
-        ofNullable,*/
     ];
 
     shift Initialized -> self by [
@@ -149,65 +139,6 @@ automaton StreamAutomaton
             result = action DEBUG_DO("Optional.of(first)");
         }
     }
-
-    // constructors
-
-    // static methods
-
-    /*
-    @static fun *.builder (): Builder
-    {
-        action TODO();
-    }
-
-
-    @static fun *.concat (a: Stream, b: Stream): Stream
-    {
-        action TODO();
-    }
-
-
-    @static fun *.empty (): Stream
-    {
-        action TODO();
-    }
-
-
-    @static fun *.generate (s: Supplier): Stream
-    {
-        action TODO();
-    }
-
-
-    @static fun *.iterate (seed: Object, hasNext: Predicate, next: UnaryOperator): Stream
-    {
-        action TODO();
-    }
-
-
-    @static fun *.iterate (seed: Object, f: UnaryOperator): Stream
-    {
-        action TODO();
-    }
-
-
-    @static fun *.of (t: Object): Stream
-    {
-        action TODO();
-    }
-
-
-    @static @varargs fun *.of (values: array<Object>): Stream
-    {
-        action TODO();
-    }
-
-
-    @static fun *.ofNullable (t: Object): Stream
-    {
-        action TODO();
-    }
-    */
 
 
     // methods
@@ -378,38 +309,67 @@ automaton StreamAutomaton
 
     fun *.distinct (@target self: Stream): Stream
     {
-        action ASSUME(this.length == 3);
-
-        val first: int = this.storage[0];
-        val second: int = this.storage[1];
-        val third: int = this.storage[2];
-
-        val distinctStorage: array<int> = action ARRAY_NEW("java.lang.Object", 3);
+        var distinctStorage: array<Object> = null;
         var distinctLength: int = 0;
 
-        if (first != second && first != third)
+        val size: int = this.length;
+        if (size == 0)
         {
-            distinctStorage[distinctLength] = first;
-            distinctLength += 1;
+            distinctStorage = action ARRAY_NEW("java.lang.Object", 0);
+            distinctLength = 0;
+        }
+        else
+        {
+            val items: array<Object> = this.storage;
+            action ASSUME(items != null);
+            action ASSUME(action ARRAY_SIZE(items) != 0);
+            action ASSUME(size == action ARRAY_SIZE(items));
+            var i: int = 0;
+            var j: int = 0;
+
+            // serialize stored items
+            val uniqueItems: list<Object> = action LIST_NEW();
+            val visited: map<Object, Object> = action MAP_NEW();
+            action LOOP_FOR(
+                i, 0, size, +1,
+                distinct_loopStoreItems(i, items, visited, j, uniqueItems)
+            );
+
+            // allocate space for unique items
+            distinctLength = j;
+            action ASSUME(distinctLength > 0);
+            action ASSUME(distinctLength <= size);
+            distinctStorage = action ARRAY_NEW("java.lang.Object", distinctLength);
+
+            // restore unique items back
+            action LOOP_FOR(
+                i, 0, distinctLength, +1,
+                distinct_loopRecoverItems(i, uniqueItems, distinctStorage)
+            );
         }
 
-        if (second != first && second != third)
-        {
-            distinctStorage[distinctLength] = second;
-            distinctLength += 1;
-        }
-
-        if (third != second && third != first)
-        {
-            distinctStorage[distinctLength] = third;
-            distinctLength += 1;
-        }
-
+        // return a new instance
         result = new StreamAutomaton(state = Initialized,
             storage = distinctStorage,
             length = distinctLength,
             closeHandlers = this.closeHandlers,
         );
+    }
+
+    @Phantom proc distinct_loopStoreItems (i: int, items: array<Object>, visited: map<Object, Object>, j: int, uniqueItems: list<Object>): void
+    {
+        val item: Object = items[i];
+        if (action MAP_HAS_KEY(visited, item) == false)
+        {
+            action MAP_SET(visited, item, STREAM_VALUE);
+            action LIST_INSERT_AT(uniqueItems, j, item);
+            j += 1;
+        }
+    }
+
+    @Phantom proc distinct_loopRecoverItems (i: int, uniqueItems: list<Object>, distinctStorage: array<Object>): void
+    {
+        distinctStorage[i] = action LIST_GET(uniqueItems, i);
     }
 
 
