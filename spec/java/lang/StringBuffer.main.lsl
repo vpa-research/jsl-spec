@@ -588,7 +588,6 @@ automaton StringBufferAutomaton
     }
 
 
-    @AnnotatedWith("java.lang.Override")
     @synchronized fun *.compareTo (@target self: StringBuffer, another: StringBuffer): int
     {
         if (another == self)
