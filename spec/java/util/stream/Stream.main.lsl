@@ -1048,5 +1048,44 @@ automaton StreamAutomaton
     {
         if (predicate == null)
             _throwNPE();
+
+        var takeLength: int = 0;
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _takeWhile_loop(i, takeLength, predicate)
+        );
+
+        val newLength: int = takeLength;
+        val newStorage: array<Object> = action ARRAY_NEW("java.lang.Object", newLength);
+
+        var j: int = 0;
+        action LOOP_FOR(
+            i, 0, takeLength, +1,
+            _copy_takeWhile_loop(i, j, newStorage)
+        );
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = newStorage,
+            length = newLength,
+            closeHandlers = this.closeHandlers,
+        );
+    }
+
+
+    @Phantom proc _takeWhile_loop (i: int, takeLength: int, predicate: Predicate): void
+    {
+        if (action CALL(predicate, [this.storage[i]]))
+            takeLength += 1;
+        else
+            action LOOP_BREAK();
+    }
+
+
+    @Phantom proc _copy_takeWhile_loop (i: int, j: int, newStorage: array<Object>): void
+    {
+        newStorage[j] = this.storage[i];
+        j += 1;
     }
 }
