@@ -9,6 +9,7 @@ library std
 // imports
 
 import java/lang/_interfaces;
+import java/util/function/_interfaces;
 
 
 // semantic types
