@@ -73,18 +73,18 @@ automaton StreamAutomaton
         iterator,
         spliterator,
         isParallel,
+        sequential,
         /*close,
         dropWhile,
         onClose,
         parallel,
-        sequential,
         takeWhile,
         unordered,*/
     ];
 
     // internal variables
     // #problem Can we have parallel streams ? Or not ?
-    val isParallel: boolean = false;
+    var isParallel: boolean = false;
 
     // utilities
 
@@ -922,6 +922,14 @@ automaton StreamAutomaton
         result = this.isParallel;
     }
 
+
+    // within java.util.stream.BaseStream
+    fun *.sequential (@target self: Stream): BaseStream
+    {
+        this.isParallel = false;
+        result = self;
+    }
+
     /*
     @throws(["java.lang.Exception"])
     // within java.lang.AutoCloseable
@@ -946,13 +954,6 @@ automaton StreamAutomaton
 
     // within java.util.stream.BaseStream
     fun *.parallel (@target self: Stream): BaseStream
-    {
-        action TODO();
-    }
-
-
-    // within java.util.stream.BaseStream
-    fun *.sequential (@target self: Stream): BaseStream
     {
         action TODO();
     }
