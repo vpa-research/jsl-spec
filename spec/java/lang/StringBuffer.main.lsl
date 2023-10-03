@@ -627,6 +627,7 @@ automaton StringBufferAutomaton
 
     @synchronized fun *.ensureCapacity (@target self: StringBuffer, minimumCapacity: int): void
     {
+        // storage is dynamic, so nothing more
         action DO_NOTHING();
     }
 
