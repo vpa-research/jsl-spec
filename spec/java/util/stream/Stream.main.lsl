@@ -119,7 +119,7 @@ automaton StreamAutomaton
 
     @Phantom proc _actionApply_loop (i: int, _action: Consumer): void
     {
-        this.storage[i] = action CALL(_action, [this.storage[i]]);
+        action CALL(_action, [this.storage[i]]);
     }
 
 
@@ -886,7 +886,7 @@ automaton StreamAutomaton
     // within java.util.stream.BaseStream
     fun *.spliterator (@target self: Stream): Spliterator
     {
-        action TODO();
+        result = action DEBUG_DO("Spliterators.spliterator(this.storage, Spliterator.ORDERED)");
     }
 
 
