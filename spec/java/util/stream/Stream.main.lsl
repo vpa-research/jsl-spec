@@ -91,14 +91,10 @@ automaton StreamAutomaton
         if (mapper == null)
             _throwNPE();
 
-        var mappedStorage: array<Object> = action DEBUG_DO("Arrays.stream(this.storage).flatMap(mapper).collect(Collectors.toList()).toArray()");
-        val mappedLength: int = action ARRAY_SIZE(mappedStorage);
+        // #todo: call mapper here
 
-        result = new StreamAutomaton(state = Initialized,
-            storage = mappedStorage,
-            length = mappedLength,
-            closeHandlers = this.closeHandlers,
-        );
+        result = action SYMBOLIC("java.util.stream.Stream");
+        action ASSUME(result != null);
     }
 
 
