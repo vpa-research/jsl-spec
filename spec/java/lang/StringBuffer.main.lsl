@@ -1,4 +1,3 @@
-//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -792,8 +791,8 @@ automaton StringBufferAutomaton
     {
         _checkOffset(index);
 
-        val len: int = action ARRAY_SIZE(str);
-        _checkRangeSIOOBE(offset, offset + len, len);
+        val lenStr: int = action ARRAY_SIZE(str);
+        _checkRangeSIOOBE(offset, offset + len, lenStr);
 
         val s: String = action OBJECT_TO_STRING(str);
 
