@@ -79,8 +79,8 @@ automaton StreamAutomaton
         unordered,
         onClose,
         close,
-        /*dropWhile,
-        takeWhile,*/
+        dropWhile,
+        takeWhile,
     ];
 
     // internal variables
@@ -979,6 +979,7 @@ automaton StreamAutomaton
     {
         val listLength: int = action LIST_SIZE(this.closeHandlers);
 
+        // NOTE: this implementation does not care about suppressing and throwing exceptions produced by handlers
         var i: int = 0;
         action LOOP_FOR(
             i, 0, listLength, +1,
@@ -994,16 +995,58 @@ automaton StreamAutomaton
         action CALL(action LIST_GET(this.closeHandlers, i) as Runnable, []);
     }
 
-    /*
-    @default fun *.dropWhile (@target self: Stream, predicate: Predicate): Stream
+
+    // Do I need @default annotation for this method ?
+    fun *.dropWhile (@target self: Stream, predicate: Predicate): Stream
     {
-        action TODO();
+        if (predicate == null)
+            _throwNPE();
+
+        var dropLength: int = 0;
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _dropWhile_loop(i, dropLength, predicate)
+        );
+
+        val newLength: int = this.length - dropLength;
+        val newStorage: array<Object> = action ARRAY_NEW("java.lang.Object", newLength);
+
+        var j: int = 0;
+        action LOOP_FOR(
+            i, dropLength, this.length, +1,
+            _copy_dropWhile_loop(i, j, newStorage)
+        );
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = newStorage,
+            length = newLength,
+            closeHandlers = this.closeHandlers,
+        );
     }
 
 
-    @default fun *.takeWhile (@target self: Stream, predicate: Predicate): Stream
+    @Phantom proc _dropWhile_loop (i: int, dropLength: int, predicate: Predicate): void
     {
-        action TODO();
+        if (action CALL(predicate, [this.storage[i]]))
+            dropLength += 1;
+        else
+            action LOOP_BREAK();
     }
-    */
+
+
+    @Phantom proc _copy_dropWhile_loop (i: int, j: int, newStorage: array<Object>): void
+    {
+        newStorage[j] = this.storage[i];
+        j += 1;
+    }
+
+
+    // Do I need @default annotation for this method ?
+    fun *.takeWhile (@target self: Stream, predicate: Predicate): Stream
+    {
+        if (predicate == null)
+            _throwNPE();
+    }
 }
