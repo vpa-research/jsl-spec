@@ -74,6 +74,7 @@ automaton StreamAutomaton
         spliterator,
         isParallel,
         sequential,
+        parallel,
         /*close,
         dropWhile,
         onClose,
@@ -930,6 +931,14 @@ automaton StreamAutomaton
         result = self;
     }
 
+
+    // within java.util.stream.BaseStream
+    fun *.parallel (@target self: Stream): BaseStream
+    {
+        this.isParallel = true;
+        result = self;
+    }
+
     /*
     @throws(["java.lang.Exception"])
     // within java.lang.AutoCloseable
@@ -947,13 +956,6 @@ automaton StreamAutomaton
 
     // within java.util.stream.BaseStream
     fun *.onClose (@target self: Stream, arg0: Runnable): BaseStream
-    {
-        action TODO();
-    }
-
-
-    // within java.util.stream.BaseStream
-    fun *.parallel (@target self: Stream): BaseStream
     {
         action TODO();
     }
