@@ -54,6 +54,13 @@ type String
 }
 
 
+val MAX_CODE_POINT: int = 1114111;
+val MIN_CODE_POINT: int = 0;
+val MIN_LOW_SURROGATE: int = 56320;
+val MIN_HIGH_SURROGATE: int = 55296;
+val MIN_SUPPLEMENTARY_CODE_POINT: int = 65536;
+
+
 // general interfaces
 
 type Runnable
@@ -64,8 +71,17 @@ type Runnable
 }
 
 
+@implements("java.io.Serializable")
 type Throwable
     is java.lang.Throwable
+    for Object
+{
+}
+
+
+@implements("java.io.Serializable")
+type StackTraceElement
+    is java.lang.StackTraceElement
     for Object
 {
 }

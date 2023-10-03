@@ -26,7 +26,6 @@ import java/util/stream/_interfaces;
     is java.util.LinkedList
     for List, Deque
 {
-    // #problem: should be 876323262645176354 instead
-    @private @static val serialVersionUID: long = 1;
+    @private @static val serialVersionUID: long = 876323262645176354L;
 }
 

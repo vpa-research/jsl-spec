@@ -12,21 +12,16 @@ import java/util/ArrayList;
 
 // automata
 
-automaton ArrayList_SpliteratorAutomaton
+automaton ArrayList_SubList_SpliteratorAutomaton
 (
-    var parent: ArrayList
+    var root: ArrayList,
+    var parent: ArrayList_SubList,
 )
-: ArrayList_Spliterator
+: ArrayList_SubList_Spliterator
 {
     // states and shifts
 
-    initstate Allocated;
-    state Initialized;
-
-    shift Allocated -> Initialized by [
-        // constructors
-        ArrayList_Spliterator,
-    ];
+    initstate Initialized;
 
     shift Initialized -> self by [
         // instance methods
@@ -67,8 +62,8 @@ automaton ArrayList_SpliteratorAutomaton
         if (this.fence < 0)
         {
             action ASSUME(this.parent != null);
-            this.expectedModCount = ArrayListAutomaton(this.parent).modCount;
-            this.fence = ArrayListAutomaton(this.parent).length;
+            this.expectedModCount = ArrayList_SubListAutomaton(this.parent).modCount;
+            this.fence = ArrayList_SubListAutomaton(this.parent).length;
         }
 
         result = this.fence;
@@ -77,39 +72,31 @@ automaton ArrayList_SpliteratorAutomaton
 
     // constructors
 
-    @private constructor *.ArrayList_Spliterator (
-                @target self: ArrayList_Spliterator,
-                _this: ArrayList,
-                origin: int, fence: int, expectedModCount: int)
-    {
-        // #problem: translator cannot generate and refer to private and/or inner classes, so this is effectively useless
-        action NOT_IMPLEMENTED("inaccessible constructor");
-    }
-
-
     // static methods
 
     // methods
 
-    fun *.characteristics (@target self: ArrayList_Spliterator): int
+    fun *.characteristics (@target self: ArrayList_SubList_Spliterator): int
     {
         result = SPLITERATOR_ORDERED | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED;
     }
 
 
-    fun *.estimateSize (@target self: ArrayList_Spliterator): long
+    fun *.estimateSize (@target self: ArrayList_SubList_Spliterator): long
     {
         result = _getFence() - this.index;
     }
 
 
-    fun *.forEachRemaining (@target self: ArrayList_Spliterator, _action: Consumer): void
+    fun *.forEachRemaining (@target self: ArrayList_SubList_Spliterator, _action: Consumer): void
     {
         if (_action == null)
             _throwNPE();
 
+        action ASSUME(this.root != null);
         action ASSUME(this.parent != null);
-        val a: list<Object> = ArrayListAutomaton(this.parent).storage;
+
+        val a: list<Object> = ArrayListAutomaton(this.root).storage;
         if (a == null)
             _throwCME();
 
@@ -117,13 +104,13 @@ automaton ArrayList_SpliteratorAutomaton
         var mc: int = this.expectedModCount;
         if (hi < 0)
         {
-            hi = ArrayListAutomaton(this.parent).length;
-            mc = ArrayListAutomaton(this.parent).modCount;
+            hi = ArrayList_SubListAutomaton(this.parent).length;
+            mc = ArrayList_SubListAutomaton(this.parent).modCount;
         }
 
         var i: int = this.index;
         this.index = hi;
-        if (i < 0 || hi > ArrayListAutomaton(this.parent).length)
+        if (i < 0 || hi > ArrayList_SubListAutomaton(this.parent).length)
             _throwCME();
 
         action LOOP_FOR(
@@ -131,7 +118,7 @@ automaton ArrayList_SpliteratorAutomaton
             forEachRemaining_loop(i, a, _action)
         );
 
-        if (mc != ArrayListAutomaton(this.parent).modCount)
+        if (mc != ArrayList_SubListAutomaton(this.parent).modCount)
             _throwCME();
     }
 
@@ -143,27 +130,27 @@ automaton ArrayList_SpliteratorAutomaton
 
 
     // within java.util.Spliterator
-    @Phantom fun *.getComparator (@target self: ArrayList_Spliterator): Comparator
+    @Phantom fun *.getComparator (@target self: ArrayList_SubList_Spliterator): Comparator
     {
         // NOTE: using the original method
     }
 
 
     // within java.util.Spliterator
-    fun *.getExactSizeIfKnown (@target self: ArrayList_Spliterator): long
+    fun *.getExactSizeIfKnown (@target self: ArrayList_SubList_Spliterator): long
     {
         result = _getFence() - this.index;
     }
 
 
     // within java.util.Spliterator
-    @Phantom fun *.hasCharacteristics (@target self: ArrayList_Spliterator, characteristics: int): boolean
+    @Phantom fun *.hasCharacteristics (@target self: ArrayList_SubList_Spliterator, characteristics: int): boolean
     {
         // NOTE: using the original method
     }
 
 
-    fun *.tryAdvance (@target self: ArrayList_Spliterator, _action: Consumer): boolean
+    fun *.tryAdvance (@target self: ArrayList_SubList_Spliterator, _action: Consumer): boolean
     {
         if (_action == null)
             _throwNPE();
@@ -173,15 +160,15 @@ automaton ArrayList_SpliteratorAutomaton
 
         if (i < hi)
         {
-            action ASSUME(this.parent != null);
+            action ASSUME(this.root != null);
 
             this.index = i + 1;
 
-            val parentStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
-            val item: Object = action LIST_GET(parentStorage, i);
+            val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+            val item: Object = action LIST_GET(rootStorage, i);
             action CALL(_action, [item]);
 
-            if (ArrayListAutomaton(this.parent).modCount != this.expectedModCount)
+            if (ArrayListAutomaton(this.root).modCount != this.expectedModCount)
                 _throwCME();
 
             result = true;
@@ -193,7 +180,7 @@ automaton ArrayList_SpliteratorAutomaton
     }
 
 
-    fun *.trySplit (@target self: ArrayList_Spliterator): ArrayList_Spliterator
+    fun *.trySplit (@target self: ArrayList_SubList_Spliterator): ArrayList_SubList_Spliterator
     {
         val hi: int = _getFence();
         val lo: int = this.index;
@@ -203,7 +190,8 @@ automaton ArrayList_SpliteratorAutomaton
         if (lo >= mid)
             result = null;
         else
-            result = new ArrayList_SpliteratorAutomaton(state = Initialized,
+            result = new ArrayList_SubList_SpliteratorAutomaton(state = Initialized,
+                root = this.root,
                 parent = this.parent,
                 index = lo,
                 fence = mid,
