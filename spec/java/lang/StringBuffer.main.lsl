@@ -791,7 +791,9 @@ automaton StringBufferAutomaton
     @synchronized fun *.insert (@target self: StringBuffer, index: int, str: array<char>, offset: int, len: int): StringBuffer
     {
         _checkOffset(index);
-        _checkRangeSIOOBE(offset, offset + len, this.length);
+
+        val len: int = action ARRAY_SIZE(str);
+        _checkRangeSIOOBE(offset, offset + len, len);
 
         val s: String = action OBJECT_TO_STRING(str);
 
