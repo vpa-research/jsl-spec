@@ -13,6 +13,9 @@ import java.common;
 
 // boxed built-in types
 
+// WARNING: use OBJECT_HASH_CODE and OBJECT_EQUALS actions instead of calling these methods directly
+type Object is java.lang.Object for Object {}
+
 type Boolean is java.lang.Boolean for Object, bool {}
 
 type Byte    is java.lang.Byte    for Object, int8,  unsigned8  {}
@@ -22,6 +25,8 @@ type Long    is java.lang.Long    for Object, int64, unsigned64 {}
 
 type Float  is java.lang.Float  for Object, float32 {}
 type Double is java.lang.Double for Object, float64 {}
+
+type Class is java.lang.Class for Object {}
 
 
 // string-related operations
@@ -88,4 +93,13 @@ type Iterable
 
     // #problem: cannot use Spliterator and Consumer here
     // fun spliterator(): Spliterator;
+}
+
+
+@Parameterized(["T"])
+type Comparable
+    is java.lang.Comparable
+    for Object
+{
+    fun compareTo(o: Object): int;
 }
