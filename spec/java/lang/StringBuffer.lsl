@@ -7,14 +7,11 @@ library std
 
 // imports
 
-import java.common;
 import java/lang/_interfaces;
 import java/io/_interfaces;
 
 
 // primary types
-
-
 
 @implements("java.io.Serializable")
 @implements("java.lang.Comparable<StringBuffer>")
@@ -23,5 +20,5 @@ import java/io/_interfaces;
     is java.lang.StringBuffer
     for Object
 {
-    //@private @static @final var serialVersionUID: long = 3388685877147921107;
+    @private @static val serialVersionUID: long = 3388685877147921107L;
 }

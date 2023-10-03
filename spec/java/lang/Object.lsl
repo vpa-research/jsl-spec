@@ -7,7 +7,7 @@ library std
 
 // imports
 
-import java.common;
+import java/lang/_interfaces;
 
 
 // local semantic types

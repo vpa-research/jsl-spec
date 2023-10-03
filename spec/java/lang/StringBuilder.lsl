@@ -8,7 +8,6 @@ library std
 
 // imports
 
-import java.common;
 import java/lang/_interfaces;
 import java/io/_interfaces;
 

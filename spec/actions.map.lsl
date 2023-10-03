@@ -10,7 +10,11 @@ library any
 // === LIFE-TIME management ===
 
 
+// NOTE: uses `Object.equals` method for key comparison
 define action MAP_NEW (): map<any, any>;
+
+// NOTE: uses `==` (equals) operator on object references for key comparison
+define action IDENTITY_MAP_NEW (): map<any, any>;
 
 // unused
 define action MAP_FREE (

@@ -48,6 +48,7 @@ annotation volatile ();
 
 annotation strict ();
 
+// NOTE: useful only for `CALL` action during "call target" resolution mechanisms
 annotation FunctionalInterface (
     callableName: string = null
 );
@@ -65,20 +66,33 @@ typealias long    = int64;
 typealias float   = float32;
 typealias double  = float64;
 
-type Object is java.lang.Object for Object
-{
-    // WARNING: use OBJECT_HASH_CODE and OBJECT_EQUALS actions instead of calling these methods directly
-}
-
-type Class is java.lang.Class for Object
-{
-}
-
 
 // === ACTIONS ===
 
 
 // language-specific features
+
+// note: result variable should be passed EXPLICITLY!
+// usage example: action LOOP_FOR(i, 0, 10, +1, loop_body_proc(i, list, x, y));
+define action LOOP_FOR (
+        iterator: int32,   // variable!
+        lowerBound: int32,
+        upperBound: int32,
+        step: int32,
+        bodyProc: void     // subroutine call!
+    ): void;
+
+
+// note: result variable should be passed EXPLICITLY!
+// usage example: action LOOP_WHILE(a < b, loop_body_proc(a));
+define action LOOP_WHILE (
+        predicate: bool,
+        bodyProc: void   // subroutine call!
+    ): void;
+
+
+define action LOOP_BREAK (): void;
+
 
 @StopsControlFlow
 define action THROW_NEW (
@@ -110,8 +124,7 @@ define action TRY_CATCH (
 
 // Use to get reference to the caught exception within the 'catch' section of 'try-catch' block.
 // WARNING: applicable only within the exception handler ("catch") subroutine
-define action CATCH_GET_EXCEPTION_REF (
-    ): Object;
+define action CATCH_GET_EXCEPTION_REF (): any;
 
 
 // work-arounds
