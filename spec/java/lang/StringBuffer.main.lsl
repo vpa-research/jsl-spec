@@ -934,7 +934,8 @@ automaton StringBufferAutomaton
         result = self;
     }
 
-    @Phantom proc _reverse_loop (i: int, j: int, newStr: array<char>): void
+
+    @Phantom proc _reverse_loop (i: int, oldStorage: array<char>, j: int, newStorage: array<char>): void
     {
         newStorage[j] = oldStorage[i];
         j -= 1;
