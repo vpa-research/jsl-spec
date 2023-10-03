@@ -75,12 +75,11 @@ automaton StreamAutomaton
         isParallel,
         sequential,
         parallel,
+        unordered,
         /*close,
         dropWhile,
         onClose,
-        parallel,
-        takeWhile,
-        unordered,*/
+        takeWhile,*/
     ];
 
     // internal variables
@@ -939,6 +938,13 @@ automaton StreamAutomaton
         result = self;
     }
 
+
+    // within java.util.stream.BaseStream
+    fun *.unordered (@target self: Stream): BaseStream
+    {
+        result = self;
+    }
+
     /*
     @throws(["java.lang.Exception"])
     // within java.lang.AutoCloseable
@@ -962,13 +968,6 @@ automaton StreamAutomaton
 
 
     @default fun *.takeWhile (@target self: Stream, predicate: Predicate): Stream
-    {
-        action TODO();
-    }
-
-
-    // within java.util.stream.BaseStream
-    fun *.unordered (@target self: Stream): BaseStream
     {
         action TODO();
     }
