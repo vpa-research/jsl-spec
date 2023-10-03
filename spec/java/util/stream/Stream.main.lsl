@@ -15,7 +15,8 @@ import java/util/stream/Stream;
 automaton StreamAutomaton
 (
     var storage: array<Object>,
-    @transient  var length: int
+    @transient  var length: int,
+    var closeHandlers: list<Runnable>
 )
 : StreamLSL
 {
@@ -76,13 +77,14 @@ automaton StreamAutomaton
         sequential,
         parallel,
         unordered,
-        /*close,
-        dropWhile,
         onClose,
+        close,
+        /*dropWhile,
         takeWhile,*/
     ];
 
     // internal variables
+
     // #problem Can we have parallel streams ? Or not ?
     var isParallel: boolean = false;
 
@@ -105,6 +107,7 @@ automaton StreamAutomaton
         result = new StreamAutomaton(state = Initialized,
             storage = mappedStorage,
             length = mappedLength,
+            closeHandlers = this.closeHandlers,
         );
     }
 
@@ -123,6 +126,7 @@ automaton StreamAutomaton
         result = new StreamAutomaton(state = Initialized,
             storage = this.storage,
             length = this.length,
+            closeHandlers = this.closeHandlers,
         );
     }
 
@@ -225,6 +229,7 @@ automaton StreamAutomaton
         result = new StreamAutomaton(state = Initialized,
             storage = filteredStorage,
             length = filteredLength,
+            closeHandlers = this.closeHandlers,
         );
     }
 
@@ -255,6 +260,7 @@ automaton StreamAutomaton
         result = new StreamAutomaton(state = Initialized,
             storage = mappedStorage,
             length = this.length,
+            closeHandlers = this.closeHandlers,
         );
     }
 
@@ -281,6 +287,7 @@ automaton StreamAutomaton
         result = new StreamAutomaton(state = Initialized,
             storage = mappedStorage,
             length = this.length,
+            closeHandlers = this.closeHandlers,
         );
     }
 
@@ -307,6 +314,7 @@ automaton StreamAutomaton
         result = new StreamAutomaton(state = Initialized,
             storage = mappedStorage,
             length = this.length,
+            closeHandlers = this.closeHandlers,
         );
     }
 
@@ -333,6 +341,7 @@ automaton StreamAutomaton
         result = new StreamAutomaton(state = Initialized,
             storage = mappedStorage,
             length = this.length,
+            closeHandlers = this.closeHandlers,
         );
     }
 
@@ -399,6 +408,7 @@ automaton StreamAutomaton
         result = new StreamAutomaton(state = Initialized,
             storage = distinctStorage,
             length = distinctLength,
+            closeHandlers = this.closeHandlers,
         );
     }
 
@@ -410,6 +420,7 @@ automaton StreamAutomaton
             result = new StreamAutomaton(state = Initialized,
                 storage = this.storage,
                 length = this.length,
+                closeHandlers = this.closeHandlers,
             );
         }
         else
@@ -427,6 +438,7 @@ automaton StreamAutomaton
             result = new StreamAutomaton(state = Initialized,
                 storage = this.storage,
                 length = this.length,
+                closeHandlers = this.closeHandlers,
             );
         }
     }
@@ -465,6 +477,7 @@ automaton StreamAutomaton
             result = new StreamAutomaton(state = Initialized,
                 storage = this.storage,
                 length = this.length,
+                closeHandlers = this.closeHandlers,
             );
         }
         else
@@ -482,6 +495,7 @@ automaton StreamAutomaton
             result = new StreamAutomaton(state = Initialized,
                 storage = this.storage,
                 length = this.length,
+                closeHandlers = this.closeHandlers,
             );
         }
     }
@@ -530,6 +544,7 @@ automaton StreamAutomaton
             result = new StreamAutomaton(state = Initialized,
                 storage = this.storage,
                 length = 0,
+                closeHandlers = this.closeHandlers,
             );
         }
         // Maybe only change length field ? And don't change storage ?
@@ -548,6 +563,7 @@ automaton StreamAutomaton
             result = new StreamAutomaton(state = Initialized,
                 storage = limitStorage,
                 length = maxSizeInt,
+                closeHandlers = this.closeHandlers,
             );
         }
     }
@@ -569,6 +585,7 @@ automaton StreamAutomaton
             result = new StreamAutomaton(state = Initialized,
                 storage = this.storage,
                 length = this.length,
+                closeHandlers = this.closeHandlers,
             );
         }
         else
@@ -588,6 +605,7 @@ automaton StreamAutomaton
             result = new StreamAutomaton(state = Initialized,
                 storage = skipStorage,
                 length = newLength,
+                closeHandlers = this.closeHandlers,
             );
         }
     }
@@ -945,23 +963,39 @@ automaton StreamAutomaton
         result = self;
     }
 
-    /*
+
+    // within java.util.stream.BaseStream
+    fun *.onClose (@target self: Stream, arg0: Runnable): BaseStream
+    {
+        val listLength: int = action LIST_SIZE(this.closeHandlers);
+        action LIST_INSERT_AT(this.closeHandlers, listLength, arg0);
+        result = self;
+    }
+
+
     @throws(["java.lang.Exception"])
     // within java.lang.AutoCloseable
     fun *.close (@target self: Stream): void
     {
-        action TODO();
+        val listLength: int = action LIST_SIZE(this.closeHandlers);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, listLength, +1,
+            _closeHandlers_loop(i)
+        );
+
+        this.closeHandlers = action LIST_NEW();
     }
 
 
-    @default fun *.dropWhile (@target self: Stream, predicate: Predicate): Stream
+    @Phantom proc _closeHandlers_loop (i: int): void
     {
-        action TODO();
+        action CALL(action LIST_GET(this.closeHandlers, i) as Runnable, []);
     }
 
-
-    // within java.util.stream.BaseStream
-    fun *.onClose (@target self: Stream, arg0: Runnable): BaseStream
+    /*
+    @default fun *.dropWhile (@target self: Stream, predicate: Predicate): Stream
     {
         action TODO();
     }
