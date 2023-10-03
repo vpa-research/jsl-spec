@@ -15,7 +15,7 @@ import java/io/_interfaces;
 // primary types
 
 @implements("java.io.Serializable")
-@implements("java.lang.Comparable")
+@implements("java.lang.Comparable<StringBuffer>")
 @implements("java.lang.CharSequence")
 @public @final type StringBuffer
     is java.lang.StringBuffer
