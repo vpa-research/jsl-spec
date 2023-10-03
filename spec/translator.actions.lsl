@@ -13,8 +13,7 @@ import actions.list;
 import actions.map;
 
 
-/// generator-specific actions
-
+/// USVM-specific actions
 
 define action ASSUME (
         predicate: bool
@@ -32,35 +31,17 @@ define action SYMBOLIC_ARRAY (
     ): array<any>;
 
 
+
+/// specification development -related aspects
+
 define action DEBUG_DO (
         code: string // literal!
     ): any;
 
 
-// note: result variable should be passed EXPLICITLY!
-// usage example: action LOOP_FOR(i, 0, 10, +1, loop_body_proc(i, list, x, y));
-define action LOOP_FOR (
-        iterator: int32,   // variable!
-        lowerBound: int32,
-        upperBound: int32,
-        step: int32,
-        bodyProc: void     // subroutine call!
-    ): void;
-
-
-// note: result variable should be passed EXPLICITLY!
-// usage example: action LOOP_WHILE(a < b, loop_body_proc(a));
-define action LOOP_WHILE (
-        predicate: bool,
-        bodyProc: void   // subroutine call!
-    ): void;
-
-
-define action LOOP_BREAK (): void;
-
-
-
-/// specification development -related aspects
+// NOTE: a unique number will be produced on every call
+define action GUID_NEXT (
+    ): int32;
 
 
 @StopsControlFlow
@@ -77,6 +58,7 @@ define action NOT_IMPLEMENTED (
 
 @StopsControlFlow
 define action TODO (): void;
+
 
 // do nothing explicitly but detectable by the translator if needed
 define action DO_NOTHING (): void;

@@ -8,7 +8,6 @@ library std
 
 // imports
 
-import java.common;
 import java/lang/_interfaces;
 
 
@@ -23,6 +22,20 @@ type ObjectInputStream
 
 type ObjectOutputStream
     is java.io.ObjectOutputStream
+    for Object
+{
+}
+
+
+type PrintStream
+    is java.io.PrintStream
+    for Object
+{
+}
+
+
+type PrintWriter
+    is java.io.PrintWriter
     for Object
 {
 }
