@@ -370,7 +370,7 @@ automaton StringBufferAutomaton
                 this.storage += objString;
                 this.length += action CALL_METHOD(objString, "length", []);
             }
-            result = self;
+        result = self;
     }
 
 
