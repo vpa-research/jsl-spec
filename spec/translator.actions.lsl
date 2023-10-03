@@ -39,6 +39,7 @@ define action DEBUG_DO (
     ): any;
 
 
+// NOTE: a unique number will be produced on every call
 define action GUID_NEXT (
     ): int32;
 
@@ -57,6 +58,7 @@ define action NOT_IMPLEMENTED (
 
 @StopsControlFlow
 define action TODO (): void;
+
 
 // do nothing explicitly but detectable by the translator if needed
 define action DO_NOTHING (): void;
