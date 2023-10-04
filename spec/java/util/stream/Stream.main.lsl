@@ -932,7 +932,6 @@ automaton StreamAutomaton
     }
 
 
-    @throws(["java.lang.Exception"])
     // within java.lang.AutoCloseable
     fun *.close (@target self: Stream): void
     {
