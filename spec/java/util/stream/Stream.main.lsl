@@ -86,18 +86,6 @@ automaton StreamAutomaton
     }
 
 
-    proc _flatMap (mapper: Function): Stream
-    {
-        if (mapper == null)
-            _throwNPE();
-
-        // #todo: call mapper here
-
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
-    }
-
-
     proc _actionApply (_action: Consumer): Stream
     {
         if (_action == null)
@@ -203,7 +191,7 @@ automaton StreamAutomaton
         if (mapper == null)
             _throwNPE();
 
-        var mappedStorage: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
+        val mappedStorage: array<int> = action ARRAY_NEW("int", this.length);
 
         var i: int = 0;
         action LOOP_FOR(
@@ -211,11 +199,8 @@ automaton StreamAutomaton
             _mapToInt_loop(i, mapper, mappedStorage)
         );
 
-        result = new StreamAutomaton(state = Initialized,
-            storage = mappedStorage,
-            length = this.length,
-            closeHandlers = this.closeHandlers,
-        );
+        // Temporary decision (we don't have IntStream automaton at this moment)
+        result = action DEBUG_DO("java.util.Arrays.stream(mappedStorage)");
     }
 
 
@@ -230,7 +215,7 @@ automaton StreamAutomaton
         if (mapper == null)
             _throwNPE();
 
-        var mappedStorage: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
+        var mappedStorage: array<long> = action ARRAY_NEW("long", this.length);
 
         var i: int = 0;
         action LOOP_FOR(
@@ -238,11 +223,8 @@ automaton StreamAutomaton
             _mapToLong_loop(i, mapper, mappedStorage)
         );
 
-        result = new StreamAutomaton(state = Initialized,
-            storage = mappedStorage,
-            length = this.length,
-            closeHandlers = this.closeHandlers,
-        );
+        // Temporary decision (we don't have IntStream automaton at this moment)
+        result = action DEBUG_DO("java.util.Arrays.stream(mappedStorage)");
     }
 
 
@@ -257,7 +239,7 @@ automaton StreamAutomaton
         if (mapper == null)
             _throwNPE();
 
-        var mappedStorage: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
+        var mappedStorage: array<double> = action ARRAY_NEW("double", this.length);
 
         var i: int = 0;
         action LOOP_FOR(
@@ -265,11 +247,8 @@ automaton StreamAutomaton
             _mapToDouble_loop(i, mapper, mappedStorage)
         );
 
-        result = new StreamAutomaton(state = Initialized,
-            storage = mappedStorage,
-            length = this.length,
-            closeHandlers = this.closeHandlers,
-        );
+        // Temporary decision (we don't have IntStream automaton at this moment)
+        result = action DEBUG_DO("java.util.Arrays.stream(mappedStorage)");
     }
 
 
@@ -281,25 +260,49 @@ automaton StreamAutomaton
 
     fun *.flatMap (@target self: Stream, mapper: Function): Stream
     {
-        result = _flatMap(mapper);
+        if (mapper == null)
+            _throwNPE();
+
+        // #todo: call mapper here
+
+        result = action SYMBOLIC("java.util.stream.Stream");
+        action ASSUME(result != null);
     }
 
 
     fun *.flatMapToInt (@target self: Stream, mapper: Function): IntStream
     {
-        result = _flatMap(mapper);
+        if (mapper == null)
+            _throwNPE();
+
+        // #todo: call mapper here
+
+        result = action SYMBOLIC("java.util.stream.IntStream");
+        action ASSUME(result != null);
     }
 
 
     fun *.flatMapToLong (@target self: Stream, mapper: Function): LongStream
     {
-        result = _flatMap(mapper);
+        if (mapper == null)
+            _throwNPE();
+
+        // #todo: call mapper here
+
+        result = action SYMBOLIC("java.util.stream.LongStream");
+        action ASSUME(result != null);
     }
 
 
     fun *.flatMapToDouble (@target self: Stream, mapper: Function): DoubleStream
     {
-        result = _flatMap(mapper);
+        if (mapper == null)
+            _throwNPE();
+
+        // #todo: call mapper here
+
+        result = action SYMBOLIC("java.util.stream.DoubleStream");
+        action ASSUME(result != null);
     }
 
 
