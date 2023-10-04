@@ -597,7 +597,7 @@ automaton StreamAutomaton
 
     fun *.toArray (@target self: Stream, generator: IntFunction): array<Object>
     {
-        val generatedArray: array<Object> = action CALL(generator,[this.length]);
+        val generatedArray: array<Object> = action CALL(generator,[this.length]) as array<Object>;
 
         var i: int = 0;
         action LOOP_FOR(
