@@ -236,7 +236,7 @@ automaton LinkedHashSetAutomaton
     fun *.iterator (@target self: LinkedHashSet): Iterator
     {
         val visitedKeysMap: map<Object, Object> = action MAP_NEW();
-        result = new LinkedHashSet_KeyIteratorAutomaton(state = initialized,
+        result = new LinkedHashSet_KeyIteratorAutomaton(state = Initialized,
             expectedModCount = this.modCount,
             visitedKeys = visitedKeysMap,
             parent = self
@@ -327,7 +327,7 @@ automaton LinkedHashSetAutomaton
         }
     }
 
-    fun *.hashCode (@target self LinkedHashSet): int
+    fun *.hashCode (@target self: LinkedHashSet): int
     {
         result = action OBJECT_HASH_CODE(this.storage);
     }
@@ -377,7 +377,7 @@ automaton LinkedHashSetAutomaton
         }
     }
 
-    @Phantom proc _removeAllElements_loop_indirect (i: int, c: Collection, visitedKeys: map<Object, Object): void
+    @Phantom proc _removeAllElements_loop_indirect (i: int, c: Collection, visitedKeys: map<Object, Object>): void
     {
         val key: Object = _generateKey(visitedKeys);
 
@@ -393,7 +393,7 @@ automaton LinkedHashSetAutomaton
         i += 1;
     }
 
-    fun *.toArray (@target self LinkedHashSet): array<Object>
+    fun *.toArray (@target self: LinkedHashSet): array<Object>
     {
         val len: int = this.length;
         result = action ARRAY_NEW("java.lang.Object", len);
@@ -581,7 +581,7 @@ automaton LinkedHashSetAutomaton
 
 
     // within java.util.Collection
-    @default fun *.stream (@target self: LinkedHashSet): Stream
+    fun *.stream (@target self: LinkedHashSet): Stream
     {
         // #todo: use custom stream implementation
         result = action SYMBOLIC("java.util.stream.Stream");
