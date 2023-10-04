@@ -889,7 +889,7 @@ automaton StreamAutomaton
     // within java.util.stream.BaseStream
     fun *.spliterator (@target self: Stream): Spliterator
     {
-        result = action DEBUG_DO("Spliterators.spliterator(this.storage, Spliterator.ORDERED)");
+        result = action DEBUG_DO("java.util.Spliterators.spliterator(this.storage, Spliterator.ORDERED)");
     }
 
 
