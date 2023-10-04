@@ -17,7 +17,7 @@ automaton StreamIteratorAutomaton
     var parent: StreamLSL,
     var cursor: int
 )
-: StreamIterator
+: StreamLSLIterator
 {
     // states and shifts
 
@@ -46,7 +46,7 @@ automaton StreamIteratorAutomaton
 
     // methods
 
-    fun *.hasNext (@target self: StreamIterator): boolean
+    fun *.hasNext (@target self: StreamLSLIterator): boolean
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
@@ -55,7 +55,7 @@ automaton StreamIteratorAutomaton
     }
 
 
-    fun *.next (@target self: StreamIterator): Object
+    fun *.next (@target self: StreamLSLIterator): Object
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
@@ -76,7 +76,7 @@ automaton StreamIteratorAutomaton
     }
 
 
-    fun *.remove (@target self: StreamIterator): void
+    fun *.remove (@target self: StreamLSLIterator): void
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);
@@ -85,7 +85,7 @@ automaton StreamIteratorAutomaton
             action THROW_NEW("java.lang.IllegalStateException", []);
 
         val pStorage: array<Object> = StreamAutomaton(this.parent).storage;
-        val pLength: array<Object> = StreamAutomaton(this.parent).length;
+        val pLength: int = StreamAutomaton(this.parent).length;
 
         if (this.lastRet >= action ARRAY_SIZE(pStorage))
         {
@@ -109,7 +109,7 @@ automaton StreamIteratorAutomaton
     }
 
 
-    fun *.forEachRemaining (@target self: StreamIterator, userAction: Consumer): void
+    fun *.forEachRemaining (@target self: StreamLSLIterator, userAction: Consumer): void
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);

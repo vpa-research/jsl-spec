@@ -29,8 +29,8 @@ import java/util/Optional;
 
 @GenerateMe
 @implements("java.util.Iterator")
-@public type StreamIterator
-    is java.util.stream.StreamIterator
+@public type StreamLSLIterator
+    is java.util.stream.StreamLSLIterator
     for Iterator
 {
 }
