@@ -52,13 +52,41 @@ automaton CRC32Automaton
 
     // internal variables
 
+    var crc: int = 0;
+
+
     // utilities
+
+    proc _updateBytesCheck (b: array<byte>, off: int, len: int)
+    {
+        if (len != 0)
+        {
+            if (b != null)
+            {
+                var b_size: int = action ARRAY_SIZE(b);
+                else if (off < 0 || off >= b_size)
+                {
+                    action THROW_NEW("java.lang.ArrayIndexOutOfBoundsException", [off]);
+                }
+                var endIndex: int = off + len -1;
+                else if (endIndex <0 || endIndex >= b_size)
+                {
+                    action THROW_NEW("java.lang.ArrayIndexOutOfBoundsException", [endIndex]);
+                }
+            }
+            else
+            {
+                action THROW_NEW("java.lang.NullPointerException", []);
+            }
+
+        }
+    }
 
     // constructors
 
     constructor *.CRC32 (@target self: CRC32)
     {
-        action TODO();
+        // original constructor is empty
     }
 
 
@@ -68,13 +96,13 @@ automaton CRC32Automaton
 
     fun *.getValue (@target self: CRC32): long
     {
-        action TODO();
+        result = (this.crc as long) & 4294967295L;
     }
 
 
     fun *.reset (@target self: CRC32): void
     {
-        action TODO();
+       this.crc = 0;
     }
 
 
