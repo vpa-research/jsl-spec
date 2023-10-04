@@ -703,7 +703,7 @@ automaton StreamAutomaton
 
     @Phantom proc _accumulate_with_biConsumer_loop (i: int, accumulator: BiConsumer, result: Object): void
     {
-        result = action CALL(accumulator, [result, this.storage[i]]);
+        action CALL(accumulator, [result, this.storage[i]]);
     }
 
 
