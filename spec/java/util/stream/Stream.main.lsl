@@ -649,7 +649,11 @@ automaton StreamAutomaton
 
         var value: Object = null;
 
-        if (this.length > 0)
+        if (this.length == 0)
+        {
+            result = action DEBUG_DO("Optional.empty()");
+        }
+        else if (this.length > 0)
         {
             value = this.storage[0];
 
@@ -658,9 +662,9 @@ automaton StreamAutomaton
                 i, 1, this.length, +1,
                 _accumulate_optional_loop(i, accumulator, value)
             );
-        }
 
-        result = action DEBUG_DO("Optional.of(value)");
+            result = action DEBUG_DO("Optional.of(value)");
+        }
     }
 
 
