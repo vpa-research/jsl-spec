@@ -818,20 +818,19 @@ automaton StreamAutomaton
         result = false;
 
         var i: int = 0;
-        action LOOP_FOR(
-            i, 0, this.length, +1,
-            _anyMatch_loop(i, predicate, result)
+        action LOOP_WHILE(
+            i < this.length && !action CALL(predicate, [this.storage[i]]),
+            _predicate_condition_increment_loop(i)
         );
+
+        if (i < this.length)
+            result = true;
     }
 
 
-    @Phantom proc _anyMatch_loop (i: int, predicate: Predicate, result: boolean): void
+    @Phantom proc _predicate_condition_increment_loop (i: int): void
     {
-        if (action CALL(predicate, [this.storage[i]]))
-        {
-            result = true;
-            action LOOP_BREAK();
-        }
+        i += 1;
     }
 
 
@@ -842,20 +841,17 @@ automaton StreamAutomaton
 
         result = true;
 
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, this.length, +1,
-            _allMatch_loop(i, predicate, result)
-        );
-    }
-
-
-    @Phantom proc _allMatch_loop (i: int, predicate: Predicate, result: boolean): void
-    {
-        if (!action CALL(predicate, [this.storage[i]]))
+        if (this.length > 0)
         {
-            result = false;
-            action LOOP_BREAK();
+            result = false
+            var i: int = 0;
+            action LOOP_WHILE(
+                i < this.length && action CALL(predicate, [this.storage[i]]),
+                _predicate_condition_increment_loop(i)
+            );
+
+            if (i == this.length)
+                result = true;
         }
     }
 
@@ -867,20 +863,17 @@ automaton StreamAutomaton
 
         result = true;
 
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, this.length, +1,
-            _noneMatch_loop(i, predicate, result)
-        );
-    }
-
-
-    @Phantom proc _noneMatch_loop (i: int, predicate: Predicate, result: boolean): void
-    {
-        if (action CALL(predicate, [this.storage[i]]))
+        if (this.length > 0)
         {
-            result = false;
-            action LOOP_BREAK();
+            result = false
+            var i: int = 0;
+            action LOOP_WHILE(
+                i < this.length && !action CALL(predicate, [this.storage[i]]),
+                _predicate_condition_increment_loop(i)
+            );
+
+            if (i == this.length)
+                result = true;
         }
     }
 
