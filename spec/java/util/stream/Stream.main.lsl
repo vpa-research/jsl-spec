@@ -974,28 +974,40 @@ automaton StreamAutomaton
         if (predicate == null)
             _throwNPE();
 
-        var dropLength: int = 0;
+        if (this.length == 0)
+        {
+            val emptyStorage: array<Object> = action ARRAY_NEW("java.lang.Object", 0);
+            result = new StreamAutomaton(state = Initialized,
+                storage = emptyStorage,
+                length = 0,
+                closeHandlers = this.closeHandlers,
+            );
+        }
+        else
+        {
+            var dropLength: int = 0;
 
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, this.length, +1,
-            _dropWhile_loop(i, dropLength, predicate)
-        );
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, this.length, +1,
+                _dropWhile_loop(i, dropLength, predicate)
+            );
 
-        val newLength: int = this.length - dropLength;
-        val newStorage: array<Object> = action ARRAY_NEW("java.lang.Object", newLength);
+            val newLength: int = this.length - dropLength;
+            val newStorage: array<Object> = action ARRAY_NEW("java.lang.Object", newLength);
 
-        var j: int = 0;
-        action LOOP_FOR(
-            i, dropLength, this.length, +1,
-            _copy_dropWhile_loop(i, j, newStorage)
-        );
+            var j: int = 0;
+            action LOOP_FOR(
+                i, dropLength, this.length, +1,
+                _copy_dropWhile_loop(i, j, newStorage)
+            );
 
-        result = new StreamAutomaton(state = Initialized,
-            storage = newStorage,
-            length = newLength,
-            closeHandlers = this.closeHandlers,
-        );
+            result = new StreamAutomaton(state = Initialized,
+                storage = newStorage,
+                length = newLength,
+                closeHandlers = this.closeHandlers,
+            );
+        }
     }
 
 
@@ -1020,28 +1032,40 @@ automaton StreamAutomaton
         if (predicate == null)
             _throwNPE();
 
-        var takeLength: int = 0;
+        if (this.length == 0)
+        {
+            val emptyStorage: array<Object> = action ARRAY_NEW("java.lang.Object", 0);
+            result = new StreamAutomaton(state = Initialized,
+                storage = emptyStorage,
+                length = 0,
+                closeHandlers = this.closeHandlers,
+            );
+        }
+        else
+        {
+            var takeLength: int = 0;
 
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, this.length, +1,
-            _takeWhile_loop(i, takeLength, predicate)
-        );
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, this.length, +1,
+                _takeWhile_loop(i, takeLength, predicate)
+            );
 
-        val newLength: int = takeLength;
-        val newStorage: array<Object> = action ARRAY_NEW("java.lang.Object", newLength);
+            val newLength: int = takeLength;
+            val newStorage: array<Object> = action ARRAY_NEW("java.lang.Object", newLength);
 
-        var j: int = 0;
-        action LOOP_FOR(
-            i, 0, takeLength, +1,
-            _copy_takeWhile_loop(i, j, newStorage)
-        );
+            var j: int = 0;
+            action LOOP_FOR(
+                i, 0, takeLength, +1,
+                _copy_takeWhile_loop(i, j, newStorage)
+            );
 
-        result = new StreamAutomaton(state = Initialized,
-            storage = newStorage,
-            length = newLength,
-            closeHandlers = this.closeHandlers,
-        );
+            result = new StreamAutomaton(state = Initialized,
+                storage = newStorage,
+                length = newLength,
+                closeHandlers = this.closeHandlers,
+            );
+        }
     }
 
 
