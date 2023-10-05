@@ -86,7 +86,7 @@ automaton StreamAutomaton
     }
 
 
-    proc _actionApply (_action: Consumer): Stream
+    proc _actionApply (_action: Consumer): void
     {
         if (_action == null)
             _throwNPE();
@@ -95,12 +95,6 @@ automaton StreamAutomaton
         action LOOP_FOR(
             i, 0, this.length, +1,
             _actionApply_loop(i, _action)
-        );
-
-        result = new StreamAutomaton(state = Initialized,
-            storage = this.storage,
-            length = this.length,
-            closeHandlers = this.closeHandlers,
         );
     }
 
@@ -488,7 +482,13 @@ automaton StreamAutomaton
 
     fun *.peek (@target self: Stream, _action: Consumer): Stream
     {
-        result = _actionApply(_action);
+        _actionApply(_action);
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = this.storage,
+            length = this.length,
+            closeHandlers = this.closeHandlers,
+        );
     }
 
 
