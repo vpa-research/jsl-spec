@@ -82,6 +82,21 @@ automaton CRC32Automaton
         }
     }
 
+
+    proc _update(b: array<byte>, off: int, len: int)
+    {
+        if (b == null)
+        {
+            action THROW_NEW("java.lang.NullPointerException", []);
+        }
+        var b_size: int = action ARRAY_SIZE(b);
+        if (off < 0 || len < 0 || off > b_size - len)
+        {
+            action THROW_NEW("java.lang.ArrayIndexOutOfBoundsException", []);
+        }
+        _updateBytesCheck(b, off, len);
+    }
+
     // constructors
 
     constructor *.CRC32 (@target self: CRC32)
@@ -115,19 +130,22 @@ automaton CRC32Automaton
     // within java.util.zip.Checksum
     @default fun *.update (@target self: CRC32, b: array<byte>): void
     {
-        action TODO();
+        var b_size: int = action ARRAY_SIZE(b);
+        _update(b, 0, b_size);
+        this.crc = action SYMBOLIC("int");
     }
 
 
     fun *.update (@target self: CRC32, b: array<byte>, off: int, len: int): void
     {
-        action TODO();
+        _update(b. off, len);
+        this.crc = action SYMBOLIC("int");
     }
 
 
     fun *.update (@target self: CRC32, b: int): void
     {
-        action TODO();
+        this.crc = action SYMBOLIC("int");
     }
 
 }
