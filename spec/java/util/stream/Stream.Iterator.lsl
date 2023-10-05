@@ -53,10 +53,6 @@ automaton StreamIteratorAutomaton
         if (i >= StreamAutomaton(this.parent).length)
             action THROW_NEW("java.util.NoSuchElementException", []);
 
-        // iterator validity check
-        if (i >= action ARRAY_SIZE(parentStorage))
-            _throwCME();
-
         this.cursor = i + 1;
         result = parentStorage[i];
     }
