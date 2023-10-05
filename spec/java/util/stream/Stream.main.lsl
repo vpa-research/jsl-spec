@@ -976,7 +976,6 @@ automaton StreamAutomaton
     }
 
 
-    // Do I need @default annotation for this method ?
     fun *.dropWhile (@target self: Stream, predicate: Predicate): Stream
     {
         if (predicate == null)
@@ -1023,7 +1022,6 @@ automaton StreamAutomaton
     }
 
 
-    // Do I need @default annotation for this method ?
     fun *.takeWhile (@target self: Stream, predicate: Predicate): Stream
     {
         if (predicate == null)
