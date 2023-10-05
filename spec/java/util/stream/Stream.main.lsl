@@ -952,7 +952,7 @@ automaton StreamAutomaton
     {
         val listLength: int = action LIST_SIZE(this.closeHandlers);
 
-        // NOTE: this implementation does not care about suppressing and throwing exceptions produced by handlers
+        // UtBot note: this implementation does not care about suppressing and throwing exceptions produced by handlers
         var i: int = 0;
         action LOOP_FOR(
             i, 0, listLength, +1,
