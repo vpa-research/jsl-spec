@@ -623,7 +623,7 @@ automaton StreamAutomaton
 
     fun *.reduce (@target self: Stream, identity: Object, accumulator: BinaryOperator): Object
     {
-        if (accumulator == null || identity == null)
+        if (accumulator == null)
             _throwNPE();
 
         result = identity;
@@ -676,7 +676,10 @@ automaton StreamAutomaton
 
     fun *.reduce (@target self: Stream, identity:Object, accumulator: BiFunction, combiner: BinaryOperator): Object
     {
-        if (accumulator == null || identity == null || combiner == null)
+        if (accumulator == null)
+            _throwNPE();
+
+        if (combiner == null)
             _throwNPE();
 
         result = identity;
@@ -698,8 +701,15 @@ automaton StreamAutomaton
 
     fun *.collect (@target self: Stream, supplier: Supplier, accumulator: BiConsumer, combiner: BiConsumer): Object
     {
-        if (supplier == null || accumulator == null || combiner == null)
+        if (supplier == null)
             _throwNPE();
+
+        if (accumulator == null)
+            _throwNPE();
+
+        if (combiner == null)
+            _throwNPE();
+
         // since this implementation is always sequential, we do not need to use the combiner
         result = action CALL(supplier, []);
 
