@@ -504,6 +504,14 @@ automaton StreamAutomaton
                 closeHandlers = this.closeHandlers,
             );
         }
+        else if (maxSize > this.length)
+        {
+            result = new StreamAutomaton(state = Initialized,
+                storage = this.storage,
+                length = this.length,
+                closeHandlers = this.closeHandlers,
+            );
+        }
         // Maybe only change length field ? And don't change storage ?
         else
         {
