@@ -193,7 +193,7 @@ automaton StreamAutomaton
             _mapToInt_loop(i, mapper, mappedStorage)
         );
 
-        // Temporary decision (we don't have IntStream automaton at this moment)
+        // #todo: Temporary decision (we don't have IntStream automaton at this moment)
         result = action DEBUG_DO("java.util.Arrays.stream(mappedStorage)");
     }
 
@@ -217,7 +217,7 @@ automaton StreamAutomaton
             _mapToLong_loop(i, mapper, mappedStorage)
         );
 
-        // Temporary decision (we don't have IntStream automaton at this moment)
+        // #todo: Temporary decision (we don't have IntStream automaton at this moment)
         result = action DEBUG_DO("java.util.Arrays.stream(mappedStorage)");
     }
 
@@ -241,7 +241,7 @@ automaton StreamAutomaton
             _mapToDouble_loop(i, mapper, mappedStorage)
         );
 
-        // Temporary decision (we don't have IntStream automaton at this moment)
+        // #todo: Temporary decision (we don't have IntStream automaton at this moment)
         result = action DEBUG_DO("java.util.Arrays.stream(mappedStorage)");
     }
 
