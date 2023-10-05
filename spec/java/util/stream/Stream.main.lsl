@@ -710,7 +710,7 @@ automaton StreamAutomaton
         if (combiner == null)
             _throwNPE();
 
-        // since this implementation is always sequential, we do not need to use the combiner
+        // UtBot note: since this implementation is always sequential, we do not need to use the combiner
         result = action CALL(supplier, []);
 
         var i: int = 0;
