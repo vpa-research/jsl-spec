@@ -615,17 +615,9 @@ automaton StreamAutomaton
         val generatedArray: array<Object> = action CALL(generator,[this.length]) as array<Object>;
 
         var i: int = 0;
-        action LOOP_FOR(
-            i, 0, this.length, +1,
-            _copyToArray_loop(i, generatedArray)
-        );
+        action ARRAY_COPY(this.storage, 0, generatedArray, 0, this.length);
+
         result = generatedArray;
-    }
-
-
-    @Phantom proc _copyToArray_loop (i: int, generatedArray: array<Object>): void
-    {
-        generatedArray[i] = this.storage[i];
     }
 
 
