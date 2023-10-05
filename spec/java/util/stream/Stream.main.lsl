@@ -628,11 +628,14 @@ automaton StreamAutomaton
 
         result = identity;
 
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, this.length, +1,
-            _accumulate_loop(i, accumulator, result)
-        );
+        if (this.length > 0)
+        {
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, this.length, +1,
+                _accumulate_loop(i, accumulator, result)
+            );
+        }
     }
 
 
@@ -684,12 +687,15 @@ automaton StreamAutomaton
 
         result = identity;
 
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, this.length, +1,
-            _accumulate_with_biFunction_loop(i, accumulator, result)
-        );
-        // since this implementation is always sequential, we do not need to use the combiner
+        if (this.length > 0)
+        {
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, this.length, +1,
+                _accumulate_with_biFunction_loop(i, accumulator, result)
+            );
+        }
+        // UtBot note: since this implementation is always sequential, we do not need to use the combiner
     }
 
 
