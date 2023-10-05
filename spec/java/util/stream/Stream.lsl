@@ -8,11 +8,9 @@ library std
 
 // imports
 
-import java.common;
 import java/lang/_interfaces;
 import java/util/function/_interfaces;
 import java/util/stream/_interfaces;
-import java/util/Optional;
 
 
 // new/introduced types
