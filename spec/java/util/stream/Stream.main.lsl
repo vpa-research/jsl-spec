@@ -950,7 +950,8 @@ automaton StreamAutomaton
 
     @Phantom proc _closeHandlers_loop (i: int): void
     {
-        action CALL(action LIST_GET(this.closeHandlers, i) as Runnable, []);
+        val currentHandler: Runnable = action LIST_GET(this.closeHandlers, i) as Runnable;
+        action CALL(currentHandler, []);
     }
 
 
