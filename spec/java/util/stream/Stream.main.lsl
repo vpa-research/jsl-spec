@@ -414,7 +414,6 @@ automaton StreamAutomaton
         val a: Object = this.storage[idxA];
         val b: Object = this.storage[idxB];
 
-        // "compareTo" - that's right ??
         if (action CALL_METHOD(a as Comparable, "compareTo", [b]) > 0)
         {
             this.storage[idxA] = b;
@@ -471,7 +470,6 @@ automaton StreamAutomaton
         val a: Object = this.storage[idxA];
         val b: Object = this.storage[idxB];
 
-        // "compareTo" - that's right ??
         if (action CALL(comparator, [a, b]) > 0)
         {
             this.storage[idxA] = b;
