@@ -21,7 +21,7 @@ import java/util/stream/_interfaces;
     is java.util.stream.StreamLSL
     for Stream
 {
-    @static val STREAM_VALUE: Object = 1;
+    @private @static val STREAM_VALUE: Object = 1;
 }
 
 
