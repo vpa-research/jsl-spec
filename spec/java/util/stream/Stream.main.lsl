@@ -766,7 +766,7 @@ automaton StreamAutomaton
     }
 
 
-    @Phantom proc _find_min_loop (i: int, comparator: Comparator, min: int): void
+    @Phantom proc _find_min_loop (i: int, comparator: Comparator, min: Object): void
     {
         if (action CALL(comparator, [min, this.storage[i]]) > 0)
             min = this.storage[i];
@@ -797,7 +797,7 @@ automaton StreamAutomaton
     }
 
 
-    @Phantom proc _find_max_loop (i: int, comparator: Comparator, max: int): void
+    @Phantom proc _find_max_loop (i: int, comparator: Comparator, max: Object): void
     {
         if (action CALL(comparator, [max, this.storage[i]]) < 0)
             max = this.storage[i];
