@@ -114,7 +114,7 @@ automaton StreamAutomaton
         else
         {
             val first: Object = this.storage[0];
-            result = action DEBUG_DO("Optional.of(first)");
+            result = action DEBUG_DO("Optional.ofNullable(first)");
         }
     }
 
@@ -665,7 +665,7 @@ automaton StreamAutomaton
                 _accumulate_optional_loop(i, accumulator, value)
             );
 
-            result = action DEBUG_DO("Optional.of(value)");
+            result = action DEBUG_DO("Optional.ofNullable(value)");
         }
     }
 
@@ -766,7 +766,7 @@ automaton StreamAutomaton
                 _find_min_loop(i, comparator, min)
             );
 
-            result = action DEBUG_DO("Optional.of(min)");
+            result = action DEBUG_DO("Optional.ofNullable(min)");
         }
     }
 
@@ -797,7 +797,7 @@ automaton StreamAutomaton
                 _find_max_loop(i, comparator, max)
             );
 
-            result = action DEBUG_DO("Optional.of(max)");
+            result = action DEBUG_DO("Optional.ofNullable(max)");
         }
     }
 
