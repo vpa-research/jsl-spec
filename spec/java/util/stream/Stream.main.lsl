@@ -627,8 +627,9 @@ automaton StreamAutomaton
 
         result = identity;
 
-        if (this.length > 0)
+        if (this.length != 0)
         {
+            action ASSUME(this.length > 0);
             var i: int = 0;
             action LOOP_FOR(
                 i, 0, this.length, +1,
@@ -686,8 +687,9 @@ automaton StreamAutomaton
 
         result = identity;
 
-        if (this.length > 0)
+        if (this.length != 0)
         {
+            action ASSUME(this.length > 0);
             var i: int = 0;
             action LOOP_FOR(
                 i, 0, this.length, +1,
