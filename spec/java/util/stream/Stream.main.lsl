@@ -614,7 +614,6 @@ automaton StreamAutomaton
     {
         val generatedArray: array<Object> = action CALL(generator,[this.length]) as array<Object>;
 
-        var i: int = 0;
         action ARRAY_COPY(this.storage, 0, generatedArray, 0, this.length);
 
         result = generatedArray;
