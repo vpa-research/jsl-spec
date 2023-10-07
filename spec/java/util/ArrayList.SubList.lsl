@@ -159,6 +159,29 @@ automaton ArrayList_SubListAutomaton
     }
 
 
+    proc _batchRemove (c: Collection, complement: boolean): boolean
+    {
+        action ASSUME(this.root != null);
+        _checkForComodification();
+
+        if (this.length != 0)
+        {
+            val oldRootLength: int = ArrayListAutomaton(this.root).length;
+
+            result = ArrayListAutomaton(this.root)._batchRemove(c, complement, this.offset, this.offset + this.length);
+            if (result)
+            {
+                val newRootLength: int = ArrayListAutomaton(this.root).length;
+                _updateSizeAndModCount(newRootLength - oldRootLength);
+            }
+        }
+        else
+        {
+            result = false;
+        }
+    }
+
+
     // constructors
 
     constructor *.SubList (@target self: ArrayList_SubList, root: ArrayList, fromIndex: int, toIndex: int)
@@ -545,48 +568,7 @@ automaton ArrayList_SubListAutomaton
 
     fun *.removeAll (@target self: ArrayList_SubList, c: Collection): boolean
     {
-        action ASSUME(this.root != null);
-        _checkForComodification();
-
-        val size: int = this.length;
-        if (size != 0)
-        {
-            action ASSUME(size > 0);
-
-            // #todo: add optimized version based on automata checks
-
-            val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
-            var end: int = this.offset + size;
-            var delta: int = 0;
-
-            val iter: Iterator = action CALL_METHOD(c, "iterator", []);
-            action LOOP_WHILE(
-                action CALL_METHOD(iter, "hasNext", []),
-                removeAll_loop(iter, rootStorage, end, delta)
-            );
-
-            result = delta != 0;
-            if (result)
-                _updateSizeAndModCount(delta);
-        }
-        else
-        {
-            result = false;
-        }
-    }
-
-    @Phantom proc removeAll_loop (iter: Iterator, rootStorage: list<Object>, end: int, delta: int): void
-    {
-        val item: Object = action CALL_METHOD(iter, "next", []);
-        val idx: int = action LIST_FIND(rootStorage, item, this.offset, end);
-        if (idx != -1)
-        {
-            action LIST_REMOVE(rootStorage, idx);
-            end -= 1;
-            delta -= 1;
-
-            ArrayListAutomaton(this.rootStorage).length -= 1;
-        }
+        _batchRemove(c, false);
     }
 
 
@@ -595,35 +577,17 @@ automaton ArrayList_SubListAutomaton
         action ASSUME(this.root != null);
         _checkForComodification();
 
-        if (filter == null)
-            _throwNPE();
-
         val size: int = this.length;
         if (size != 0)
         {
-            action ASSUME(size > 0);
+            val oldRootLength: int = ArrayListAutomaton(this.root).length;
 
-            val expectedModCount: int = this.modCount;
-            val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
-
-            val end: int = this.offset - 1;
-            val start: int = end + size;
-            var delta: int = 0;
-
-            var i: int = 0;
-            action LOOP_FOR(
-                i, start, end, -1,
-                removeIf_loop(i, rootStorage, filter, delta)
-            );
-
-            ArrayListAutomaton(this.root)._checkForComodification(expectedModCount);
-
-            ArrayListAutomaton(this.root).length += delta;
-            ArrayListAutomaton(this.root).modCount += 1;
-
-            result = delta != 0;
+            result = ArrayListAutomaton(this.root)._removeIf(filter, this.offset, this.offset + this.length);
             if (result)
-                _updateSizeAndModCount(delta);
+            {
+                val newRootLength: int = ArrayListAutomaton(this.root).length;
+                _updateSizeAndModCount(newRootLength - oldRootLength);
+            }
         }
         else
         {
@@ -631,55 +595,17 @@ automaton ArrayList_SubListAutomaton
         }
     }
 
-    @Phantom proc removeIf_loop (i: int, rootStorage: list<Object>, filter: Predicate, delta: int): void
-    {
-        val item: Object = action LIST_GET(rootStorage, i);
-        if (action CALL(filter, [item]))
-        {
-            action LIST_REMOVE(rootStorage, i);
-            delta -= 1;
-        }
-    }
-
 
     fun *.replaceAll (@target self: ArrayList_SubList, operator: UnaryOperator): void
     {
         action ASSUME(this.root != null);
-        _checkForComodification();
-
-        if (operator == null)
-            _throwNPE();
-
-        val size: int = this.length;
-        if (size != 0)
-        {
-            action ASSUME(size > 0);
-
-            val expectedModCount: int = this.modCount;
-            val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
-
-            val end: int = this.offset + size;
-            var i: int = 0;
-            action LOOP_FOR(
-                i, this.offset, end, +1,
-                replaceAll_loop(i, rootStorage, operator)
-            );
-
-            ArrayListAutomaton(this.root)._checkForComodification(expectedModCount);
-        }
-    }
-
-    @Phantom proc replaceAll_loop (i: int, rootStorage: list<Object>, operator: UnaryOperator): void
-    {
-        var item: Object = action LIST_GET(rootStorage, i);
-        item = action CALL(operator, [item]);
-        action LIST_SET(rootStorage, i, item);
+        ArrayListAutomaton(this.root)._replaceAllRange(operator, this.offset, this.offset + this.length);
     }
 
 
     fun *.retainAll (@target self: ArrayList_SubList, c: Collection): boolean
     {
-        action TODO();
+        _batchRemove(c, true);
     }
 
 
@@ -709,19 +635,19 @@ automaton ArrayList_SubListAutomaton
     // within java.util.List
     fun *.sort (@target self: ArrayList_SubList, c: Comparator): void
     {
-        if (this.length != 0)
+        val size: int = this.length;
+        if (size != 0)
         {
             // Java has no unsigned primitive data types
-            action ASSUME(this.length > 0);
+            action ASSUME(size > 0);
             action ASSUME(this.root != null);
 
             _checkForComodification();
             val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
 
             // prepare common variables
-            val baseLimit: int = this.offset + this.length;
+            val baseLimit: int = this.offset + size;
             val outerLimit: int = baseLimit - 1;
-            var innerLimit: int = 0;
             var i: int = 0;
             var j: int = 0;
 
@@ -733,7 +659,7 @@ automaton ArrayList_SubListAutomaton
                 // plain bubble sorting algorithm
                 action LOOP_FOR(
                     i, this.offset, outerLimit, +1,
-                    sort_loop_outer_noComparator(i, j, baseLimit, innerLimit, rootStorage)
+                    sort_loop_outer_noComparator(i, j, baseLimit, rootStorage)
                 );
             }
             else
@@ -743,7 +669,7 @@ automaton ArrayList_SubListAutomaton
                 // plain bubble sorting algorithm (with a comparator)
                 action LOOP_FOR(
                     i, this.offset, outerLimit, +1,
-                    sort_loop_outer(i, j, baseLimit, innerLimit, rootStorage, c)
+                    sort_loop_outer(i, j, baseLimit, rootStorage, c)
                 );
             }
 
@@ -751,9 +677,9 @@ automaton ArrayList_SubListAutomaton
         }
     }
 
-    @Phantom proc sort_loop_outer_noComparator (i: int, j: int, baseLimit: int, innerLimit: int, rootStorage: list<Object>): void
+    @Phantom proc sort_loop_outer_noComparator (i: int, j: int, baseLimit: int, rootStorage: list<Object>): void
     {
-        innerLimit = baseLimit - i - 1;
+        val innerLimit: int = baseLimit - i - 1;
         action LOOP_FOR(
             j, this.offset, innerLimit, +1,
             sort_loop_inner_noComparator(j, rootStorage)
@@ -774,9 +700,9 @@ automaton ArrayList_SubListAutomaton
         }
     }
 
-    @Phantom proc sort_loop_outer (i: int, j: int, baseLimit: int, innerLimit: int, rootStorage: list<Object>, c: Comparator): void
+    @Phantom proc sort_loop_outer (i: int, j: int, baseLimit: int, rootStorage: list<Object>, c: Comparator): void
     {
-        innerLimit = baseLimit - i - 1;
+        val innerLimit: int = baseLimit - i - 1;
         action LOOP_FOR(
             j, this.offset, innerLimit, +1,
             sort_loop_inner(j, rootStorage, c)

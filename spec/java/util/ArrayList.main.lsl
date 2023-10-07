@@ -226,7 +226,7 @@ automaton ArrayListAutomaton
     }
 
 
-    proc _replaceAllRange (i: int, end: int, op: UnaryOperator): void
+    @KeepVisible proc _replaceAllRange (op: UnaryOperator, i: int, end: int): void
     {
         val expectedModCount: int = this.modCount;
 
@@ -257,6 +257,7 @@ automaton ArrayListAutomaton
         val expectedModCount: int = this.modCount;
 
         // remove elements from the back first
+        action ASSUME(start <= end);
         var i: int = 0;
         action LOOP_FOR(
             i, end - 1, start, -1,
@@ -365,6 +366,66 @@ automaton ArrayListAutomaton
         result = action SYMBOLIC("java.util.stream.Stream");
         action ASSUME(result != null);
         action ASSUME(action CALL_METHOD(result, "isParallel", []) == parallel);
+    }
+
+
+    @KeepVisible proc _batchRemove (c: Collection, complement: boolean, start: int, end: int): boolean
+    {
+        val oldLength: int = this.length;
+        if (oldLength == 0 || start >= end)
+        {
+            result = false;
+        }
+        else
+        {
+            val otherLength: int = action CALL_METHOD(c, "size", []);
+            if (otherLength == 0)
+            {
+                result = false;
+            }
+            else
+            {
+                action ASSUME(otherLength > 0);
+
+                var i: int = 0;
+                start -= 1;
+                end -= 1;
+
+                if (c has ArrayListAutomaton)
+                {
+                    val otherStorage: list<Object> = ArrayListAutomaton(c).storage;
+                    action ASSUME(otherStorage != null);
+
+                    action LOOP_FOR(
+                        i, end, start, -1,
+                        _batchRemove_loop_optimized(i, otherStorage, complement)
+                    );
+                }
+                else
+                {
+                    action LOOP_FOR(
+                        i, end, start, -1,
+                        _batchRemove_loop_regular(i, c, complement)
+                    );
+                }
+
+                result = oldLength != this.length;
+            }
+        }
+    }
+
+    @Phantom proc _batchRemove_loop_optimized (i: int, otherStorage: list<Object>, complement: boolean): void
+    {
+        val item: Object = action LIST_GET(this.storage, i);
+        if ((action LIST_FIND(otherStorage, item, 0, this.length) == -1) == complement)
+            _deleteElement(i);
+    }
+
+    @Phantom proc _batchRemove_loop_regular (i: int, c: Collection, complement: boolean): void
+    {
+        val item: Object = action LIST_GET(this.storage, i);
+        if (action CALL_METHOD(c, "contains", [item]) != complement)
+            _deleteElement(i);
     }
 
 
@@ -674,54 +735,7 @@ automaton ArrayListAutomaton
 
     fun *.removeAll (@target self: ArrayList, c: Collection): boolean
     {
-        val oldLength: int = this.length;
-        if (oldLength != 0)
-        {
-            if (c has ArrayListAutomaton)
-            {
-                val otherStorage: list<Object> = ArrayListAutomaton(c).storage;
-                val otherLength: int = ArrayListAutomaton(c).length;
-
-                action ASSUME(otherStorage != null);
-                action ASSUME(otherLength >= 0);
-
-                var i: int = 0;
-                action LOOP_FOR(
-                    i, 0, otherLength, +1,
-                    removeAll_loop_optimized(i, otherStorage)
-                );
-            }
-            else
-            {
-                val iter: Iterator = action CALL_METHOD(c, "iterator", []);
-                action LOOP_WHILE(
-                    action CALL_METHOD(iter, "hasNext", []),
-                    removeAll_loop_regular(iter)
-                );
-            }
-
-            result = oldLength != this.length;
-        }
-        else
-        {
-            result = false;
-        }
-    }
-
-    @Phantom proc removeAll_loop_optimized (i: int, otherStorage: list<Object>): void
-    {
-        val o: Object = action LIST_GET(otherStorage, i);
-        val index: int = action LIST_FIND(this.storage, o, 0, this.length);
-        if (index != -1)
-            _deleteElement(index);
-    }
-
-    @Phantom proc removeAll_loop_regular (iter: Iterator): void
-    {
-        val o: Object = action CALL_METHOD(iter, "next", []);
-        val index: int = action LIST_FIND(this.storage, o, 0, this.length);
-        if (index != -1)
-            _deleteElement(index);
+        result = _batchRemove(c, false, 0, this.length);
     }
 
 
@@ -736,54 +750,14 @@ automaton ArrayListAutomaton
         if (op == null)
             _throwNPE();
 
-        _replaceAllRange(0, this.length, op);
+        _replaceAllRange(op, 0, this.length);
         this.modCount += 1;
     }
 
 
     fun *.retainAll (@target self: ArrayList, c: Collection): boolean
     {
-        val oldLength: int = this.length;
-        var i: int = 0;
-
-        if (c has ArrayListAutomaton)
-        {
-            val otherStorage: list<Object> = ArrayListAutomaton(c).storage;
-            val otherLength: int = ArrayListAutomaton(c).length;
-
-            action ASSUME(otherStorage != null);
-            action ASSUME(otherLength >= 0);
-
-            action LOOP_FOR(
-                i, this.length - 1, 0, -1,
-                retainAll_loop_optimized(i, otherStorage, otherLength)
-            );
-        }
-        else
-        {
-            action LOOP_FOR(
-                i, this.length - 1, 0, -1,
-                retainAll_loop_regular(i, c)
-            );
-        }
-
-        result = oldLength != this.length;
-    }
-
-    @Phantom proc retainAll_loop_optimized (i: int, otherStorage: list<Object>, otherLength: int): void
-    {
-        val item: Object = action LIST_GET(this.storage, i);
-        val otherHasItem: boolean = action LIST_FIND(otherStorage, item, 0, otherLength) != -1;
-        if (!otherHasItem)
-            _deleteElement(i);
-    }
-
-    @Phantom proc retainAll_loop_regular (i: int, c: Collection): void
-    {
-        val item: Object = action LIST_GET(this.storage, i);
-        val otherHasItem: boolean = action CALL_METHOD(c, "contains", [item]);
-        if (!otherHasItem)
-            _deleteElement(i);
+        result = _batchRemove(c, true, 0, this.length);
     }
 
 
