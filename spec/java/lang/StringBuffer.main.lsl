@@ -530,6 +530,7 @@ automaton StringBufferAutomaton
     @synchronized fun *.charAt (@target self: StringBuffer, index: int): char
     {
         _checkIndex(index);
+
         result = action CALL_METHOD(this.storage, "charAt", [index]);
     }
 
@@ -547,10 +548,7 @@ automaton StringBufferAutomaton
     {
         _checkIndex(index);
 
-        val codePoint: int = action SYMBOLIC("int");
-        action ASSUME(codePoint >= MIN_CODE_POINT);
-        action ASSUME(codePoint <= MAX_CODE_POINT);
-        result = codePoint;
+        result = action CALL_METHOD(this.storage, "codePointAt", [index]);
     }
 
 
@@ -559,10 +557,7 @@ automaton StringBufferAutomaton
         index -= 1;
         _checkIndex(index);
 
-        val codePoint: int = action SYMBOLIC("int");
-        action ASSUME(codePoint >= MIN_CODE_POINT);
-        action ASSUME(codePoint <= MAX_CODE_POINT);
-        result = codePoint;
+        result = action CALL_METHOD(this.storage, "codePointBefore", [index]);
     }
 
 
@@ -571,11 +566,7 @@ automaton StringBufferAutomaton
         if (beginIndex < 0 || endIndex > this.length || beginIndex > endIndex)
             action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
 
-        val codePoint: int = action SYMBOLIC("int");
-        val leftBorder: int = endIndex - beginIndex;
-        val rightBorder: int = (endIndex - beginIndex) * 2;
-        action ASSUME(codePoint >= leftBorder);
-        action ASSUME(codePoint <= rightBorder);
+        result = action CALL_METHOD(this.storage, "codePointCount", [beginIndex, endIndex]);
     }
 
 
