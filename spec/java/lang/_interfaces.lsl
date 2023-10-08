@@ -176,6 +176,15 @@ val MIN_SUPPLEMENTARY_CODE_POINT: int = 65536;
 
 // general interfaces
 
+type AutoCloseable
+    is java.lang.AutoCloseable
+    for Object
+{
+    @throws(["java.lang.Exception"])
+    fun *.close();
+}
+
+
 type Runnable
     is java.lang.Runnable
     for Object
