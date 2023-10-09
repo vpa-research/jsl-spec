@@ -67,7 +67,8 @@ automaton IntStreamAutomaton
         takeWhile,
         asDoubleStream,
         asLongStream,
-        /*sum,
+        sum,
+        /*
         average,
         boxed,
         summaryStatistics,*/
@@ -790,7 +791,7 @@ automaton IntStreamAutomaton
 
         if (this.length > 0)
         {
-            result = false
+            result = false;
             var i: int = 0;
             action LOOP_WHILE(
                 i < this.length && action CALL(predicate, [this.storage[i]]),
@@ -817,7 +818,7 @@ automaton IntStreamAutomaton
 
         if (this.length > 0)
         {
-            result = false
+            result = false;
             var i: int = 0;
             action LOOP_WHILE(
                 i < this.length && !action CALL(predicate, [this.storage[i]]),
@@ -1054,7 +1055,7 @@ automaton IntStreamAutomaton
     }
 
 
-    fun *.asLongStream (): LongStream
+    fun *.asLongStream (@target self: IntStream): LongStream
     {
         if (this.length == 0)
         {
@@ -1090,7 +1091,7 @@ automaton IntStreamAutomaton
     }
 
 
-    fun *.asDoubleStream (): DoubleStream
+    fun *.asDoubleStream (@target self: IntStream): DoubleStream
     {
         if (this.length == 0)
         {
@@ -1123,5 +1124,26 @@ automaton IntStreamAutomaton
     @Phantom proc _convertIntStorageToDouble_loop(i: int, newStorage: array<double>): void
     {
         newStorage[i] = this.storage[i] as double;
+    }
+
+
+    fun *.sum (@target self: IntStream): int
+    {
+        result = 0;
+
+        if (this.length != 0)
+        {
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, this.length, +1,
+                _sum_loop(i, result)
+            );
+        }
+    }
+
+
+    @Phantom proc _sum_loop (i: int, result: int): void
+    {
+        result += this.storage[i];
     }
 }

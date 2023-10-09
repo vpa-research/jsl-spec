@@ -67,10 +67,12 @@ automaton LongStreamAutomaton
         takeWhile,
         asDoubleStream,
         asIntStream,
-        /*sum,
+        sum,
+        /*
         average,
         boxed,
-        summaryStatistics,*/
+        summaryStatistics,
+        */
     ];
 
     // internal variables
@@ -1053,7 +1055,7 @@ automaton LongStreamAutomaton
     }
 
 
-    fun *.asIntStream (): IntStream
+    fun *.asIntStream (@target self: LongStream): IntStream
     {
         if (this.length == 0)
         {
@@ -1089,7 +1091,7 @@ automaton LongStreamAutomaton
     }
 
 
-    fun *.asDoubleStream (): DoubleStream
+    fun *.asDoubleStream (@target self: LongStream): DoubleStream
     {
         if (this.length == 0)
         {
@@ -1122,5 +1124,26 @@ automaton LongStreamAutomaton
     @Phantom proc _convertLongStorageToDouble_loop(i: int, newStorage: array<double>): void
     {
         newStorage[i] = this.storage[i] as int;
+    }
+
+
+    fun *.sum (@target self: LongStream): long
+    {
+        result = 0;
+
+        if (this.length != 0)
+        {
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, this.length, +1,
+                _sum_loop(i, result)
+            );
+        }
+    }
+
+
+    @Phantom proc _sum_loop (i: int, result: long): void
+    {
+        result += this.storage[i];
     }
 }

@@ -67,10 +67,12 @@ automaton DoubleStreamAutomaton
         takeWhile,
         asLongStream,
         asIntStream,
-        /*sum,
+        sum,
+        /*
         average,
         boxed,
-        summaryStatistics,*/
+        summaryStatistics,
+        */
     ];
 
     // internal variables
@@ -1055,7 +1057,7 @@ automaton DoubleStreamAutomaton
     }
 
 
-    fun *.asLongStream (): LongStream
+    fun *.asLongStream (@target self: DoubleStream): LongStream
     {
         if (this.length == 0)
         {
@@ -1091,7 +1093,7 @@ automaton DoubleStreamAutomaton
     }
 
 
-    fun *.asIntStream (): IntStream
+    fun *.asIntStream (@target self: DoubleStream): IntStream
     {
         if (this.length == 0)
         {
@@ -1124,5 +1126,27 @@ automaton DoubleStreamAutomaton
     @Phantom proc _convertDoubleStorageToInt_loop(i: int, newStorage: array<int>): void
     {
         newStorage[i] = this.storage[i] as int;
+    }
+
+
+    // In UtBot little another realization... What do with "Double.NaN", "Double.POSITIVE_INFINITY", "Double.NEGATIVE_INFINITY", "|=" ?
+    fun *.sum (@target self: DoubleStream): double
+    {
+        result = 0;
+
+        if (this.length != 0)
+        {
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, this.length, +1,
+                _sum_loop(i, result)
+            );
+        }
+    }
+
+
+    @Phantom proc _sum_loop (i: int, result: double): void
+    {
+        result += this.storage[i];
     }
 }
