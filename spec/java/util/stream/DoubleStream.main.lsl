@@ -44,10 +44,9 @@ automaton DoubleStreamAutomaton
         forEach,
         forEachOrdered,
         toArray,
+        reduce (DoubleStream, double, DoubleBinaryOperator),
+        reduce (DoubleStream, DoubleBinaryOperator),
         /*
-        reduce (Stream, Object, BinaryOperator),
-        reduce (Stream, BinaryOperator),
-        reduce (Stream, Object, BiFunction, BinaryOperator),
         collect (Stream, Supplier, BiConsumer, BiConsumer),
         collect (Stream, Collector),
         min,
@@ -554,5 +553,72 @@ automaton DoubleStreamAutomaton
 
         result = this.storage;
         this.linkedOrConsumed = true;
+    }
+
+
+    fun *.reduce (@target self: DoubleStream, identity: double, accumulator: DoubleBinaryOperator): double
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (accumulator == null)
+            _throwNPE();
+
+        result = identity;
+
+        if (this.length != 0)
+        {
+            action ASSUME(this.length > 0);
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, this.length, +1,
+                _accumulate_loop(i, accumulator, result)
+            );
+        }
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _accumulate_loop (i: int, accumulator: DoubleBinaryOperator, result: double): void
+    {
+        result = action CALL(accumulator, [result, this.storage[i]]);
+    }
+
+
+    fun *.reduce (@target self: DoubleStream, accumulator: DoubleBinaryOperator): OptionalDouble
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (accumulator == null)
+            _throwNPE();
+
+        var value: double = 0;
+
+        if (this.length == 0)
+        {
+            result = action DEBUG_DO("OptionalDouble.empty()");
+        }
+        else if (this.length > 0)
+        {
+            value = this.storage[0];
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 1, this.length, +1,
+                _accumulate_optional_loop(i, accumulator, value)
+            );
+
+            result = action DEBUG_DO("OptionalDouble.ofNullable(value)");
+        }
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _accumulate_optional_loop (i: int, accumulator: DoubleBinaryOperator, value: double): void
+    {
+        value = action CALL(accumulator, [value, this.storage[i]]);
     }
 }

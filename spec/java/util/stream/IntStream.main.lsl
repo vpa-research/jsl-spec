@@ -44,10 +44,9 @@ automaton IntStreamAutomaton
         forEach,
         forEachOrdered,
         toArray,
+        reduce (IntStream, int, IntBinaryOperator),
+        reduce (IntStream, IntBinaryOperator),
         /*
-        reduce (Stream, Object, BinaryOperator),
-        reduce (Stream, BinaryOperator),
-        reduce (Stream, Object, BiFunction, BinaryOperator),
         collect (Stream, Supplier, BiConsumer, BiConsumer),
         collect (Stream, Collector),
         min,
@@ -554,4 +553,70 @@ automaton IntStreamAutomaton
         this.linkedOrConsumed = true;
     }
 
+
+    fun *.reduce (@target self: IntStream, identity: int, accumulator: IntBinaryOperator): int
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (accumulator == null)
+            _throwNPE();
+
+        result = identity;
+
+        if (this.length != 0)
+        {
+            action ASSUME(this.length > 0);
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, this.length, +1,
+                _accumulate_loop(i, accumulator, result)
+            );
+        }
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _accumulate_loop (i: int, accumulator: IntBinaryOperator, result: int): void
+    {
+        result = action CALL(accumulator, [result, this.storage[i]]);
+    }
+
+
+    fun *.reduce (@target self: IntStream, accumulator: IntBinaryOperator): OptionalInt
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (accumulator == null)
+            _throwNPE();
+
+        var value: int = 0;
+
+        if (this.length == 0)
+        {
+            result = action DEBUG_DO("OptionalInt.empty()");
+        }
+        else if (this.length > 0)
+        {
+            value = this.storage[0];
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 1, this.length, +1,
+                _accumulate_optional_loop(i, accumulator, value)
+            );
+
+            result = action DEBUG_DO("OptionalInt.ofNullable(value)");
+        }
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _accumulate_optional_loop (i: int, accumulator: IntBinaryOperator, value: int): void
+    {
+        value = action CALL(accumulator, [value, this.storage[i]]);
+    }
 }
