@@ -53,9 +53,9 @@ automaton LongStreamAutomaton
         anyMatch,
         allMatch,
         noneMatch,
-        /*
         findFirst,
         findAny,
+        /*
         iterator,
         spliterator,
         isParallel,
@@ -106,6 +106,19 @@ automaton LongStreamAutomaton
         action CALL(_action, [this.storage[i]]);
     }
 
+
+    proc _findFirst (): OptionalLong
+    {
+        if (this.length == 0)
+        {
+            result = action DEBUG_DO("OptionalLong.empty()");
+        }
+        else
+        {
+            val first: long = this.storage[0];
+            result = action DEBUG_DO("OptionalLong.ofNullable(first)");
+        }
+    }
     // methods
 
     fun *.filter (@target self: LongStream, predicate: LongPredicate): LongStream
@@ -809,6 +822,26 @@ automaton LongStreamAutomaton
                 result = true;
         }
 
+        this.linkedOrConsumed = true;
+    }
+
+
+    fun *.findFirst (@target self: LongStream): OptionalLong
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        result = _findFirst();
+        this.linkedOrConsumed = true;
+    }
+
+
+    fun *.findAny (@target self: LongStream): OptionalLong
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        result = _findFirst();
         this.linkedOrConsumed = true;
     }
 }

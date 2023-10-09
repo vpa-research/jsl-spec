@@ -53,9 +53,9 @@ automaton IntStreamAutomaton
         anyMatch,
         allMatch,
         noneMatch,
-        /*
         findFirst,
         findAny,
+        /*
         iterator,
         spliterator,
         isParallel,
@@ -105,6 +105,21 @@ automaton IntStreamAutomaton
     {
         action CALL(_action, [this.storage[i]]);
     }
+
+
+    proc _findFirst (): OptionalInt
+    {
+        if (this.length == 0)
+        {
+            result = action DEBUG_DO("OptionalInt.empty()");
+        }
+        else
+        {
+            val first: int = this.storage[0];
+            result = action DEBUG_DO("OptionalInt.ofNullable(first)");
+        }
+    }
+
 
     // methods
 
@@ -808,6 +823,26 @@ automaton IntStreamAutomaton
                 result = true;
         }
 
+        this.linkedOrConsumed = true;
+    }
+
+
+    fun *.findFirst (@target self: IntStream): OptionalInt
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        result = _findFirst();
+        this.linkedOrConsumed = true;
+    }
+
+
+    fun *.findAny (@target self: IntStream): OptionalInt
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        result = _findFirst();
         this.linkedOrConsumed = true;
     }
 }

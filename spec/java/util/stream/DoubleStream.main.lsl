@@ -53,9 +53,9 @@ automaton DoubleStreamAutomaton
         anyMatch,
         allMatch,
         noneMatch,
-        /*
         findFirst,
         findAny,
+        /*
         iterator,
         spliterator,
         isParallel,
@@ -104,6 +104,20 @@ automaton DoubleStreamAutomaton
     @Phantom proc _actionApply_loop (i: int, _action: DoubleConsumer): void
     {
         action CALL(_action, [this.storage[i]]);
+    }
+
+
+    proc _findFirst (): OptionalDouble
+    {
+        if (this.length == 0)
+        {
+            result = action DEBUG_DO("OptionalDouble.empty()");
+        }
+        else
+        {
+            val first: double = this.storage[0];
+            result = action DEBUG_DO("OptionalDouble.ofNullable(first)");
+        }
     }
 
 
@@ -810,6 +824,26 @@ automaton DoubleStreamAutomaton
                 result = true;
         }
 
+        this.linkedOrConsumed = true;
+    }
+
+
+    fun *.findFirst (@target self: DoubleStream): OptionalDouble
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        result = _findFirst();
+        this.linkedOrConsumed = true;
+    }
+
+
+    fun *.findAny (@target self: DoubleStream): OptionalDouble
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        result = _findFirst();
         this.linkedOrConsumed = true;
     }
 }
