@@ -47,10 +47,10 @@ automaton IntStreamAutomaton
         reduce (IntStream, int, IntBinaryOperator),
         reduce (IntStream, IntBinaryOperator),
         collect,
-        /*
         min,
         max,
         count,
+        /*
         anyMatch,
         allMatch,
         noneMatch,
@@ -650,5 +650,81 @@ automaton IntStreamAutomaton
     @Phantom proc _accumulate_with_biConsumer_loop (i: int, accumulator: ObjIntConsumer, result: Object): void
     {
         action CALL(accumulator, [result, this.storage[i]]);
+    }
+
+
+    fun *.min (@target self: IntStream): OptionalInt
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (this.length == 0)
+        {
+            result = action DEBUG_DO("OptionalInt.empty()");
+        }
+        else
+        {
+            var min: double = this.storage[0];
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 1, this.length, +1,
+                _find_min_loop(i, min)
+            );
+
+            result = action DEBUG_DO("OptionalInt.ofNullable(min)");
+        }
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _find_min_loop (i: int, min: int): void
+    {
+        if (min < this.storage[i])
+            min = this.storage[i];
+    }
+
+
+    fun *.max (@target self: IntStream): OptionalInt
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (this.length == 0)
+        {
+            result = action DEBUG_DO("OptionalInt.empty()");
+        }
+        else
+        {
+            var max: int = this.storage[0];
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 1, this.length, +1,
+                _find_max_loop(i, max)
+            );
+
+            result = action DEBUG_DO("OptionalInt.ofNullable(max)");
+        }
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _find_max_loop (i: int, max: int): void
+    {
+        if (max > this.storage[i])
+            max = this.storage[i];
+    }
+
+
+    fun *.count (@target self: IntStream): long
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        result = this.length;
+        this.linkedOrConsumed = true;
     }
 }

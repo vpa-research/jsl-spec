@@ -47,10 +47,10 @@ automaton LongStreamAutomaton
         reduce (LongStream, long, LongBinaryOperator),
         reduce (LongStream, LongBinaryOperator),
         collect,
-        /*
         min,
         max,
         count,
+        /*
         anyMatch,
         allMatch,
         noneMatch,
@@ -651,5 +651,81 @@ automaton LongStreamAutomaton
     @Phantom proc _accumulate_with_biConsumer_loop (i: int, accumulator: ObjLongConsumer, result: Object): void
     {
         action CALL(accumulator, [result, this.storage[i]]);
+    }
+
+
+    fun *.min (@target self: LongStream): OptionalLong
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (this.length == 0)
+        {
+            result = action DEBUG_DO("OptionalLong.empty()");
+        }
+        else
+        {
+            var min: long = this.storage[0];
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 1, this.length, +1,
+                _find_min_loop(i, min)
+            );
+
+            result = action DEBUG_DO("OptionalLong.ofNullable(min)");
+        }
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _find_min_loop (i: int, min: long): void
+    {
+        if (min < this.storage[i])
+            min = this.storage[i];
+    }
+
+
+    fun *.max (@target self: IntStream): OptionalLong
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (this.length == 0)
+        {
+            result = action DEBUG_DO("OptionalLong.empty()");
+        }
+        else
+        {
+            var max: long = this.storage[0];
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 1, this.length, +1,
+                _find_max_loop(i, max)
+            );
+
+            result = action DEBUG_DO("OptionalLong.ofNullable(max)");
+        }
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _find_max_loop (i: int, max: long): void
+    {
+        if (max > this.storage[i])
+            max = this.storage[i];
+    }
+
+
+    fun *.count (@target self: LongStream): long
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        result = this.length;
+        this.linkedOrConsumed = true;
     }
 }

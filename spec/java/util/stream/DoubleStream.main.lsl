@@ -47,10 +47,10 @@ automaton DoubleStreamAutomaton
         reduce (DoubleStream, double, DoubleBinaryOperator),
         reduce (DoubleStream, DoubleBinaryOperator),
         collect,
-        /*
         min,
         max,
         count,
+        /*
         anyMatch,
         allMatch,
         noneMatch,
@@ -652,5 +652,81 @@ automaton DoubleStreamAutomaton
     @Phantom proc _accumulate_with_biConsumer_loop (i: int, accumulator: ObjDoubleConsumer, result: Object): void
     {
         action CALL(accumulator, [result, this.storage[i]]);
+    }
+
+
+    fun *.min (@target self: DoubleStream): OptionalDouble
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (this.length == 0)
+        {
+            result = action DEBUG_DO("OptionalDouble.empty()");
+        }
+        else
+        {
+            var min: double = this.storage[0];
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 1, this.length, +1,
+                _find_min_loop(i, min)
+            );
+
+            result = action DEBUG_DO("OptionalDouble.ofNullable(min)");
+        }
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _find_min_loop (i: int, min: double): void
+    {
+        if (min < this.storage[i])
+            min = this.storage[i];
+    }
+
+
+    fun *.max (@target self: DoubleStream): OptionalDouble
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (this.length == 0)
+        {
+            result = action DEBUG_DO("OptionalDouble.empty()");
+        }
+        else
+        {
+            var max: double = this.storage[0];
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 1, this.length, +1,
+                _find_max_loop(i, max)
+            );
+
+            result = action DEBUG_DO("OptionalDouble.ofNullable(max)");
+        }
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _find_max_loop (i: int, max: double): void
+    {
+        if (max > this.storage[i])
+            max = this.storage[i];
+    }
+
+
+    fun *.count (@target self: DoubleStream): long
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        result = this.length;
+        this.linkedOrConsumed = true;
     }
 }
