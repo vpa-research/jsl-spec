@@ -43,9 +43,8 @@ automaton DoubleStreamAutomaton
         skip,
         forEach,
         forEachOrdered,
+        toArray,
         /*
-        toArray (Stream),
-        toArray (Stream, IntFunction),
         reduce (Stream, Object, BinaryOperator),
         reduce (Stream, BinaryOperator),
         reduce (Stream, Object, BiFunction, BinaryOperator),
@@ -544,6 +543,16 @@ automaton DoubleStreamAutomaton
             _throwISE();
 
         _actionApply(_action);
+        this.linkedOrConsumed = true;
+    }
+
+
+    fun *.toArray (@target self: DoubleStream): array<double>
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        result = this.storage;
         this.linkedOrConsumed = true;
     }
 }

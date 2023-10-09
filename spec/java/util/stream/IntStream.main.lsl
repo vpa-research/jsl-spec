@@ -43,9 +43,8 @@ automaton IntStreamAutomaton
         skip,
         forEach,
         forEachOrdered,
+        toArray,
         /*
-        toArray (Stream),
-        toArray (Stream, IntFunction),
         reduce (Stream, Object, BinaryOperator),
         reduce (Stream, BinaryOperator),
         reduce (Stream, Object, BiFunction, BinaryOperator),
@@ -544,4 +543,15 @@ automaton IntStreamAutomaton
         _actionApply(_action);
         this.linkedOrConsumed = true;
     }
+
+
+    fun *.toArray (@target self: IntStream): array<int>
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        result = this.storage;
+        this.linkedOrConsumed = true;
+    }
+
 }
