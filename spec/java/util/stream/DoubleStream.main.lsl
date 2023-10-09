@@ -50,10 +50,10 @@ automaton DoubleStreamAutomaton
         min,
         max,
         count,
-        /*
         anyMatch,
         allMatch,
         noneMatch,
+        /*
         findFirst,
         findAny,
         iterator,
@@ -727,6 +727,89 @@ automaton DoubleStreamAutomaton
             _throwISE();
 
         result = this.length;
+        this.linkedOrConsumed = true;
+    }
+
+
+    fun *.anyMatch (@target self: DoubleStream, predicate: DoublePredicate): boolean
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (predicate == null)
+            _throwNPE();
+
+        result = false;
+
+        var i: int = 0;
+        action LOOP_WHILE(
+            i < this.length && !action CALL(predicate, [this.storage[i]]),
+            _predicate_condition_increment_loop(i)
+        );
+
+        if (i < this.length)
+            result = true;
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _predicate_condition_increment_loop (i: int): void
+    {
+        i += 1;
+    }
+
+
+    fun *.allMatch (@target self: DoubleStream, predicate: DoublePredicate): boolean
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (predicate == null)
+            _throwNPE();
+
+        result = true;
+
+        if (this.length > 0)
+        {
+            result = false
+            var i: int = 0;
+            action LOOP_WHILE(
+                i < this.length && action CALL(predicate, [this.storage[i]]),
+                _predicate_condition_increment_loop(i)
+            );
+
+            if (i == this.length)
+                result = true;
+        }
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    fun *.noneMatch (@target self: DoubleStream, predicate: DoublePredicate): boolean
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (predicate == null)
+            _throwNPE();
+
+        result = true;
+
+        if (this.length > 0)
+        {
+            result = false
+            var i: int = 0;
+            action LOOP_WHILE(
+                i < this.length && !action CALL(predicate, [this.storage[i]]),
+                _predicate_condition_increment_loop(i)
+            );
+
+            if (i == this.length)
+                result = true;
+        }
+
         this.linkedOrConsumed = true;
     }
 }
