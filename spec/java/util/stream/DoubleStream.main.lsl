@@ -63,9 +63,8 @@ automaton DoubleStreamAutomaton
         unordered,
         onClose,
         close,
-        /*
         dropWhile,
-        takeWhile,*/
+        takeWhile,
     ];
 
     // internal variables
@@ -921,5 +920,131 @@ automaton DoubleStreamAutomaton
     {
         val currentHandler: Runnable = action LIST_GET(this.closeHandlers, i) as Runnable;
         action CALL(currentHandler, []);
+    }
+
+
+    fun *.dropWhile (@target self: DoubleStream, predicate: DoublePredicate): DoubleStream
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (predicate == null)
+            _throwNPE();
+
+        if (this.length == 0)
+        {
+            val emptyStorage: array<double> = action ARRAY_NEW("double", 0);
+            result = new DoubleStreamAutomaton(state = Initialized,
+                storage = emptyStorage,
+                length = 0,
+                closeHandlers = this.closeHandlers,
+            );
+        }
+        else
+        {
+            var dropLength: int = 0;
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, this.length, +1,
+                _dropWhile_loop(i, dropLength, predicate)
+            );
+
+            val newLength: int = this.length - dropLength;
+            val newStorage: array<double> = action ARRAY_NEW("double", newLength);
+
+            var j: int = 0;
+            action LOOP_FOR(
+                i, dropLength, this.length, +1,
+                _copy_dropWhile_loop(i, j, newStorage)
+            );
+
+            result = new DoubleStreamAutomaton(state = Initialized,
+                storage = newStorage,
+                length = newLength,
+                closeHandlers = this.closeHandlers,
+            );
+        }
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _dropWhile_loop (i: int, dropLength: int, predicate: DoublePredicate): void
+    {
+        if (action CALL(predicate, [this.storage[i]]))
+            dropLength += 1;
+        else
+            action LOOP_BREAK();
+    }
+
+
+    @Phantom proc _copy_dropWhile_loop (i: int, j: int, newStorage: array<double>): void
+    {
+        newStorage[j] = this.storage[i];
+        j += 1;
+    }
+
+
+    fun *.takeWhile (@target self: DoubleStream, predicate: DoublePredicate): DoubleStream
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (predicate == null)
+            _throwNPE();
+
+        if (this.length == 0)
+        {
+            val emptyStorage: array<double> = action ARRAY_NEW("double", 0);
+            result = new DoubleStreamAutomaton(state = Initialized,
+                storage = emptyStorage,
+                length = 0,
+                closeHandlers = this.closeHandlers,
+            );
+        }
+        else
+        {
+            var takeLength: int = 0;
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, this.length, +1,
+                _takeWhile_loop(i, takeLength, predicate)
+            );
+
+            val newLength: int = takeLength;
+            val newStorage: array<double> = action ARRAY_NEW("double", newLength);
+
+            var j: int = 0;
+            action LOOP_FOR(
+                i, 0, takeLength, +1,
+                _copy_takeWhile_loop(i, j, newStorage)
+            );
+
+            result = new DoubleStreamAutomaton(state = Initialized,
+                storage = newStorage,
+                length = newLength,
+                closeHandlers = this.closeHandlers,
+            );
+        }
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _takeWhile_loop (i: int, takeLength: int, predicate: DoublePredicate): void
+    {
+        if (action CALL(predicate, [this.storage[i]]))
+            takeLength += 1;
+        else
+            action LOOP_BREAK();
+    }
+
+
+    @Phantom proc _copy_takeWhile_loop (i: int, j: int, newStorage: array<double>): void
+    {
+        newStorage[j] = this.storage[i];
+        j += 1;
     }
 }
