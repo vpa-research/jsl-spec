@@ -55,13 +55,13 @@ automaton DoubleStreamAutomaton
         noneMatch,
         findFirst,
         findAny,
-        /*
-        iterator,
-        spliterator,
+        //iterator,
+        //spliterator,
         isParallel,
         sequential,
         parallel,
         unordered,
+        /*
         onClose,
         close,
         dropWhile,
@@ -845,5 +845,44 @@ automaton DoubleStreamAutomaton
 
         result = _findFirst();
         this.linkedOrConsumed = true;
+    }
+
+
+    /*fun *.iterator (@target self: DoubleStream): PrimitiveIterator.OfDouble
+    {
+        action TODO();
+    }
+
+
+    fun *.spliterator (@target self: DoubleStream): Spliterator.OfDouble
+    {
+        action TODO();
+    }*/
+
+
+    // within java.util.stream.BaseStream
+    fun *.isParallel (@target self: DoubleStream): boolean
+    {
+        result = this.isParallel;
+    }
+
+
+    fun *.sequential (@target self: DoubleStream): DoubleStream
+    {
+        this.isParallel = false;
+        result = self;
+    }
+
+
+    fun *.parallel (@target self: DoubleStream): DoubleStream
+    {
+        this.isParallel = true;
+        result = self;
+    }
+
+
+    fun *.unordered (@target self: DoubleStream): DoubleStream
+    {
+        result = self;
     }
 }

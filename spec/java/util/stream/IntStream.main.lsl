@@ -55,9 +55,9 @@ automaton IntStreamAutomaton
         noneMatch,
         findFirst,
         findAny,
+        //iterator,
+        //spliterator,
         /*
-        iterator,
-        spliterator,
         isParallel,
         sequential,
         parallel,
@@ -844,5 +844,44 @@ automaton IntStreamAutomaton
 
         result = _findFirst();
         this.linkedOrConsumed = true;
+    }
+
+
+    /*fun *.iterator (@target self: IntStream): PrimitiveIterator.OfInt
+    {
+        action TODO();
+    }
+
+
+    fun *.spliterator (@target self: IntStream): Spliterator.OfInt
+    {
+        action TODO();
+    }*/
+
+
+    // within java.util.stream.BaseStream
+    fun *.isParallel (@target self: IntStream): boolean
+    {
+        result = this.isParallel;
+    }
+
+
+    fun *.sequential (@target self: IntStream): IntStream
+    {
+        this.isParallel = false;
+        result = self;
+    }
+
+
+    fun *.parallel (@target self: IntStream): IntStream
+    {
+        this.isParallel = true;
+        result = self;
+    }
+
+
+    fun *.unordered (@target self: IntStream): IntStream
+    {
+        result = self;
     }
 }

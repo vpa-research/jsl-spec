@@ -55,13 +55,13 @@ automaton LongStreamAutomaton
         noneMatch,
         findFirst,
         findAny,
-        /*
-        iterator,
-        spliterator,
+        //iterator,
+        //spliterator,
         isParallel,
         sequential,
         parallel,
         unordered,
+        /*
         onClose,
         close,
         dropWhile,
@@ -843,5 +843,44 @@ automaton LongStreamAutomaton
 
         result = _findFirst();
         this.linkedOrConsumed = true;
+    }
+
+
+    /*fun *.iterator (@target self: LongStream): PrimitiveIterator.OfLong
+    {
+        action TODO();
+    }
+
+
+    fun *.spliterator (@target self: LongStream): Spliterator.OfLong
+    {
+        action TODO();
+    }*/
+
+
+    // within java.util.stream.BaseStream
+    fun *.isParallel (@target self: LongStream): boolean
+    {
+        result = this.isParallel;
+    }
+
+
+    fun *.sequential (@target self: LongStream): LongStream
+    {
+        this.isParallel = false;
+        result = self;
+    }
+
+
+    fun *.parallel (@target self: LongStream): LongStream
+    {
+        this.isParallel = true;
+        result = self;
+    }
+
+
+    fun *.unordered (@target self: LongStream): LongStream
+    {
+        result = self;
     }
 }
