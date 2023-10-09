@@ -41,9 +41,9 @@ automaton IntStreamAutomaton
         peek,
         limit,
         skip,
-        /*
         forEach,
         forEachOrdered,
+        /*
         toArray (Stream),
         toArray (Stream, IntFunction),
         reduce (Stream, Object, BinaryOperator),
@@ -524,5 +524,24 @@ automaton IntStreamAutomaton
     {
         skipStorage[skipIndex] = this.storage[i];
         skipIndex += 1;
+    }
+
+    fun *.forEach (@target self: IntStream, _action: IntConsumer): void
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        _actionApply(_action);
+        this.linkedOrConsumed = true;
+    }
+
+
+    fun *.forEachOrdered (@target self: IntStream, _action: IntConsumer): void
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        _actionApply(_action);
+        this.linkedOrConsumed = true;
     }
 }

@@ -41,9 +41,9 @@ automaton DoubleStreamAutomaton
         peek,
         limit,
         skip,
-        /*
         forEach,
         forEachOrdered,
+        /*
         toArray (Stream),
         toArray (Stream, IntFunction),
         reduce (Stream, Object, BinaryOperator),
@@ -527,4 +527,23 @@ automaton DoubleStreamAutomaton
         skipIndex += 1;
     }
 
+
+    fun *.forEach (@target self: DoubleStream, _action: DoubleConsumer): void
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        _actionApply(_action);
+        this.linkedOrConsumed = true;
+    }
+
+
+    fun *.forEachOrdered (@target self: DoubleStream, _action: DoubleConsumer): void
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        _actionApply(_action);
+        this.linkedOrConsumed = true;
+    }
 }

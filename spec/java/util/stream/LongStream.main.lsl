@@ -41,9 +41,9 @@ automaton LongStreamAutomaton
         peek,
         limit,
         skip,
-        /*
         forEach,
         forEachOrdered,
+        /*
         toArray (Stream),
         toArray (Stream, IntFunction),
         reduce (Stream, Object, BinaryOperator),
@@ -524,5 +524,25 @@ automaton LongStreamAutomaton
     {
         skipStorage[skipIndex] = this.storage[i];
         skipIndex += 1;
+    }
+
+
+    fun *.forEach (@target self: LongStream, _action: LongConsumer): void
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        _actionApply(_action);
+        this.linkedOrConsumed = true;
+    }
+
+
+    fun *.forEachOrdered (@target self: LongStream, _action: LongConsumer): void
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        _actionApply(_action);
+        this.linkedOrConsumed = true;
     }
 }
