@@ -65,6 +65,12 @@ automaton IntStreamAutomaton
         close,
         dropWhile,
         takeWhile,
+        /*sum,
+        asDoubleStream,
+        asIntStream,
+        average,
+        boxed,
+        summaryStatistics,*/
     ];
 
     // internal variables
