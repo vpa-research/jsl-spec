@@ -61,9 +61,9 @@ automaton LongStreamAutomaton
         sequential,
         parallel,
         unordered,
-        /*
         onClose,
         close,
+        /*
         dropWhile,
         takeWhile,*/
     ];
@@ -882,5 +882,42 @@ automaton LongStreamAutomaton
     fun *.unordered (@target self: LongStream): LongStream
     {
         result = self;
+    }
+
+
+    // within java.util.stream.BaseStream
+    fun *.onClose (@target self: LongStream, arg0: Runnable): LongStream
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        val listLength: int = action LIST_SIZE(this.closeHandlers);
+        action LIST_INSERT_AT(this.closeHandlers, listLength, arg0);
+        result = self;
+    }
+
+
+    // within java.lang.AutoCloseable
+    fun *.close (@target self: LongStream): void
+    {
+        val listLength: int = action LIST_SIZE(this.closeHandlers);
+
+        // UtBot note: this implementation does not care about suppressing and throwing exceptions produced by handlers
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, listLength, +1,
+            _closeHandlers_loop(i)
+        );
+
+        this.closeHandlers = action LIST_NEW();
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _closeHandlers_loop (i: int): void
+    {
+        val currentHandler: Runnable = action LIST_GET(this.closeHandlers, i) as Runnable;
+        action CALL(currentHandler, []);
     }
 }
