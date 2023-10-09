@@ -46,9 +46,8 @@ automaton DoubleStreamAutomaton
         toArray,
         reduce (DoubleStream, double, DoubleBinaryOperator),
         reduce (DoubleStream, DoubleBinaryOperator),
+        collect,
         /*
-        collect (Stream, Supplier, BiConsumer, BiConsumer),
-        collect (Stream, Collector),
         min,
         max,
         count,
@@ -620,5 +619,38 @@ automaton DoubleStreamAutomaton
     @Phantom proc _accumulate_optional_loop (i: int, accumulator: DoubleBinaryOperator, value: double): void
     {
         value = action CALL(accumulator, [value, this.storage[i]]);
+    }
+
+
+    fun *.collect (@target self: DoubleStream, supplier: Supplier, accumulator: ObjDoubleConsumer, combiner: BiConsumer): Object
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (supplier == null)
+            _throwNPE();
+
+        if (accumulator == null)
+            _throwNPE();
+
+        if (combiner == null)
+            _throwNPE();
+
+        // UtBot note: since this implementation is always sequential, we do not need to use the combiner
+        result = action CALL(supplier, []);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _accumulate_with_biConsumer_loop(i, accumulator, result)
+        );
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _accumulate_with_biConsumer_loop (i: int, accumulator: ObjDoubleConsumer, result: Object): void
+    {
+        action CALL(accumulator, [result, this.storage[i]]);
     }
 }
