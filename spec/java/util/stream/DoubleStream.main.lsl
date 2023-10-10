@@ -68,8 +68,8 @@ automaton DoubleStreamAutomaton
         asLongStream,
         asIntStream,
         sum,
-        /*
         average,
+        /*
         boxed,
         summaryStatistics,
         */
@@ -125,6 +125,24 @@ automaton DoubleStreamAutomaton
             val first: double = this.storage[0];
             result = action DEBUG_DO("OptionalDouble.ofNullable(first)");
         }
+    }
+
+
+    // In UtBot little another realization... What do with "Double.NaN", "Double.POSITIVE_INFINITY", "Double.NEGATIVE_INFINITY", "|=" ?
+    proc _sum (): double
+    {
+        result = 0;
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _sum_loop(i, result)
+        );
+    }
+
+
+    @Phantom proc _sum_loop (i: int, result: double): void
+    {
+        result += this.storage[i];
     }
 
 
@@ -1129,24 +1147,33 @@ automaton DoubleStreamAutomaton
     }
 
 
-    // In UtBot little another realization... What do with "Double.NaN", "Double.POSITIVE_INFINITY", "Double.NEGATIVE_INFINITY", "|=" ?
     fun *.sum (@target self: DoubleStream): double
     {
         result = 0;
 
         if (this.length != 0)
         {
-            var i: int = 0;
-            action LOOP_FOR(
-                i, 0, this.length, +1,
-                _sum_loop(i, result)
-            );
+            result = _sum();
         }
     }
 
 
-    @Phantom proc _sum_loop (i: int, result: double): void
+    fun *.average (@target self: DoubleStream): OptionalDouble
     {
-        result += this.storage[i];
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (this.length == 0)
+        {
+            result = action DEBUG_DO("OptionalDouble.empty()");
+        }
+        else
+        {
+            var curSum: double = _sum();
+            var divisionResult: double = curSum / this.length;
+            result = action DEBUG_DO("OptionalDouble.of(divisionResult)");
+        }
+
+        this.linkedOrConsumed = true;
     }
 }

@@ -68,8 +68,8 @@ automaton LongStreamAutomaton
         asDoubleStream,
         asIntStream,
         sum,
-        /*
         average,
+        /*
         boxed,
         summaryStatistics,
         */
@@ -126,6 +126,24 @@ automaton LongStreamAutomaton
             result = action DEBUG_DO("OptionalLong.ofNullable(first)");
         }
     }
+
+
+    proc _sum (): long
+    {
+        result = 0;
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _sum_loop(i, result)
+        );
+    }
+
+
+    @Phantom proc _sum_loop (i: int, result: long): void
+    {
+        result += this.storage[i];
+    }
+
     // methods
 
     fun *.filter (@target self: LongStream, predicate: LongPredicate): LongStream
@@ -1133,17 +1151,27 @@ automaton LongStreamAutomaton
 
         if (this.length != 0)
         {
-            var i: int = 0;
-            action LOOP_FOR(
-                i, 0, this.length, +1,
-                _sum_loop(i, result)
-            );
+            result = _sum();
         }
     }
 
 
-    @Phantom proc _sum_loop (i: int, result: long): void
+    fun *.average (@target self: LongStream): OptionalDouble
     {
-        result += this.storage[i];
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        if (this.length == 0)
+        {
+            result = action DEBUG_DO("OptionalDouble.empty()");
+        }
+        else
+        {
+            var curSum: double = _sum();
+            var divisionResult: double = curSum / this.length;
+            result = action DEBUG_DO("OptionalDouble.of(divisionResult)");
+        }
+
+        this.linkedOrConsumed = true;
     }
 }
