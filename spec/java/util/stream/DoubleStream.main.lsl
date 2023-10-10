@@ -69,9 +69,9 @@ automaton DoubleStreamAutomaton
         asIntStream,
         sum,
         average,
+        summaryStatistics,
         /*
         boxed,
-        summaryStatistics,
         */
     ];
 
@@ -1175,5 +1175,15 @@ automaton DoubleStreamAutomaton
         }
 
         this.linkedOrConsumed = true;
+    }
+
+
+    fun *.summaryStatistics (@target self: DoubleStream): DoubleSummaryStatistics
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        // #problem I'm waiting DoubleSummaryStatistics type in separated files
+        action TODO();
     }
 }

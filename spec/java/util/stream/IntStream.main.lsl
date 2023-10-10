@@ -69,9 +69,10 @@ automaton IntStreamAutomaton
         asLongStream,
         sum,
         average,
+        summaryStatistics,
         /*
         boxed,
-        summaryStatistics,*/
+        */
     ];
 
     // internal variables
@@ -1174,5 +1175,15 @@ automaton IntStreamAutomaton
         }
 
         this.linkedOrConsumed = true;
+    }
+
+
+    fun *.summaryStatistics (@target self: IntStream): IntSummaryStatistics
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        // #problem I'm waiting IntSummaryStatistics type in separated files
+        action TODO();
     }
 }

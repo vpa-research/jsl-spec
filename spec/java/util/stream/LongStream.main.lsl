@@ -69,9 +69,9 @@ automaton LongStreamAutomaton
         asIntStream,
         sum,
         average,
+        summaryStatistics,
         /*
         boxed,
-        summaryStatistics,
         */
     ];
 
@@ -1173,5 +1173,15 @@ automaton LongStreamAutomaton
         }
 
         this.linkedOrConsumed = true;
+    }
+
+
+    fun *.summaryStatistics (@target self: LongStream): LongSummaryStatistics
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        // #problem I'm waiting LongSummaryStatistics type in separated files
+        action TODO();
     }
 }
