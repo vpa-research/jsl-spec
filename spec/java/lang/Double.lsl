@@ -21,6 +21,10 @@ import java/lang/Number;
 {
 }
 
+val DOUBLE_POSITIVE_INFINITY: double = 1.0 / 0.0;
+val DOUBLE_NEGATIVE_INFINITY: double = -1.0 / 0.0;
+val DOUBLE_NAN: double = 0.0 / 0.0;
+
 
 // global aliases and type overrides
 
