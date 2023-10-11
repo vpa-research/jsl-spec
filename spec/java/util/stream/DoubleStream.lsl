@@ -23,3 +23,12 @@ import java/util/stream/_interfaces;
 {
     @private @static val STREAM_VALUE: Object = 1;
 }
+
+
+@GenerateMe
+@implements("java.util.Iterator")
+@public type DoubleStreamLSLIterator
+    is java.util.stream.DoubleStreamLSLIterator
+    for Iterator
+{
+}
