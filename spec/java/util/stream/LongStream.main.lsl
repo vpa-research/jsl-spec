@@ -1192,7 +1192,7 @@ automaton LongStreamAutomaton
         if (this.linkedOrConsumed)
             _throwISE();
 
-        val longArray: Long = action ARRAY_NEW("java.lang.Long", this.length);
+        val longArray: array<Long> = action ARRAY_NEW("java.lang.Long", this.length);
 
         var i: int = 0;
         action LOOP_FOR(
@@ -1210,7 +1210,7 @@ automaton LongStreamAutomaton
     }
 
 
-    @Phantom proc _boxToLong_loop (i: int, longArray: Long): void
+    @Phantom proc _boxToLong_loop (i: int, longArray: array<Long>): void
     {
         longArray[i] = this.storage[i];
     }

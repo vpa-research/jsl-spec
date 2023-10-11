@@ -1194,7 +1194,7 @@ automaton IntStreamAutomaton
         if (this.linkedOrConsumed)
             _throwISE();
 
-        val integerArray: Integer = action ARRAY_NEW("java.lang.Integer", this.length);
+        val integerArray: array<Integer> = action ARRAY_NEW("java.lang.Integer", this.length);
 
         var i: int = 0;
         action LOOP_FOR(
@@ -1212,7 +1212,7 @@ automaton IntStreamAutomaton
     }
 
 
-    @Phantom proc _boxToInteger_loop (i: int, integerArray: Integer): void
+    @Phantom proc _boxToInteger_loop (i: int, integerArray: array<Integer>): void
     {
         integerArray[i] = this.storage[i];
     }

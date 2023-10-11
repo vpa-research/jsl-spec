@@ -1217,7 +1217,7 @@ automaton DoubleStreamAutomaton
         if (this.linkedOrConsumed)
             _throwISE();
 
-        val doubleArray: Double = action ARRAY_NEW("java.lang.Double", this.length);
+        val doubleArray: array<Double> = action ARRAY_NEW("java.lang.Double", this.length);
 
         var i: int = 0;
         action LOOP_FOR(
@@ -1235,7 +1235,7 @@ automaton DoubleStreamAutomaton
     }
 
 
-    @Phantom proc _boxToDouble_loop (i: int, doubleArray: Double): void
+    @Phantom proc _boxToDouble_loop (i: int, doubleArray: array<Double>): void
     {
         doubleArray[i] = this.storage[i];
     }
