@@ -90,6 +90,34 @@ automaton DoubleStreamIteratorAutomaton
 
     fun *.forEachRemaining (@target self: DoubleStreamLSLIterator, userAction: DoubleConsumer): void
     {
-        action TODO();
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        if (userAction == null)
+            action THROW_NEW("java.lang.NullPointerException", []);
+
+        var i: int = this.cursor;
+        val size: int = DoubleStreamAutomaton(this.parent).length;
+
+        if (i != size)
+        {
+            val pStorage: array<double> = DoubleStreamAutomaton(this.parent).storage;
+
+            action LOOP_WHILE(
+                i < size,
+                forEachRemaining_loop(userAction, pStorage, i)
+            );
+
+            this.cursor = i;
+        }
+    }
+
+
+    @Phantom proc forEachRemaining_loop (userAction: DoubleConsumer, pStorage: array<double>, i: int): void
+    {
+        val item: int = pStorage[i];
+        action CALL(userAction, [item]);
+
+        i += 1;
     }
 }

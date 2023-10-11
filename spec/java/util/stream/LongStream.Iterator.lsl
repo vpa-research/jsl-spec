@@ -90,6 +90,34 @@ automaton LongStreamIteratorAutomaton
 
     fun *.forEachRemaining (@target self: LongStreamLSLIterator, userAction: LongConsumer): void
     {
-        action TODO();
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        if (userAction == null)
+            action THROW_NEW("java.lang.NullPointerException", []);
+
+        var i: int = this.cursor;
+        val size: int = LongStreamAutomaton(this.parent).length;
+
+        if (i != size)
+        {
+            val pStorage: array<long> = LongStreamAutomaton(this.parent).storage;
+
+            action LOOP_WHILE(
+                i < size,
+                forEachRemaining_loop(userAction, pStorage, i)
+            );
+
+            this.cursor = i;
+        }
+    }
+
+
+    @Phantom proc forEachRemaining_loop (userAction: LongConsumer, pStorage: array<long>, i: int): void
+    {
+        val item: int = pStorage[i];
+        action CALL(userAction, [item]);
+
+        i += 1;
     }
 }

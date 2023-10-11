@@ -90,6 +90,34 @@ automaton IntStreamIteratorAutomaton
 
     fun *.forEachRemaining (@target self: IntStreamLSLIterator, userAction: IntConsumer): void
     {
-        action TODO();
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        if (userAction == null)
+            action THROW_NEW("java.lang.NullPointerException", []);
+
+        var i: int = this.cursor;
+        val size: int = IntStreamAutomaton(this.parent).length;
+
+        if (i != size)
+        {
+            val pStorage: array<int> = IntStreamAutomaton(this.parent).storage;
+
+            action LOOP_WHILE(
+                i < size,
+                forEachRemaining_loop(userAction, pStorage, i)
+            );
+
+            this.cursor = i;
+        }
+    }
+
+
+    @Phantom proc forEachRemaining_loop (userAction: IntConsumer, pStorage: array<int>, i: int): void
+    {
+        val item: int = pStorage[i];
+        action CALL(userAction, [item]);
+
+        i += 1;
     }
 }
