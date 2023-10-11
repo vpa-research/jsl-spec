@@ -130,17 +130,41 @@ automaton DoubleStreamAutomaton
     proc _sum (): double
     {
         result = 0;
+        var anyNaN: boolean = false;
+        var anyPositiveInfinity: boolean = false;
+        var anyNegativeInfinity: boolean = false;
+
         var i: int = 0;
         action LOOP_FOR(
             i, 0, this.length, +1,
-            _sum_loop(i, result)
+            _sum_loop(i, result, anyNaN, anyPositiveInfinity, anyNegativeInfinity)
         );
+
+        if (anyNaN)
+            result = DOUBLE_NAN;
+        else if (anyPositiveInfinity && anyNegativeInfinity)
+            result = DOUBLE_NAN;
+        else if (anyPositiveInfinity && result == DOUBLE_NEGATIVE_INFINITY)
+            result = DOUBLE_NAN;
+        else if (anyNegativeInfinity && result == DOUBLE_POSITIVE_INFINITY)
+            result = DOUBLE_NAN;
+
     }
 
 
-    @Phantom proc _sum_loop (i: int, result: double): void
+    @Phantom proc _sum_loop (i: int, result: double, anyNaN: boolean, anyPositiveInfinity: boolean, anyNegativeInfinity: boolean): void
     {
-        result += this.storage[i];
+        val element: double = this.storage[i];
+        result += element;
+
+        if (action DEBUG_DO("Double.isNaN(element)"))
+            anyNaN = true;
+
+        if (element == DOUBLE_POSITIVE_INFINITY)
+            anyPositiveInfinity = true;
+
+        if (element == DOUBLE_NEGATIVE_INFINITY)
+            anyNegativeInfinity = true;
     }
 
 
