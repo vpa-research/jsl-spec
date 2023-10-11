@@ -9,6 +9,15 @@ library std
 // imports
 
 import java/util/stream/Stream;
+import java/lang/Double;
+import java/util/function/DoubleFunction;
+import java/util/function/DoublePredicate;
+import java/util/function/DoubleUnaryOperator;
+import java/util/function/DoubleToLongFunction;
+import java/util/function/DoubleToIntFunction;
+import java/util/function/DoubleBinaryOperator;
+import java/util/function/ObjDoubleConsumer;
+import java/util/DoubleSummaryStatistics;
 
 
 // primary semantic types
