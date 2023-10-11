@@ -45,6 +45,6 @@ import java/util/PrimitiveIterator;
 @implements("java.util.Iterator")
 @public type IntStreamLSLIterator
     is java.util.stream.IntStreamLSLIterator
-    for Iterator
+    for PrimitiveIterator_OfInt
 {
 }

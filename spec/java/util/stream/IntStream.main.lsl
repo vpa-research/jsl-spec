@@ -870,7 +870,10 @@ automaton IntStreamAutomaton
 
     fun *.iterator (@target self: IntStream): PrimitiveIterator_OfInt
     {
-        action TODO();
+        result = new IntStreamIteratorAutomaton(state = Initialized,
+            parent = self,
+            cursor = 0,
+        );
     }
 
 

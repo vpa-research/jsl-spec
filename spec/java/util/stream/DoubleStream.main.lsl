@@ -873,7 +873,10 @@ automaton DoubleStreamAutomaton
 
     fun *.iterator (@target self: DoubleStream): PrimitiveIterator_OfDouble
     {
-        action TODO();
+        result = new DoubleStreamIteratorAutomaton(state = Initialized,
+            parent = self,
+            cursor = 0,
+        );
     }
 
 

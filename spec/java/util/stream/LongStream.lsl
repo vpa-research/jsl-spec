@@ -46,6 +46,6 @@ import java/util/PrimitiveIterator;
 @implements("java.util.Iterator")
 @public type LongStreamLSLIterator
     is java.util.stream.LongStreamLSLIterator
-    for Iterator
+    for PrimitiveIterator_OfLong
 {
 }

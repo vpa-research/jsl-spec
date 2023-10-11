@@ -46,6 +46,6 @@ import java/util/PrimitiveIterator;
 @implements("java.util.Iterator")
 @public type DoubleStreamLSLIterator
     is java.util.stream.DoubleStreamLSLIterator
-    for Iterator
+    for PrimitiveIterator_OfDouble
 {
 }

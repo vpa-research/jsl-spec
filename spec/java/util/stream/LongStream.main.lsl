@@ -871,7 +871,10 @@ automaton LongStreamAutomaton
 
     fun *.iterator (@target self: LongStream): PrimitiveIterator_OfLong
     {
-        action TODO();
+        result = new LongStreamIteratorAutomaton(state = Initialized,
+            parent = self,
+            cursor = 0,
+        );
     }
 
 
