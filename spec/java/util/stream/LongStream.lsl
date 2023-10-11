@@ -8,12 +8,19 @@ library std
 
 // imports
 
-import java/lang/_interfaces;
-import java/util/function/_interfaces;
-import java/util/stream/_interfaces;
+import java/util/stream/Stream;
 
 
-// new/introduced types
+// primary semantic types
+
+@interface type LongStream
+    is java.util.stream.LongStream
+    for Stream
+{
+}
+
+
+// global aliases and type overrides
 
 @GenerateMe
 @implements("java.util.stream.LongStream")
