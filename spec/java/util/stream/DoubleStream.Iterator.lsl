@@ -26,7 +26,7 @@ automaton DoubleStreamIteratorAutomaton
     shift Initialized -> self by [
        hasNext,
        next,
-       nextInt,
+       nextDouble,
        remove,
        forEachRemaining (DoubleStreamLSLIterator, Consumer),
        forEachRemaining (DoubleStreamLSLIterator, DoubleConsumer),
@@ -37,19 +37,42 @@ automaton DoubleStreamIteratorAutomaton
 
     fun *.hasNext (@target self: DoubleStreamLSLIterator): boolean
     {
-        action TODO();
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        result = this.cursor != DoubleStreamAutomaton(this.parent).length;
     }
 
 
     fun *.next (@target self: DoubleStreamLSLIterator): Double
     {
-        action TODO();
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        val parentStorage: array<double> = DoubleStreamAutomaton(this.parent).storage;
+
+        val i: int = this.cursor;
+        if (i >= DoubleStreamAutomaton(this.parent).length)
+            action THROW_NEW("java.util.NoSuchElementException", []);
+
+        this.cursor = i + 1;
+        result = parentStorage[i];
     }
 
 
-    fun *.nextInt (@target self: DoubleStreamLSLIterator): double
+    fun *.nextDouble (@target self: DoubleStreamLSLIterator): double
     {
-        action TODO();
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        val parentStorage: array<double> = DoubleStreamAutomaton(this.parent).storage;
+
+        val i: int = this.cursor;
+        if (i >= DoubleStreamAutomaton(this.parent).length)
+            action THROW_NEW("java.util.NoSuchElementException", []);
+
+        this.cursor = i + 1;
+        result = parentStorage[i];
     }
 
 

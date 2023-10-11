@@ -26,7 +26,7 @@ automaton LongStreamIteratorAutomaton
     shift Initialized -> self by [
        hasNext,
        next,
-       nextInt,
+       nextLong,
        remove,
        forEachRemaining (LongStreamLSLIterator, Consumer),
        forEachRemaining (LongStreamLSLIterator, LongConsumer),
@@ -37,19 +37,42 @@ automaton LongStreamIteratorAutomaton
 
     fun *.hasNext (@target self: LongStreamLSLIterator): boolean
     {
-        action TODO();
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        result = this.cursor != LongStreamAutomaton(this.parent).length;
     }
 
 
     fun *.next (@target self: LongStreamLSLIterator): Long
     {
-        action TODO();
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        val parentStorage: array<long> = LongStreamAutomaton(this.parent).storage;
+
+        val i: int = this.cursor;
+        if (i >= LongStreamAutomaton(this.parent).length)
+            action THROW_NEW("java.util.NoSuchElementException", []);
+
+        this.cursor = i + 1;
+        result = parentStorage[i];
     }
 
 
-    fun *.nextInt (@target self: LongStreamLSLIterator): long
+    fun *.nextLong (@target self: LongStreamLSLIterator): long
     {
-        action TODO();
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        val parentStorage: array<long> = LongStreamAutomaton(this.parent).storage;
+
+        val i: int = this.cursor;
+        if (i >= LongStreamAutomaton(this.parent).length)
+            action THROW_NEW("java.util.NoSuchElementException", []);
+
+        this.cursor = i + 1;
+        result = parentStorage[i];
     }
 
 

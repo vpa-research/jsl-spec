@@ -37,19 +37,42 @@ automaton IntStreamIteratorAutomaton
 
     fun *.hasNext (@target self: IntStreamLSLIterator): boolean
     {
-        action TODO();
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        result = this.cursor != IntStreamAutomaton(this.parent).length;
     }
 
 
     fun *.next (@target self: IntStreamLSLIterator): Integer
     {
-        action TODO();
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        val parentStorage: array<int> = IntStreamAutomaton(this.parent).storage;
+
+        val i: int = this.cursor;
+        if (i >= IntStreamAutomaton(this.parent).length)
+            action THROW_NEW("java.util.NoSuchElementException", []);
+
+        this.cursor = i + 1;
+        result = parentStorage[i];
     }
 
 
     fun *.nextInt (@target self: IntStreamLSLIterator): int
     {
-        action TODO();
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        val parentStorage: array<int> = IntStreamAutomaton(this.parent).storage;
+
+        val i: int = this.cursor;
+        if (i >= IntStreamAutomaton(this.parent).length)
+            action THROW_NEW("java.util.NoSuchElementException", []);
+
+        this.cursor = i + 1;
+        result = parentStorage[i];
     }
 
 
