@@ -8,7 +8,7 @@ library std
 
 // imports
 
-import java/io/_interfaces;
+import java/io/InputStream;
 
 
 // primary semantic types
@@ -16,7 +16,7 @@ import java/io/_interfaces;
 @GenerateMe
 @extends("java.io.InputStream")
 @public @final type VoidInputStream
-    is java.io.InputStream$1
+    is java.io.InputStream$Void
     for InputStream
 {
 }

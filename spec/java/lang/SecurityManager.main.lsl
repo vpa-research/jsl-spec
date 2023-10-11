@@ -8,21 +8,14 @@ library std
 // imports
 
 import java/io/FileDescriptor;
+import java/lang/Object;
+import java/lang/SecurityManager;
+import java/lang/String;
 import java/lang/Thread;
 import java/lang/ThreadGroup;
-import java/lang/SecurityManager;
 import java/net/InetAddress;
-import java/security/_interfaces;
+import java/security/Permission;
 import java/security/AccessControlContext;
-
-
-// local semantic types
-
-@public type LSLSecurityManager
-    is java.lang.SecurityManager
-    for SecurityManager
-{
-}
 
 
 // automata
