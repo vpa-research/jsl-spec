@@ -70,9 +70,7 @@ automaton IntStreamAutomaton
         sum,
         average,
         summaryStatistics,
-        /*
         boxed,
-        */
     ];
 
     // internal variables
@@ -1185,5 +1183,34 @@ automaton IntStreamAutomaton
 
         // #problem I'm waiting IntSummaryStatistics type in separated files
         action TODO();
+    }
+
+
+    fun *.boxed (@target self: IntStream): Stream
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        val integerArray: Integer = action ARRAY_NEW("java.lang.Integer", this.length);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _boxToInteger_loop(i, integerArray)
+        );
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = integerArray,
+            length = this.length,
+            closeHandlers = this.closeHandlers,
+        );
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _boxToInteger_loop (i: int, integerArray: Integer): void
+    {
+        integerArray[i] = this.storage[i];
     }
 }

@@ -70,9 +70,7 @@ automaton DoubleStreamAutomaton
         sum,
         average,
         summaryStatistics,
-        /*
         boxed,
-        */
     ];
 
     // internal variables
@@ -1185,5 +1183,34 @@ automaton DoubleStreamAutomaton
 
         // #problem I'm waiting DoubleSummaryStatistics type in separated files
         action TODO();
+    }
+
+
+    fun *.boxed (@target self: DoubleStream): Stream
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        val doubleArray: Double = action ARRAY_NEW("java.lang.Double", this.length);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _boxToDouble_loop(i, doubleArray)
+        );
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = doubleArray,
+            length = this.length,
+            closeHandlers = this.closeHandlers,
+        );
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _boxToDouble_loop (i: int, doubleArray: Double): void
+    {
+        doubleArray[i] = this.storage[i];
     }
 }

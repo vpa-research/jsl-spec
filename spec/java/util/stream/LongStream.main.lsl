@@ -70,9 +70,7 @@ automaton LongStreamAutomaton
         sum,
         average,
         summaryStatistics,
-        /*
         boxed,
-        */
     ];
 
     // internal variables
@@ -1183,5 +1181,34 @@ automaton LongStreamAutomaton
 
         // #problem I'm waiting LongSummaryStatistics type in separated files
         action TODO();
+    }
+
+
+    fun *.boxed (@target self: LongStream): Stream
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        val longArray: Long = action ARRAY_NEW("java.lang.Long", this.length);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _boxToLong_loop(i, longArray)
+        );
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = longArray,
+            length = this.length,
+            closeHandlers = this.closeHandlers,
+        );
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _boxToLong_loop (i: int, longArray: Long): void
+    {
+        longArray[i] = this.storage[i];
     }
 }
