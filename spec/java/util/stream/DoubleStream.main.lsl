@@ -126,7 +126,6 @@ automaton DoubleStreamAutomaton
     }
 
 
-    // In UtBot little another realization... What do with "Double.NaN", "Double.POSITIVE_INFINITY", "Double.NEGATIVE_INFINITY", "|=" ?
     proc _sum (): double
     {
         result = 0;
