@@ -7,7 +7,9 @@ library std
 
 // imports
 
+import java/lang/Class;
 import java/lang/Object;
+import java/lang/String;
 
 
 // automata

@@ -8,7 +8,7 @@ library std
 
 // imports
 
-import java/lang/_interfaces;
+import java/lang/Object;
 
 
 // primary semantic types
@@ -16,5 +16,14 @@ import java/lang/_interfaces;
 @public type SecurityManager
     is java.lang.SecurityManager
     for Object
+{
+}
+
+
+// global aliases and type overrides
+
+@public type LSLSecurityManager
+    is java.lang.SecurityManager
+    for SecurityManager
 {
 }

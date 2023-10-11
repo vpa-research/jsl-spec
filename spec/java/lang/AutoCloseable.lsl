@@ -1,3 +1,4 @@
+//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -7,45 +8,24 @@ library std
 
 // imports
 
-import java/lang/_interfaces;
+import java/lang/Object;
 
 
-// local semantic types
+// primary semantic types
 
-@public @interface type LSLAutoCloseable
+@interface type AutoCloseable
     is java.lang.AutoCloseable
     for Object
 {
+    @throws(["java.io.IOException"])
+    fun *.close(): void;
 }
 
 
-// automata
+// global aliases and type overrides
 
-automaton AutoCloseableAutomaton
-(
-)
-: LSLAutoCloseable
+@public @interface type LSLAutoCloseable
+    is java.lang.AutoCloseable
+    for AutoCloseable
 {
-    // states and shifts
-
-    initstate Initialized;
-
-    shift Initialized -> self by [
-        close,
-    ];
-
-    // internal variables
-
-    // utilities
-
-    // constructors
-
-    // static methods
-
-    // methods
-
-    @default fun close (@target self: LSLAutoCloseable): void
-    {
-        // UtBotJava: do nothing
-    }
 }

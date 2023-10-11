@@ -8,17 +8,12 @@ library std
 
 // imports
 
-import java/lang/_interfaces;
-import java/lang/Object;
-import java/io/_interfaces;
-import java/util/_interfaces;
-import java/util/function/_interfaces;
-import java/util/HashMap;
-
-
-// === CONSTANTS ===
-
-val HASHSET_VALUE: Object = new ObjectAutomaton(state = Initialized);
+import java/io/Serializable;
+import java/lang/Cloneable;
+import java/util/AbstractSet;
+import java/util/Iterator;
+import java/util/Spliterator;
+import java/util/Set;
 
 
 // primary types
@@ -29,7 +24,7 @@ val HASHSET_VALUE: Object = new ObjectAutomaton(state = Initialized);
 @implements("java.io.Serializable")
 @public type HashSet
     is java.util.HashSet
-    for Set
+    for AbstractSet, Set, Cloneable, Serializable
 {
     @private @static val serialVersionUID: long = -5024744406713321676L;
 }

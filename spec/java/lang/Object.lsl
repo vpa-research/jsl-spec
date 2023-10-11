@@ -1,3 +1,4 @@
+//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -7,10 +8,25 @@ library std
 
 // imports
 
-import java/lang/_interfaces;
+import java.common;
 
 
-// public semantic types
+// primary semantic types
+
+type Object
+    is java.lang.Object
+    for Object
+{
+    // WARNING: use OBJECT_HASH_CODE and OBJECT_EQUALS actions instead of calling these methods directly
+
+    // #problem: breaks automatic "functional-interface" inference
+    //fun *.getClass(): any; // #problem: cyclic dependency
+}
+
+val SOMETHING: Object = action DEBUG_DO("new java.lang.Object()");
+
+
+// global aliases and type overrides
 
 @public type LSLObject
     is java.lang.Object

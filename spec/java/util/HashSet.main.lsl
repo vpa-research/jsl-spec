@@ -8,6 +8,7 @@ library std
 
 // imports
 
+import java/lang/Object;
 import java/util/HashSet;
 
 
@@ -105,7 +106,7 @@ automaton HashSetAutomaton
 
         if (!hasKey)
         {
-            action MAP_SET(this.storage, key, HASHSET_VALUE);
+            action MAP_SET(this.storage, key, SOMETHING);
             this.length += 1;
         }
     }
@@ -194,7 +195,7 @@ automaton HashSetAutomaton
         {
             this.length += 1;
 
-            action MAP_SET(this.storage, obj, HASHSET_VALUE);
+            action MAP_SET(this.storage, obj, SOMETHING);
 
             result = true;
         }
@@ -301,7 +302,7 @@ automaton HashSetAutomaton
         val key: Object = _generateKey(visitedKeys);
 
         keysStorageArray[i] = key;
-        action MAP_SET(visitedKeys, key, HASHSET_VALUE);
+        action MAP_SET(visitedKeys, key, SOMETHING);
     }
 
 
@@ -403,7 +404,7 @@ automaton HashSetAutomaton
             this.length -= 1;
         }
 
-        action MAP_SET(visitedKeys, key, HASHSET_VALUE);
+        action MAP_SET(visitedKeys, key, SOMETHING);
         i += 1;
     }
 
@@ -431,7 +432,7 @@ automaton HashSetAutomaton
 
         result[i] = key;
 
-        action MAP_SET(visitedKeys, key, HASHSET_VALUE);
+        action MAP_SET(visitedKeys, key, SOMETHING);
     }
 
 
@@ -575,7 +576,7 @@ automaton HashSetAutomaton
         }
 
         i += 1;
-        action MAP_SET(visitedKeys, key, HASHSET_VALUE);
+        action MAP_SET(visitedKeys, key, SOMETHING);
     }
 
 
@@ -604,7 +605,7 @@ automaton HashSetAutomaton
         action CALL(userAction, [key]);
 
         i += 1;
-        action MAP_SET(visitedKeys, key, HASHSET_VALUE);
+        action MAP_SET(visitedKeys, key, SOMETHING);
     }
 
 
