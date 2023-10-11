@@ -238,7 +238,7 @@ automaton DoubleStreamAutomaton
     }
 
 
-    fun *.mapToObj (@target self: DoubleStream, mapper: IntFunction): Stream
+    fun *.mapToObj (@target self: DoubleStream, mapper: DoubleFunction): Stream
     {
         if (this.linkedOrConsumed)
             _throwISE();
@@ -262,7 +262,7 @@ automaton DoubleStreamAutomaton
     }
 
 
-    @Phantom proc _mapToObj_loop (i: int, objStorage: array<Object>, mapper: IntFunction): void
+    @Phantom proc _mapToObj_loop (i: int, objStorage: array<Object>, mapper: DoubleFunction): void
     {
         objStorage[i] = action CALL(mapper, [this.storage[i]]);
     }

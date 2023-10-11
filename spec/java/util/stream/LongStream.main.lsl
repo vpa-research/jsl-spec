@@ -213,7 +213,7 @@ automaton LongStreamAutomaton
     }
 
 
-    fun *.mapToObj (@target self: LongStream, mapper: IntFunction): Stream
+    fun *.mapToObj (@target self: LongStream, mapper: LongFunction): Stream
     {
         if (this.linkedOrConsumed)
             _throwISE();
@@ -237,7 +237,7 @@ automaton LongStreamAutomaton
     }
 
 
-    @Phantom proc _mapToObj_loop (i: int, objStorage: array<Object>, mapper: IntFunction): void
+    @Phantom proc _mapToObj_loop (i: int, objStorage: array<Object>, mapper: LongFunction): void
     {
         objStorage[i] = action CALL(mapper, [this.storage[i]]);
     }
