@@ -7,6 +7,28 @@ library std
 
 // imports
 
+import java/lang/Object;
+import java/lang/Runnable;
+import java/util/Comparator;
+import java/util/Iterator;
+import java/util/Optional;
+import java/util/Spliterator;
+import java/util/function/BiConsumer;
+import java/util/function/BiFunction;
+import java/util/function/BinaryOperator;
+import java/util/function/Consumer;
+import java/util/function/Function;
+import java/util/function/IntFunction;
+import java/util/function/Predicate;
+import java/util/function/Supplier;
+import java/util/function/ToDoubleFunction;
+import java/util/function/ToIntFunction;
+import java/util/function/ToLongFunction;
+import java/util/stream/BaseStream;
+import java/util/stream/Collector;
+import java/util/stream/DoubleStream;
+import java/util/stream/IntStream;
+import java/util/stream/LongStream;
 import java/util/stream/Stream;
 
 
@@ -15,7 +37,7 @@ import java/util/stream/Stream;
 automaton StreamAutomaton
 (
     var storage: array<Object>,
-    @transient  var length: int,
+    @transient var length: int,
     var closeHandlers: list<Runnable>
 )
 : StreamLSL
@@ -411,7 +433,7 @@ automaton StreamAutomaton
         val item: Object = items[i];
         if (action MAP_HAS_KEY(visited, item) == false)
         {
-            action MAP_SET(visited, item, STREAM_VALUE);
+            action MAP_SET(visited, item, SOMETHING);
             action LIST_INSERT_AT(uniqueItems, j, item);
             j += 1;
         }
@@ -994,7 +1016,7 @@ automaton StreamAutomaton
 
         if (this.length > 0)
         {
-            result = false
+            result = false;
             var i: int = 0;
             action LOOP_WHILE(
                 i < this.length && action CALL(predicate, [this.storage[i]]),
@@ -1021,7 +1043,7 @@ automaton StreamAutomaton
 
         if (this.length > 0)
         {
-            result = false
+            result = false;
             var i: int = 0;
             action LOOP_WHILE(
                 i < this.length && !action CALL(predicate, [this.storage[i]]),

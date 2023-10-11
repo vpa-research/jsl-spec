@@ -7,21 +7,12 @@ library std
 
 // imports
 
-import java/lang/_interfaces;
-import java/util/_interfaces;
+import java/lang/Object;
 import java/util/ArrayList;
-import java/util/function/_interfaces;
-
-
-// local semantic types
-
-@implements("java.util.List")
-@public @interface type LSLList
-    is java.util.List
-    for List
-{
-    //@private @static val serialVersionUID: long = 1; // #problem: should be 3905348978240129619
-}
+import java/util/Collection;
+import java/util/Comparator;
+import java/util/List;
+import java/util/function/UnaryOperator;
 
 
 // automata

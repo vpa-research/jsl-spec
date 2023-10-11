@@ -8,6 +8,7 @@ library std
 
 // imports
 
+import java/lang/Character;
 import java/lang/StringBuilder;
 import java/lang/StringBuffer;
 

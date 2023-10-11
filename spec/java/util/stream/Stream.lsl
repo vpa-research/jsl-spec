@@ -8,12 +8,28 @@ library std
 
 // imports
 
-import java/lang/_interfaces;
-import java/util/function/_interfaces;
-import java/util/stream/_interfaces;
+import java/lang/Object;
+import java/util/Iterator;
+import java/util/function/Consumer;
+import java/util/stream/BaseStream;
 
 
-// new/introduced types
+// primary semantic types
+
+@Parameterized(["T"])
+@interface type Stream
+    is java.util.stream.Stream
+    for BaseStream
+{
+    fun forEach(@Parameterized(["? super T"]) _action: Consumer): void;
+
+    fun forEachOrdered(@Parameterized(["? super T"]) _action: Consumer): void;
+
+    fun toArray(): array<Object>;
+}
+
+
+// global aliases and type overrides
 
 @GenerateMe
 @implements("java.util.stream.Stream")
@@ -21,7 +37,6 @@ import java/util/stream/_interfaces;
     is java.util.stream.StreamLSL
     for Stream
 {
-    @private @static val STREAM_VALUE: Object = 1;
 }
 
 

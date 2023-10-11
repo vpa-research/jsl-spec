@@ -8,11 +8,13 @@ library std
 
 // imports
 
-import java/lang/_interfaces;
-import java/io/_interfaces;
-import java/util/_interfaces;
-import java/util/function/_interfaces;
-import java/util/stream/_interfaces;
+import java/io/Serializable;
+import java/lang/Cloneable;
+import java/util/AbstractList;
+import java/util/List;
+import java/util/ListIterator;
+import java/util/RandomAccess;
+import java/util/Spliterator;
 
 
 // primary types
