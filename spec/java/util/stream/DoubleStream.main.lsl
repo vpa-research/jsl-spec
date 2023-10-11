@@ -121,7 +121,7 @@ automaton DoubleStreamAutomaton
         else
         {
             val first: double = this.storage[0];
-            result = action DEBUG_DO("OptionalDouble.ofNullable(first)");
+            result = action DEBUG_DO("OptionalDouble.of(first)");
         }
     }
 
@@ -693,7 +693,7 @@ automaton DoubleStreamAutomaton
                 _accumulate_optional_loop(i, accumulator, value)
             );
 
-            result = action DEBUG_DO("OptionalDouble.ofNullable(value)");
+            result = action DEBUG_DO("OptionalDouble.of(value)");
         }
 
         this.linkedOrConsumed = true;
@@ -758,7 +758,7 @@ automaton DoubleStreamAutomaton
                 _find_min_loop(i, min)
             );
 
-            result = action DEBUG_DO("OptionalDouble.ofNullable(min)");
+            result = action DEBUG_DO("OptionalDouble.of(min)");
         }
 
         this.linkedOrConsumed = true;
@@ -791,7 +791,7 @@ automaton DoubleStreamAutomaton
                 _find_max_loop(i, max)
             );
 
-            result = action DEBUG_DO("OptionalDouble.ofNullable(max)");
+            result = action DEBUG_DO("OptionalDouble.of(max)");
         }
 
         this.linkedOrConsumed = true;

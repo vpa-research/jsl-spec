@@ -121,7 +121,7 @@ automaton LongStreamAutomaton
         else
         {
             val first: long = this.storage[0];
-            result = action DEBUG_DO("OptionalLong.ofNullable(first)");
+            result = action DEBUG_DO("OptionalLong.of(first)");
         }
     }
 
@@ -668,7 +668,7 @@ automaton LongStreamAutomaton
                 _accumulate_optional_loop(i, accumulator, value)
             );
 
-            result = action DEBUG_DO("OptionalLong.ofNullable(value)");
+            result = action DEBUG_DO("OptionalLong.of(value)");
         }
 
         this.linkedOrConsumed = true;
@@ -733,7 +733,7 @@ automaton LongStreamAutomaton
                 _find_min_loop(i, min)
             );
 
-            result = action DEBUG_DO("OptionalLong.ofNullable(min)");
+            result = action DEBUG_DO("OptionalLong.of(min)");
         }
 
         this.linkedOrConsumed = true;
@@ -766,7 +766,7 @@ automaton LongStreamAutomaton
                 _find_max_loop(i, max)
             );
 
-            result = action DEBUG_DO("OptionalLong.ofNullable(max)");
+            result = action DEBUG_DO("OptionalLong.of(max)");
         }
 
         this.linkedOrConsumed = true;

@@ -121,7 +121,7 @@ automaton IntStreamAutomaton
         else
         {
             val first: int = this.storage[0];
-            result = action DEBUG_DO("OptionalInt.ofNullable(first)");
+            result = action DEBUG_DO("OptionalInt.of(first)");
         }
     }
 
@@ -667,7 +667,7 @@ automaton IntStreamAutomaton
                 _accumulate_optional_loop(i, accumulator, value)
             );
 
-            result = action DEBUG_DO("OptionalInt.ofNullable(value)");
+            result = action DEBUG_DO("OptionalInt.of(value)");
         }
 
         this.linkedOrConsumed = true;
@@ -732,7 +732,7 @@ automaton IntStreamAutomaton
                 _find_min_loop(i, min)
             );
 
-            result = action DEBUG_DO("OptionalInt.ofNullable(min)");
+            result = action DEBUG_DO("OptionalInt.of(min)");
         }
 
         this.linkedOrConsumed = true;
@@ -765,7 +765,7 @@ automaton IntStreamAutomaton
                 _find_max_loop(i, max)
             );
 
-            result = action DEBUG_DO("OptionalInt.ofNullable(max)");
+            result = action DEBUG_DO("OptionalInt.of(max)");
         }
 
         this.linkedOrConsumed = true;
