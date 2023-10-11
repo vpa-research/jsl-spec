@@ -55,8 +55,8 @@ automaton LongStreamAutomaton
         noneMatch,
         findFirst,
         findAny,
-        //iterator,
-        //spliterator,
+        iterator,
+        spliterator,
         isParallel,
         sequential,
         parallel,
@@ -869,16 +869,16 @@ automaton LongStreamAutomaton
     }
 
 
-    /*fun *.iterator (@target self: LongStream): PrimitiveIterator.OfLong
+    fun *.iterator (@target self: LongStream): PrimitiveIterator_OfLong
     {
         action TODO();
     }
 
 
-    fun *.spliterator (@target self: LongStream): Spliterator.OfLong
+    fun *.spliterator (@target self: LongStream): Spliterator_OfLong
     {
         action TODO();
-    }*/
+    }
 
 
     // within java.util.stream.BaseStream

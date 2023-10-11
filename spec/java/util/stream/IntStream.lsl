@@ -17,6 +17,7 @@ import java/util/function/IntToDoubleFunction;
 import java/util/function/IntBinaryOperator;
 import java/util/function/ObjIntConsumer;
 import java/util/IntSummaryStatistics;
+import java/util/PrimitiveIterator;
 
 
 // primary semantic types

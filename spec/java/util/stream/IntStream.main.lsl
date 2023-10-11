@@ -55,8 +55,8 @@ automaton IntStreamAutomaton
         noneMatch,
         findFirst,
         findAny,
-        //iterator,
-        //spliterator,
+        iterator,
+        spliterator,
         isParallel,
         sequential,
         parallel,
@@ -868,16 +868,16 @@ automaton IntStreamAutomaton
     }
 
 
-    /*fun *.iterator (@target self: IntStream): PrimitiveIterator.OfInt
+    fun *.iterator (@target self: IntStream): PrimitiveIterator_OfInt
     {
         action TODO();
     }
 
 
-    fun *.spliterator (@target self: IntStream): Spliterator.OfInt
+    fun *.spliterator (@target self: IntStream): Spliterator_OfInt
     {
         action TODO();
-    }*/
+    }
 
 
     // within java.util.stream.BaseStream

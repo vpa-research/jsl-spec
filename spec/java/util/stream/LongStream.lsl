@@ -18,6 +18,7 @@ import java/util/function/LongToIntFunction;
 import java/util/function/LongBinaryOperator;
 import java/util/function/ObjLongConsumer;
 import java/util/LongSummaryStatistics;
+import java/util/PrimitiveIterator;
 
 
 // primary semantic types
