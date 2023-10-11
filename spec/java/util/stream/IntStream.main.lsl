@@ -215,7 +215,31 @@ automaton IntStreamAutomaton
 
     fun *.mapToObj (@target self: IntStream, mapper: IntFunction): Stream
     {
-        action TODO();
+        if (this.linkedOrConsumed)
+            _throwISE();
+
+        // UtBot note: Here we assume that this mapping does not produce infinite streams
+        val objStorage: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _mapToObj_loop(i, objStorage, mapper)
+        );
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = objStorage,
+            length = this.length,
+            closeHandlers = this.closeHandlers,
+        );
+
+        this.linkedOrConsumed = true;
+    }
+
+
+    @Phantom proc _mapToObj_loop (i: int, objStorage: array<Object>, mapper: IntFunction): void
+    {
+        objStorage[i] = action CALL(mapper, [this.storage[i]]);
     }
 
 
