@@ -8,10 +8,11 @@ library std
 
 // imports
 
-import java/lang/_interfaces;
+import java/lang/Runnable;
+import java/util/function/IntConsumer;
+import java/util/function/IntSupplier;
+import java/util/function/Supplier;
 import java/util/OptionalInt;
-import java/util/function/_interfaces;
-import java/util/stream/_interfaces;
 
 
 // globals

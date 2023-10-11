@@ -8,8 +8,10 @@ library std
 
 // imports
 
-import java/lang/_interfaces;
-import java/util/_interfaces;
+import java/io/Serializable;
+import java/lang/Cloneable;
+import java/util/AbstractMap;
+import java/util/Map;
 
 
 // local semantic types
@@ -20,7 +22,7 @@ import java/util/_interfaces;
 @implements("java.io.Serializable")
 @public type HashMap
     is java.util.HashMap
-    for Map
+    for AbstractMap, Map, Cloneable, Serializable
 {
     @private @static val serialVersionUID: long = 362498820763181265L;
 }
