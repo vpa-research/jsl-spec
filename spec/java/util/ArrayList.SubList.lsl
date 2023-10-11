@@ -145,6 +145,15 @@ automaton ArrayList_SubListAutomaton
     }
 
 
+    proc _makeStream (parallel: boolean): Stream
+    {
+        // #todo: use custom stream implementation
+        result = action SYMBOLIC("java.util.stream.Stream");
+        action ASSUME(result != null);
+        action ASSUME(action CALL_METHOD(result, "isParallel", []) == parallel);
+    }
+
+
     // constructors
 
     constructor *.SubList (@target self: ArrayList_SubList, root: ArrayList, fromIndex: int, toIndex: int)
@@ -274,7 +283,28 @@ automaton ArrayList_SubListAutomaton
 
     fun *.equals (@target self: ArrayList_SubList, o: Object): boolean
     {
-        action TODO();
+        if (o == self)
+        {
+            result = true;
+        }
+        else
+        {
+            result = o has ArrayList_SubListAutomaton;
+            if (result)
+            {
+                action ASSUME(this.root != null);
+
+                val otherLength: int = ArrayList_SubListAutomaton(o).length;
+                action ASSUME(otherLength >= 0);
+
+                result = this.length == otherLength;
+                if (result)
+                {
+                    result = ArrayListAutomaton(this.root)._equalsRange(o as List, this.offset, this.offset + this.length);
+                    ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+                }
+            }
+        }
     }
 
 
@@ -315,7 +345,7 @@ automaton ArrayList_SubListAutomaton
         action ASSUME(this.root != null);
 
         val effectiveIndex: int = this.offset + index;
-        ArrayListAutomaton(this.root)._checkValidIndex(effectiveIndex);
+        ArrayListAutomaton(this.root)._checkValidIndex(index, this.length);
         ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
 
         result = action LIST_GET(ArrayListAutomaton(this.root).storage, effectiveIndex);
@@ -390,9 +420,7 @@ automaton ArrayList_SubListAutomaton
     // within java.util.Collection
     fun *.parallelStream (@target self: ArrayList_SubList): Stream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
+        result = _makeStream(/* parallel = */true);
     }
 
 
@@ -423,7 +451,7 @@ automaton ArrayList_SubListAutomaton
 
         val effectiveIndex: int = this.offset + index;
 
-        ArrayListAutomaton(this.root)._checkValidIndex(effectiveIndex);
+        ArrayListAutomaton(this.root)._checkValidIndex(index, this.length);
         ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
         result = ArrayListAutomaton(this.root)._deleteElement(effectiveIndex);
 
@@ -465,7 +493,7 @@ automaton ArrayList_SubListAutomaton
         action ASSUME(this.root != null);
 
         val effectiveIndex: int = this.offset + index;
-        ArrayListAutomaton(this.root)._checkValidIndex(effectiveIndex);
+        ArrayListAutomaton(this.root)._checkValidIndex(index, this.length);
         ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
 
         val parentStorage: list<Object> = ArrayListAutomaton(this.root).storage;
@@ -486,22 +514,108 @@ automaton ArrayList_SubListAutomaton
     // within java.util.List
     fun *.sort (@target self: ArrayList_SubList, c: Comparator): void
     {
-        action TODO();
+        if (this.length != 0)
+        {
+            // Java has no unsigned primitive data types
+            action ASSUME(this.length > 0);
+            action ASSUME(this.root != null);
+
+            ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+            val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+
+            // prepare common variables
+            val baseLimit: int = this.offset + this.length;
+            val outerLimit: int = baseLimit - 1;
+            var innerLimit: int = 0;
+            var i: int = 0;
+            var j: int = 0;
+
+            // check the comparator
+            if (c == null)
+            {
+                // using Comparable::compareTo as a comparator
+
+                // plain bubble sorting algorithm
+                action LOOP_FOR(
+                    i, this.offset, outerLimit, +1,
+                    sort_loop_outer_noComparator(i, j, baseLimit, innerLimit, rootStorage)
+                );
+            }
+            else
+            {
+                // using the provided comparator
+
+                // plain bubble sorting algorithm (with a comparator)
+                action LOOP_FOR(
+                    i, this.offset, outerLimit, +1,
+                    sort_loop_outer(i, j, baseLimit, innerLimit, rootStorage, c)
+                );
+            }
+
+            this.modCount = ArrayListAutomaton(this.root).modCount;
+        }
+    }
+
+    @Phantom proc sort_loop_outer_noComparator (i: int, j: int, baseLimit: int, innerLimit: int, rootStorage: list<Object>): void
+    {
+        innerLimit = baseLimit - i - 1;
+        action LOOP_FOR(
+            j, this.offset, innerLimit, +1,
+            sort_loop_inner_noComparator(j, rootStorage)
+        );
+    }
+
+    @Phantom proc sort_loop_inner_noComparator (j: int, rootStorage: list<Object>): void
+    {
+        val idxA: int = j;
+        val idxB: int = j + 1;
+        val a: Object = action LIST_GET(rootStorage, idxA);
+        val b: Object = action LIST_GET(rootStorage, idxB);
+
+        if (action CALL_METHOD(a as Comparable, "compareTo", [b]) > 0)
+        {
+            action LIST_SET(rootStorage, idxA, b);
+            action LIST_SET(rootStorage, idxB, a);
+        }
+    }
+
+    @Phantom proc sort_loop_outer (i: int, j: int, baseLimit: int, innerLimit: int, rootStorage: list<Object>, c: Comparator): void
+    {
+        innerLimit = baseLimit - i - 1;
+        action LOOP_FOR(
+            j, this.offset, innerLimit, +1,
+            sort_loop_inner(j, rootStorage, c)
+        );
+    }
+
+    @Phantom proc sort_loop_inner (j: int, rootStorage: list<Object>, c: Comparator): void
+    {
+        val idxA: int = j;
+        val idxB: int = j + 1;
+        val a: Object = action LIST_GET(rootStorage, idxA);
+        val b: Object = action LIST_GET(rootStorage, idxB);
+
+        if (action CALL(c, [a, b]) > 0)
+        {
+            action LIST_SET(rootStorage, idxA, b);
+            action LIST_SET(rootStorage, idxB, a);
+        }
     }
 
 
     fun *.spliterator (@target self: ArrayList_SubList): Spliterator
     {
-        action TODO();
+        result = new ArrayList_SubList_SpliteratorAutomaton(state = Initialized,
+            root = this.root,
+            parent = self,
+        );
     }
 
 
     // within java.util.Collection
     fun *.stream (@target self: ArrayList_SubList): Stream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
+        result = _makeStream(/* parallel = */false);
     }
 
 
@@ -523,28 +637,74 @@ automaton ArrayList_SubListAutomaton
 
     fun *.toArray (@target self: ArrayList_SubList): array<Object>
     {
-        val a: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
+        action ASSUME(this.root != null);
+        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
 
+        result = action ARRAY_NEW("java.lang.Object", this.length);
+
+        val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
         val end: int = this.offset + this.length;
-        action TODO();
+        var i: int = 0;
+        var j: int = 0;
+        action LOOP_FOR(
+            i, this.offset, end, +1,
+            toArray_loop(i, j, result, rootStorage)
+        );
+    }
+
+    @Phantom proc toArray_loop (i: int, j: int, result: array<Object>, rootStorage: list<Object>): void
+    {
+        result[j] = action LIST_GET(rootStorage, i);
+        j += 1;
     }
 
 
     // within java.util.Collection
     fun *.toArray (@target self: ArrayList_SubList, generator: IntFunction): array<Object>
     {
+        // acting just like JDK
         val a: array<Object> = action CALL(generator, [0]) as array<Object>;
-        if (a == null)
-            _throwNPE();
+        val aSize: int = action ARRAY_SIZE(a);
 
-        action TODO();
+        action ASSUME(this.root != null);
+        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+
+        result = action ARRAY_NEW("java.lang.Object", this.length);
+
+        val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+        val end: int = this.offset + this.length;
+        var i: int = 0;
+        var j: int = 0;
+        action LOOP_FOR(
+            i, this.offset, end, +1,
+            toArray_loop(i, j, result, rootStorage)
+        );
     }
 
 
     fun *.toArray (@target self: ArrayList_SubList, a: array<Object>): array<Object>
     {
+        action ASSUME(this.root != null);
+        ArrayListAutomaton(this.root)._checkForComodification(this.modCount);
+
+        val aSize: int = action ARRAY_SIZE(a);
+        if (aSize < this.length)
+            // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)
+            a = action ARRAY_NEW("java.lang.Object", this.length);
+
+        result = a;
+
+        val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
         val end: int = this.offset + this.length;
-        action TODO();
+        var i: int = 0;
+        var j: int = 0;
+        action LOOP_FOR(
+            i, this.offset, end, +1,
+            toArray_loop(i, j, result, rootStorage)
+        );
+
+        if (aSize > this.length)
+            result[aSize] = null;
     }
 
 

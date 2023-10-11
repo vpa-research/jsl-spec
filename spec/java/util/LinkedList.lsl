@@ -8,11 +8,11 @@ library std
 
 // imports
 
-import java/io/_interfaces;
-import java/lang/_interfaces;
-import java/util/_interfaces;
-import java/util/function/_interfaces;
-import java/util/stream/_interfaces;
+import java/io/Serializable;
+import java/lang/Cloneable;
+import java/util/AbstractSequentialList;
+import java/util/Deque;
+import java/util/List;
 
 
 // local semantic types
@@ -24,9 +24,8 @@ import java/util/stream/_interfaces;
 @implements("java.io.Serializable")
 @public type LinkedList
     is java.util.LinkedList
-    for List, Deque
+    for AbstractSequentialList, List, Deque, Cloneable, Serializable
 {
-    // #problem: should be 876323262645176354 instead
-    @private @static val serialVersionUID: long = 1;
+    @private @static val serialVersionUID: long = 876323262645176354L;
 }
 

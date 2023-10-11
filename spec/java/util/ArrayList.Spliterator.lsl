@@ -31,14 +31,11 @@ automaton ArrayList_SpliteratorAutomaton
     shift Initialized -> self by [
         // instance methods
         characteristics,
-        equals,
         estimateSize,
         forEachRemaining,
         getComparator,
         getExactSizeIfKnown,
         hasCharacteristics,
-        hashCode,
-        toString,
         tryAdvance,
         trySplit,
     ];
@@ -97,13 +94,6 @@ automaton ArrayList_SpliteratorAutomaton
     fun *.characteristics (@target self: ArrayList_Spliterator): int
     {
         result = SPLITERATOR_ORDERED | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED;
-    }
-
-
-    // within java.lang.Object
-    fun *.equals (@target self: ArrayList_Spliterator, obj: Object): boolean
-    {
-        action NOT_IMPLEMENTED("no final decision");
     }
 
 
@@ -170,20 +160,6 @@ automaton ArrayList_SpliteratorAutomaton
     @Phantom fun *.hasCharacteristics (@target self: ArrayList_Spliterator, characteristics: int): boolean
     {
         // NOTE: using the original method
-    }
-
-
-    // within java.lang.Object
-    fun *.hashCode (@target self: ArrayList_Spliterator): int
-    {
-        action NOT_IMPLEMENTED("no final decision");
-    }
-
-
-    // within java.lang.Object
-    fun *.toString (@target self: ArrayList_Spliterator): String
-    {
-        action NOT_IMPLEMENTED("no final decision");
     }
 
 

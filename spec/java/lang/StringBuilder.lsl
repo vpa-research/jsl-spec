@@ -8,26 +8,33 @@ library std
 
 // imports
 
-import java/lang/_interfaces;
-import java/io/_interfaces;
+import java/io/Serializable;
+import java/lang/CharSequence;
+import java/lang/Comparable;
 
 
-// === CONSTANTS ===
-
-
-// primary types
+// primary semantic types
 
 @implements("java.io.Serializable")
 @implements("java.lang.Comparable<StringBuilder>")
 @implements("java.lang.CharSequence")
-@public @final type StringBuilder
+
+@final type StringBuilder
     is java.lang.StringBuilder
-    for Object
+    for Serializable, Comparable, CharSequence
 {
     @private @static val serialVersionUID: long = 4383685877147921099L;
-    @static val MAX_CODE_POINT: int = 1114111;
-    @static val MIN_CODE_POINT: int = 0;
-    @static val MIN_LOW_SURROGATE: int = 56320;
-    @static val MIN_HIGH_SURROGATE: int = 55296;
-    @static val MIN_SUPPLEMENTARY_CODE_POINT: int = 65536;
+}
+
+
+// global aliases and type overrides
+
+@implements("java.io.Serializable")
+@implements("java.lang.Comparable<StringBuilder>")
+@implements("java.lang.CharSequence")
+@public @final type LSLStringBuilder
+    is java.lang.StringBuilder
+    for StringBuilder
+{
+    @private @static val serialVersionUID: long = 4383685877147921099L;
 }

@@ -7,21 +7,12 @@ library std
 
 // imports
 
-import java/lang/_interfaces;
-import java/util/_interfaces;
+import java/lang/Object;
 import java/util/ArrayList;
-import java/util/function/_interfaces;
-
-
-// local semantic types
-
-@implements("java.util.List")
-@public @interface type CustomList
-    is java.util.List
-    for List
-{
-    //@private @static val serialVersionUID: long = 1; // #problem: should be 3905348978240129619
-}
+import java/util/Collection;
+import java/util/Comparator;
+import java/util/List;
+import java/util/function/UnaryOperator;
 
 
 // automata
@@ -29,7 +20,7 @@ import java/util/function/_interfaces;
 automaton ListAutomaton
 (
 )
-: CustomList
+: LSLList
 {
     // states and shifts
 
@@ -305,19 +296,19 @@ automaton ListAutomaton
 
     // methods
 
-    @Phantom fun *.replaceAll (@target self: CustomList, operator: UnaryOperator): void
+    @Phantom fun *.replaceAll (@target self: LSLList, operator: UnaryOperator): void
     {
         // NOTE: using the original method
     }
 
 
-    @Phantom fun *.sort (@target self: CustomList, c: Comparator): void
+    @Phantom fun *.sort (@target self: LSLList, c: Comparator): void
     {
         // NOTE: using the original method
     }
 
 
-    @Phantom fun *.spliterator (@target self: CustomList): Spliterator
+    @Phantom fun *.spliterator (@target self: LSLList): Spliterator
     {
         // NOTE: using the original method
     }
