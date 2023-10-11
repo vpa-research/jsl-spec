@@ -8,8 +8,8 @@ library std
 
 // imports
 
-import java.common;
 import java/lang/_interfaces;
+import java/util/function/_interfaces;
 
 
 // semantic types
@@ -185,4 +185,18 @@ type ListIterator
     fun previousIndex(): int;
 
     fun set(e: Object): void;
+}
+
+
+@Parameterized(["E"])
+type Enumeration
+    is java.util.Enumeration
+    for Object
+{
+    fun hasMoreElements(): boolean;
+
+    fun nextElement(): Object;
+
+    @ParameterizedResult(["E"])
+    @default fun asIterator(): Iterator;
 }

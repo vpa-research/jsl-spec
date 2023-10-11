@@ -509,7 +509,7 @@ automaton ArrayList_SubListAutomaton
     {
         action ASSUME(this.root != null);
 
-        ArrayListAutomaton(this.root)._subListRangeCheck(fromIndex, toIndex, length);
+        ArrayListAutomaton(this.root)._subListRangeCheck(fromIndex, toIndex, this.length);
 
         result = new ArrayList_SubListAutomaton(state = Initialized,
             root = this.root,

@@ -8,7 +8,6 @@ library std
 
 // imports
 
-import java.common;
 import java/lang/_interfaces;
 import java/io/_interfaces;
 
@@ -25,7 +24,7 @@ import java/io/_interfaces;
     is java.lang.StringBuilder
     for Object
 {
-    //@private @static @final var serialVersionUID: long = 4383685877147921099;
+    @private @static val serialVersionUID: long = 4383685877147921099L;
     @static val MAX_CODE_POINT: int = 1114111;
     @static val MIN_CODE_POINT: int = 0;
     @static val MIN_LOW_SURROGATE: int = 56320;
