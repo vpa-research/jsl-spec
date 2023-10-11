@@ -410,7 +410,7 @@ automaton LongStreamAutomaton
 
             // serialize stored items
             val uniqueItems: list<Long> = action LIST_NEW();
-            val visited: map<Long, Long> = action MAP_NEW();
+            val visited: map<Long, Object> = action MAP_NEW();
             action LOOP_FOR(
                 i, 0, size, +1,
                 distinct_loopStoreItems(i, items, visited, j, uniqueItems)

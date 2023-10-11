@@ -410,7 +410,7 @@ automaton IntStreamAutomaton
 
             // serialize stored items
             val uniqueItems: list<Integer> = action LIST_NEW();
-            val visited: map<Integer, Integer> = action MAP_NEW();
+            val visited: map<Integer, Object> = action MAP_NEW();
             action LOOP_FOR(
                 i, 0, size, +1,
                 distinct_loopStoreItems(i, items, visited, j, uniqueItems)

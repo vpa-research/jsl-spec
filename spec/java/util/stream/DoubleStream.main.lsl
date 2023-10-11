@@ -435,7 +435,7 @@ automaton DoubleStreamAutomaton
 
             // serialize stored items
             val uniqueItems: list<Double> = action LIST_NEW();
-            val visited: map<Double, Double> = action MAP_NEW();
+            val visited: map<Double, Object> = action MAP_NEW();
             action LOOP_FOR(
                 i, 0, size, +1,
                 distinct_loopStoreItems(i, items, visited, j, uniqueItems)
