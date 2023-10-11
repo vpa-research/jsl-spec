@@ -82,9 +82,29 @@ automaton LongStreamIteratorAutomaton
     }
 
 
+    // As I understood this forEachRemaining's will be equal - this is true ?
     fun *.forEachRemaining (@target self: LongStreamLSLIterator, userAction: Consumer): void
     {
-        action TODO();
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        if (userAction == null)
+            action THROW_NEW("java.lang.NullPointerException", []);
+
+        var i: int = this.cursor;
+        val size: int = LongStreamAutomaton(this.parent).length;
+
+        if (i != size)
+        {
+            val pStorage: array<long> = LongStreamAutomaton(this.parent).storage;
+
+            action LOOP_WHILE(
+                i < size,
+                forEachRemaining_loop(userAction, pStorage, i)
+            );
+
+            this.cursor = i;
+        }
     }
 
 
