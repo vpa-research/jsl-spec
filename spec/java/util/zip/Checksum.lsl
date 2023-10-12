@@ -7,7 +7,7 @@ library std
 
 // imports
 
-import java.common;
+import java/lang/Object;
 import java/nio/ByteBuffer;
 
 
