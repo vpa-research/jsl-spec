@@ -7,10 +7,9 @@ library std
 
 // imports
 
-import java.common;
-import java/lang/_interfaces;
-import java/nio/_interfaces;
-import java/util/zip/_interfaces;
+import java/lang/Object;
+import java/nio/ByteBuffer;
+import java/util/zip/Checksum;
 
 
 // local semantic types
@@ -57,7 +56,44 @@ automaton CRC32Automaton
 
     // utilities
 
-    proc _updateBytesCheck (b: array<byte>, off: int, len: int)
+    proc _updateCheck(b: array<byte>, off: int, len: int): void
+    {
+        if (b == null)
+        {
+            action THROW_NEW("java.lang.NullPointerException", []);
+        }
+        var b_size: int = action ARRAY_SIZE(b);
+        if (off < 0 || len < 0 || off > b_size - len)
+        {
+            action THROW_NEW("java.lang.ArrayIndexOutOfBoundsException", []);
+        }
+    }
+
+
+    proc _updateByteBuffer(alder: int, addr: long, off: int, len: int): int
+    {
+        _updateByteBufferCheck(addr);
+        result = action SYMBOLIC("int");
+    }
+
+
+    @Phantom proc _updateByteBufferCheck(addr: long)
+        {
+            if (addr == 0L)
+            {
+                action THROW_NEW("java.lang.NullPointerException", []);
+            }
+        }
+
+
+    proc _updateBytes(crc: int, b: array<byte>, off: int, len: int): int
+    {
+        _updateBytesCheck(b, off, len);
+        result = action SYMBOLIC("int");
+    }
+
+
+    @Phantom proc _updateBytesCheck (b: array<byte>, off: int, len: int): void
     {
         if (len != 0)
         {
@@ -78,23 +114,7 @@ automaton CRC32Automaton
             {
                 action THROW_NEW("java.lang.NullPointerException", []);
             }
-
         }
-    }
-
-
-    proc _update(b: array<byte>, off: int, len: int)
-    {
-        if (b == null)
-        {
-            action THROW_NEW("java.lang.NullPointerException", []);
-        }
-        var b_size: int = action ARRAY_SIZE(b);
-        if (off < 0 || len < 0 || off > b_size - len)
-        {
-            action THROW_NEW("java.lang.ArrayIndexOutOfBoundsException", []);
-        }
-        _updateBytesCheck(b, off, len);
     }
 
     // constructors
@@ -123,23 +143,68 @@ automaton CRC32Automaton
 
     fun *.update (@target self: CRC32, buffer: ByteBuffer): void
     {
-        action TODO();
+        var pos: int = buffer.position();
+        var limit: int = buffer.limit();
+        if (pos > limit)
+        {
+            action THROW_NEW("java.lang.AssertionError", []);
+        }
+        var rem = limit - pos;
+        if (rem > 0)
+        {
+            if (buffer is DirectBuffer????)
+            {
+                this.crc = _updateByteBuffer(this.crc, (buffer as DirectBuffer).address(), pos, rem);
+            }
+            else if ()
+            {
+                this.crc = _updateBytes(this.crc, buffer.array(), pos + buffer.arrayOffset(), rem);
+            }
+            else
+            {
+                var len: int = 4096;
+                var b_rem: int = buffer.remaining();
+                if (b_rem < len)
+                {
+                    len = b_rem;
+                }
+                var b: array<byte> = action ARRAY_NEW("byte", len);
+                action LOOP_WHILE(
+                    buffer.hasRemaining(),
+                    _updateLoop(buffer, b)
+                );
+            }
+            buffer.position(limit);
+        }
+    }
+
+    @Phantom proc _updateLoop(buffer: ByteBuffer, b: array<byte>): void
+    {
+        var length: int = buffer.remaining();
+        var b_size: int = action ARRAY_SIZE(b);
+        if (b_size < length)
+        {
+            length = b_size;
+        }
+        buffer.get(b, 0, length);
+        _updateCheck(b, 0, length);
+        this.crc = _updateBytes(this.crc, b, 0, length);
     }
 
 
     // within java.util.zip.Checksum
     @default fun *.update (@target self: CRC32, b: array<byte>): void
     {
-        var b_size: int = action ARRAY_SIZE(b);
-        _update(b, 0, b_size);
-        this.crc = action SYMBOLIC("int");
+        var len: int = action ARRAY_SIZE(b);
+        _updateCheck(b, 0, len);
+        this.crc = _updateBytes(this.crc, b, 0, len);
     }
 
 
     fun *.update (@target self: CRC32, b: array<byte>, off: int, len: int): void
     {
-        _update(b. off, len);
-        this.crc = action SYMBOLIC("int");
+        _updateCheck(b, off, len);
+        this.crc = _updateBytes(this.crc, b, off, len);
     }
 
 
