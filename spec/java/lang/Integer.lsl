@@ -24,3 +24,10 @@ import java/lang/Number;
 
 // global aliases and type overrides
 
+@extends("java.lang.Number")
+@implements("java.lang.Comparable<Integer>")
+@public @final type LSLInteger
+    is java.lang.Integer
+    for Integer
+{
+}
