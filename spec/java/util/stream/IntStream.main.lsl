@@ -8,6 +8,15 @@ library std
 // imports
 
 import java/util/stream/IntStream;
+import java/lang/Integer;
+import java/util/function/IntPredicate;
+import java/util/function/IntUnaryOperator;
+import java/util/function/IntToLongFunction;
+import java/util/function/IntToDoubleFunction;
+import java/util/function/IntBinaryOperator;
+import java/util/function/ObjIntConsumer;
+import java/util/IntSummaryStatistics;
+import java/util/PrimitiveIterator;
 
 
 // automata

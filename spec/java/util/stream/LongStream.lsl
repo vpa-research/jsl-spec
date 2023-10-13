@@ -9,16 +9,6 @@ library std
 // imports
 
 import java/util/stream/Stream;
-import java/lang/Long;
-import java/util/function/LongFunction;
-import java/util/function/LongPredicate;
-import java/util/function/LongUnaryOperator;
-import java/util/function/LongToDoubleFunction;
-import java/util/function/LongToIntFunction;
-import java/util/function/LongBinaryOperator;
-import java/util/function/ObjLongConsumer;
-import java/util/LongSummaryStatistics;
-import java/util/PrimitiveIterator;
 
 
 // primary semantic types
