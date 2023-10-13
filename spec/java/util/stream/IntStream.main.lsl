@@ -453,7 +453,7 @@ automaton IntStreamAutomaton
         val item: int = items[i];
         if (action MAP_HAS_KEY(visited, item) == false)
         {
-            action MAP_SET(visited, item, STREAM_VALUE);
+            action MAP_SET(visited, item, SOMETHING);
             action LIST_INSERT_AT(uniqueItems, j, item);
             j += 1;
         }
