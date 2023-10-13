@@ -135,7 +135,7 @@ automaton DoubleStreamIteratorAutomaton
 
     @Phantom proc forEachRemaining_loop (userAction: DoubleConsumer, pStorage: array<double>, i: int): void
     {
-        val item: int = pStorage[i];
+        val item: double = pStorage[i];
         action CALL(userAction, [item]);
 
         i += 1;

@@ -43,7 +43,7 @@ import java/util/PrimitiveIterator;
 
 
 @GenerateMe
-@implements("java.util.Iterator")
+@implements("java.util.PrimitiveIterator.OfLong")
 @public type LongStreamLSLIterator
     is java.util.stream.LongStreamLSLIterator
     for PrimitiveIterator_OfLong

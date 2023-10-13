@@ -724,7 +724,7 @@ automaton IntStreamAutomaton
         }
         else
         {
-            var min: double = this.storage[0];
+            var min: int = this.storage[0];
 
             var i: int = 0;
             action LOOP_FOR(
@@ -1138,7 +1138,7 @@ automaton IntStreamAutomaton
         if (this.length == 0)
         {
             val emptyArray: array<double> = action ARRAY_NEW("double", 0);
-            result = new IntStreamAutomaton(state = Initialized,
+            result = new DoubleStreamAutomaton(state = Initialized,
                 storage = emptyArray,
                 length = this.length,
                 closeHandlers = this.closeHandlers,

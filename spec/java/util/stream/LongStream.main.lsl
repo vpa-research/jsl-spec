@@ -291,7 +291,7 @@ automaton LongStreamAutomaton
             _mapToDouble_loop(i, mapper, mappedStorage)
         );
 
-        result = new IntStreamAutomaton(state = Initialized,
+        result = new DoubleStreamAutomaton(state = Initialized,
             storage = mappedStorage,
             length = this.length,
             closeHandlers = this.closeHandlers,
@@ -1103,7 +1103,7 @@ automaton LongStreamAutomaton
         if (this.length == 0)
         {
             val emptyArray: array<int> = action ARRAY_NEW("int", 0);
-            result = new LongStreamAutomaton(state = Initialized,
+            result = new IntStreamAutomaton(state = Initialized,
                 storage = emptyArray,
                 length = this.length,
                 closeHandlers = this.closeHandlers,
@@ -1139,7 +1139,7 @@ automaton LongStreamAutomaton
         if (this.length == 0)
         {
             val emptyArray: array<double> = action ARRAY_NEW("double", 0);
-            result = new IntStreamAutomaton(state = Initialized,
+            result = new DoubleStreamAutomaton(state = Initialized,
                 storage = emptyArray,
                 length = this.length,
                 closeHandlers = this.closeHandlers,

@@ -43,7 +43,7 @@ import java/util/PrimitiveIterator;
 
 
 @GenerateMe
-@implements("java.util.Iterator")
+@implements("java.util.PrimitiveIterator.OfDouble")
 @public type DoubleStreamLSLIterator
     is java.util.stream.DoubleStreamLSLIterator
     for PrimitiveIterator_OfDouble

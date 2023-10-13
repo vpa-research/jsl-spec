@@ -135,7 +135,7 @@ automaton LongStreamIteratorAutomaton
 
     @Phantom proc forEachRemaining_loop (userAction: LongConsumer, pStorage: array<long>, i: int): void
     {
-        val item: int = pStorage[i];
+        val item: long = pStorage[i];
         action CALL(userAction, [item]);
 
         i += 1;

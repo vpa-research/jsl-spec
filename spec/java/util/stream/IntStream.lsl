@@ -42,7 +42,7 @@ import java/util/PrimitiveIterator;
 
 
 @GenerateMe
-@implements("java.util.Iterator")
+@implements("java.util.PrimitiveIterator.OfInt")
 @public type IntStreamLSLIterator
     is java.util.stream.IntStreamLSLIterator
     for PrimitiveIterator_OfInt
