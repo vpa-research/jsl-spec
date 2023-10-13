@@ -32,11 +32,7 @@ automaton LongStreamAutomaton
 {
     // states and shifts
 
-    initstate Allocated;
-    state Initialized;
-
-    shift Allocated -> Initialized by [
-    ];
+    initstate Initialized;
 
     shift Initialized -> self by [
         // instance methods
