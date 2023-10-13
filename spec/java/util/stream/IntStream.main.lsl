@@ -746,7 +746,7 @@ automaton IntStreamAutomaton
 
     @Phantom proc _find_min_loop (i: int, min: int): void
     {
-        if (min < this.storage[i])
+        if (min > this.storage[i])
             min = this.storage[i];
     }
 
@@ -779,7 +779,7 @@ automaton IntStreamAutomaton
 
     @Phantom proc _find_max_loop (i: int, max: int): void
     {
-        if (max > this.storage[i])
+        if (max < this.storage[i])
             max = this.storage[i];
     }
 
