@@ -24,7 +24,7 @@ import java/lang/Throwable;
 }
 
 
-type System_Logger_Level
+@final type System_Logger_Level
     is java.lang.System.Logger.Level
     for Object
 {

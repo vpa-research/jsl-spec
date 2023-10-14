@@ -7,7 +7,7 @@ library std
 
 // imports
 
-import java/io/VoidOutputStream;
+import runtime/utils/VoidOutputStream;
 
 
 // automata
