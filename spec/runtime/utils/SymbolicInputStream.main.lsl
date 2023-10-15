@@ -52,7 +52,8 @@ automaton SymbolicInputStreamAutomaton
 
     // utilities
 
-    @synchronized proc _initBuffer (): void
+    // #todo: enable synchronization when parallel execution will be added
+    /* @synchronized */ proc _initBuffer (): void
     {
         if (this.data == null)
         {
@@ -69,7 +70,9 @@ automaton SymbolicInputStreamAutomaton
                 this.data = action ARRAY_NEW("byte", 0);
             else
                 this.data = action SYMBOLIC_ARRAY("byte", newSize);
+
             action ASSUME(this.data != null);
+            action ASSUME(this.dataSize == action ARRAY_SIZE(this.data));
         }
     }
 
@@ -77,6 +80,8 @@ automaton SymbolicInputStreamAutomaton
     {
         if (this.data == null)
             _initBuffer(); // this should be a call because we do not have synchronization blocks yet
+
+        action ASSUME(this.dataSize >= 0);
     }
 
 
@@ -92,6 +97,7 @@ automaton SymbolicInputStreamAutomaton
 
     proc _checkFromIndexSize (fromIndex: int, size: int, length: int): void
     {
+        // source: jdk.internal.util.Preconditions#checkFromIndexSize
         if ((length | fromIndex | size) < 0 || size > length - fromIndex)
             action THROW_NEW("java.lang.IndexOutOfBoundsException", ["Range [%s, %<s + %s) out of bounds for length %s"]);
     }
@@ -185,6 +191,7 @@ automaton SymbolicInputStreamAutomaton
         }
         else
         {
+            action ASSUME(len > 0);
             _ensureOpen();
             result = _moveDataTo(b, 0, len);
         }
