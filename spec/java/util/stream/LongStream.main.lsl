@@ -1011,21 +1011,32 @@ automaton LongStreamAutomaton
                 _dropWhile_loop(i, dropLength, predicate)
             );
 
-            val newLength: int = this.length - dropLength;
-            val newStorage: array<long> = action ARRAY_NEW("long", newLength);
+            if (dropLength == 0)
+            {
+                result = new IntStreamAutomaton(state = Initialized,
+                    storage = this.storage,
+                    length = this.length,
+                    closeHandlers = this.closeHandlers,
+                );
+            }
+            else
+            {
+                val newLength: int = this.length - dropLength;
+                val newStorage: array<int> = action ARRAY_NEW("int", newLength);
 
-            var j: int = dropLength;
-            i = dropLength;
-            action LOOP_WHILE(
-                i < this.length,
-                _copy_dropWhile_loop(i, j, newStorage)
-            );
+                var j: int = dropLength;
+                i = dropLength;
+                action LOOP_WHILE(
+                    i < this.length,
+                    _copy_dropWhile_loop(i, j, newStorage)
+                );
 
-            result = new LongStreamAutomaton(state = Initialized,
-                storage = newStorage,
-                length = newLength,
-                closeHandlers = this.closeHandlers,
-            );
+                result = new IntStreamAutomaton(state = Initialized,
+                    storage = newStorage,
+                    length = newLength,
+                    closeHandlers = this.closeHandlers,
+                );
+            }
         }
 
         this.linkedOrConsumed = true;
