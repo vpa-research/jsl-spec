@@ -910,7 +910,8 @@ automaton LongStreamAutomaton
 
     fun *.spliterator (@target self: LongStream): Spliterator_OfLong
     {
-        action TODO();
+        result = action SYMBOLIC("java.util.Spliterator.OfLong");
+        action ASSUME(result != null);
     }
 
 

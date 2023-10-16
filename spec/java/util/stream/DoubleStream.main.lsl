@@ -935,7 +935,8 @@ automaton DoubleStreamAutomaton
 
     fun *.spliterator (@target self: DoubleStream): Spliterator_OfDouble
     {
-        action TODO();
+        result = action SYMBOLIC("java.util.Spliterator.OfDouble");
+        action ASSUME(result != null);
     }
 
 

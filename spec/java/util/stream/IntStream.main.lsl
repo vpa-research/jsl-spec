@@ -908,7 +908,8 @@ automaton IntStreamAutomaton
 
     fun *.spliterator (@target self: IntStream): Spliterator_OfInt
     {
-        action TODO();
+        result = action SYMBOLIC("java.util.Spliterator.OfInt");
+        action ASSUME(result != null);
     }
 
 
