@@ -1147,6 +1147,8 @@ automaton DoubleStreamAutomaton
         }
         else
         {
+            action ASSUME(this.length > 0);
+
             val newStorage: array<long> = action ARRAY_NEW("long", this.length);
 
             var i: int = 0;
@@ -1183,6 +1185,8 @@ automaton DoubleStreamAutomaton
         }
         else
         {
+            action ASSUME(this.length > 0);
+
             val newStorage: array<int> = action ARRAY_NEW("int", this.length);
 
             var i: int = 0;
