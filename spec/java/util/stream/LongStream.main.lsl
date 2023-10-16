@@ -1002,17 +1002,18 @@ automaton LongStreamAutomaton
             var dropLength: int = 0;
 
             var i: int = 0;
-            action LOOP_FOR(
-                i, 0, this.length, +1,
+            action LOOP_WHILE(
+                i < this.length && action CALL(predicate, [this.storage[i]]),
                 _dropWhile_loop(i, dropLength, predicate)
             );
 
             val newLength: int = this.length - dropLength;
             val newStorage: array<long> = action ARRAY_NEW("long", newLength);
 
-            var j: int = 0;
-            action LOOP_FOR(
-                i, dropLength, this.length, +1,
+            var j: int = dropLength;
+            i = dropLength;
+            action LOOP_WHILE(
+                i < this.length,
                 _copy_dropWhile_loop(i, j, newStorage)
             );
 
@@ -1027,19 +1028,18 @@ automaton LongStreamAutomaton
     }
 
 
-    @Phantom proc _dropWhile_loop (i: int, dropLength: int, predicate: LongPredicate): void
+    @Phantom proc _dropWhile_loop (i: int, dropLength: int, predicate: DoublePredicate): void
     {
-        if (action CALL(predicate, [this.storage[i]]))
-            dropLength += 1;
-        else
-            action LOOP_BREAK();
+        dropLength += 1;
+        i += 1;
     }
 
 
-    @Phantom proc _copy_dropWhile_loop (i: int, j: int, newStorage: array<long>): void
+    @Phantom proc _copy_dropWhile_loop (i: int, j: int, newStorage: array<double>): void
     {
         newStorage[j] = this.storage[i];
         j += 1;
+        i += 1;
     }
 
 
@@ -1067,8 +1067,8 @@ automaton LongStreamAutomaton
             var takeLength: int = 0;
 
             var i: int = 0;
-            action LOOP_FOR(
-                i, 0, this.length, +1,
+            action LOOP_WHILE(
+                i < this.length && action CALL(predicate, [this.storage[i]]),
                 _takeWhile_loop(i, takeLength, predicate)
             );
 
@@ -1076,8 +1076,9 @@ automaton LongStreamAutomaton
             val newStorage: array<long> = action ARRAY_NEW("long", newLength);
 
             var j: int = 0;
-            action LOOP_FOR(
-                i, 0, takeLength, +1,
+            i = 0;
+            action LOOP_WHILE(
+                i < takeLength,
                 _copy_takeWhile_loop(i, j, newStorage)
             );
 
@@ -1092,19 +1093,18 @@ automaton LongStreamAutomaton
     }
 
 
-    @Phantom proc _takeWhile_loop (i: int, takeLength: int, predicate: LongPredicate): void
+    @Phantom proc _takeWhile_loop (i: int, takeLength: int, predicate: DoublePredicate): void
     {
-        if (action CALL(predicate, [this.storage[i]]))
-            takeLength += 1;
-        else
-            action LOOP_BREAK();
+        takeLength += 1;
+        i += 1;
     }
 
 
-    @Phantom proc _copy_takeWhile_loop (i: int, j: int, newStorage: array<long>): void
+    @Phantom proc _copy_takeWhile_loop (i: int, j: int, newStorage: array<double>): void
     {
         newStorage[j] = this.storage[i];
         j += 1;
+        i += 1;
     }
 
 
