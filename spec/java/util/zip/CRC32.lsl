@@ -180,7 +180,7 @@ automaton CRC32Automaton
                     _updateLoop(buffer, b)
                 );
             }
-            buffer.position(limit);
+            action CALL_METHOD(buffer, "position", [limit]);
         }
     }
 

@@ -51,6 +51,9 @@ import java/lang/Object;
 
     // #problem: self-reference
     fun *.duplicate(): any; // Buffer
+
+    fun *.position(newPosition: int): any; //Buffer
+
 }
 
 
