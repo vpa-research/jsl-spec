@@ -513,11 +513,7 @@ automaton LongStreamAutomaton
             val maxSizeInt: int = maxSize as int;
             val limitStorage: array<long> = action ARRAY_NEW("long", maxSizeInt);
 
-            var i: int = 0;
-            action LOOP_FOR(
-                i, 0, maxSizeInt, +1,
-                _limit_loop(i, limitStorage)
-            );
+            action ARRAY_COPY(this.storage, 0, limitStorage, 0, maxSizeInt);
 
             result = new LongStreamAutomaton(state = Initialized,
                 storage = limitStorage,
@@ -527,12 +523,6 @@ automaton LongStreamAutomaton
         }
 
         this.linkedOrConsumed = true;
-    }
-
-
-    @Phantom proc _limit_loop (i: int, limitStorage: array<long>): void
-    {
-        limitStorage[i] = this.storage[i];
     }
 
 

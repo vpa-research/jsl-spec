@@ -537,11 +537,7 @@ automaton DoubleStreamAutomaton
             val maxSizeInt: int = maxSize as int;
             val limitStorage: array<double> = action ARRAY_NEW("double", maxSizeInt);
 
-            var i: int = 0;
-            action LOOP_FOR(
-                i, 0, maxSizeInt, +1,
-                _limit_loop(i, limitStorage)
-            );
+            action ARRAY_COPY(this.storage, 0, limitStorage, 0, maxSizeInt);
 
             result = new DoubleStreamAutomaton(state = Initialized,
                 storage = limitStorage,
@@ -551,12 +547,6 @@ automaton DoubleStreamAutomaton
         }
 
         this.linkedOrConsumed = true;
-    }
-
-
-    @Phantom proc _limit_loop (i: int, limitStorage: array<double>): void
-    {
-        limitStorage[i] = this.storage[i];
     }
 
 

@@ -513,11 +513,7 @@ automaton IntStreamAutomaton
             val maxSizeInt: int = maxSize as int;
             val limitStorage: array<int> = action ARRAY_NEW("int", maxSizeInt);
 
-            var i: int = 0;
-            action LOOP_FOR(
-                i, 0, maxSizeInt, +1,
-                _limit_loop(i, limitStorage)
-            );
+            action ARRAY_COPY(this.storage, 0, limitStorage, 0, maxSizeInt);
 
             result = new IntStreamAutomaton(state = Initialized,
                 storage = limitStorage,
@@ -527,12 +523,6 @@ automaton IntStreamAutomaton
         }
 
         this.linkedOrConsumed = true;
-    }
-
-
-    @Phantom proc _limit_loop (i: int, limitStorage: array<int>): void
-    {
-        limitStorage[i] = this.storage[i];
     }
 
 
