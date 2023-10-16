@@ -100,12 +100,12 @@ automaton CRC32Automaton
             if (b != null)
             {
                 var b_size: int = action ARRAY_SIZE(b);
-                else if (off < 0 || off >= b_size)
+                if (off < 0 || off >= b_size)
                 {
                     action THROW_NEW("java.lang.ArrayIndexOutOfBoundsException", [off]);
                 }
                 var endIndex: int = off + len -1;
-                else if (endIndex <0 || endIndex >= b_size)
+                if (endIndex <0 || endIndex >= b_size)
                 {
                     action THROW_NEW("java.lang.ArrayIndexOutOfBoundsException", [endIndex]);
                 }
@@ -149,12 +149,14 @@ automaton CRC32Automaton
         {
             action THROW_NEW("java.lang.AssertionError", []);
         }
-        var rem = limit - pos;
+        var rem: int = limit - pos;
         if (rem > 0)
         {
             if (buffer is DirectBuffer)
             {
-                this.crc = _updateByteBuffer(this.crc, (buffer as DirectBuffer).address(), pos, rem);
+                var directBuffer: DirectBuffer = (buffer as DirectBuffer);
+                var address: long = directBuffer.address();
+                this.crc = _updateByteBuffer(this.crc, address, pos, rem);
             }
             else if (buffer.hasArray())
             {
