@@ -685,15 +685,13 @@ automaton DoubleStreamAutomaton
         if (accumulator == null)
             _throwNPE();
 
-        var value: double = 0;
-
         if (this.length == 0)
         {
             result = action DEBUG_DO("OptionalDouble.empty()");
         }
         else if (this.length > 0)
         {
-            value = this.storage[0];
+            var value: double = this.storage[0];
 
             var i: int = 0;
             action LOOP_FOR(

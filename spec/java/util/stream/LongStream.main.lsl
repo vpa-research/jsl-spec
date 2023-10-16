@@ -661,15 +661,13 @@ automaton LongStreamAutomaton
         if (accumulator == null)
             _throwNPE();
 
-        var value: long = 0;
-
         if (this.length == 0)
         {
             result = action DEBUG_DO("OptionalLong.empty()");
         }
         else if (this.length > 0)
         {
-            value = this.storage[0];
+            var value: long = this.storage[0];
 
             var i: int = 0;
             action LOOP_FOR(
