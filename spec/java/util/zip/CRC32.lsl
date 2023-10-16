@@ -137,7 +137,7 @@ automaton CRC32Automaton
 
     fun *.reset (@target self: CRC32): void
     {
-       this.crc = 0;
+        this.crc = 0;
     }
 
 
@@ -152,11 +152,11 @@ automaton CRC32Automaton
         var rem = limit - pos;
         if (rem > 0)
         {
-            if (buffer is DirectBuffer????)
+            if (buffer is DirectBuffer)
             {
                 this.crc = _updateByteBuffer(this.crc, (buffer as DirectBuffer).address(), pos, rem);
             }
-            else if ()
+            else if (buffer.hasArray())
             {
                 this.crc = _updateBytes(this.crc, buffer.array(), pos + buffer.arrayOffset(), rem);
             }
@@ -177,6 +177,7 @@ automaton CRC32Automaton
             buffer.position(limit);
         }
     }
+
 
     @Phantom proc _updateLoop(buffer: ByteBuffer, b: array<byte>): void
     {
