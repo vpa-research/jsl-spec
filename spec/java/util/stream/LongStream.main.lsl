@@ -134,11 +134,15 @@ automaton LongStreamAutomaton
     proc _sum (): long
     {
         result = 0;
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, this.length, +1,
-            _sum_loop(i, result)
-        );
+
+        if (this.length != 0)
+        {
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, this.length, +1,
+                _sum_loop(i, result)
+            );
+        }
     }
 
 
@@ -1148,12 +1152,12 @@ automaton LongStreamAutomaton
 
     fun *.sum (@target self: LongStream): long
     {
-        result = 0;
+        if (this.linkedOrConsumed)
+            _throwISE();
 
-        if (this.length != 0)
-        {
-            result = _sum();
-        }
+        result = _sum();
+
+        this.linkedOrConsumed = true;
     }
 
 

@@ -133,24 +133,28 @@ automaton DoubleStreamAutomaton
     proc _sum (): double
     {
         result = 0;
-        var anyNaN: boolean = false;
-        var anyPositiveInfinity: boolean = false;
-        var anyNegativeInfinity: boolean = false;
 
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, this.length, +1,
-            _sum_loop(i, result, anyNaN, anyPositiveInfinity, anyNegativeInfinity)
-        );
+        if (this.length != 0)
+        {
+            var anyNaN: boolean = false;
+            var anyPositiveInfinity: boolean = false;
+            var anyNegativeInfinity: boolean = false;
 
-        if (anyNaN)
-            result = DOUBLE_NAN;
-        else if (anyPositiveInfinity && anyNegativeInfinity)
-            result = DOUBLE_NAN;
-        else if (anyPositiveInfinity && result == DOUBLE_NEGATIVE_INFINITY)
-            result = DOUBLE_NAN;
-        else if (anyNegativeInfinity && result == DOUBLE_POSITIVE_INFINITY)
-            result = DOUBLE_NAN;
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, this.length, +1,
+                _sum_loop(i, result, anyNaN, anyPositiveInfinity, anyNegativeInfinity)
+            );
+
+            if (anyNaN)
+                result = DOUBLE_NAN;
+            else if (anyPositiveInfinity && anyNegativeInfinity)
+                result = DOUBLE_NAN;
+            else if (anyPositiveInfinity && result == DOUBLE_NEGATIVE_INFINITY)
+                result = DOUBLE_NAN;
+            else if (anyNegativeInfinity && result == DOUBLE_POSITIVE_INFINITY)
+                result = DOUBLE_NAN;
+        }
 
     }
 
@@ -1134,12 +1138,12 @@ automaton DoubleStreamAutomaton
 
     fun *.sum (@target self: DoubleStream): double
     {
-        result = 0;
+        if (this.linkedOrConsumed)
+            _throwISE();
 
-        if (this.length != 0)
-        {
-            result = _sum();
-        }
+        result = _sum();
+
+        this.linkedOrConsumed = true;
     }
 
 

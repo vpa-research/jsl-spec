@@ -134,11 +134,15 @@ automaton IntStreamAutomaton
     proc _sum (): int
     {
         result = 0;
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, this.length, +1,
-            _sum_loop(i, result)
-        );
+
+        if (this.length != 0)
+        {
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, this.length, +1,
+                _sum_loop(i, result)
+            );
+        }
     }
 
 
@@ -1188,10 +1192,7 @@ automaton IntStreamAutomaton
         if (this.linkedOrConsumed)
             _throwISE();
 
-        result = 0;
-
-        if (this.length != 0)
-            result = _sum();
+        result = _sum();
 
         this.linkedOrConsumed = true;
     }
