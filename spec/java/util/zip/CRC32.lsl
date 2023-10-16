@@ -1,4 +1,3 @@
-///#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -79,7 +78,7 @@ automaton CRC32Automaton
     }
 
 
-    @Phantom proc _updateByteBufferCheck(addr: long): void
+    @AutoInline @Phantom proc _updateByteBufferCheck(addr: long): void
     {
         if (addr == 0L)
         {
@@ -95,7 +94,7 @@ automaton CRC32Automaton
     }
 
 
-    @Phantom proc _updateBytesCheck (b: array<byte>, off: int, len: int): void
+    @AutoInline @Phantom proc _updateBytesCheck (b: array<byte>, off: int, len: int): void
     {
         if (len != 0)
         {
@@ -200,7 +199,7 @@ automaton CRC32Automaton
 
 
     // within java.util.zip.Checksum
-    @default fun *.update (@target self: CRC32, b: array<byte>): void
+    fun *.update (@target self: CRC32, b: array<byte>): void
     {
         var len: int = action ARRAY_SIZE(b);
         _updateCheck(b, 0, len);
