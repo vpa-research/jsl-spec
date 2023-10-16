@@ -641,13 +641,15 @@ automaton StreamAutomaton
 
     fun *.skip (@target self: Stream, n: long): Stream
     {
+        val offset: int = n as int;
+
         if (this.linkedOrConsumed)
             _throwISE();
 
-        if (n < 0)
+        if (offset < 0)
             action THROW_NEW("java.lang.IllegalArgumentException", []);
 
-        if (n == 0)
+        if (offset == 0)
         {
             result = new StreamAutomaton(state = Initialized,
                 storage = this.storage,
@@ -655,7 +657,7 @@ automaton StreamAutomaton
                 closeHandlers = this.closeHandlers,
             );
         }
-        else if (n >= this.length)
+        else if (offset >= this.length)
         {
             var newArray: array<Object> = action ARRAY_NEW("java.lang.Object", 0);
             result = new StreamAutomaton(state = Initialized,
@@ -666,8 +668,6 @@ automaton StreamAutomaton
         }
         else
         {
-            // what will be if will be overflow ?
-            val offset: int = n as int;
             val newLength: int = this.length - offset;
             val skipStorage: array<Object> = action ARRAY_NEW("java.lang.Object", newLength);
 

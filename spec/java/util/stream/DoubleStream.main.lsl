@@ -532,7 +532,6 @@ automaton DoubleStreamAutomaton
                 closeHandlers = this.closeHandlers,
             );
         }
-        // Maybe only change length field ? And don't change storage ?
         else
         {
             val limitStorage: array<double> = action ARRAY_NEW("double", maxSizeInt);
@@ -552,13 +551,15 @@ automaton DoubleStreamAutomaton
 
     fun *.skip (@target self: DoubleStream, n: long): DoubleStream
     {
+        val offset: int = n as int;
+
         if (this.linkedOrConsumed)
             _throwISE();
 
-        if (n < 0)
+        if (offset < 0)
             action THROW_NEW("java.lang.IllegalArgumentException", []);
 
-        if (n == 0)
+        if (offset == 0)
         {
             result = new DoubleStreamAutomaton(state = Initialized,
                 storage = this.storage,
@@ -566,7 +567,7 @@ automaton DoubleStreamAutomaton
                 closeHandlers = this.closeHandlers,
             );
         }
-        else if (n >= this.length)
+        else if (offset >= this.length)
         {
             var newArray: array<double> = action ARRAY_NEW("double", 0);
             result = new DoubleStreamAutomaton(state = Initialized,
@@ -577,8 +578,6 @@ automaton DoubleStreamAutomaton
         }
         else
         {
-            // what will be if will be overflow ?
-            val offset: int = n as int;
             val newLength: int = this.length - offset;
             val skipStorage: array<double> = action ARRAY_NEW("double", newLength);
 

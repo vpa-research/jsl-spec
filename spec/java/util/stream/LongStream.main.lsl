@@ -508,7 +508,6 @@ automaton LongStreamAutomaton
                 closeHandlers = this.closeHandlers,
             );
         }
-        // Maybe only change length field ? And don't change storage ?
         else
         {
             val limitStorage: array<long> = action ARRAY_NEW("long", maxSizeInt);
@@ -528,13 +527,15 @@ automaton LongStreamAutomaton
 
     fun *.skip (@target self: LongStream, n: long): LongStream
     {
+        val offset: int = n as int;
+
         if (this.linkedOrConsumed)
             _throwISE();
 
-        if (n < 0)
+        if (offset < 0)
             action THROW_NEW("java.lang.IllegalArgumentException", []);
 
-        if (n == 0)
+        if (offset == 0)
         {
             result = new LongStreamAutomaton(state = Initialized,
                 storage = this.storage,
@@ -542,7 +543,7 @@ automaton LongStreamAutomaton
                 closeHandlers = this.closeHandlers,
             );
         }
-        else if (n >= this.length)
+        else if (offset >= this.length)
         {
             var newArray: array<long> = action ARRAY_NEW("long", 0);
             result = new LongStreamAutomaton(state = Initialized,
@@ -553,8 +554,6 @@ automaton LongStreamAutomaton
         }
         else
         {
-            // what will be if will be overflow ?
-            val offset: int = n as int;
             val newLength: int = this.length - offset;
             val skipStorage: array<long> = action ARRAY_NEW("long", newLength);
 
