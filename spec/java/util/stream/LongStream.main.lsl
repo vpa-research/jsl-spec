@@ -321,7 +321,7 @@ automaton LongStreamAutomaton
             _throwNPE();
 
         // #todo: call mapper here
-
+        // #UtBot note: as mapper can produce infinite streams, we cannot process it symbolically. This is temporary decision.
         result = action SYMBOLIC("java.util.stream.LongStream");
         action ASSUME(result != null);
 
