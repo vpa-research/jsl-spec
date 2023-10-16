@@ -484,13 +484,15 @@ automaton LongStreamAutomaton
 
     fun *.limit (@target self: LongStream, maxSize: long): LongStream
     {
+        val maxSizeInt: int = maxSize as int;
+
         if (this.linkedOrConsumed)
             _throwISE();
 
-        if (maxSize < 0)
+        if (maxSizeInt < 0)
             action THROW_NEW("java.lang.IllegalArgumentException", []);
 
-        if (maxSize == 0)
+        if (maxSizeInt == 0)
         {
             result = new LongStreamAutomaton(state = Initialized,
                 storage = this.storage,
@@ -498,7 +500,7 @@ automaton LongStreamAutomaton
                 closeHandlers = this.closeHandlers,
             );
         }
-        else if (maxSize > this.length)
+        else if (maxSizeInt > this.length)
         {
             result = new LongStreamAutomaton(state = Initialized,
                 storage = this.storage,
@@ -509,8 +511,6 @@ automaton LongStreamAutomaton
         // Maybe only change length field ? And don't change storage ?
         else
         {
-            // what will be if will be overflow ?
-            val maxSizeInt: int = maxSize as int;
             val limitStorage: array<long> = action ARRAY_NEW("long", maxSizeInt);
 
             action ARRAY_COPY(this.storage, 0, limitStorage, 0, maxSizeInt);

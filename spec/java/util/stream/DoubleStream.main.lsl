@@ -508,13 +508,15 @@ automaton DoubleStreamAutomaton
 
     fun *.limit (@target self: DoubleStream, maxSize: long): DoubleStream
     {
+        val maxSizeInt: int = maxSize as int;
+
         if (this.linkedOrConsumed)
             _throwISE();
 
-        if (maxSize < 0)
+        if (maxSizeInt < 0)
             action THROW_NEW("java.lang.IllegalArgumentException", []);
 
-        if (maxSize == 0)
+        if (maxSizeInt == 0)
         {
             result = new DoubleStreamAutomaton(state = Initialized,
                 storage = this.storage,
@@ -522,7 +524,7 @@ automaton DoubleStreamAutomaton
                 closeHandlers = this.closeHandlers,
             );
         }
-        else if (maxSize > this.length)
+        else if (maxSizeInt > this.length)
         {
             result = new DoubleStreamAutomaton(state = Initialized,
                 storage = this.storage,
@@ -533,8 +535,6 @@ automaton DoubleStreamAutomaton
         // Maybe only change length field ? And don't change storage ?
         else
         {
-            // what will be if will be overflow ?
-            val maxSizeInt: int = maxSize as int;
             val limitStorage: array<double> = action ARRAY_NEW("double", maxSizeInt);
 
             action ARRAY_COPY(this.storage, 0, limitStorage, 0, maxSizeInt);
