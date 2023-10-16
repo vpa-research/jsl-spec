@@ -17,16 +17,16 @@ import java/nio/ByteBuffer;
     is java.util.zip.Checksum
     for Object
 {
-    fun *.update(@target self: Checksum, b: int): void;
+    fun *.update(b: int): void;
 
-    fun *.update (@target self: Checksum, buffer: ByteBuffer): void;
+    fun *.update (buffer: ByteBuffer): void;
 
-    fun *.update(@target self: Checksum, b: array<byte>, off: int, len: int): void;
+    fun *.update(b: array<byte>, off: int, len: int): void;
 
-    fun *.update (@target self: Checksum, b: array<byte>): void;
+    fun *.update (b: array<byte>): void;
 
-    fun *.getValue(@target self: Checksum): long;
+    fun *.getValue(): long;
 
-    fun *.reset(@target self: Checksum): void;
+    fun *.reset(): void;
 
 }

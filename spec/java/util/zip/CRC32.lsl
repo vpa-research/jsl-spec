@@ -1,3 +1,4 @@
+///#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -10,6 +11,7 @@ library std
 import java/lang/Object;
 import java/nio/ByteBuffer;
 import java/util/zip/Checksum;
+import sun/nio/ch/DirectBuffer;
 
 
 // local semantic types
@@ -77,13 +79,13 @@ automaton CRC32Automaton
     }
 
 
-    @Phantom proc _updateByteBufferCheck(addr: long)
+    @Phantom proc _updateByteBufferCheck(addr: long): void
+    {
+        if (addr == 0L)
         {
-            if (addr == 0L)
-            {
-                action THROW_NEW("java.lang.NullPointerException", []);
-            }
+            action THROW_NEW("java.lang.NullPointerException", []);
         }
+    }
 
 
     proc _updateBytes(crc: int, b: array<byte>, off: int, len: int): int
@@ -143,8 +145,8 @@ automaton CRC32Automaton
 
     fun *.update (@target self: CRC32, buffer: ByteBuffer): void
     {
-        var pos: int = buffer.position();
-        var limit: int = buffer.limit();
+        var pos: int = action CALL_METHOD(buffer, "position", []);
+        var limit: int = action CALL_METHOD(buffer, "limit", []);
         if (pos > limit)
         {
             action THROW_NEW("java.lang.AssertionError", []);
@@ -155,24 +157,26 @@ automaton CRC32Automaton
             if (buffer is DirectBuffer)
             {
                 var directBuffer: DirectBuffer = (buffer as DirectBuffer);
-                var address: long = directBuffer.address();
+                var address: long = action CALL_METHOD(directBuffer, "address", []);
                 this.crc = _updateByteBuffer(this.crc, address, pos, rem);
             }
-            else if (buffer.hasArray())
+            else if (action CALL_METHOD(buffer, "hasArray", []))
             {
-                this.crc = _updateBytes(this.crc, buffer.array(), pos + buffer.arrayOffset(), rem);
+                var off: int = action CALL_METHOD(buffer, "arrayOffset", []);
+                off = off + pos;
+                this.crc = _updateBytes(this.crc, action CALL_METHOD(buffer, "array", []), off, rem);
             }
             else
             {
                 var len: int = 4096;
-                var b_rem: int = buffer.remaining();
+                var b_rem: int = action CALL_METHOD(buffer, "remaining", []);
                 if (b_rem < len)
                 {
                     len = b_rem;
                 }
                 var b: array<byte> = action ARRAY_NEW("byte", len);
                 action LOOP_WHILE(
-                    buffer.hasRemaining(),
+                    action CALL_METHOD(buffer, "remaining", []),
                     _updateLoop(buffer, b)
                 );
             }
@@ -183,13 +187,13 @@ automaton CRC32Automaton
 
     @Phantom proc _updateLoop(buffer: ByteBuffer, b: array<byte>): void
     {
-        var length: int = buffer.remaining();
+        var length: int = action CALL_METHOD(buffer, "remaining", []);
         var b_size: int = action ARRAY_SIZE(b);
         if (b_size < length)
         {
             length = b_size;
         }
-        buffer.get(b, 0, length);
+        action CALL_METHOD(buffer, "get", [b, 0, length]);
         _updateCheck(b, 0, length);
         this.crc = _updateBytes(this.crc, b, 0, length);
     }
