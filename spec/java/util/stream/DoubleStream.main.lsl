@@ -1100,21 +1100,32 @@ automaton DoubleStreamAutomaton
                 _takeWhile_loop(i, takeLength, predicate)
             );
 
-            val newLength: int = takeLength;
-            val newStorage: array<double> = action ARRAY_NEW("double", newLength);
+            if (takeLength == this.length)
+            {
+                result = new DoubleStreamAutomaton(state = Initialized,
+                    storage = this.storage,
+                    length = this.length,
+                    closeHandlers = this.closeHandlers,
+                );
+            }
+            else
+            {
+                val newLength: int = takeLength;
+                val newStorage: array<double> = action ARRAY_NEW("double", newLength);
 
-            var j: int = 0;
-            i = 0;
-            action LOOP_WHILE(
-                i < takeLength,
-                _copy_takeWhile_loop(i, j, newStorage)
-            );
+                var j: int = 0;
+                i = 0;
+                action LOOP_WHILE(
+                    i < takeLength,
+                    _copy_takeWhile_loop(i, j, newStorage)
+                );
 
-            result = new DoubleStreamAutomaton(state = Initialized,
-                storage = newStorage,
-                length = newLength,
-                closeHandlers = this.closeHandlers,
-            );
+                result = new DoubleStreamAutomaton(state = Initialized,
+                    storage = newStorage,
+                    length = newLength,
+                    closeHandlers = this.closeHandlers,
+                );
+            }
         }
 
         this.linkedOrConsumed = true;
