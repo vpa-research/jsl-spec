@@ -996,6 +996,8 @@ automaton IntStreamAutomaton
         }
         else
         {
+            action ASSUME(this.length > 0);
+
             var dropLength: int = 0;
 
             var i: int = 0;
@@ -1059,6 +1061,8 @@ automaton IntStreamAutomaton
         }
         else
         {
+            action ASSUME(this.length > 0);
+
             var takeLength: int = 0;
 
             var i: int = 0;
