@@ -28,7 +28,6 @@ import java/util/stream/Stream;
     is java.util.stream.LongStreamLSL
     for LongStream
 {
-    @private @static val STREAM_VALUE: Object = 1;
 }
 
 

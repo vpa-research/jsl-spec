@@ -28,7 +28,6 @@ import java/util/stream/Stream;
     is java.util.stream.DoubleStreamLSL
     for DoubleStream
 {
-    @private @static val STREAM_VALUE: Object = 1;
 }
 
 
