@@ -968,13 +968,13 @@ automaton DoubleStreamAutomaton
 
 
     // within java.util.stream.BaseStream
-    fun *.onClose (@target self: DoubleStream, arg0: Runnable): DoubleStream
+    fun *.onClose (@target self: DoubleStream, closeHandler: Runnable): DoubleStream
     {
         if (this.linkedOrConsumed)
             _throwISE();
 
         val listLength: int = action LIST_SIZE(this.closeHandlers);
-        action LIST_INSERT_AT(this.closeHandlers, listLength, arg0);
+        action LIST_INSERT_AT(this.closeHandlers, listLength, closeHandler);
         result = self;
     }
 

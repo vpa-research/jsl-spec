@@ -943,13 +943,13 @@ automaton LongStreamAutomaton
 
 
     // within java.util.stream.BaseStream
-    fun *.onClose (@target self: LongStream, arg0: Runnable): LongStream
+    fun *.onClose (@target self: LongStream, closeHandler: Runnable): LongStream
     {
         if (this.linkedOrConsumed)
             _throwISE();
 
         val listLength: int = action LIST_SIZE(this.closeHandlers);
-        action LIST_INSERT_AT(this.closeHandlers, listLength, arg0);
+        action LIST_INSERT_AT(this.closeHandlers, listLength, closeHandler);
         result = self;
     }
 

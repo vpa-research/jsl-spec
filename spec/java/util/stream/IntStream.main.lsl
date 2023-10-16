@@ -941,13 +941,13 @@ automaton IntStreamAutomaton
 
 
     // within java.util.stream.BaseStream
-    fun *.onClose (@target self: IntStream, arg0: Runnable): IntStream
+    fun *.onClose (@target self: IntStream, closeHandler: Runnable): IntStream
     {
         if (this.linkedOrConsumed)
             _throwISE();
 
         val listLength: int = action LIST_SIZE(this.closeHandlers);
-        action LIST_INSERT_AT(this.closeHandlers, listLength, arg0);
+        action LIST_INSERT_AT(this.closeHandlers, listLength, closeHandler);
         result = self;
     }
 
