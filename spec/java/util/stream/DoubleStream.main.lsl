@@ -362,7 +362,7 @@ automaton DoubleStreamAutomaton
         {
             result = new DoubleStreamAutomaton(state = Initialized,
                 storage = this.storage,
-                length = this.length,
+                length = 0,
                 closeHandlers = this.closeHandlers,
             );
         }

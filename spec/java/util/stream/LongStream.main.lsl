@@ -338,7 +338,7 @@ automaton LongStreamAutomaton
         {
             result = new LongStreamAutomaton(state = Initialized,
                 storage = this.storage,
-                length = this.length,
+                length = 0,
                 closeHandlers = this.closeHandlers,
             );
         }
@@ -1115,7 +1115,7 @@ automaton LongStreamAutomaton
             val emptyArray: array<double> = action ARRAY_NEW("double", 0);
             result = new DoubleStreamAutomaton(state = Initialized,
                 storage = emptyArray,
-                length = this.length,
+                length = 0,
                 closeHandlers = this.closeHandlers,
             );
         }
