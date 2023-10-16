@@ -71,8 +71,6 @@ automaton DoubleStreamAutomaton
         close,
         dropWhile,
         takeWhile,
-        asLongStream,
-        asIntStream,
         sum,
         average,
         summaryStatistics,
@@ -1131,82 +1129,6 @@ automaton DoubleStreamAutomaton
     {
         newStorage[j] = this.storage[i];
         j += 1;
-    }
-
-
-    fun *.asLongStream (@target self: DoubleStream): LongStream
-    {
-        if (this.length == 0)
-        {
-            val emptyArray: array<long> = action ARRAY_NEW("long", 0);
-            result = new LongStreamAutomaton(state = Initialized,
-                storage = emptyArray,
-                length = this.length,
-                closeHandlers = this.closeHandlers,
-            );
-        }
-        else
-        {
-            action ASSUME(this.length > 0);
-
-            val newStorage: array<long> = action ARRAY_NEW("long", this.length);
-
-            var i: int = 0;
-            action LOOP_FOR(
-                i, 0, this.length, +1,
-                _convertDoubleStorageToLong_loop(i, newStorage)
-            );
-
-            result = new LongStreamAutomaton(state = Initialized,
-                storage = newStorage,
-                length = this.length,
-                closeHandlers = this.closeHandlers,
-            );
-        }
-    }
-
-
-    @Phantom proc _convertDoubleStorageToLong_loop(i: int, newStorage: array<long>): void
-    {
-        newStorage[i] = this.storage[i] as long;
-    }
-
-
-    fun *.asIntStream (@target self: DoubleStream): IntStream
-    {
-        if (this.length == 0)
-        {
-            val emptyArray: array<int> = action ARRAY_NEW("int", 0);
-            result = new IntStreamAutomaton(state = Initialized,
-                storage = emptyArray,
-                length = this.length,
-                closeHandlers = this.closeHandlers,
-            );
-        }
-        else
-        {
-            action ASSUME(this.length > 0);
-
-            val newStorage: array<int> = action ARRAY_NEW("int", this.length);
-
-            var i: int = 0;
-            action LOOP_FOR(
-                i, 0, this.length, +1,
-                _convertDoubleStorageToInt_loop(i, newStorage)
-            );
-
-            result = new IntStreamAutomaton(state = Initialized,
-                storage = newStorage,
-                length = this.length,
-                closeHandlers = this.closeHandlers,
-            );
-        }
-    }
-
-
-    @Phantom proc _convertDoubleStorageToInt_loop(i: int, newStorage: array<int>): void
-    {
-        newStorage[i] = this.storage[i] as int;
     }
 
 

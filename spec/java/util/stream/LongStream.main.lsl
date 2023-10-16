@@ -72,7 +72,6 @@ automaton LongStreamAutomaton
         dropWhile,
         takeWhile,
         asDoubleStream,
-        asIntStream,
         sum,
         average,
         summaryStatistics,
@@ -1106,44 +1105,6 @@ automaton LongStreamAutomaton
     {
         newStorage[j] = this.storage[i];
         j += 1;
-    }
-
-
-    fun *.asIntStream (@target self: LongStream): IntStream
-    {
-        if (this.length == 0)
-        {
-            val emptyArray: array<int> = action ARRAY_NEW("int", 0);
-            result = new IntStreamAutomaton(state = Initialized,
-                storage = emptyArray,
-                length = this.length,
-                closeHandlers = this.closeHandlers,
-            );
-        }
-        else
-        {
-            action ASSUME(this.length > 0);
-
-            val newStorage: array<int> = action ARRAY_NEW("int", this.length);
-
-            var i: int = 0;
-            action LOOP_FOR(
-                i, 0, this.length, +1,
-                _convertLongStorageToInt_loop(i, newStorage)
-            );
-
-            result = new IntStreamAutomaton(state = Initialized,
-                storage = newStorage,
-                length = this.length,
-                closeHandlers = this.closeHandlers,
-            );
-        }
-    }
-
-
-    @Phantom proc _convertLongStorageToInt_loop(i: int, newStorage: array<int>): void
-    {
-        newStorage[i] = this.storage[i] as int;
     }
 
 
