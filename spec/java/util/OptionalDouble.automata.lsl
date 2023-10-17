@@ -17,7 +17,7 @@ import java/util/OptionalDouble;
 
 // globals
 
-val EMPTY_OPTIONAL_DOUBLE: OptionalDouble
+val EMPTY_OPTIONAL_DOUBLE: LSLOptionalDouble
     = new OptionalDoubleAutomaton(state = Initialized,
         value = 0.0,
         present = false
@@ -31,7 +31,7 @@ automaton OptionalDoubleAutomaton
     var value: double,
     var present: boolean
 )
-: OptionalDouble
+: LSLOptionalDouble
 {
     // states and shifts
 
@@ -40,8 +40,8 @@ automaton OptionalDoubleAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        OptionalDouble (OptionalDouble),
-        OptionalDouble (OptionalDouble, double),
+        LSLOptionalDouble (LSLOptionalDouble),
+        LSLOptionalDouble (LSLOptionalDouble, double),
 
         // static methods
         empty,
@@ -58,8 +58,8 @@ automaton OptionalDoubleAutomaton
         stream,
         orElse,
         orElseGet,
-        orElseThrow (OptionalDouble),
-        orElseThrow (OptionalDouble, Supplier),
+        orElseThrow (LSLOptionalDouble),
+        orElseThrow (LSLOptionalDouble, Supplier),
         toString,
         hashCode,
         equals,
@@ -76,13 +76,13 @@ automaton OptionalDoubleAutomaton
 
     // constructors
 
-    @private constructor *.OptionalDouble (@target self: OptionalDouble)
+    @private constructor *.LSLOptionalDouble (@target self: LSLOptionalDouble)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
 
 
-    @private constructor *.OptionalDouble (@target self: OptionalDouble, x: double)
+    @private constructor *.LSLOptionalDouble (@target self: LSLOptionalDouble, x: double)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
@@ -90,13 +90,13 @@ automaton OptionalDoubleAutomaton
 
     // static methods
 
-    @static fun *.empty (): OptionalDouble
+    @static fun *.empty (): LSLOptionalDouble
     {
         result = EMPTY_OPTIONAL_DOUBLE;
     }
 
 
-    @static fun *.of (x: double): OptionalDouble
+    @static fun *.of (x: double): LSLOptionalDouble
     {
         result = new OptionalDoubleAutomaton(state = Initialized,
             value = x,
@@ -108,7 +108,7 @@ automaton OptionalDoubleAutomaton
     // methods
 
     @AnnotatedWith("java.lang.Override")
-    fun *.equals (@target self: OptionalDouble, other: Object): boolean
+    fun *.equals (@target self: LSLOptionalDouble, other: Object): boolean
     {
         if (other == self)
         {
@@ -135,7 +135,7 @@ automaton OptionalDoubleAutomaton
     }
 
 
-    fun *.getAsDouble (@target self: OptionalDouble): double
+    fun *.getAsDouble (@target self: LSLOptionalDouble): double
     {
         if (!this.present)
             action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
@@ -145,7 +145,7 @@ automaton OptionalDoubleAutomaton
 
 
     @AnnotatedWith("java.lang.Override")
-    fun *.hashCode (@target self: OptionalDouble): int
+    fun *.hashCode (@target self: LSLOptionalDouble): int
     {
         if (this.present)
             result = action OBJECT_HASH_CODE(this.value);
@@ -154,7 +154,7 @@ automaton OptionalDoubleAutomaton
     }
 
 
-    fun *.ifPresent (@target self: OptionalDouble, consumer: DoubleConsumer): void
+    fun *.ifPresent (@target self: LSLOptionalDouble, consumer: DoubleConsumer): void
     {
         requires !this.present || (this.present && consumer != null);
 
@@ -168,7 +168,7 @@ automaton OptionalDoubleAutomaton
     }
 
 
-    fun *.ifPresentOrElse (@target self: OptionalDouble, consumer: DoubleConsumer, emptyAction: Runnable): void
+    fun *.ifPresentOrElse (@target self: LSLOptionalDouble, consumer: DoubleConsumer, emptyAction: Runnable): void
     {
         requires !this.present || (this.present  && consumer != null);
         requires this.present  || (!this.present && emptyAction != null);
@@ -190,19 +190,19 @@ automaton OptionalDoubleAutomaton
     }
 
 
-    fun *.isEmpty (@target self: OptionalDouble): boolean
+    fun *.isEmpty (@target self: LSLOptionalDouble): boolean
     {
         result = this.present == false;
     }
 
 
-    fun *.isPresent (@target self: OptionalDouble): boolean
+    fun *.isPresent (@target self: LSLOptionalDouble): boolean
     {
         result = this.present == true;
     }
 
 
-    fun *.orElse (@target self: OptionalDouble, other: double): double
+    fun *.orElse (@target self: LSLOptionalDouble, other: double): double
     {
         if (this.present)
             result = this.value;
@@ -211,7 +211,7 @@ automaton OptionalDoubleAutomaton
     }
 
 
-    fun *.orElseGet (@target self: OptionalDouble, supplier: DoubleSupplier): double
+    fun *.orElseGet (@target self: LSLOptionalDouble, supplier: DoubleSupplier): double
     {
         requires supplier != null;
 
@@ -225,7 +225,7 @@ automaton OptionalDoubleAutomaton
     }
 
 
-    fun *.orElseThrow (@target self: OptionalDouble): double
+    fun *.orElseThrow (@target self: LSLOptionalDouble): double
     {
         requires this.present;
 
@@ -238,7 +238,7 @@ automaton OptionalDoubleAutomaton
 
     @Parameterized(["X extends java.lang.Throwable"])
     @throws(["java.lang.Throwable"])
-    fun *.orElseThrow (@target self: OptionalDouble, @Parameterized(["? extends X"]) exceptionSupplier: Supplier): double
+    fun *.orElseThrow (@target self: LSLOptionalDouble, @Parameterized(["? extends X"]) exceptionSupplier: Supplier): double
     {
         requires exceptionSupplier != null;
 
@@ -257,7 +257,7 @@ automaton OptionalDoubleAutomaton
     }
 
 
-    fun *.stream (@target self: OptionalDouble): DoubleStream
+    fun *.stream (@target self: LSLOptionalDouble): DoubleStream
     {
         // #todo: use custom stream implementation
         result = action SYMBOLIC("java.util.stream.DoubleStream");
@@ -266,7 +266,7 @@ automaton OptionalDoubleAutomaton
 
 
     @AnnotatedWith("java.lang.Override", [])
-    fun *.toString (@target self: OptionalDouble): String
+    fun *.toString (@target self: LSLOptionalDouble): String
     {
         if (this.present)
         {
