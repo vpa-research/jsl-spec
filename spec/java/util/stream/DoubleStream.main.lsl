@@ -913,6 +913,7 @@ automaton DoubleStreamAutomaton
     }
 
 
+    // #todo: must be created spliterator realization
     fun *.spliterator (@target self: DoubleStream): Spliterator_OfDouble
     {
         result = action SYMBOLIC("java.util.Spliterator.OfDouble");

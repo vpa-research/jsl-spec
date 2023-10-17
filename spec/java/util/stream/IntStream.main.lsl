@@ -888,6 +888,7 @@ automaton IntStreamAutomaton
     }
 
 
+    // #todo: must be created spliterator realization
     fun *.spliterator (@target self: IntStream): Spliterator_OfInt
     {
         result = action SYMBOLIC("java.util.Spliterator.OfInt");

@@ -889,6 +889,7 @@ automaton LongStreamAutomaton
     }
 
 
+    // #todo: must be created spliterator realization
     fun *.spliterator (@target self: LongStream): Spliterator_OfLong
     {
         result = action SYMBOLIC("java.util.Spliterator.OfLong");
