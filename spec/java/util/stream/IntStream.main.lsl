@@ -941,6 +941,7 @@ automaton IntStreamAutomaton
     // within java.util.stream.BaseStream
     fun *.onClose (@target self: IntStream, closeHandler: Runnable): IntStream
     {
+        // #todo: make chain of the runnable's like in the original method (java.util.stream.AbstractPipeline#onClose)
         _checkConsumed();
 
         val listLength: int = action LIST_SIZE(this.closeHandlers);
