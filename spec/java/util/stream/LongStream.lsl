@@ -9,6 +9,7 @@ library std
 // imports
 
 import java/util/stream/Stream;
+import java/util/PrimitiveIterator;
 
 
 // primary semantic types
