@@ -660,7 +660,7 @@ automaton StreamAutomaton
         }
         else if (offset >= this.length)
         {
-            var newArray: array<Object> = action ARRAY_NEW("java.lang.Object", 0);
+            var newArray: array<Object> = [];
             result = new StreamAutomaton(state = Initialized,
                 storage = newArray,
                 length = 0,

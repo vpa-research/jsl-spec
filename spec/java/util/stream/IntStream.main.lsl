@@ -550,7 +550,7 @@ automaton IntStreamAutomaton
         }
         else if (offset >= this.length)
         {
-            var newArray: array<int> = action ARRAY_NEW("int", 0);
+            var newArray: array<int> = [];
             result = new IntStreamAutomaton(state = Initialized,
                 storage = newArray,
                 length = 0,

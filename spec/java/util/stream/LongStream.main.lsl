@@ -550,7 +550,7 @@ automaton LongStreamAutomaton
         }
         else if (offset >= this.length)
         {
-            var newArray: array<long> = action ARRAY_NEW("long", 0);
+            var newArray: array<long> = [];
             result = new LongStreamAutomaton(state = Initialized,
                 storage = newArray,
                 length = 0,

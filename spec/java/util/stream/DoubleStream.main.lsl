@@ -574,7 +574,7 @@ automaton DoubleStreamAutomaton
         }
         else if (offset >= this.length)
         {
-            var newArray: array<double> = action ARRAY_NEW("double", 0);
+            var newArray: array<double> = [];
             result = new DoubleStreamAutomaton(state = Initialized,
                 storage = newArray,
                 length = 0,
