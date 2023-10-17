@@ -1196,8 +1196,20 @@ automaton LongStreamAutomaton
     {
         _checkConsumed();
 
-        // #problem I'm waiting LongSummaryStatistics type in separated files
-        action TODO();
+        result = action DEBUG_DO("new LongSummaryStatistics()");
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _getStatistics_loop(i, result)
+        );
+
+        _consume();
+    }
+
+
+    @Phantom proc _getStatistics_loop (i: int, result: LongSummaryStatistics): void
+    {
+        action CALL_METHOD(result, "accept", [this.storage[i]]);
     }
 
 
