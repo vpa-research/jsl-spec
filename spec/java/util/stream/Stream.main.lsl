@@ -110,6 +110,12 @@ automaton StreamAutomaton
     }
 
 
+    @AutoInline @Phantom proc _consume (): void
+    {
+        this.linkedOrConsumed = true;
+    }
+
+
     @AutoInline @Phantom proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
@@ -179,7 +185,7 @@ automaton StreamAutomaton
             closeHandlers = this.closeHandlers,
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -214,7 +220,7 @@ automaton StreamAutomaton
             closeHandlers = this.closeHandlers,
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -242,7 +248,7 @@ automaton StreamAutomaton
         // #todo: Temporary decision (we don't have IntStream automaton at this moment)
         result = action DEBUG_DO("java.util.Arrays.stream(mappedStorage)");
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -270,7 +276,7 @@ automaton StreamAutomaton
         // #todo: Temporary decision (we don't have IntStream automaton at this moment)
         result = action DEBUG_DO("java.util.Arrays.stream(mappedStorage)");
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -298,7 +304,7 @@ automaton StreamAutomaton
         // #todo: Temporary decision (we don't have IntStream automaton at this moment)
         result = action DEBUG_DO("java.util.Arrays.stream(mappedStorage)");
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -320,7 +326,7 @@ automaton StreamAutomaton
         result = action SYMBOLIC("java.util.stream.Stream");
         action ASSUME(result != null);
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -336,7 +342,7 @@ automaton StreamAutomaton
         result = action SYMBOLIC("java.util.stream.IntStream");
         action ASSUME(result != null);
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -352,7 +358,7 @@ automaton StreamAutomaton
         result = action SYMBOLIC("java.util.stream.LongStream");
         action ASSUME(result != null);
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -368,7 +374,7 @@ automaton StreamAutomaton
         result = action SYMBOLIC("java.util.stream.DoubleStream");
         action ASSUME(result != null);
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -422,7 +428,7 @@ automaton StreamAutomaton
             closeHandlers = this.closeHandlers,
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
     @Phantom proc distinct_loopStoreItems (i: int, items: array<Object>, visited: map<Object, Object>, j: int, uniqueItems: list<Object>): void
@@ -473,7 +479,7 @@ automaton StreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -533,7 +539,7 @@ automaton StreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -574,7 +580,7 @@ automaton StreamAutomaton
             closeHandlers = this.closeHandlers,
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -622,7 +628,7 @@ automaton StreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -677,7 +683,7 @@ automaton StreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -693,7 +699,7 @@ automaton StreamAutomaton
         _checkConsumed();
 
         _actionApply(_action);
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -702,7 +708,7 @@ automaton StreamAutomaton
         _checkConsumed();
 
         _actionApply(_action);
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -711,7 +717,7 @@ automaton StreamAutomaton
         _checkConsumed();
 
         result = this.storage;
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -724,7 +730,7 @@ automaton StreamAutomaton
         action ARRAY_COPY(this.storage, 0, generatedArray, 0, this.length);
 
         result = generatedArray;
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -747,7 +753,7 @@ automaton StreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -783,7 +789,7 @@ automaton StreamAutomaton
             result = action DEBUG_DO("Optional.ofNullable(value)");
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -816,7 +822,7 @@ automaton StreamAutomaton
         }
         // UtBot note: since this implementation is always sequential, we do not need to use the combiner
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -848,7 +854,7 @@ automaton StreamAutomaton
             _accumulate_with_biConsumer_loop(i, accumulator, result)
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -872,7 +878,7 @@ automaton StreamAutomaton
             _accumulate_with_biConsumer_loop(i, collector, result)
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -900,7 +906,7 @@ automaton StreamAutomaton
             result = action DEBUG_DO("Optional.ofNullable(min)");
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -935,7 +941,7 @@ automaton StreamAutomaton
             result = action DEBUG_DO("Optional.ofNullable(max)");
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -951,7 +957,7 @@ automaton StreamAutomaton
         _checkConsumed();
 
         result = this.length;
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -973,7 +979,7 @@ automaton StreamAutomaton
         if (i < this.length)
             result = true;
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1005,7 +1011,7 @@ automaton StreamAutomaton
                 result = true;
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1031,7 +1037,7 @@ automaton StreamAutomaton
                 result = true;
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1040,7 +1046,7 @@ automaton StreamAutomaton
         _checkConsumed();
 
         result = _findFirst();
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1049,7 +1055,7 @@ automaton StreamAutomaton
         _checkConsumed();
 
         result = _findFirst();
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1063,7 +1069,7 @@ automaton StreamAutomaton
             cursor = 0
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1074,7 +1080,7 @@ automaton StreamAutomaton
 
         result = action DEBUG_DO("java.util.Spliterators.spliterator(this.storage, Spliterator.ORDERED)");
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1133,7 +1139,7 @@ automaton StreamAutomaton
 
         this.closeHandlers = action LIST_NEW();
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1186,7 +1192,7 @@ automaton StreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1248,7 +1254,7 @@ automaton StreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 

@@ -93,6 +93,12 @@ automaton IntStreamAutomaton
     }
 
 
+    @AutoInline @Phantom proc _consume (): void
+    {
+        this.linkedOrConsumed = true;
+    }
+
+
     @AutoInline @Phantom proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
@@ -182,7 +188,7 @@ automaton IntStreamAutomaton
             closeHandlers = this.closeHandlers,
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -217,7 +223,7 @@ automaton IntStreamAutomaton
             closeHandlers = this.closeHandlers,
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -246,7 +252,7 @@ automaton IntStreamAutomaton
             closeHandlers = this.closeHandlers,
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -277,7 +283,7 @@ automaton IntStreamAutomaton
             closeHandlers = this.closeHandlers,
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -308,7 +314,7 @@ automaton IntStreamAutomaton
             closeHandlers = this.closeHandlers,
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -330,7 +336,7 @@ automaton IntStreamAutomaton
         result = action SYMBOLIC("java.util.stream.IntStream");
         action ASSUME(result != null);
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -365,7 +371,7 @@ automaton IntStreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -444,7 +450,7 @@ automaton IntStreamAutomaton
             closeHandlers = this.closeHandlers,
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
     @Phantom proc distinct_loopStoreItems (i: int, items: array<int>, visited: map<Integer, Integer>, j: int, uniqueItems: list<Integer>): void
@@ -476,7 +482,7 @@ automaton IntStreamAutomaton
             closeHandlers = this.closeHandlers,
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -518,7 +524,7 @@ automaton IntStreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -567,7 +573,7 @@ automaton IntStreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -582,7 +588,7 @@ automaton IntStreamAutomaton
         _checkConsumed();
 
         _actionApply(_action);
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -591,7 +597,7 @@ automaton IntStreamAutomaton
         _checkConsumed();
 
         _actionApply(_action);
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -600,7 +606,7 @@ automaton IntStreamAutomaton
         _checkConsumed();
 
         result = this.storage;
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -623,7 +629,7 @@ automaton IntStreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -657,7 +663,7 @@ automaton IntStreamAutomaton
             result = action DEBUG_DO("OptionalInt.of(value)");
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -689,7 +695,7 @@ automaton IntStreamAutomaton
             _accumulate_with_biConsumer_loop(i, accumulator, result)
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -720,7 +726,7 @@ automaton IntStreamAutomaton
             result = action DEBUG_DO("OptionalInt.of(min)");
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -752,7 +758,7 @@ automaton IntStreamAutomaton
             result = action DEBUG_DO("OptionalInt.of(max)");
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -768,7 +774,7 @@ automaton IntStreamAutomaton
         _checkConsumed();
 
         result = this.length;
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -790,7 +796,7 @@ automaton IntStreamAutomaton
         if (i < this.length)
             result = true;
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -822,7 +828,7 @@ automaton IntStreamAutomaton
                 result = true;
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -848,7 +854,7 @@ automaton IntStreamAutomaton
                 result = true;
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -857,7 +863,7 @@ automaton IntStreamAutomaton
         _checkConsumed();
 
         result = _findFirst();
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -866,7 +872,7 @@ automaton IntStreamAutomaton
         _checkConsumed();
 
         result = _findFirst();
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -938,7 +944,7 @@ automaton IntStreamAutomaton
 
         this.closeHandlers = action LIST_NEW();
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1005,7 +1011,7 @@ automaton IntStreamAutomaton
             }
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1080,7 +1086,7 @@ automaton IntStreamAutomaton
             }
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1181,7 +1187,7 @@ automaton IntStreamAutomaton
 
         result = _sum();
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1200,7 +1206,7 @@ automaton IntStreamAutomaton
             result = action DEBUG_DO("OptionalDouble.of(divisionResult)");
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1231,7 +1237,7 @@ automaton IntStreamAutomaton
             closeHandlers = this.closeHandlers,
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
