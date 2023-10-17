@@ -182,8 +182,13 @@ automaton LongStreamAutomaton
             _filter_loop(i, predicate, filteredLength, filteredStorage)
         );
 
+        action ASSUME(filteredLength <= this.length);
+
+        var resultStorage: array<long> = action ARRAY_NEW("long", filteredLength);
+        action ARRAY_COPY(filteredStorage, 0, resultStorage, 0, filteredLength);
+
         result = new LongStreamAutomaton(state = Initialized,
-            storage = filteredStorage,
+            storage = resultStorage,
             length = filteredLength,
             closeHandlers = this.closeHandlers,
         );

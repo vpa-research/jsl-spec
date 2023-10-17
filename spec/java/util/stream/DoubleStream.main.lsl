@@ -206,8 +206,13 @@ automaton DoubleStreamAutomaton
             _filter_loop(i, predicate, filteredLength, filteredStorage)
         );
 
+        action ASSUME(filteredLength <= this.length);
+
+        var resultStorage: array<double> = action ARRAY_NEW("double", filteredLength);
+        action ARRAY_COPY(filteredStorage, 0, resultStorage, 0, filteredLength);
+
         result = new DoubleStreamAutomaton(state = Initialized,
-            storage = filteredStorage,
+            storage = resultStorage,
             length = filteredLength,
             closeHandlers = this.closeHandlers,
         );

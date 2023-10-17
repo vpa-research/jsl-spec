@@ -179,8 +179,13 @@ automaton StreamAutomaton
             _filter_loop(i, predicate, filteredLength, filteredStorage)
         );
 
+        action ASSUME(filteredLength <= this.length);
+
+        var resultStorage: array<Object> = action ARRAY_NEW("java.lang.Object", filteredLength);
+        action ARRAY_COPY(filteredStorage, 0, resultStorage, 0, filteredLength);
+
         result = new StreamAutomaton(state = Initialized,
-            storage = filteredStorage,
+            storage = resultStorage,
             length = filteredLength,
             closeHandlers = this.closeHandlers,
         );
