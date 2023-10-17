@@ -8,7 +8,7 @@ library std
 
 // imports
 
-import java/lang/PhantomReference;
+import java/lang/ref/PhantomReference;
 
 
 // primary semantic types

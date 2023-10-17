@@ -15,12 +15,27 @@ import java/lang/Object;
 
 // original type for use in other places
 @Parameterized(["T"])
-@public @final type Optional
+@final type Optional
     is java.util.Optional
     for Object
 {
+    @static fun *.empty(): Object; // #problem: self-reference
+
+    @static fun *.of(obj: Object): Object; // #problem: self-reference
+
+    @static fun *.ofNullable(obj: Object): Object; // #problem: self-reference
+
+    fun *.isPresent(): boolean;
+
+    fun *.isEmpty(): boolean;
+
+    fun *.get(): Object;
+
+    fun *.orElse(other: Object): Object;
 }
 
+
+// global aliases and type overrides
 
 // a replacement type for automata construction
 @Parameterized(["T"])

@@ -13,9 +13,30 @@ import java/lang/Object;
 
 // primary semantic types
 
-@public @final type OptionalDouble
+@final type OptionalDouble
     is java.util.OptionalDouble
     for Object
+{
+    @static fun *.empty(): Object; // #problem: self-reference
+
+    @static fun *.of(x: double): Object; // #problem: self-reference
+
+    fun *.isPresent(): boolean;
+
+    fun *.isEmpty(): boolean;
+
+    fun *.getAsDouble(): double;
+
+    fun *.orElse(other: double): double;
+}
+
+
+// global aliases and type overrides
+
+// a replacement type for automata construction
+@public @final type LSLOptionalDouble
+    is java.util.OptionalDouble
+    for OptionalDouble
 {
     // NOTE: value is stored within the automaton
 }
