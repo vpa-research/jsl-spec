@@ -175,7 +175,7 @@ automaton CRC32Automaton
                 }
                 var b: array<byte> = action ARRAY_NEW("byte", len);
                 action LOOP_WHILE(
-                    action CALL_METHOD(buffer, "remaining", []),
+                    action CALL_METHOD(buffer, "hasRemaining", []),
                     _updateLoop(buffer, b)
                 );
             }
