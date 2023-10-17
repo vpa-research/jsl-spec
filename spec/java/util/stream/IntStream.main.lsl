@@ -881,18 +881,26 @@ automaton IntStreamAutomaton
 
     fun *.iterator (@target self: IntStream): PrimitiveIterator_OfInt
     {
+        _checkConsumed();
+
         result = new IntStreamIteratorAutomaton(state = Initialized,
             parent = self,
             cursor = 0,
         );
+
+        _consume();
     }
 
 
     // #todo: must be created spliterator realization
     fun *.spliterator (@target self: IntStream): Spliterator_OfInt
     {
+        _checkConsumed();
+
         result = action SYMBOLIC("java.util.Spliterator.OfInt");
         action ASSUME(result != null);
+
+        _consume();
     }
 
 

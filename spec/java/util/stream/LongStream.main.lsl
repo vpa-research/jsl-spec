@@ -882,18 +882,26 @@ automaton LongStreamAutomaton
 
     fun *.iterator (@target self: LongStream): PrimitiveIterator_OfLong
     {
+        _checkConsumed();
+
         result = new LongStreamIteratorAutomaton(state = Initialized,
             parent = self,
             cursor = 0,
         );
+
+        _consume();
     }
 
 
     // #todo: must be created spliterator realization
     fun *.spliterator (@target self: LongStream): Spliterator_OfLong
     {
+        _checkConsumed();
+
         result = action SYMBOLIC("java.util.Spliterator.OfLong");
         action ASSUME(result != null);
+
+        _consume();
     }
 
 

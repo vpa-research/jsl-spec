@@ -906,18 +906,26 @@ automaton DoubleStreamAutomaton
 
     fun *.iterator (@target self: DoubleStream): PrimitiveIterator_OfDouble
     {
+        _checkConsumed();
+
         result = new DoubleStreamIteratorAutomaton(state = Initialized,
             parent = self,
             cursor = 0,
         );
+
+        _consume();
     }
 
 
     // #todo: must be created spliterator realization
     fun *.spliterator (@target self: DoubleStream): Spliterator_OfDouble
     {
+        _checkConsumed();
+
         result = action SYMBOLIC("java.util.Spliterator.OfDouble");
         action ASSUME(result != null);
+
+        _consume();
     }
 
 
