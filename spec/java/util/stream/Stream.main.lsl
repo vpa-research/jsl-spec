@@ -1113,7 +1113,9 @@ automaton StreamAutomaton
     // within java.util.stream.BaseStream
     fun *.unordered (@target self: Stream): BaseStream
     {
+        _checkConsumed();
         result = self;
+        _consume();
     }
 
 

@@ -919,7 +919,9 @@ automaton LongStreamAutomaton
 
     fun *.unordered (@target self: LongStream): LongStream
     {
+        _checkConsumed();
         result = self;
+        _consume();
     }
 
 

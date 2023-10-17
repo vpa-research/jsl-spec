@@ -943,7 +943,9 @@ automaton DoubleStreamAutomaton
 
     fun *.unordered (@target self: DoubleStream): DoubleStream
     {
+        _checkConsumed();
         result = self;
+        _consume();
     }
 
 

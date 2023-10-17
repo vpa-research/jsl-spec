@@ -918,7 +918,9 @@ automaton IntStreamAutomaton
 
     fun *.unordered (@target self: IntStream): IntStream
     {
+        _checkConsumed();
         result = self;
+        _consume();
     }
 
 
