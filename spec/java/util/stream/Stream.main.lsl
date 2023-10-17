@@ -103,6 +103,13 @@ automaton StreamAutomaton
 
     // utilities
 
+    @AutoInline @Phantom proc _checkConsumed (): void
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+    }
+
+
     @AutoInline @Phantom proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
@@ -152,8 +159,7 @@ automaton StreamAutomaton
 
     fun *.filter (@target self: Stream, predicate: Predicate): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -189,8 +195,7 @@ automaton StreamAutomaton
 
     fun *.map (@target self: Stream, mapper: Function): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -221,8 +226,7 @@ automaton StreamAutomaton
 
     fun *.mapToInt (@target self: Stream, mapper: ToIntFunction): IntStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -250,8 +254,7 @@ automaton StreamAutomaton
 
     fun *.mapToLong (@target self: Stream, mapper: ToLongFunction): LongStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -279,8 +282,7 @@ automaton StreamAutomaton
 
     fun *.mapToDouble (@target self: Stream, mapper: ToDoubleFunction): DoubleStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -308,8 +310,7 @@ automaton StreamAutomaton
 
     fun *.flatMap (@target self: Stream, mapper: Function): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -325,8 +326,7 @@ automaton StreamAutomaton
 
     fun *.flatMapToInt (@target self: Stream, mapper: Function): IntStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -342,8 +342,7 @@ automaton StreamAutomaton
 
     fun *.flatMapToLong (@target self: Stream, mapper: Function): LongStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -359,8 +358,7 @@ automaton StreamAutomaton
 
     fun *.flatMapToDouble (@target self: Stream, mapper: Function): DoubleStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -376,8 +374,7 @@ automaton StreamAutomaton
 
     fun *.distinct (@target self: Stream): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         var distinctStorage: array<Object> = null;
         var distinctLength: int = 0;
@@ -447,8 +444,7 @@ automaton StreamAutomaton
 
     fun *.sorted (@target self: Stream): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (this.length == 0)
         {
@@ -508,8 +504,7 @@ automaton StreamAutomaton
 
     fun *.sorted (@target self: Stream, comparator: Comparator): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (this.length == 0)
         {
@@ -569,8 +564,7 @@ automaton StreamAutomaton
 
     fun *.peek (@target self: Stream, _action: Consumer): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         _actionApply(_action);
 
@@ -587,8 +581,7 @@ automaton StreamAutomaton
     // maxSize: long - what to do with this ? Array
     fun *.limit (@target self: Stream, maxSize: long): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (maxSize < 0)
             action THROW_NEW("java.lang.IllegalArgumentException", []);
@@ -643,8 +636,7 @@ automaton StreamAutomaton
     {
         val offset: int = n as int;
 
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (offset < 0)
             action THROW_NEW("java.lang.IllegalArgumentException", []);
@@ -698,8 +690,7 @@ automaton StreamAutomaton
 
     fun *.forEach (@target self: Stream, _action: Consumer): void
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         _actionApply(_action);
         this.linkedOrConsumed = true;
@@ -708,8 +699,7 @@ automaton StreamAutomaton
 
     fun *.forEachOrdered (@target self: Stream, _action: Consumer): void
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         _actionApply(_action);
         this.linkedOrConsumed = true;
@@ -718,8 +708,7 @@ automaton StreamAutomaton
 
     fun *.toArray (@target self: Stream): array<Object>
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = this.storage;
         this.linkedOrConsumed = true;
@@ -728,8 +717,7 @@ automaton StreamAutomaton
 
     fun *.toArray (@target self: Stream, generator: IntFunction): array<Object>
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         val generatedArray: array<Object> = action CALL(generator,[this.length]) as array<Object>;
 
@@ -742,8 +730,7 @@ automaton StreamAutomaton
 
     fun *.reduce (@target self: Stream, identity: Object, accumulator: BinaryOperator): Object
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (accumulator == null)
             _throwNPE();
@@ -772,8 +759,7 @@ automaton StreamAutomaton
 
     fun *.reduce (@target self: Stream, accumulator: BinaryOperator): Optional
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (accumulator == null)
             _throwNPE();
@@ -809,8 +795,7 @@ automaton StreamAutomaton
 
     fun *.reduce (@target self: Stream, identity:Object, accumulator: BiFunction, combiner: BinaryOperator): Object
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (accumulator == null)
             _throwNPE();
@@ -843,8 +828,7 @@ automaton StreamAutomaton
 
     fun *.collect (@target self: Stream, supplier: Supplier, accumulator: BiConsumer, combiner: BiConsumer): Object
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (supplier == null)
             _throwNPE();
@@ -876,8 +860,7 @@ automaton StreamAutomaton
 
     fun *.collect (@target self: Stream, collector: Collector): Object
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (collector == null)
             _throwNPE();
@@ -895,8 +878,7 @@ automaton StreamAutomaton
 
     fun *.min (@target self: Stream, comparator: Comparator): Optional
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (comparator == null)
             _throwNPE();
@@ -931,8 +913,7 @@ automaton StreamAutomaton
 
     fun *.max (@target self: Stream, comparator: Comparator): Optional
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (comparator == null)
             _throwNPE();
@@ -967,8 +948,7 @@ automaton StreamAutomaton
 
     fun *.count (@target self: Stream): long
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = this.length;
         this.linkedOrConsumed = true;
@@ -977,8 +957,7 @@ automaton StreamAutomaton
 
     fun *.anyMatch (@target self: Stream, predicate: Predicate): boolean
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -1006,8 +985,7 @@ automaton StreamAutomaton
 
     fun *.allMatch (@target self: Stream, predicate: Predicate): boolean
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -1033,8 +1011,7 @@ automaton StreamAutomaton
 
     fun *.noneMatch (@target self: Stream, predicate: Predicate): boolean
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -1060,8 +1037,7 @@ automaton StreamAutomaton
 
     fun *.findFirst (@target self: Stream): Optional
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = _findFirst();
         this.linkedOrConsumed = true;
@@ -1070,8 +1046,7 @@ automaton StreamAutomaton
 
     fun *.findAny (@target self: Stream): Optional
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = _findFirst();
         this.linkedOrConsumed = true;
@@ -1081,8 +1056,7 @@ automaton StreamAutomaton
     // within java.util.stream.BaseStream
     fun *.iterator (@target self: Stream): Iterator
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = new StreamIteratorAutomaton(state = Initialized,
             parent = self,
@@ -1096,8 +1070,7 @@ automaton StreamAutomaton
     // within java.util.stream.BaseStream
     fun *.spliterator (@target self: Stream): Spliterator
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = action DEBUG_DO("java.util.Spliterators.spliterator(this.storage, Spliterator.ORDERED)");
 
@@ -1138,8 +1111,7 @@ automaton StreamAutomaton
     // within java.util.stream.BaseStream
     fun *.onClose (@target self: Stream, arg0: Runnable): BaseStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         val listLength: int = action LIST_SIZE(this.closeHandlers);
         action LIST_INSERT_AT(this.closeHandlers, listLength, arg0);
@@ -1174,8 +1146,7 @@ automaton StreamAutomaton
 
     fun *.dropWhile (@target self: Stream, predicate: Predicate): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -1237,8 +1208,7 @@ automaton StreamAutomaton
 
     fun *.takeWhile (@target self: Stream, predicate: Predicate): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
