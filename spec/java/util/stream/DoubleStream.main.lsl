@@ -85,6 +85,13 @@ automaton DoubleStreamAutomaton
 
     // utilities
 
+    @AutoInline @Phantom proc _checkConsumed (): void
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+    }
+
+
     @AutoInline @Phantom proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
@@ -179,8 +186,7 @@ automaton DoubleStreamAutomaton
 
     fun *.filter (@target self: DoubleStream, predicate: DoublePredicate): DoubleStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -216,8 +222,7 @@ automaton DoubleStreamAutomaton
 
     fun *.map (@target self: DoubleStream, mapper: DoubleUnaryOperator): DoubleStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -248,8 +253,7 @@ automaton DoubleStreamAutomaton
 
     fun *.mapToObj (@target self: DoubleStream, mapper: DoubleFunction): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         // UtBot note: Here we assume that this mapping does not produce infinite streams
         val objStorage: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
@@ -278,8 +282,7 @@ automaton DoubleStreamAutomaton
 
     fun *.mapToLong (@target self: DoubleStream, mapper: DoubleToLongFunction): LongStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -310,8 +313,7 @@ automaton DoubleStreamAutomaton
 
     fun *.mapToInt (@target self: DoubleStream, mapper: DoubleToIntFunction): IntStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -342,8 +344,7 @@ automaton DoubleStreamAutomaton
 
     fun *.flatMap (@target self: DoubleStream, mapper: DoubleFunction): DoubleStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -359,8 +360,7 @@ automaton DoubleStreamAutomaton
 
     fun *.sorted (@target self: DoubleStream): DoubleStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (this.length == 0)
         {
@@ -420,8 +420,7 @@ automaton DoubleStreamAutomaton
 
     fun *.distinct (@target self: DoubleStream): DoubleStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         var distinctStorage: array<double> = null;
         var distinctLength: int = 0;
@@ -491,8 +490,7 @@ automaton DoubleStreamAutomaton
 
     fun *.peek (@target self: Stream, _action: DoubleConsumer): DoubleStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         _actionApply(_action);
 
@@ -510,8 +508,7 @@ automaton DoubleStreamAutomaton
     {
         val maxSizeInt: int = maxSize as int;
 
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (maxSizeInt < 0)
             action THROW_NEW("java.lang.IllegalArgumentException", []);
@@ -553,8 +550,7 @@ automaton DoubleStreamAutomaton
     {
         val offset: int = n as int;
 
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (offset < 0)
             action THROW_NEW("java.lang.IllegalArgumentException", []);
@@ -608,8 +604,7 @@ automaton DoubleStreamAutomaton
 
     fun *.forEach (@target self: DoubleStream, _action: DoubleConsumer): void
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         _actionApply(_action);
         this.linkedOrConsumed = true;
@@ -618,8 +613,7 @@ automaton DoubleStreamAutomaton
 
     fun *.forEachOrdered (@target self: DoubleStream, _action: DoubleConsumer): void
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         _actionApply(_action);
         this.linkedOrConsumed = true;
@@ -628,8 +622,7 @@ automaton DoubleStreamAutomaton
 
     fun *.toArray (@target self: DoubleStream): array<double>
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = this.storage;
         this.linkedOrConsumed = true;
@@ -638,8 +631,7 @@ automaton DoubleStreamAutomaton
 
     fun *.reduce (@target self: DoubleStream, identity: double, accumulator: DoubleBinaryOperator): double
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (accumulator == null)
             _throwNPE();
@@ -668,8 +660,7 @@ automaton DoubleStreamAutomaton
 
     fun *.reduce (@target self: DoubleStream, accumulator: DoubleBinaryOperator): OptionalDouble
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (accumulator == null)
             _throwNPE();
@@ -703,8 +694,7 @@ automaton DoubleStreamAutomaton
 
     fun *.collect (@target self: DoubleStream, supplier: Supplier, accumulator: ObjDoubleConsumer, combiner: BiConsumer): Object
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (supplier == null)
             _throwNPE();
@@ -736,8 +726,7 @@ automaton DoubleStreamAutomaton
 
     fun *.min (@target self: DoubleStream): OptionalDouble
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (this.length == 0)
         {
@@ -769,8 +758,7 @@ automaton DoubleStreamAutomaton
 
     fun *.max (@target self: DoubleStream): OptionalDouble
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (this.length == 0)
         {
@@ -802,8 +790,7 @@ automaton DoubleStreamAutomaton
 
     fun *.count (@target self: DoubleStream): long
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = this.length;
         this.linkedOrConsumed = true;
@@ -812,8 +799,7 @@ automaton DoubleStreamAutomaton
 
     fun *.anyMatch (@target self: DoubleStream, predicate: DoublePredicate): boolean
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -841,8 +827,7 @@ automaton DoubleStreamAutomaton
 
     fun *.allMatch (@target self: DoubleStream, predicate: DoublePredicate): boolean
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -868,8 +853,7 @@ automaton DoubleStreamAutomaton
 
     fun *.noneMatch (@target self: DoubleStream, predicate: DoublePredicate): boolean
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -895,8 +879,7 @@ automaton DoubleStreamAutomaton
 
     fun *.findFirst (@target self: DoubleStream): OptionalDouble
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = _findFirst();
         this.linkedOrConsumed = true;
@@ -905,8 +888,7 @@ automaton DoubleStreamAutomaton
 
     fun *.findAny (@target self: DoubleStream): OptionalDouble
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = _findFirst();
         this.linkedOrConsumed = true;
@@ -959,8 +941,7 @@ automaton DoubleStreamAutomaton
     // within java.util.stream.BaseStream
     fun *.onClose (@target self: DoubleStream, closeHandler: Runnable): DoubleStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         val listLength: int = action LIST_SIZE(this.closeHandlers);
         action LIST_INSERT_AT(this.closeHandlers, listLength, closeHandler);
@@ -995,8 +976,7 @@ automaton DoubleStreamAutomaton
 
     fun *.dropWhile (@target self: DoubleStream, predicate: DoublePredicate): DoubleStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -1071,8 +1051,7 @@ automaton DoubleStreamAutomaton
 
     fun *.takeWhile (@target self: DoubleStream, predicate: DoublePredicate): DoubleStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -1147,8 +1126,7 @@ automaton DoubleStreamAutomaton
 
     fun *.sum (@target self: DoubleStream): double
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = _sum();
 
@@ -1158,8 +1136,7 @@ automaton DoubleStreamAutomaton
 
     fun *.average (@target self: DoubleStream): OptionalDouble
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (this.length == 0)
         {
@@ -1178,8 +1155,7 @@ automaton DoubleStreamAutomaton
 
     fun *.summaryStatistics (@target self: DoubleStream): DoubleSummaryStatistics
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         // #problem I'm waiting DoubleSummaryStatistics type in separated files
         action TODO();
@@ -1188,8 +1164,7 @@ automaton DoubleStreamAutomaton
 
     fun *.boxed (@target self: DoubleStream): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         val doubleArray: array<Double> = action ARRAY_NEW("java.lang.Double", this.length);
 

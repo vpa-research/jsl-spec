@@ -85,6 +85,13 @@ automaton LongStreamAutomaton
     var linkedOrConsumed: boolean = false;
 
     // utilities
+    
+    @AutoInline @Phantom proc _checkConsumed (): void
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+    }
+    
 
     @AutoInline @Phantom proc _throwNPE (): void
     {
@@ -155,8 +162,7 @@ automaton LongStreamAutomaton
 
     fun *.filter (@target self: LongStream, predicate: LongPredicate): LongStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -192,8 +198,7 @@ automaton LongStreamAutomaton
 
     fun *.map (@target self: LongStream, mapper: LongUnaryOperator): LongStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -224,8 +229,7 @@ automaton LongStreamAutomaton
 
     fun *.mapToObj (@target self: LongStream, mapper: LongFunction): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         // UtBot note: Here we assume that this mapping does not produce infinite streams
         val objStorage: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
@@ -254,8 +258,7 @@ automaton LongStreamAutomaton
 
     fun *.mapToInt (@target self: LongStream, mapper: LongToIntFunction): IntStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -286,8 +289,7 @@ automaton LongStreamAutomaton
 
     fun *.mapToDouble (@target self: LongStream, mapper: LongToDoubleFunction): DoubleStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -318,8 +320,7 @@ automaton LongStreamAutomaton
 
     fun *.flatMap (@target self: LongStream, mapper: LongFunction): LongStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -335,8 +336,7 @@ automaton LongStreamAutomaton
 
     fun *.sorted (@target self: LongStream): LongStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (this.length == 0)
         {
@@ -396,8 +396,7 @@ automaton LongStreamAutomaton
 
     fun *.distinct (@target self: LongStream): LongStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         var distinctStorage: array<long> = null;
         var distinctLength: int = 0;
@@ -467,8 +466,7 @@ automaton LongStreamAutomaton
 
     fun *.peek (@target self: Stream, _action: LongConsumer): LongStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         _actionApply(_action);
 
@@ -486,8 +484,7 @@ automaton LongStreamAutomaton
     {
         val maxSizeInt: int = maxSize as int;
 
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (maxSizeInt < 0)
             action THROW_NEW("java.lang.IllegalArgumentException", []);
@@ -529,8 +526,7 @@ automaton LongStreamAutomaton
     {
         val offset: int = n as int;
 
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (offset < 0)
             action THROW_NEW("java.lang.IllegalArgumentException", []);
@@ -584,8 +580,7 @@ automaton LongStreamAutomaton
 
     fun *.forEach (@target self: LongStream, _action: LongConsumer): void
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         _actionApply(_action);
         this.linkedOrConsumed = true;
@@ -594,8 +589,7 @@ automaton LongStreamAutomaton
 
     fun *.forEachOrdered (@target self: LongStream, _action: LongConsumer): void
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         _actionApply(_action);
         this.linkedOrConsumed = true;
@@ -604,8 +598,7 @@ automaton LongStreamAutomaton
 
     fun *.toArray (@target self: LongStream): array<long>
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = this.storage;
         this.linkedOrConsumed = true;
@@ -614,8 +607,7 @@ automaton LongStreamAutomaton
 
     fun *.reduce (@target self: LongStream, identity: long, accumulator: LongBinaryOperator): long
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (accumulator == null)
             _throwNPE();
@@ -644,8 +636,7 @@ automaton LongStreamAutomaton
 
     fun *.reduce (@target self: LongStream, accumulator: LongBinaryOperator): OptionalLong
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (accumulator == null)
             _throwNPE();
@@ -679,8 +670,7 @@ automaton LongStreamAutomaton
 
     fun *.collect (@target self: LongStream, supplier: Supplier, accumulator: ObjLongConsumer, combiner: BiConsumer): Object
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (supplier == null)
             _throwNPE();
@@ -712,8 +702,7 @@ automaton LongStreamAutomaton
 
     fun *.min (@target self: LongStream): OptionalLong
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (this.length == 0)
         {
@@ -745,8 +734,7 @@ automaton LongStreamAutomaton
 
     fun *.max (@target self: IntStream): OptionalLong
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (this.length == 0)
         {
@@ -778,8 +766,7 @@ automaton LongStreamAutomaton
 
     fun *.count (@target self: LongStream): long
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = this.length;
         this.linkedOrConsumed = true;
@@ -788,8 +775,7 @@ automaton LongStreamAutomaton
 
     fun *.anyMatch (@target self: LongStream, predicate: LongPredicate): boolean
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -817,8 +803,7 @@ automaton LongStreamAutomaton
 
     fun *.allMatch (@target self: LongStream, predicate: LongPredicate): boolean
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -844,8 +829,7 @@ automaton LongStreamAutomaton
 
     fun *.noneMatch (@target self: LongStream, predicate: LongPredicate): boolean
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -871,8 +855,7 @@ automaton LongStreamAutomaton
 
     fun *.findFirst (@target self: LongStream): OptionalLong
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = _findFirst();
         this.linkedOrConsumed = true;
@@ -881,8 +864,7 @@ automaton LongStreamAutomaton
 
     fun *.findAny (@target self: LongStream): OptionalLong
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = _findFirst();
         this.linkedOrConsumed = true;
@@ -935,8 +917,7 @@ automaton LongStreamAutomaton
     // within java.util.stream.BaseStream
     fun *.onClose (@target self: LongStream, closeHandler: Runnable): LongStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         val listLength: int = action LIST_SIZE(this.closeHandlers);
         action LIST_INSERT_AT(this.closeHandlers, listLength, closeHandler);
@@ -971,8 +952,7 @@ automaton LongStreamAutomaton
 
     fun *.dropWhile (@target self: LongStream, predicate: LongPredicate): LongStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -1047,8 +1027,7 @@ automaton LongStreamAutomaton
 
     fun *.takeWhile (@target self: LongStream, predicate: LongPredicate): LongStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -1161,8 +1140,7 @@ automaton LongStreamAutomaton
 
     fun *.sum (@target self: LongStream): long
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = _sum();
 
@@ -1172,8 +1150,7 @@ automaton LongStreamAutomaton
 
     fun *.average (@target self: LongStream): OptionalDouble
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (this.length == 0)
         {
@@ -1192,8 +1169,7 @@ automaton LongStreamAutomaton
 
     fun *.summaryStatistics (@target self: LongStream): LongSummaryStatistics
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         // #problem I'm waiting LongSummaryStatistics type in separated files
         action TODO();
@@ -1202,8 +1178,7 @@ automaton LongStreamAutomaton
 
     fun *.boxed (@target self: LongStream): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         val longArray: array<Long> = action ARRAY_NEW("java.lang.Long", this.length);
 
