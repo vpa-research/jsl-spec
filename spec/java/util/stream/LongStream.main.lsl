@@ -1000,7 +1000,7 @@ automaton LongStreamAutomaton
 
             if (dropLength == 0)
             {
-                result = new IntStreamAutomaton(state = Initialized,
+                result = new LongStreamAutomaton(state = Initialized,
                     storage = this.storage,
                     length = this.length,
                     closeHandlers = this.closeHandlers,
@@ -1018,7 +1018,7 @@ automaton LongStreamAutomaton
                     _copy_dropWhile_loop(i, j, newStorage)
                 );
 
-                result = new IntStreamAutomaton(state = Initialized,
+                result = new LongStreamAutomaton(state = Initialized,
                     storage = newStorage,
                     length = newLength,
                     closeHandlers = this.closeHandlers,
@@ -1075,7 +1075,7 @@ automaton LongStreamAutomaton
 
             if (takeLength == this.length)
             {
-                result = new DoubleStreamAutomaton(state = Initialized,
+                result = new LongStreamAutomaton(state = Initialized,
                     storage = this.storage,
                     length = this.length,
                     closeHandlers = this.closeHandlers,
@@ -1093,7 +1093,7 @@ automaton LongStreamAutomaton
                     _copy_takeWhile_loop(i, j, newStorage)
                 );
 
-                result = new DoubleStreamAutomaton(state = Initialized,
+                result = new LongStreamAutomaton(state = Initialized,
                     storage = newStorage,
                     length = newLength,
                     closeHandlers = this.closeHandlers,

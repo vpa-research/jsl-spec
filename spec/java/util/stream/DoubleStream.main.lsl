@@ -1024,7 +1024,7 @@ automaton DoubleStreamAutomaton
 
             if (dropLength == 0)
             {
-                result = new IntStreamAutomaton(state = Initialized,
+                result = new DoubleStreamAutomaton(state = Initialized,
                     storage = this.storage,
                     length = this.length,
                     closeHandlers = this.closeHandlers,
@@ -1042,7 +1042,7 @@ automaton DoubleStreamAutomaton
                     _copy_dropWhile_loop(i, j, newStorage)
                 );
 
-                result = new IntStreamAutomaton(state = Initialized,
+                result = new DoubleStreamAutomaton(state = Initialized,
                     storage = newStorage,
                     length = newLength,
                     closeHandlers = this.closeHandlers,

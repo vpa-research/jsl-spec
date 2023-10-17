@@ -1074,7 +1074,7 @@ automaton IntStreamAutomaton
 
             if (takeLength == this.length)
             {
-                result = new DoubleStreamAutomaton(state = Initialized,
+                result = new IntStreamAutomaton(state = Initialized,
                     storage = this.storage,
                     length = this.length,
                     closeHandlers = this.closeHandlers,
@@ -1092,7 +1092,7 @@ automaton IntStreamAutomaton
                     _copy_takeWhile_loop(i, j, newStorage)
                 );
 
-                result = new DoubleStreamAutomaton(state = Initialized,
+                result = new IntStreamAutomaton(state = Initialized,
                     storage = newStorage,
                     length = newLength,
                     closeHandlers = this.closeHandlers,
