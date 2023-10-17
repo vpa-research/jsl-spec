@@ -355,6 +355,9 @@ automaton LongStreamAutomaton
         else
         {
             // plain bubble sorting algorithm
+
+            action ASSUME(this.length > 0);
+
             val outerLimit: int = this.length - 1;
             var innerLimit: int = 0;
             var i: int = 0;
