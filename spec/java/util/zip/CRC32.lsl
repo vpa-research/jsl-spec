@@ -61,14 +61,11 @@ automaton CRC32Automaton
     proc _updateCheck(b: array<byte>, off: int, len: int): void
     {
         if (b == null)
-        {
             action THROW_NEW("java.lang.NullPointerException", []);
-        }
+
         var b_size: int = action ARRAY_SIZE(b);
         if (off < 0 || len < 0 || off > b_size - len)
-        {
             action THROW_NEW("java.lang.ArrayIndexOutOfBoundsException", []);
-        }
     }
 
 
@@ -82,9 +79,7 @@ automaton CRC32Automaton
     @AutoInline @Phantom proc _updateByteBufferCheck(addr: long): void
     {
         if (addr == 0L)
-        {
             action THROW_NEW("java.lang.NullPointerException", []);
-        }
     }
 
 
@@ -103,14 +98,11 @@ automaton CRC32Automaton
             {
                 var b_size: int = action ARRAY_SIZE(b);
                 if (off < 0 || off >= b_size)
-                {
                     action THROW_NEW("java.lang.ArrayIndexOutOfBoundsException", [off]);
-                }
+
                 var endIndex: int = off + len -1;
                 if (endIndex <0 || endIndex >= b_size)
-                {
                     action THROW_NEW("java.lang.ArrayIndexOutOfBoundsException", [endIndex]);
-                }
             }
             else
             {
@@ -148,9 +140,8 @@ automaton CRC32Automaton
         var pos: int = action CALL_METHOD(buffer, "position", []);
         var limit: int = action CALL_METHOD(buffer, "limit", []);
         if (pos > limit)
-        {
             action THROW_NEW("java.lang.AssertionError", []);
-        }
+
         var rem: int = limit - pos;
         if (rem > 0)
         {
@@ -171,9 +162,8 @@ automaton CRC32Automaton
                 var len: int = 4096;
                 var b_rem: int = action CALL_METHOD(buffer, "remaining", []);
                 if (b_rem < len)
-                {
                     len = b_rem;
-                }
+
                 var b: array<byte> = action ARRAY_NEW("byte", len);
                 action LOOP_WHILE(
                     action CALL_METHOD(buffer, "hasRemaining", []),
@@ -190,9 +180,8 @@ automaton CRC32Automaton
         var length: int = action CALL_METHOD(buffer, "remaining", []);
         var b_size: int = action ARRAY_SIZE(b);
         if (b_size < length)
-        {
             length = b_size;
-        }
+
         action CALL_METHOD(buffer, "get", [b, 0, length]);
         _updateCheck(b, 0, length);
         this.crc = _updateBytes(this.crc, b, 0, length);
