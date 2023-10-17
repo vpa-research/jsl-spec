@@ -20,6 +20,8 @@ import java/util/ResourceBundle;
 
 import java/lang/System;
 
+import runtime/utils/SymbolicInputStream;
+
 
 // automata
 
@@ -269,8 +271,9 @@ automaton SystemAutomaton
     @Phantom fun *.__clinit__ (): void
     {
         // configure the standard input stream
-        val newInput: InputStream = new System_InputStreamAutomaton(state = Initialized,
-            maxSize = 1000
+        val newInput: InputStream = new SymbolicInputStreamAutomaton(state = Initialized,
+            maxSize = 1000,
+            supportMarks = false,
         );
         in = action DEBUG_DO("new java.io.BufferedInputStream(newInput)");
 

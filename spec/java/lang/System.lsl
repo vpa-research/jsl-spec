@@ -64,10 +64,3 @@ import java/lang/Throwable;
 
 val SYSTEM_IS_WINDOWS: boolean = action SYMBOLIC("boolean");
 
-
-@GenerateMe
-@final type System_InputStream
-    is java.lang.System_InputStream
-    for InputStream
-{
-}
