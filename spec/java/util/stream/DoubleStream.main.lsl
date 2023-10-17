@@ -498,7 +498,9 @@ automaton DoubleStreamAutomaton
 
     @Phantom proc distinct_loopRecoverItems (i: int, uniqueItems: list<Double>, distinctStorage: array<double>): void
     {
-        distinctStorage[i] = action LIST_GET(uniqueItems, i);
+        val item: Double = action LIST_GET(uniqueItems, i);
+        action ASSUME(item != null);
+        distinctStorage[i] = item as double;
     }
 
 

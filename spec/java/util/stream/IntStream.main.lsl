@@ -474,7 +474,9 @@ automaton IntStreamAutomaton
 
     @Phantom proc distinct_loopRecoverItems (i: int, uniqueItems: list<Integer>, distinctStorage: array<int>): void
     {
-        distinctStorage[i] = action LIST_GET(uniqueItems, i);
+        val item: Integer = action LIST_GET(uniqueItems, i);
+        action ASSUME(item != null);
+        distinctStorage[i] = item as int;
     }
 
 

@@ -474,7 +474,9 @@ automaton LongStreamAutomaton
 
     @Phantom proc distinct_loopRecoverItems (i: int, uniqueItems: list<Long>, distinctStorage: array<long>): void
     {
-        distinctStorage[i] = action LIST_GET(uniqueItems, i);
+        val item: Long = action LIST_GET(uniqueItems, i);
+        action ASSUME(item != null);
+        distinctStorage[i] = item as long;
     }
 
 
