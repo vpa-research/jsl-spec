@@ -129,6 +129,7 @@ automaton CRC32Automaton
         var limit: int = action CALL_METHOD(buffer, "limit", []);
         if (pos > limit)
             action THROW_NEW("java.lang.AssertionError", []);
+        // #warning: assert (pos <= limit) can be disabled in original CRC32
 
         var rem: int = limit - pos;
         if (rem > 0)
