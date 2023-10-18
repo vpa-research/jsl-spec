@@ -937,7 +937,11 @@ automaton IntStreamAutomaton
     fun *.unordered (@target self: IntStream): IntStream
     {
         _checkConsumed();
-        result = self;
+        result = new IntStreamAutomaton(state = Initialized,
+            storage = this.storage,
+            length = this.length,
+            closeHandlers = this.closeHandlers,
+        );
         _consume();
     }
 

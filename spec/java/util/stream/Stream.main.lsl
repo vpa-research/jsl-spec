@@ -1119,7 +1119,11 @@ automaton StreamAutomaton
     fun *.unordered (@target self: Stream): BaseStream
     {
         _checkConsumed();
-        result = self;
+        result = new StreamAutomaton(state = Initialized,
+            storage = this.storage,
+            length = this.length,
+            closeHandlers = this.closeHandlers,
+        );
         _consume();
     }
 

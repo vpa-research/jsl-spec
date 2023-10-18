@@ -938,7 +938,11 @@ automaton LongStreamAutomaton
     fun *.unordered (@target self: LongStream): LongStream
     {
         _checkConsumed();
-        result = self;
+        result = new LongStreamAutomaton(state = Initialized,
+            storage = this.storage,
+            length = this.length,
+            closeHandlers = this.closeHandlers,
+        );
         _consume();
     }
 

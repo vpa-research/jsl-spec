@@ -961,7 +961,11 @@ automaton DoubleStreamAutomaton
     fun *.unordered (@target self: DoubleStream): DoubleStream
     {
         _checkConsumed();
-        result = self;
+        result = new DoubleStreamAutomaton(state = Initialized,
+            storage = this.storage,
+            length = this.length,
+            closeHandlers = this.closeHandlers,
+        );
         _consume();
     }
 
