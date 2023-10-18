@@ -143,7 +143,8 @@ automaton CRC32Automaton
             {
                 var off: int = action CALL_METHOD(buffer, "arrayOffset", []);
                 off = off + pos;
-                this.crc = _updateBytes(action CALL_METHOD(buffer, "array", []), off, rem);
+                var bufferArray: array<byte> = action CALL_METHOD(buffer, "array", []);
+                this.crc = _updateBytes(bufferArray, off, rem);
             }
             else
             {
