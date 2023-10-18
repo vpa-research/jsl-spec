@@ -508,7 +508,6 @@ automaton HashSetAutomaton
             _retainAllElements_loop(iter)
         );
 
-
         if (lengthBeforeAdd != this.length)
         {
             this.modCount += 1;
@@ -544,7 +543,6 @@ automaton HashSetAutomaton
         var i: int = 0;
         val visitedKeys: map<Object, Object> = action MAP_NEW();
 
-
         action LOOP_WHILE(
             i < lengthBeforeAdd,
             _removeIf_loop(i, visitedKeys, filter)
@@ -563,7 +561,7 @@ automaton HashSetAutomaton
     }
 
 
-    @Phantom proc _removeIf_loop(i: int, visitedKeys: map<Object, Object>, filter: Predicate): void
+    @Phantom proc _removeIf_loop (i: int, visitedKeys: map<Object, Object>, filter: Predicate): void
     {
         val key: Object = _generateKey(visitedKeys);
 
@@ -598,7 +596,7 @@ automaton HashSetAutomaton
     }
 
 
-    @Phantom proc forEach_loop(i: int, visitedKeys: map<Object, Object>, userAction: Consumer): void
+    @Phantom proc forEach_loop (i: int, visitedKeys: map<Object, Object>, userAction: Consumer): void
     {
         val key: Object = _generateKey(visitedKeys);
 

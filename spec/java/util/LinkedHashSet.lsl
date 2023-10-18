@@ -10,7 +10,7 @@ library std
 import java/io/Serializable;
 import java/lang/Cloneable;
 import java/util/AbstractSet;
-import java/util/Iterator;
+import java/util/HashSet;
 import java/util/Spliterator;
 import java/util/Set;
 
@@ -23,7 +23,7 @@ import java/util/Set;
 @implements("java.io.Serializable")
 @public type LinkedHashSet
     is java.util.LinkedHashSet
-    for AbstractSet, Set, Cloneable, Serializable
+    for HashSet, Set, Cloneable, Serializable
 {
     @private @static val serialVersionUID: long = -2851667679971038690L;
 }

@@ -31,10 +31,10 @@ automaton LinkedHashSet_KeyIteratorAutomaton
     initstate Allocated;
     state Initialized;
 
-     shift Allocated -> Initialized by [
-            // constructors
-            LinkedHashSet_KeyIterator,
-     ];
+    shift Allocated -> Initialized by [
+        // constructors
+        LinkedHashSet_KeyIterator,
+    ];
 
     shift Initialized -> self by [
         // read operations

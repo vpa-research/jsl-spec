@@ -31,11 +31,11 @@ automaton HashSet_KeyIteratorAutomaton
     initstate Allocated;
     state Initialized;
 
-     shift Allocated -> Initialized by [
-            // constructors
-            // Problem: here mustn't be "HashMap"; What must be here ? What we must to do with constructor ?
-            HashSet_KeyIterator,
-     ];
+    shift Allocated -> Initialized by [
+        // constructors
+        // Problem: here mustn't be "HashMap"; What must be here ? What we must to do with constructor ?
+        HashSet_KeyIterator,
+    ];
 
     shift Initialized -> self by [
         // read operations
