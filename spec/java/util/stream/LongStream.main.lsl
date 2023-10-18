@@ -1003,7 +1003,7 @@ automaton LongStreamAutomaton
             var i: int = 0;
             action LOOP_WHILE(
                 i < this.length && action CALL(predicate, [this.storage[i]]),
-                _dropWhile_loop(i, dropLength, predicate)
+                _dropWhile_loop(i, dropLength)
             );
 
             if (dropLength == 0)
@@ -1038,7 +1038,7 @@ automaton LongStreamAutomaton
     }
 
 
-    @Phantom proc _dropWhile_loop (i: int, dropLength: int, predicate: DoublePredicate): void
+    @Phantom proc _dropWhile_loop (i: int, dropLength: int): void
     {
         dropLength += 1;
         i += 1;
@@ -1078,7 +1078,7 @@ automaton LongStreamAutomaton
             var i: int = 0;
             action LOOP_WHILE(
                 i < this.length && action CALL(predicate, [this.storage[i]]),
-                _takeWhile_loop(i, takeLength, predicate)
+                _takeWhile_loop(i, takeLength)
             );
 
             if (takeLength == this.length)
@@ -1113,7 +1113,7 @@ automaton LongStreamAutomaton
     }
 
 
-    @Phantom proc _takeWhile_loop (i: int, takeLength: int, predicate: DoublePredicate): void
+    @Phantom proc _takeWhile_loop (i: int, takeLength: int): void
     {
         takeLength += 1;
         i += 1;
