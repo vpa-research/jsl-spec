@@ -1132,6 +1132,8 @@ automaton LongStreamAutomaton
 
     fun *.asDoubleStream (@target self: LongStream): DoubleStream
     {
+        _checkConsumed();
+
         if (this.length == 0)
         {
             val emptyArray: array<double> = [];
@@ -1159,6 +1161,8 @@ automaton LongStreamAutomaton
                 closeHandlers = this.closeHandlers,
             );
         }
+
+        _consume();
     }
 
 

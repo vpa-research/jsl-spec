@@ -1131,6 +1131,8 @@ automaton IntStreamAutomaton
 
     fun *.asLongStream (@target self: IntStream): LongStream
     {
+        _checkConsumed();
+
         if (this.length == 0)
         {
             val emptyArray: array<long> = [];
@@ -1158,6 +1160,8 @@ automaton IntStreamAutomaton
                 closeHandlers = this.closeHandlers,
             );
         }
+
+        _consume();
     }
 
 
@@ -1169,6 +1173,8 @@ automaton IntStreamAutomaton
 
     fun *.asDoubleStream (@target self: IntStream): DoubleStream
     {
+        _checkConsumed();
+
         if (this.length == 0)
         {
             val emptyArray: array<double> = [];
@@ -1196,6 +1202,8 @@ automaton IntStreamAutomaton
                 closeHandlers = this.closeHandlers,
             );
         }
+
+        _consume();
     }
 
 
