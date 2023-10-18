@@ -96,7 +96,7 @@ automaton LinkedHashSet_KeyIteratorAutomaton
         this.currentKey = key;
         result = key;
 
-        action MAP_SET(this.visitedKeys, this.currentKey, LINKEDHASHSET_VALUE);
+        action MAP_SET(this.visitedKeys, this.currentKey, SOMETHING);
         this.index += 1;
         this.nextWasCalled = true;
     }
@@ -156,7 +156,7 @@ automaton LinkedHashSet_KeyIteratorAutomaton
         action ASSUME(!destStorageHasKey);
 
         this.currentKey = key;
-        action MAP_SET(this.visitedKeys, this.currentKey, LINKEDHASHSET_VALUE);
+        action MAP_SET(this.visitedKeys, this.currentKey, SOMETHING);
 
         action CALL(userAction, [key]);
         i += 1;

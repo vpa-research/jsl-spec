@@ -102,7 +102,7 @@ automaton LinkedHashSetAutomaton
 
             if (!hasKey)
             {
-                action MAP_SET(this.storage, key, LINKEDHASHSET_VALUE);
+                action MAP_SET(this.storage, key, SOMETHING);
                 this.length += 1;
             }
         }
@@ -192,7 +192,7 @@ automaton LinkedHashSetAutomaton
             {
             this.length += 1;
 
-            action MAP_SET(this.storage, obj, LINKEDHASHSET_VALUE);
+            action MAP_SET(this.storage, obj, SOMETHING);
 
             result = true;
             }
@@ -290,7 +290,7 @@ automaton LinkedHashSetAutomaton
         val key: Object = _generateKey(visitedKeys);
 
         action LIST_INSERT_AT(keysStorageList, i, key);
-        action MAP_SET(visitedKeys, key, LINKEDHASHSET_VALUE);
+        action MAP_SET(visitedKeys, key, SOMETHING);
 
         i += 1;
     }
@@ -389,7 +389,7 @@ automaton LinkedHashSetAutomaton
             this.length -= 1;
         }
 
-        action MAP_SET(visitedKeys, key, LINKEDHASHSET_VALUE);
+        action MAP_SET(visitedKeys, key, SOMETHING);
         i += 1;
     }
 
@@ -415,7 +415,7 @@ automaton LinkedHashSetAutomaton
 
         result[i] = key;
 
-        action MAP_SET(visitedKeys, key, LINKEDHASHSET_VALUE);
+        action MAP_SET(visitedKeys, key, SOMETHING);
     }
 
     fun *.toArray (@target self: LinkedHashSet, a: array<Object>): array<Object>
@@ -549,7 +549,7 @@ automaton LinkedHashSetAutomaton
         }
 
         i += 1;
-        action MAP_SET(visitedKeys, key, LINKEDHASHSET_VALUE);
+        action MAP_SET(visitedKeys, key, SOMETHING);
     }
 
     fun *.forEach (@target self: LinkedHashSet, userAction: Consumer): void
@@ -576,7 +576,7 @@ automaton LinkedHashSetAutomaton
         action CALL(userAction, [key]);
 
         i += 1;
-        action MAP_SET(visitedKeys, key, LINKEDHASHSET_VALUE);
+        action MAP_SET(visitedKeys, key, SOMETHING);
     }
 
 

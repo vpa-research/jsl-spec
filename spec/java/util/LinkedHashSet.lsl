@@ -14,10 +14,6 @@ import java/util/Iterator;
 import java/util/Spliterator;
 import java/util/Set;
 
-// === CONSTANTS ===
-
-val LINKEDHASHSET_VALUE: Object = 0;
-
 
 // primary types
 
