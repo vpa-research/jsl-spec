@@ -71,7 +71,7 @@ automaton CRC32Automaton
     }
 
 
-    proc _updateBytes(crc: int, b: array<byte>, off: int, len: int): int
+    proc _updateBytes(b: array<byte>, off: int, len: int): int
     {
         _updateBytesCheck(b, off, len);
         result = action SYMBOLIC("int");
@@ -143,7 +143,7 @@ automaton CRC32Automaton
             {
                 var off: int = action CALL_METHOD(buffer, "arrayOffset", []);
                 off = off + pos;
-                this.crc = _updateBytes(this.crc, action CALL_METHOD(buffer, "array", []), off, rem);
+                this.crc = _updateBytes(action CALL_METHOD(buffer, "array", []), off, rem);
             }
             else
             {
@@ -155,7 +155,7 @@ automaton CRC32Automaton
                 var b: array<byte> = action ARRAY_NEW("byte", len);
                 action LOOP_WHILE(
                     action CALL_METHOD(buffer, "hasRemaining", []),
-                    _updateLoop(buffer, b)
+                    update_loop(buffer, b)
                 );
             }
             action CALL_METHOD(buffer, "position", [limit]);
@@ -163,7 +163,7 @@ automaton CRC32Automaton
     }
 
 
-    @Phantom proc _updateLoop(buffer: ByteBuffer, b: array<byte>): void
+    @Phantom proc update_loop(buffer: ByteBuffer, b: array<byte>): void
     {
         var length: int = action CALL_METHOD(buffer, "remaining", []);
         var b_size: int = action ARRAY_SIZE(b);
@@ -172,7 +172,7 @@ automaton CRC32Automaton
 
         action CALL_METHOD(buffer, "get", [b, 0, length]);
         _updateCheck(b, 0, length);
-        this.crc = _updateBytes(this.crc, b, 0, length);
+        this.crc = _updateBytes(b, 0, length);
     }
 
 
@@ -181,14 +181,14 @@ automaton CRC32Automaton
     {
         var len: int = action ARRAY_SIZE(b);
         _updateCheck(b, 0, len);
-        this.crc = _updateBytes(this.crc, b, 0, len);
+        this.crc = _updateBytes(b, 0, len);
     }
 
 
     fun *.update (@target self: CRC32, b: array<byte>, off: int, len: int): void
     {
         _updateCheck(b, off, len);
-        this.crc = _updateBytes(this.crc, b, off, len);
+        this.crc = _updateBytes(b, off, len);
     }
 
 
