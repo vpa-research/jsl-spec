@@ -57,7 +57,7 @@ automaton CRC32Automaton
     }
 
 
-    proc _updateByteBuffer(alder: int, addr: long, off: int, len: int): int
+    proc _updateByteBuffer(addr: long): int
     {
         _updateByteBufferCheck(addr);
         result = action SYMBOLIC("int");
@@ -138,7 +138,7 @@ automaton CRC32Automaton
             {
                 var directBuffer: DirectBuffer = (buffer as DirectBuffer);
                 var address: long = action CALL_METHOD(directBuffer, "address", []);
-                this.crc = _updateByteBuffer(this.crc, address, pos, rem);
+                this.crc = _updateByteBuffer(address);
             }
             else if (action CALL_METHOD(buffer, "hasArray", []))
             {
