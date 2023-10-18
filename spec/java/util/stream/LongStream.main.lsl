@@ -1172,7 +1172,7 @@ automaton LongStreamAutomaton
 
     @Phantom proc _convertLongStorageToDouble_loop(i: int, newStorage: array<double>): void
     {
-        newStorage[i] = this.storage[i] as int;
+        newStorage[i] = this.storage[i] as double;
     }
 
 
