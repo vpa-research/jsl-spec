@@ -7,12 +7,12 @@ library std
 
 // imports
 
-import java.common;
-import java/io/_interfaces;
-import java/lang/_interfaces;
-import java/util/_interfaces;
-import java/util/function/_interfaces;
-import java/util/HashMap;
+import java/io/Serializable;
+import java/lang/Cloneable;
+import java/util/AbstractSet;
+import java/util/Iterator;
+import java/util/Spliterator;
+import java/util/Set;
 
 // === CONSTANTS ===
 
@@ -27,9 +27,9 @@ val LINKEDHASHSET_VALUE: Object = 0;
 @implements("java.io.Serializable")
 @public type LinkedHashSet
     is java.util.LinkedHashSet
-    for Set
+    for AbstractSet, Set, Cloneable, Serializable
 {
-    //@static @final var serialVersionUID: long = -2851667679971038690;
+    @private @static val serialVersionUID: long = -2851667679971038690L;
 }
 
 @GenerateMe
