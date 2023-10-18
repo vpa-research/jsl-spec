@@ -51,7 +51,7 @@ automaton CRC32Automaton
         if (b == null)
             action THROW_NEW("java.lang.NullPointerException", []);
 
-        var b_size: int = action ARRAY_SIZE(b);
+        val b_size: int = action ARRAY_SIZE(b);
         if (off < 0 || len < 0 || off > b_size - len)
             action THROW_NEW("java.lang.ArrayIndexOutOfBoundsException", []);
     }
@@ -84,11 +84,11 @@ automaton CRC32Automaton
         {
             if (b != null)
             {
-                var b_size: int = action ARRAY_SIZE(b);
+                val b_size: int = action ARRAY_SIZE(b);
                 if (off < 0 || off >= b_size)
                     action THROW_NEW("java.lang.ArrayIndexOutOfBoundsException", [off]);
 
-                var endIndex: int = off + len -1;
+                val endIndex: int = off + len -1;
                 if (endIndex <0 || endIndex >= b_size)
                     action THROW_NEW("java.lang.ArrayIndexOutOfBoundsException", [endIndex]);
             }
@@ -125,36 +125,36 @@ automaton CRC32Automaton
 
     fun *.update (@target self: CRC32, buffer: ByteBuffer): void
     {
-        var pos: int = action CALL_METHOD(buffer, "position", []);
-        var limit: int = action CALL_METHOD(buffer, "limit", []);
+        val pos: int = action CALL_METHOD(buffer, "position", []);
+        val limit: int = action CALL_METHOD(buffer, "limit", []);
         if (pos > limit)
             action THROW_NEW("java.lang.AssertionError", []);
         // #warning: assert (pos <= limit) can be disabled in original CRC32
 
-        var rem: int = limit - pos;
+        val rem: int = limit - pos;
         if (rem > 0)
         {
             if (buffer is DirectBuffer)
             {
-                var directBuffer: DirectBuffer = (buffer as DirectBuffer);
-                var address: long = action CALL_METHOD(directBuffer, "address", []);
+                val directBuffer: DirectBuffer = (buffer as DirectBuffer);
+                val address: long = action CALL_METHOD(directBuffer, "address", []);
                 this.crc = _updateByteBuffer(address);
             }
             else if (action CALL_METHOD(buffer, "hasArray", []))
             {
                 var off: int = action CALL_METHOD(buffer, "arrayOffset", []);
                 off = off + pos;
-                var bufferArray: array<byte> = action CALL_METHOD(buffer, "array", []);
+                val bufferArray: array<byte> = action CALL_METHOD(buffer, "array", []);
                 this.crc = _updateBytes(bufferArray, off, rem);
             }
             else
             {
                 var len: int = 4096;
-                var b_rem: int = action CALL_METHOD(buffer, "remaining", []);
+                val b_rem: int = action CALL_METHOD(buffer, "remaining", []);
                 if (b_rem < len)
                     len = b_rem;
 
-                var b: array<byte> = action ARRAY_NEW("byte", len);
+                val b: array<byte> = action ARRAY_NEW("byte", len);
                 action LOOP_WHILE(
                     action CALL_METHOD(buffer, "hasRemaining", []),
                     update_loop(buffer, b)
@@ -168,7 +168,7 @@ automaton CRC32Automaton
     @Phantom proc update_loop(buffer: ByteBuffer, b: array<byte>): void
     {
         var length: int = action CALL_METHOD(buffer, "remaining", []);
-        var b_size: int = action ARRAY_SIZE(b);
+        val b_size: int = action ARRAY_SIZE(b);
         if (b_size < length)
             length = b_size;
 
@@ -181,7 +181,7 @@ automaton CRC32Automaton
     // within java.util.zip.Checksum
     fun *.update (@target self: CRC32, b: array<byte>): void
     {
-        var len: int = action ARRAY_SIZE(b);
+        val len: int = action ARRAY_SIZE(b);
         _updateCheck(b, 0, len);
         this.crc = _updateBytes(b, 0, len);
     }
