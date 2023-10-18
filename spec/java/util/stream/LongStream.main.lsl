@@ -1017,7 +1017,7 @@ automaton LongStreamAutomaton
             else
             {
                 val newLength: int = this.length - dropLength;
-                val newStorage: array<int> = action ARRAY_NEW("int", newLength);
+                val newStorage: array<long> = action ARRAY_NEW("long", newLength);
 
                 var j: int = dropLength;
                 i = dropLength;
@@ -1045,7 +1045,7 @@ automaton LongStreamAutomaton
     }
 
 
-    @Phantom proc _copy_dropWhile_loop (i: int, j: int, newStorage: array<double>): void
+    @Phantom proc _copy_dropWhile_loop (i: int, j: int, newStorage: array<long>): void
     {
         newStorage[j] = this.storage[i];
         j += 1;
@@ -1092,7 +1092,7 @@ automaton LongStreamAutomaton
             else
             {
                 val newLength: int = takeLength;
-                val newStorage: array<double> = action ARRAY_NEW("double", newLength);
+                val newStorage: array<long> = action ARRAY_NEW("long", newLength);
 
                 var j: int = 0;
                 i = 0;
@@ -1120,7 +1120,7 @@ automaton LongStreamAutomaton
     }
 
 
-    @Phantom proc _copy_takeWhile_loop (i: int, j: int, newStorage: array<double>): void
+    @Phantom proc _copy_takeWhile_loop (i: int, j: int, newStorage: array<long>): void
     {
         newStorage[j] = this.storage[i];
         j += 1;

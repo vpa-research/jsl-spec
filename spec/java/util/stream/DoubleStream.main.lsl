@@ -1041,7 +1041,7 @@ automaton DoubleStreamAutomaton
             else
             {
                 val newLength: int = this.length - dropLength;
-                val newStorage: array<int> = action ARRAY_NEW("int", newLength);
+                val newStorage: array<double> = action ARRAY_NEW("double", newLength);
 
                 var j: int = dropLength;
                 i = dropLength;
