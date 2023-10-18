@@ -12,7 +12,7 @@ import java/lang/Object;
 import java/nio/ByteBuffer;
 
 
-// local semantic types
+// primary semantic types
 
 @interface type Checksum
     is java.util.zip.Checksum
