@@ -24,8 +24,9 @@ import java/lang/Number;
 
 // global aliases and type overrides
 
-@extends("java.lang.Number")
-@implements("java.lang.Comparable<Integer>")
+// note: this is a partial implementation, no need for additional constraints (abstract class) and synthetic methods (Comparable)
+// @extends("java.lang.Number")
+// @implements("java.lang.Comparable<Integer>")
 @public @final type LSLInteger
     is java.lang.Integer
     for Integer
