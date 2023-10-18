@@ -853,7 +853,7 @@ automaton DoubleStreamAutomaton
 
         if (this.length > 0)
         {
-            result = false
+            result = false;
             var i: int = 0;
             action LOOP_WHILE(
                 i < this.length && action CALL(predicate, [this.storage[i]]),
@@ -879,7 +879,7 @@ automaton DoubleStreamAutomaton
 
         if (this.length > 0)
         {
-            result = false
+            result = false;
             var i: int = 0;
             action LOOP_WHILE(
                 i < this.length && !action CALL(predicate, [this.storage[i]]),

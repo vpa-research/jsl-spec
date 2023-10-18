@@ -830,7 +830,7 @@ automaton LongStreamAutomaton
 
         if (this.length > 0)
         {
-            result = false
+            result = false;
             var i: int = 0;
             action LOOP_WHILE(
                 i < this.length && action CALL(predicate, [this.storage[i]]),
@@ -856,7 +856,7 @@ automaton LongStreamAutomaton
 
         if (this.length > 0)
         {
-            result = false
+            result = false;
             var i: int = 0;
             action LOOP_WHILE(
                 i < this.length && !action CALL(predicate, [this.storage[i]]),
@@ -1134,7 +1134,7 @@ automaton LongStreamAutomaton
     {
         if (this.length == 0)
         {
-            val emptyArray: array<double> = action ARRAY_NEW("double", 0);
+            val emptyArray: array<double> = [];
             result = new DoubleStreamAutomaton(state = Initialized,
                 storage = emptyArray,
                 length = 0,
