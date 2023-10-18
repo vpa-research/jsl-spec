@@ -9,6 +9,7 @@ library std
 // imports
 
 import java/util/stream/Stream;
+import java/util/PrimitiveIterator;
 
 
 // primary semantic types
@@ -22,3 +23,19 @@ import java/util/stream/Stream;
 
 // global aliases and type overrides
 
+@GenerateMe
+@implements("java.util.stream.LongStream")
+@public type LongStreamLSL
+    is java.util.stream.LongStreamLSL
+    for LongStream
+{
+}
+
+
+@GenerateMe
+@implements("java.util.PrimitiveIterator.OfLong")
+@public type LongStreamLSLIterator
+    is java.util.stream.LongStreamLSLIterator
+    for PrimitiveIterator_OfLong
+{
+}
