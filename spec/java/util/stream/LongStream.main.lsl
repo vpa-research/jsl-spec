@@ -463,7 +463,7 @@ automaton LongStreamAutomaton
         _consume();
     }
 
-    @Phantom proc distinct_loopStoreItems (i: int, items: array<long>, visited: map<Long, Long>, j: int, uniqueItems: list<Long>): void
+    @Phantom proc distinct_loopStoreItems (i: int, items: array<long>, visited: map<Long, Object>, j: int, uniqueItems: list<Long>): void
     {
         val item: long = items[i];
         if (action MAP_HAS_KEY(visited, item) == false)

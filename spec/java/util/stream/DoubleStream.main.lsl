@@ -486,7 +486,7 @@ automaton DoubleStreamAutomaton
         _consume();
     }
 
-    @Phantom proc distinct_loopStoreItems (i: int, items: array<double>, visited: map<Double, Double>, j: int, uniqueItems: list<Double>): void
+    @Phantom proc distinct_loopStoreItems (i: int, items: array<double>, visited: map<Double, Object>, j: int, uniqueItems: list<Double>): void
     {
         val item: double = items[i];
         if (action MAP_HAS_KEY(visited, item) == false)
