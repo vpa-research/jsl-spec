@@ -17,6 +17,8 @@ import java/util/function/IntBinaryOperator;
 import java/util/function/ObjIntConsumer;
 import java/util/IntSummaryStatistics;
 import java/util/PrimitiveIterator;
+import java/util/OptionalDouble;
+import java/util/OptionalInt;
 
 
 // automata

@@ -18,6 +18,8 @@ import java/util/function/LongBinaryOperator;
 import java/util/function/ObjLongConsumer;
 import java/util/LongSummaryStatistics;
 import java/util/PrimitiveIterator;
+import java/util/OptionalDouble;
+import java/util/OptionalLong;
 
 
 // automata
