@@ -21,6 +21,8 @@ import java/lang/Object;
 
     fun *.position(): int;
 
+    fun *.position(newPosition: int): any; //Buffer
+
     fun *.limit(): int;
 
     fun *.remaining(): int;
@@ -51,8 +53,6 @@ import java/lang/Object;
 
     // #problem: self-reference
     fun *.duplicate(): any; // Buffer
-
-    fun *.position(newPosition: int): any; //Buffer
 
 }
 
