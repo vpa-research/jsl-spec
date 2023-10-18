@@ -7,7 +7,9 @@ library std
 
 // imports
 
-import java/util/stream/Stream;
+import java/util/stream/LongStream;
+import java/util/function/LongConsumer;
+import java/util/function/Consumer;
 
 
 // automata
@@ -82,7 +84,6 @@ automaton LongStreamIteratorAutomaton
     }
 
 
-    // As I understood this forEachRemaining's will be equal - this is true ?
     fun *.forEachRemaining (@target self: LongStreamLSLIterator, userAction: Consumer): void
     {
         // relax state/error discovery process
