@@ -10,6 +10,7 @@ library std
 
 import java/util/stream/Stream;
 import java/util/PrimitiveIterator;
+import java/util/Spliterator;
 
 
 // primary semantic types
@@ -37,5 +38,14 @@ import java/util/PrimitiveIterator;
 @public type IntStreamLSLIterator
     is java.util.stream.IntStreamLSLIterator
     for PrimitiveIterator_OfInt
+{
+}
+
+
+@GenerateMe
+@implements("java.util.Spliterator")
+@public type IntStreamLSLSpliterator
+    is java.util.IntStreamLSLSpliterator
+    for Spliterator_OfInt
 {
 }
