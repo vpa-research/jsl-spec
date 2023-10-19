@@ -71,14 +71,7 @@ automaton CRC32Automaton
     }
 
 
-    proc _updateBytes(b: array<byte>, off: int, len: int): int
-    {
-        _updateBytesCheck(b, off, len);
-        result = action SYMBOLIC("int");
-    }
-
-
-    @AutoInline @Phantom proc _updateBytesCheck (b: array<byte>, off: int, len: int): void
+    proc _updateBytesCheck (b: array<byte>, off: int, len: int): void
     {
         if (len != 0)
         {
@@ -143,7 +136,8 @@ automaton CRC32Automaton
             {
                 val off: int = action CALL_METHOD(buffer, "arrayOffset", []) + pos;
                 val bufferArray: array<byte> = action CALL_METHOD(buffer, "array", []);
-                this.crc = _updateBytes(bufferArray, off, rem);
+                _updateBytesCheck(bufferArray, off, rem);
+                this.crc = action SYMBOLIC("int");
             }
             else
             {
@@ -158,6 +152,7 @@ automaton CRC32Automaton
                     action CALL_METHOD(buffer, "hasRemaining", []),
                     update_loop(buffer, b, b_size)
                 );
+                this.crc = action SYMBOLIC("int");
             }
             action CALL_METHOD(buffer, "position", [limit]);
         }
@@ -172,7 +167,7 @@ automaton CRC32Automaton
 
         action CALL_METHOD(buffer, "get", [b, 0, length]);
         _updateCheck(b, 0, length);
-        this.crc = _updateBytes(b, 0, length);
+        _updateBytesCheck(b, 0, length);
     }
 
 
@@ -181,14 +176,16 @@ automaton CRC32Automaton
     {
         val len: int = action ARRAY_SIZE(b);
         _updateCheck(b, 0, len);
-        this.crc = _updateBytes(b, 0, len);
+        _updateBytesCheck(b, 0, len);
+        this.crc = action SYMBOLIC("int");
     }
 
 
     fun *.update (@target self: CRC32, b: array<byte>, off: int, len: int): void
     {
         _updateCheck(b, off, len);
-        this.crc = _updateBytes(b, off, len);
+        _updateBytesCheck(b, off, len);
+        this.crc = action SYMBOLIC("int");
     }
 
 
