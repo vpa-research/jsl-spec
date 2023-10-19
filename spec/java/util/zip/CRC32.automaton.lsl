@@ -128,8 +128,7 @@ automaton CRC32Automaton
         val pos: int = action CALL_METHOD(buffer, "position", []);
         val limit: int = action CALL_METHOD(buffer, "limit", []);
         if (pos > limit)
-            action THROW_NEW("java.lang.AssertionError", []);
-        // #warning: assert (pos <= limit) can be disabled in original CRC32
+            action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (pos <= limit) in original CRC32
 
         val rem: int = limit - pos;
         if (rem > 0)
