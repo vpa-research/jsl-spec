@@ -142,8 +142,7 @@ automaton CRC32Automaton
             }
             else if (action CALL_METHOD(buffer, "hasArray", []))
             {
-                var off: int = action CALL_METHOD(buffer, "arrayOffset", []);
-                off = off + pos;
+                val off: int = action CALL_METHOD(buffer, "arrayOffset", []) + pos;
                 val bufferArray: array<byte> = action CALL_METHOD(buffer, "array", []);
                 this.crc = _updateBytes(bufferArray, off, rem);
             }
