@@ -103,6 +103,19 @@ automaton StreamAutomaton
 
     // utilities
 
+    @AutoInline @Phantom proc _checkConsumed (): void
+    {
+        if (this.linkedOrConsumed)
+            _throwISE();
+    }
+
+
+    @AutoInline @Phantom proc _consume (): void
+    {
+        this.linkedOrConsumed = true;
+    }
+
+
     @AutoInline @Phantom proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
@@ -152,8 +165,7 @@ automaton StreamAutomaton
 
     fun *.filter (@target self: Stream, predicate: Predicate): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -167,13 +179,18 @@ automaton StreamAutomaton
             _filter_loop(i, predicate, filteredLength, filteredStorage)
         );
 
+        action ASSUME(filteredLength <= this.length);
+
+        var resultStorage: array<Object> = action ARRAY_NEW("java.lang.Object", filteredLength);
+        action ARRAY_COPY(filteredStorage, 0, resultStorage, 0, filteredLength);
+
         result = new StreamAutomaton(state = Initialized,
-            storage = filteredStorage,
+            storage = resultStorage,
             length = filteredLength,
             closeHandlers = this.closeHandlers,
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -189,8 +206,7 @@ automaton StreamAutomaton
 
     fun *.map (@target self: Stream, mapper: Function): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -209,7 +225,7 @@ automaton StreamAutomaton
             closeHandlers = this.closeHandlers,
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -221,8 +237,7 @@ automaton StreamAutomaton
 
     fun *.mapToInt (@target self: Stream, mapper: ToIntFunction): IntStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -238,7 +253,7 @@ automaton StreamAutomaton
         // #todo: Temporary decision (we don't have IntStream automaton at this moment)
         result = action DEBUG_DO("java.util.Arrays.stream(mappedStorage)");
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -250,8 +265,7 @@ automaton StreamAutomaton
 
     fun *.mapToLong (@target self: Stream, mapper: ToLongFunction): LongStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -267,7 +281,7 @@ automaton StreamAutomaton
         // #todo: Temporary decision (we don't have IntStream automaton at this moment)
         result = action DEBUG_DO("java.util.Arrays.stream(mappedStorage)");
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -279,8 +293,7 @@ automaton StreamAutomaton
 
     fun *.mapToDouble (@target self: Stream, mapper: ToDoubleFunction): DoubleStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -296,7 +309,7 @@ automaton StreamAutomaton
         // #todo: Temporary decision (we don't have IntStream automaton at this moment)
         result = action DEBUG_DO("java.util.Arrays.stream(mappedStorage)");
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -308,8 +321,7 @@ automaton StreamAutomaton
 
     fun *.flatMap (@target self: Stream, mapper: Function): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -319,14 +331,13 @@ automaton StreamAutomaton
         result = action SYMBOLIC("java.util.stream.Stream");
         action ASSUME(result != null);
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
     fun *.flatMapToInt (@target self: Stream, mapper: Function): IntStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -336,14 +347,13 @@ automaton StreamAutomaton
         result = action SYMBOLIC("java.util.stream.IntStream");
         action ASSUME(result != null);
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
     fun *.flatMapToLong (@target self: Stream, mapper: Function): LongStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -353,14 +363,13 @@ automaton StreamAutomaton
         result = action SYMBOLIC("java.util.stream.LongStream");
         action ASSUME(result != null);
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
     fun *.flatMapToDouble (@target self: Stream, mapper: Function): DoubleStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (mapper == null)
             _throwNPE();
@@ -370,14 +379,13 @@ automaton StreamAutomaton
         result = action SYMBOLIC("java.util.stream.DoubleStream");
         action ASSUME(result != null);
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
     fun *.distinct (@target self: Stream): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         var distinctStorage: array<Object> = null;
         var distinctLength: int = 0;
@@ -425,7 +433,7 @@ automaton StreamAutomaton
             closeHandlers = this.closeHandlers,
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
     @Phantom proc distinct_loopStoreItems (i: int, items: array<Object>, visited: map<Object, Object>, j: int, uniqueItems: list<Object>): void
@@ -447,8 +455,7 @@ automaton StreamAutomaton
 
     fun *.sorted (@target self: Stream): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (this.length == 0)
         {
@@ -461,6 +468,9 @@ automaton StreamAutomaton
         else
         {
             // plain bubble sorting algorithm
+
+            action ASSUME(this.length > 0);
+
             val outerLimit: int = this.length - 1;
             var innerLimit: int = 0;
             var i: int = 0;
@@ -477,7 +487,7 @@ automaton StreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -508,8 +518,7 @@ automaton StreamAutomaton
 
     fun *.sorted (@target self: Stream, comparator: Comparator): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (this.length == 0)
         {
@@ -538,7 +547,7 @@ automaton StreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -569,8 +578,7 @@ automaton StreamAutomaton
 
     fun *.peek (@target self: Stream, _action: Consumer): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         _actionApply(_action);
 
@@ -580,15 +588,14 @@ automaton StreamAutomaton
             closeHandlers = this.closeHandlers,
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
     // maxSize: long - what to do with this ? Array
     fun *.limit (@target self: Stream, maxSize: long): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (maxSize < 0)
             action THROW_NEW("java.lang.IllegalArgumentException", []);
@@ -629,7 +636,7 @@ automaton StreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -641,13 +648,14 @@ automaton StreamAutomaton
 
     fun *.skip (@target self: Stream, n: long): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        val offset: int = n as int;
 
-        if (n < 0)
+        _checkConsumed();
+
+        if (offset < 0)
             action THROW_NEW("java.lang.IllegalArgumentException", []);
 
-        if (n == 0)
+        if (offset == 0)
         {
             result = new StreamAutomaton(state = Initialized,
                 storage = this.storage,
@@ -655,9 +663,9 @@ automaton StreamAutomaton
                 closeHandlers = this.closeHandlers,
             );
         }
-        else if (n >= this.length)
+        else if (offset >= this.length)
         {
-            var newArray: array<Object> = action ARRAY_NEW("java.lang.Object", 0);
+            var newArray: array<Object> = [];
             result = new StreamAutomaton(state = Initialized,
                 storage = newArray,
                 length = 0,
@@ -666,8 +674,6 @@ automaton StreamAutomaton
         }
         else
         {
-            // what will be if will be overflow ?
-            val offset: int = n as int;
             val newLength: int = this.length - offset;
             val skipStorage: array<Object> = action ARRAY_NEW("java.lang.Object", newLength);
 
@@ -685,7 +691,7 @@ automaton StreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -698,52 +704,47 @@ automaton StreamAutomaton
 
     fun *.forEach (@target self: Stream, _action: Consumer): void
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         _actionApply(_action);
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
     fun *.forEachOrdered (@target self: Stream, _action: Consumer): void
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         _actionApply(_action);
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
     fun *.toArray (@target self: Stream): array<Object>
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = this.storage;
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
     fun *.toArray (@target self: Stream, generator: IntFunction): array<Object>
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         val generatedArray: array<Object> = action CALL(generator,[this.length]) as array<Object>;
 
         action ARRAY_COPY(this.storage, 0, generatedArray, 0, this.length);
 
         result = generatedArray;
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
     fun *.reduce (@target self: Stream, identity: Object, accumulator: BinaryOperator): Object
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (accumulator == null)
             _throwNPE();
@@ -760,7 +761,7 @@ automaton StreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -772,8 +773,7 @@ automaton StreamAutomaton
 
     fun *.reduce (@target self: Stream, accumulator: BinaryOperator): Optional
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (accumulator == null)
             _throwNPE();
@@ -797,7 +797,7 @@ automaton StreamAutomaton
             result = action DEBUG_DO("Optional.ofNullable(value)");
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -809,8 +809,7 @@ automaton StreamAutomaton
 
     fun *.reduce (@target self: Stream, identity:Object, accumulator: BiFunction, combiner: BinaryOperator): Object
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (accumulator == null)
             _throwNPE();
@@ -831,7 +830,7 @@ automaton StreamAutomaton
         }
         // UtBot note: since this implementation is always sequential, we do not need to use the combiner
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -843,8 +842,7 @@ automaton StreamAutomaton
 
     fun *.collect (@target self: Stream, supplier: Supplier, accumulator: BiConsumer, combiner: BiConsumer): Object
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (supplier == null)
             _throwNPE();
@@ -864,7 +862,7 @@ automaton StreamAutomaton
             _accumulate_with_biConsumer_loop(i, accumulator, result)
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -876,8 +874,7 @@ automaton StreamAutomaton
 
     fun *.collect (@target self: Stream, collector: Collector): Object
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (collector == null)
             _throwNPE();
@@ -889,14 +886,13 @@ automaton StreamAutomaton
             _accumulate_with_biConsumer_loop(i, collector, result)
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
     fun *.min (@target self: Stream, comparator: Comparator): Optional
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (comparator == null)
             _throwNPE();
@@ -918,7 +914,7 @@ automaton StreamAutomaton
             result = action DEBUG_DO("Optional.ofNullable(min)");
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -931,8 +927,7 @@ automaton StreamAutomaton
 
     fun *.max (@target self: Stream, comparator: Comparator): Optional
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (comparator == null)
             _throwNPE();
@@ -954,7 +949,7 @@ automaton StreamAutomaton
             result = action DEBUG_DO("Optional.ofNullable(max)");
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -967,18 +962,16 @@ automaton StreamAutomaton
 
     fun *.count (@target self: Stream): long
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = this.length;
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
     fun *.anyMatch (@target self: Stream, predicate: Predicate): boolean
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -994,7 +987,7 @@ automaton StreamAutomaton
         if (i < this.length)
             result = true;
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1006,8 +999,7 @@ automaton StreamAutomaton
 
     fun *.allMatch (@target self: Stream, predicate: Predicate): boolean
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -1027,14 +1019,13 @@ automaton StreamAutomaton
                 result = true;
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
     fun *.noneMatch (@target self: Stream, predicate: Predicate): boolean
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -1054,54 +1045,50 @@ automaton StreamAutomaton
                 result = true;
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
     fun *.findFirst (@target self: Stream): Optional
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = _findFirst();
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
     fun *.findAny (@target self: Stream): Optional
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = _findFirst();
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
     // within java.util.stream.BaseStream
     fun *.iterator (@target self: Stream): Iterator
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = new StreamIteratorAutomaton(state = Initialized,
             parent = self,
             cursor = 0
         );
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
     // within java.util.stream.BaseStream
     fun *.spliterator (@target self: Stream): Spliterator
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         result = action DEBUG_DO("java.util.Spliterators.spliterator(this.storage, Spliterator.ORDERED)");
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1131,15 +1118,21 @@ automaton StreamAutomaton
     // within java.util.stream.BaseStream
     fun *.unordered (@target self: Stream): BaseStream
     {
-        result = self;
+        _checkConsumed();
+        result = new StreamAutomaton(state = Initialized,
+            storage = this.storage,
+            length = this.length,
+            closeHandlers = this.closeHandlers,
+        );
+        _consume();
     }
 
 
     // within java.util.stream.BaseStream
     fun *.onClose (@target self: Stream, arg0: Runnable): BaseStream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        // #todo: make chain of the runnable's like in the original method (java.util.stream.AbstractPipeline#onClose)
+        _checkConsumed();
 
         val listLength: int = action LIST_SIZE(this.closeHandlers);
         action LIST_INSERT_AT(this.closeHandlers, listLength, arg0);
@@ -1161,7 +1154,7 @@ automaton StreamAutomaton
 
         this.closeHandlers = action LIST_NEW();
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1174,8 +1167,7 @@ automaton StreamAutomaton
 
     fun *.dropWhile (@target self: Stream, predicate: Predicate): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -1215,7 +1207,7 @@ automaton StreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
@@ -1237,8 +1229,7 @@ automaton StreamAutomaton
 
     fun *.takeWhile (@target self: Stream, predicate: Predicate): Stream
     {
-        if (this.linkedOrConsumed)
-            _throwISE();
+        _checkConsumed();
 
         if (predicate == null)
             _throwNPE();
@@ -1278,7 +1269,7 @@ automaton StreamAutomaton
             );
         }
 
-        this.linkedOrConsumed = true;
+        _consume();
     }
 
 
