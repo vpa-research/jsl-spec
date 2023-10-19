@@ -7,7 +7,6 @@ library std
 
 // imports
 
-import java/lang/Object;
 import java/util/zip/Checksum;
 
 
@@ -16,7 +15,7 @@ import java/util/zip/Checksum;
 @implements("java.util.zip.Checksum")
 @public type CRC32
     is java.util.zip.CRC32
-    for Object
+    for Checksum
 {
 }
 
