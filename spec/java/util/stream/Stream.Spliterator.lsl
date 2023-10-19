@@ -40,9 +40,6 @@ automaton StreamSpliteratorAutomaton
     ];
 
 
-    // internal variables
-
-
     // utilities
 
     @AutoInline @Phantom proc _throwNPE (): void
@@ -89,7 +86,7 @@ automaton StreamSpliteratorAutomaton
         val lo: int = this.index;
         val mid: int = (lo + hi) >>> 1;
 
-        if (lo < mid)
+        if (lo >= mid)
             result = null;
         else
             result = new StreamSpliteratorAutomaton(state = Initialized,
