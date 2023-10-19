@@ -902,13 +902,18 @@ automaton LongStreamAutomaton
     }
 
 
-    // #todo: must be created spliterator realization
+    // #question: This is right realization of the spliterator ? Or not ? And this is right characteristics ?
     fun *.spliterator (@target self: LongStream): Spliterator_OfLong
     {
         _checkConsumed();
 
-        result = action SYMBOLIC("java.util.Spliterator.OfLong");
-        action ASSUME(result != null);
+        val default_characteristics: int = SPLITERATOR_SORTED | SPLITERATOR_IMMUTABLE | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED;
+        result = new LongStreamSpliteratorAutomaton(state = Initialized,
+            parent = self,
+            index = 0,
+            fence = this.length,
+            characteristics = default_characteristics,
+        );
 
         _consume();
     }

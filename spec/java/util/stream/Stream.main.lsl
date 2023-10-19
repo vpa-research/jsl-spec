@@ -1095,8 +1095,13 @@ automaton StreamAutomaton
     {
         _checkConsumed();
 
-        result = action DEBUG_DO("java.util.Spliterators.spliterator(this.storage, Spliterator.ORDERED)");
-
+        val default_characteristics: int = SPLITERATOR_SORTED | SPLITERATOR_IMMUTABLE | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED;
+        result = new StreamSpliteratorAutomaton(state = Initialized,
+            parent = self,
+            index = 0,
+            fence = this.length,
+            characteristics = default_characteristics,
+        );
         _consume();
     }
 
