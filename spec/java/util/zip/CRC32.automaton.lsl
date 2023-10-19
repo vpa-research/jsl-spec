@@ -153,9 +153,10 @@ automaton CRC32Automaton
                     len = b_rem;
 
                 val b: array<byte> = action ARRAY_NEW("byte", len);
+                val b_size: int = action ARRAY_SIZE(b);
                 action LOOP_WHILE(
                     action CALL_METHOD(buffer, "hasRemaining", []),
-                    update_loop(buffer, b)
+                    update_loop(buffer, b, b_size)
                 );
             }
             action CALL_METHOD(buffer, "position", [limit]);
@@ -163,10 +164,9 @@ automaton CRC32Automaton
     }
 
 
-    @Phantom proc update_loop(buffer: ByteBuffer, b: array<byte>): void
+    @Phantom proc update_loop(buffer: ByteBuffer, b: array<byte>, b_size: int): void
     {
         var length: int = action CALL_METHOD(buffer, "remaining", []);
-        val b_size: int = action ARRAY_SIZE(b);
         if (b_size < length)
             length = b_size;
 
