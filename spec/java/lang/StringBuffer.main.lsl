@@ -845,13 +845,13 @@ automaton StringBufferAutomaton
 
     fun *.lastIndexOf (@target self: StringBuffer, str: String): int
     {
-        result = action DEBUG_DO("this.storage.lastIndexOf(str)");
+        result = action CALL_METHOD(this.storage, "lastIndexOf", [str]);
     }
 
 
     @synchronized fun *.lastIndexOf (@target self: StringBuffer, str: String, fromIndex: int): int
     {
-        result = action DEBUG_DO("this.storage.lastIndexOf(str, fromIndex)");
+        result = action CALL_METHOD(this.storage, "lastIndexOf", [str, fromIndex]);
     }
 
 
