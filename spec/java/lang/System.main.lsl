@@ -73,6 +73,12 @@ automaton SystemAutomaton
 
     // utilities
 
+    @AutoInline @Phantom proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
     // constructors
 
     @private constructor *.LSLSystem (@target self: LSLSystem)
@@ -97,7 +103,7 @@ automaton SystemAutomaton
 
     @static fun *.console (): Console
     {
-        action TODO();
+        result = ioConsole;
     }
 
 
@@ -225,24 +231,33 @@ automaton SystemAutomaton
     }
 
 
-    @static fun *.setErr (newErr: PrintStream): void
+    @static fun *.setErr (stream: PrintStream): void
     {
+        if (stream == null)
+            _throwNPE();
+
         // #todo: add checks and exceptions
-        err = newErr;
+        err = stream;
     }
 
 
-    @static fun *.setIn (newIn: InputStream): void
+    @static fun *.setIn (stream: InputStream): void
     {
+        if (stream == null)
+            _throwNPE();
+
         // #todo: add checks and exceptions
-        in = newIn;
+        in = stream;
     }
 
 
-    @static fun *.setOut (newOut: PrintStream): void
+    @static fun *.setOut (stream: PrintStream): void
     {
+        if (stream == null)
+            _throwNPE();
+
         // #todo: add checks and exceptions
-        out = newOut;
+        out = stream;
     }
 
 
@@ -268,7 +283,7 @@ automaton SystemAutomaton
 
     // special: static initialization
 
-    @Phantom fun *.__clinit__ (): void
+    @Phantom @static fun *.__clinit__ (): void
     {
         // configure the standard input stream
         val newInput: InputStream = new SymbolicInputStreamAutomaton(state = Initialized,

@@ -98,6 +98,12 @@ automaton LinkedListAutomaton
 
     // utilities
 
+    @AutoInline @Phantom proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
     @KeepVisible proc _checkForComodification (expectedModCount: int): void
     {
         if (this.modCount != expectedModCount)
@@ -217,6 +223,28 @@ automaton LinkedListAutomaton
     }
 
 
+    @KeepVisible proc _replaceAllRange (op: UnaryOperator, i: int, end: int): void
+    {
+        val expectedModCount: int = this.modCount;
+
+        action LOOP_WHILE(
+            this.modCount == expectedModCount && i < end,
+            _replaceAllRange_loop(i, op)
+        );
+
+        _checkForComodification(expectedModCount);
+    }
+
+    @Phantom proc _replaceAllRange_loop (i: int, op: UnaryOperator): void
+    {
+        val oldItem: Object = action LIST_GET(this.storage, i);
+        val newItem: Object = action CALL(op, [oldItem]);
+        action LIST_SET(this.storage, i, newItem);
+
+        i += 1;
+    }
+
+
     proc _makeStream (parallel: boolean): Stream
     {
         // #todo: use custom stream implementation
@@ -238,7 +266,7 @@ automaton LinkedListAutomaton
     constructor *.LinkedList (@target self: LinkedList, c: Collection)
     {
         if (c == null)
-            action THROW_NEW("java.lang.NullPointerException", []);
+            _throwNPE();
 
         this.storage = action LIST_NEW();
         this.size = 0;
@@ -415,7 +443,7 @@ automaton LinkedListAutomaton
     fun *.forEach (@target self: LinkedList, _action: Consumer): void
     {
         if (_action == null)
-            action THROW_NEW("java.lang.NullPointerException", []);
+            _throwNPE();
 
         val expectedModCount: int = this.modCount;
         val length: int = this.size;
@@ -715,9 +743,13 @@ automaton LinkedListAutomaton
 
 
     // within java.util.List
-    fun *.replaceAll (@target self: LinkedList, operator: UnaryOperator): void
+    fun *.replaceAll (@target self: LinkedList, op: UnaryOperator): void
     {
-        action TODO();
+        if (op == null)
+            _throwNPE();
+
+        _replaceAllRange(op, 0, this.size);
+        this.modCount += 1;
     }
 
 
