@@ -759,13 +759,13 @@ automaton StringBuilderAutomaton
 
     fun *.lastIndexOf (@target self: StringBuilder, str: String): int
     {
-        result = action DEBUG_DO("this.storage.lastIndexOf(str)");
+        result = action CALL_METHOD(this.storage, "lastIndexOf", [str]);
     }
 
 
     fun *.lastIndexOf (@target self: StringBuilder, str: String, fromIndex: int): int
     {
-        result = action DEBUG_DO("this.storage.lastIndexOf(str, fromIndex)");
+        result = action CALL_METHOD(this.storage, "lastIndexOf", [str, fromIndex]);
     }
 
 
