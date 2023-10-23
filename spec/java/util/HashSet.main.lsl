@@ -474,7 +474,7 @@ automaton HashSetAutomaton
             _throwNPE();
 
         val len: int = this.length;
-        result = action CALL(generator, [0]);
+        result = action CALL(generator, [0]) as array<Object>;
         val expectedModCount: int = this.modCount;
         val visitedKeys: map<Object, Object> = action MAP_NEW();
         var i: int = 0;
