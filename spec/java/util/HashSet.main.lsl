@@ -470,6 +470,9 @@ automaton HashSetAutomaton
 
     fun *.toArray (@target self: HashSet, generator: IntFunction): array<Object>
     {
+        if (generator == null)
+            _throwNPE();
+
         val len: int = this.length;
         result = action CALL(generator, [0]);
         val expectedModCount: int = this.modCount;
