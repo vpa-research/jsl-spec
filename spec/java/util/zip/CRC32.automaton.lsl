@@ -78,6 +78,7 @@ automaton CRC32Automaton
             if (b != null)
             {
                 val b_size: int = action ARRAY_SIZE(b);
+                action ASSUME(b_size >= 0);
                 if (off < 0 || off >= b_size)
                     action THROW_NEW("java.lang.ArrayIndexOutOfBoundsException", [off]);
 
@@ -148,6 +149,7 @@ automaton CRC32Automaton
 
                 val b: array<byte> = action ARRAY_NEW("byte", len);
                 val b_size: int = action ARRAY_SIZE(b);
+                action ASSUME(b_size >= 0);
                 action LOOP_WHILE(
                     action CALL_METHOD(buffer, "hasRemaining", []),
                     update_loop(buffer, b, b_size)
@@ -175,6 +177,7 @@ automaton CRC32Automaton
     fun *.update (@target self: CRC32, b: array<byte>): void
     {
         val len: int = action ARRAY_SIZE(b);
+        action ASSUME(len >= 0);
         _updateCheck(b, 0, len);
         _updateBytesCheck(b, 0, len);
         this.crc = action SYMBOLIC("int");
