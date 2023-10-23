@@ -10,6 +10,12 @@ library std
 
 import java/lang/Object;
 import java/util/HashSet;
+import java/util/function/IntFunction;
+import java/util/function/Consumer;
+import java/util/function/Predicate;
+import java/util/Collection;
+import java/util/Iterator;
+import java/util/Spliterator;
 
 
 // automata
@@ -51,6 +57,7 @@ automaton HashSetAutomaton
         parallelStream,
         toArray(HashSet),
         toArray(HashSet, array<Object>),
+        toArray(HashSet, IntFunction),
 
         // write operations
         add,
@@ -456,6 +463,23 @@ automaton HashSetAutomaton
 
         if (aLen > this.length)
             result[this.length] = null;
+
+        _checkForComodification(expectedModCount);
+    }
+
+
+    fun *.toArray (@target self: HashSet, generator: IntFunction): array<Object>
+    {
+        val len: int = this.length;
+        result = action CALL(generator, [0]);
+        val expectedModCount: int = this.modCount;
+        val visitedKeys: map<Object, Object> = action MAP_NEW();
+        var i: int = 0;
+
+        action LOOP_FOR(
+            i, 0, len, +1,
+            toArray_loop(i, visitedKeys, result)
+        );
 
         _checkForComodification(expectedModCount);
     }

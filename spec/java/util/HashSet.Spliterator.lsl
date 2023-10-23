@@ -9,6 +9,9 @@ library std
 // imports
 
 import java/util/HashSet;
+import java/lang/Object;
+import java/util/HashMap;
+import java/util/function/Consumer;
 
 
 // automata
