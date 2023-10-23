@@ -282,7 +282,7 @@ automaton HashSetAutomaton
         var i: int = 0;
         action LOOP_FOR(
             i, 0, this.length, +1,
-            fromMapToList_loop(i, keysStorageArray, visitedKeys)
+            fromMapToArray_loop(i, keysStorageArray, visitedKeys)
         );
 
 
@@ -297,7 +297,7 @@ automaton HashSetAutomaton
     }
 
 
-    @Phantom proc fromMapToList_loop (i: int, keysStorageArray: array<Object>, visitedKeys: map<Object, Object>): void
+    @Phantom proc fromMapToArray_loop (i: int, keysStorageArray: array<Object>, visitedKeys: map<Object, Object>): void
     {
         val key: Object = _generateKey(visitedKeys);
 

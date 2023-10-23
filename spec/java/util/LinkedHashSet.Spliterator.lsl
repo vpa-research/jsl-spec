@@ -15,7 +15,7 @@ import java/util/LinkedHashSet;
 
 automaton LinkedHashSet_KeySpliteratorAutomaton
 (
-    var keysStorage: list<Object>,
+    var keysStorage: array<Object>,
     var index: int,
     var fence: int,
     var est: int,
@@ -137,9 +137,11 @@ automaton LinkedHashSet_KeySpliteratorAutomaton
         this.index = hi;
         if (length > 0 && length >= hi && i >= 0 && i < this.index)
         {
+            val storage: array<Object> = this.keysStorage;
+            action ASSUME(storage != null);
             action LOOP_WHILE(
                 i < hi,
-                forEachRemaining_loop(userAction, i)
+                forEachRemaining_loop(userAction, i, storage)
             );
 
             val modCount: int = LinkedHashSetAutomaton(this.parent).modCount;
@@ -149,9 +151,9 @@ automaton LinkedHashSet_KeySpliteratorAutomaton
     }
 
 
-    @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int): void
+    @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int, storage: array<Object>): void
     {
-        val key: Object = action LIST_GET(this.keysStorage, i);
+        val key: Object = storage[i];
         action CALL(userAction, [key]);
         i += 1;
     }
@@ -165,12 +167,11 @@ automaton LinkedHashSet_KeySpliteratorAutomaton
             _throwNPE();
 
         var hi: int = _getFence();
-        val length: int = LinkedHashSetAutomaton(this.parent).length;
+        var i: int = this.index;
 
-        // this is correct condition ? It is enough ?
-        if(length >= hi && this.index >= 0)
+        if(i < hi)
         {
-            val key: Object = action LIST_GET(this.keysStorage, this.index);
+            val key: Object = this.keysStorage[i];
             action CALL(userAction, [key]);
 
             this.index += 1;

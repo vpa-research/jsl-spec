@@ -17,7 +17,7 @@ automaton LinkedHashSet_KeyIteratorAutomaton
 (
     var expectedModCount: int,
     var visitedKeys: map<Object, Object>,
-    var parent: HashSet
+    var parent: LinkedHashSet
 )
 : LinkedHashSet_KeyIterator
 {
