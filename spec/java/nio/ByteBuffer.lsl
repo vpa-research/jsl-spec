@@ -15,9 +15,10 @@ import java/nio/Buffer;
 // primary semantic types
 
 @abstract type ByteBuffer
-    is java.lang.ByteBuffer
+    is java.nio.ByteBuffer
     for Buffer
 {
+     fun *.get(dst: array<byte>, offset: int, length: int): any; //ByteBuffer
 }
 
 

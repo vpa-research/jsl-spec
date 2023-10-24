@@ -13,9 +13,30 @@ import java/lang/Object;
 
 // primary semantic types
 
-@public @final type OptionalInt
+@final type OptionalInt
     is java.util.OptionalInt
     for Object
+{
+    @static fun *.empty(): Object; // #problem: self-reference
+
+    @static fun *.of(x: int): Object; // #problem: self-reference
+
+    fun *.isPresent(): boolean;
+
+    fun *.isEmpty(): boolean;
+
+    fun *.getAsInt(): int;
+
+    fun *.orElse(other: int): int;
+}
+
+
+// global aliases and type overrides
+
+// a replacement type for automata construction
+@public @final type LSLOptionalInt
+    is java.util.OptionalInt
+    for OptionalInt
 {
     // NOTE: value is stored within the automaton
 }
