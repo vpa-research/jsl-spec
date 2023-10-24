@@ -7,7 +7,7 @@ library std
 
 // imports
 
-import java/lang/Object;
+import java/util/Properties;
 
 
 // local semantic types
@@ -15,7 +15,7 @@ import java/lang/Object;
 @extends("java.util.Properties")
 @abstract type Provider
     is java.security.Provider
-    for Object
+    for Properties
 {
     @private @static @final var serialVersionUID: long = -4298000515446427739L;
 }
