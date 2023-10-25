@@ -86,6 +86,7 @@ automaton SecureRandomAutomaton
     var secureRandomSpi: SecureRandomSpi;
     var provider: Provider;
     var algorithm: String;
+    var threadSafe: boolean;
 
     // utilities
 
@@ -97,11 +98,21 @@ automaton SecureRandomAutomaton
     }
 
 
+    proc _setSeed(): void
+    {
+        // TODO()
+    }
+
+
     // constructors
 
     constructor *.SecureRandom (@target self: SecureRandom)
     {
-        action TODO();
+        _setSeed();
+        _getDefaultPRNG(false, null);
+        val arg0: String = "SecureRandom.SHA1PRNG ThreadSafe";
+        val arg1: String = "false";
+        this.threadSafe = action DEBUG_DO("Boolean.parseBoolean(provider.getProperty(arg0, arg1))");
     }
 
 
