@@ -83,8 +83,19 @@ automaton SecureRandomAutomaton
     ];
 
     // internal variables
+    var secureRandomSpi: SecureRandomSpi;
+    var provider: Provider;
+    var algorithm: String;
 
     // utilities
+
+    proc _getDefaultPRNG (setSeed: boolean, seed: array<byte>): void
+    {
+        this.algorithm = "SHA1PRNG";
+        this.secureRandomSpi = action DEBUG_DO("new sun.security.provider.SecureRandom()");
+        this.provider = action DEBUG_DO("sun.security.jca.Providers.getSunProvider()");
+    }
+
 
     // constructors
 
