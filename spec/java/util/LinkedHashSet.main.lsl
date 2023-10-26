@@ -1,15 +1,14 @@
-///#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
     version "11"
     language "Java"
-    url "https://github.com/openjdk/jdk11/blob/master/src/java.base/share/classes/java/util/HashSet.java";
+    url "https://github.com/openjdk/jdk11/blob/master/src/java.base/share/classes/java/util/LinkedHashSet.java";
 
 // imports
 
 import java/lang/Object;
-import java/util/HashSet;
+import java/util/LinkedHashSet;
 import java/util/function/IntFunction;
 import java/util/function/Consumer;
 import java/util/function/Predicate;
@@ -17,15 +16,14 @@ import java/util/Collection;
 import java/util/Iterator;
 import java/util/Spliterator;
 
-
 // automata
 
-automaton HashSetAutomaton
+automaton LinkedHashSetAutomaton
 (
     var storage: map<Object, Object> = null,
     @transient var length: int = 0
 )
-: HashSet
+: LinkedHashSet
 {
     // states and shifts
 
@@ -34,10 +32,10 @@ automaton HashSetAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        HashSet(HashSet),
-        HashSet(HashSet, Collection),
-        HashSet(HashSet, int, float),
-        HashSet(HashSet, int, float, boolean)
+        LinkedHashSet (LinkedHashSet),
+        LinkedHashSet (LinkedHashSet, Collection),
+        LinkedHashSet (LinkedHashSet, int),
+        LinkedHashSet (LinkedHashSet, int, float),
     ];
 
     shift Initialized -> self by [
@@ -55,9 +53,9 @@ automaton HashSetAutomaton
         spliterator,
         stream,
         parallelStream,
-        toArray(HashSet),
-        toArray(HashSet, array<Object>),
-        toArray(HashSet, IntFunction),
+        toArray(LinkedHashSet),
+        toArray(LinkedHashSet, array<Object>),
+        toArray(LinkedHashSet, IntFunction),
 
         // write operations
         add,
@@ -73,7 +71,6 @@ automaton HashSetAutomaton
     // internal variables
 
     @transient var modCount: int = 0;
-
 
     // utilities
 
@@ -139,20 +136,20 @@ automaton HashSetAutomaton
 
     // constructors
 
-    constructor *.HashSet (@target self: HashSet)
+    constructor *.LinkedHashSet (@target self: LinkedHashSet)
     {
         this.storage = action MAP_NEW();
     }
 
 
-    constructor *.HashSet (@target self: HashSet, c: Collection)
+    constructor *.LinkedHashSet (@target self: LinkedHashSet, c: Collection)
     {
         this.storage = action MAP_NEW();
         _addAllElements(c);
     }
 
 
-    constructor *.HashSet (@target self: HashSet, initialCapacity: int)
+    constructor *.LinkedHashSet (@target self: LinkedHashSet, initialCapacity: int)
     {
         if (initialCapacity < 0)
         {
@@ -164,7 +161,7 @@ automaton HashSetAutomaton
     }
 
 
-    constructor *.HashSet (@target self: HashSet, initialCapacity: int, loadFactor: float)
+    constructor *.LinkedHashSet (@target self: LinkedHashSet, initialCapacity: int, loadFactor: float)
     {
         if (initialCapacity < 0)
         {
@@ -182,15 +179,9 @@ automaton HashSetAutomaton
     }
 
 
-    @private constructor *.HashSet (@target self: HashSet, initialCapacity: int, loadFactor: float, dummy: boolean)
-    {
-        action ERROR("Private constructor call");
-    }
-
-
     // methods
 
-    fun *.add (@target self: HashSet, obj: Object): boolean
+    fun *.add (@target self: LinkedHashSet, obj: Object): boolean
     {
         val hasKey: boolean = action MAP_HAS_KEY(this.storage, obj);
 
@@ -211,29 +202,29 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.clear (@target self: HashSet): void
+    fun *.clear (@target self: LinkedHashSet): void
     {
         this.length = 0;
         this.storage = action MAP_NEW();
 
-        this.modCount += 1;
+        this.modCount +=1;
     }
 
 
-    fun *.clone (@target self: HashSet): Object
+    fun *.clone (@target self: LinkedHashSet): Object
     {
         val storageCopy: map<Object, Object> = action MAP_NEW();
 
         action MAP_UNITE_WITH(storageCopy, this.storage);
 
-        result = new HashSetAutomaton(state = Initialized,
+        result = new LinkedHashSetAutomaton(state = Initialized,
             storage = storageCopy,
             length = this.length
         );
     }
 
 
-    fun *.contains (@target self: HashSet, obj: Object): boolean
+    fun *.contains (@target self: LinkedHashSet, obj: Object): boolean
     {
         if (this.length == 0)
             result = false;
@@ -242,16 +233,16 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.isEmpty (@target self: HashSet): boolean
+    fun *.isEmpty (@target self: LinkedHashSet): boolean
     {
         result = this.length == 0;
     }
 
 
-    fun *.iterator (@target self: HashSet): Iterator
+    fun *.iterator (@target self: LinkedHashSet): Iterator
     {
         val visitedKeysMap: map<Object, Object> = action MAP_NEW();
-        result = new HashSet_KeyIteratorAutomaton(state = Initialized,
+        result = new LinkedHashSet_KeyIteratorAutomaton(state = Initialized,
             expectedModCount = this.modCount,
             visitedKeys = visitedKeysMap,
             parent = self
@@ -259,7 +250,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.remove (@target self: HashSet, obj: Object): boolean
+    fun *.remove (@target self: LinkedHashSet, obj: Object): boolean
     {
         val hasKey: boolean = action MAP_HAS_KEY(this.storage, obj);
         if (hasKey)
@@ -276,13 +267,13 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.size (@target self: HashSet): int
+    fun *.size (@target self: LinkedHashSet): int
     {
         result = this.length;
     }
 
 
-    fun *.spliterator (@target self: HashSet): Spliterator
+    fun *.spliterator (@target self: LinkedHashSet): Spliterator
     {
         val keysStorageArray: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
         val visitedKeys: map<Object, Object> = action MAP_NEW();
@@ -292,8 +283,7 @@ automaton HashSetAutomaton
             fromMapToArray_loop(i, keysStorageArray, visitedKeys)
         );
 
-
-        result = new HashSet_KeySpliteratorAutomaton(state=Initialized,
+        result = new LinkedHashSet_KeySpliteratorAutomaton(state = Initialized,
             keysStorage = keysStorageArray,
             index = 0,
             fence = -1,
@@ -313,7 +303,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.equals (@target self: HashSet, other: Object): boolean
+    fun *.equals (@target self: LinkedHashSet, other: Object): boolean
     {
         if (other == self)
         {
@@ -325,17 +315,17 @@ automaton HashSetAutomaton
             if (isSameType)
             {
                 val expectedModCount: int = this.modCount;
-                val otherExpectedModCount: int = HashSetAutomaton(other).modCount;
+                val otherExpectedModCount: int = LinkedHashSetAutomaton(other).modCount;
 
-                val otherStorage: map<Object, Object> = HashSetAutomaton(other).storage;
-                val otherLength: int = HashSetAutomaton(other).length;
+                val otherStorage: map<Object, Object> = LinkedHashSetAutomaton(other).storage;
+                val otherLength: int = LinkedHashSetAutomaton(other).length;
 
                 if (this.length == otherLength)
                     result = action OBJECT_EQUALS(this.storage, otherStorage);
                 else
                     result = false;
 
-                HashSetAutomaton(other)._checkForComodification(otherExpectedModCount);
+                LinkedHashSetAutomaton(other)._checkForComodification(otherExpectedModCount);
                 _checkForComodification(expectedModCount);
             }
             else
@@ -346,13 +336,13 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.hashCode (@target self: HashSet): int
+    fun *.hashCode (@target self: LinkedHashSet): int
     {
         result = action OBJECT_HASH_CODE(this.storage);
     }
 
 
-    fun *.removeAll (@target self: HashSet, c: Collection): boolean
+    fun *.removeAll (@target self: LinkedHashSet, c: Collection): boolean
     {
         if (c == null)
             _throwNPE();
@@ -416,7 +406,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.toArray (@target self: HashSet): array<Object>
+    fun *.toArray (@target self: LinkedHashSet): array<Object>
     {
         val len: int = this.length;
         result = action ARRAY_NEW("java.lang.Object", len);
@@ -443,7 +433,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.toArray (@target self: HashSet, a: array<Object>): array<Object>
+    fun *.toArray (@target self: LinkedHashSet, a: array<Object>): array<Object>
     {
         val expectedModCount: int = this.modCount;
         val aLen: int = action ARRAY_SIZE(a);
@@ -468,7 +458,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.toArray (@target self: HashSet, generator: IntFunction): array<Object>
+    fun *.toArray (@target self: LinkedHashSet, generator: IntFunction): array<Object>
     {
         if (generator == null)
             _throwNPE();
@@ -488,7 +478,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.containsAll (@target self: HashSet, c: Collection): boolean
+    fun *.containsAll (@target self: LinkedHashSet, c: Collection): boolean
     {
         val otherSize: int = action CALL_METHOD(c, "size", []);
         val iter: Iterator = action CALL_METHOD(c, "iterator", []);
@@ -503,7 +493,7 @@ automaton HashSetAutomaton
     }
 
 
-    @Phantom proc _containsAllElements_loop(iter: Iterator, isContainsAll: boolean): void
+    @Phantom proc _containsAllElements_loop (iter: Iterator, isContainsAll: boolean): void
     {
         val key: Object = action CALL_METHOD(iter, "next", []);
         val isKeyExist: boolean = action MAP_HAS_KEY(this.storage, key);
@@ -516,13 +506,13 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.addAll (@target self: HashSet, c: Collection): boolean
+    fun *.addAll (@target self: LinkedHashSet, c: Collection): boolean
     {
         result = _addAllElements(c);
     }
 
 
-    fun *.retainAll (@target self: HashSet, c: Collection): boolean
+    fun *.retainAll (@target self: LinkedHashSet, c: Collection): boolean
     {
         if (c == null)
             _throwNPE();
@@ -560,7 +550,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.removeIf (@target self: HashSet, filter: Predicate): boolean
+    fun *.removeIf (@target self: LinkedHashSet, filter: Predicate): boolean
     {
         if (filter == null)
             _throwNPE();
@@ -605,7 +595,7 @@ automaton HashSetAutomaton
     }
 
 
-    fun *.forEach (@target self: HashSet, userAction: Consumer): void
+    fun *.forEach (@target self: LinkedHashSet, userAction: Consumer): void
     {
         if (userAction == null)
             _throwNPE();
@@ -635,7 +625,7 @@ automaton HashSetAutomaton
 
 
     // within java.util.Collection
-    fun *.stream (@target self: HashSet): Stream
+    fun *.stream (@target self: LinkedHashSet): Stream
     {
         // #todo: use custom stream implementation
         result = action SYMBOLIC("java.util.stream.Stream");
@@ -644,7 +634,7 @@ automaton HashSetAutomaton
 
 
     // within java.util.Collection
-    fun *.parallelStream (@target self: HashSet): Stream
+    fun *.parallelStream (@target self: LinkedHashSet): Stream
     {
         // #todo: use custom stream implementation
         result = action SYMBOLIC("java.util.stream.Stream");
@@ -655,15 +645,16 @@ automaton HashSetAutomaton
     // special: serialization
 
     @throws(["java.io.IOException"])
-    @private fun *.writeObject (@target self: HashSet, s: ObjectOutputStream): void
+    @private fun *.writeObject (@target self: LinkedHashSet, s: ObjectOutputStream): void
     {
         action NOT_IMPLEMENTED("no serialization support yet");
     }
 
 
     @throws(["java.io.IOException", "java.lang.ClassNotFoundException"])
-    @private fun *.readObject (@target self: HashSet, s: ObjectInputStream): void
+    @private fun *.readObject (@target self: LinkedHashSet, s: ObjectInputStream): void
     {
         action NOT_IMPLEMENTED("no serialization support yet");
     }
+
 }

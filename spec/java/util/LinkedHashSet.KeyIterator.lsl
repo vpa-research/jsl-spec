@@ -4,11 +4,11 @@ libsl "1.1.0";
 library std
     version "11"
     language "Java"
-    url "https://github.com/openjdk/jdk11/blob/master/src/java.base/share/classes/java/util/HashSet.java";
+    url "https://github.com/openjdk/jdk11/blob/master/src/java.base/share/classes/java/util/LinkedHashSet.java";
 
 // imports
 
-import java/util/HashSet;
+import java/util/LinkedHashSet;
 import java/lang/Object;
 import java/util/HashMap;
 import java/util/function/Consumer;
@@ -16,13 +16,13 @@ import java/util/function/Consumer;
 
 // automata
 
-automaton HashSet_KeyIteratorAutomaton
+automaton LinkedHashSet_KeyIteratorAutomaton
 (
     var expectedModCount: int,
     var visitedKeys: map<Object, Object>,
-    var parent: HashSet
+    var parent: LinkedHashSet
 )
-: HashSet_KeyIterator
+: LinkedHashSet_KeyIterator
 {
 
     var index: int = 0;
@@ -36,8 +36,7 @@ automaton HashSet_KeyIteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        // Problem: here mustn't be "HashMap"; What must be here ? What we must to do with constructor ?
-        HashSet_KeyIterator,
+        LinkedHashSet_KeyIterator,
     ];
 
     shift Initialized -> self by [
@@ -55,7 +54,7 @@ automaton HashSet_KeyIteratorAutomaton
 
     proc _checkForComodification (): void
     {
-        val modCount: int = HashSetAutomaton(this.parent).modCount;
+        val modCount: int = LinkedHashSetAutomaton(this.parent).modCount;
         if (this.expectedModCount != modCount)
             action THROW_NEW("java.util.ConcurrentModificationException", []);
     }
@@ -63,7 +62,7 @@ automaton HashSet_KeyIteratorAutomaton
 
     // constructors
 
-    @private constructor *.HashSet_KeyIterator (@target self: HashSet_KeyIterator, source: HashMap)
+    @private constructor *.LinkedHashSet_KeyIterator (@target self: LinkedHashSet_KeyIterator, source: HashMap)
     {
         action ERROR("Private constructor call");
     }
@@ -71,20 +70,20 @@ automaton HashSet_KeyIteratorAutomaton
 
     // methods
 
-    fun *.hasNext (@target self: HashSet_KeyIterator): boolean
+    fun *.hasNext (@target self: LinkedHashSet_KeyIterator): boolean
     {
         action ASSUME(this.parent != null);
-        val length: int = HashSetAutomaton(this.parent).length;
+        val length: int = LinkedHashSetAutomaton(this.parent).length;
         result = this.index < length;
     }
 
 
-    @final fun *.next (@target self: HashSet_KeyIterator): Object
+    @final fun *.next (@target self: LinkedHashSet_KeyIterator): Object
     {
         action ASSUME(this.parent != null);
         _checkForComodification();
 
-        val length: int = HashSetAutomaton(this.parent).length;
+        val length: int = LinkedHashSetAutomaton(this.parent).length;
         val atValidPosition: boolean = this.index < length;
         if (!atValidPosition)
             action THROW_NEW("java.util.NoSuchElementException", []);
@@ -92,7 +91,7 @@ automaton HashSet_KeyIteratorAutomaton
         val key: Object = action SYMBOLIC("java.lang.Object");
         action ASSUME(key != null);
         action ASSUME(key != this.currentKey);
-        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
         val sourceStorageHasKey: boolean = action MAP_HAS_KEY(parentStorage, key);
         action ASSUME(sourceStorageHasKey);
         val dstStorageHasKey: boolean = action MAP_HAS_KEY(this.visitedKeys, key);
@@ -107,11 +106,11 @@ automaton HashSet_KeyIteratorAutomaton
     }
 
 
-    fun *.remove (@target self: HashSet_KeyIterator): void
+    fun *.remove (@target self: LinkedHashSet_KeyIterator): void
     {
         action ASSUME(this.parent != null);
 
-        val length: int = HashSetAutomaton(this.parent).length;
+        val length: int = LinkedHashSetAutomaton(this.parent).length;
         val atValidPosition: boolean = this.index < length;
         if (!atValidPosition || !this.nextWasCalled)
             action THROW_NEW("java.lang.IllegalStateException", []);
@@ -120,21 +119,21 @@ automaton HashSet_KeyIteratorAutomaton
 
         _checkForComodification();
 
-        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
         action MAP_REMOVE(parentStorage, this.currentKey);
 
-        this.expectedModCount = HashSetAutomaton(this.parent).modCount;
+        this.expectedModCount = LinkedHashSetAutomaton(this.parent).modCount;
     }
 
 
-    fun *.forEachRemaining (@target self: HashSet_KeyIterator, userAction: Consumer): void
+    fun *.forEachRemaining (@target self: LinkedHashSet_KeyIterator, userAction: Consumer): void
     {
         action ASSUME(this.parent != null);
 
         if (userAction == null)
             action THROW_NEW("java.lang.NullPointerException", []);
 
-        val length: int = HashSetAutomaton(this.parent).length;
+        val length: int = LinkedHashSetAutomaton(this.parent).length;
         var i: int = this.index;
 
         action LOOP_WHILE(
@@ -154,7 +153,7 @@ automaton HashSet_KeyIteratorAutomaton
         val key: Object = action SYMBOLIC("java.lang.Object");
         action ASSUME(key != null);
         action ASSUME(key != this.currentKey);
-        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
         val sourceStorageHasKey: boolean = action MAP_HAS_KEY(parentStorage, key);
         action ASSUME(sourceStorageHasKey);
         val destStorageHasKey: boolean = action MAP_HAS_KEY(this.visitedKeys, key);
@@ -166,5 +165,4 @@ automaton HashSet_KeyIteratorAutomaton
         action CALL(userAction, [key]);
         i += 1;
     }
-
 }
