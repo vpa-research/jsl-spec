@@ -127,6 +127,13 @@ define action TRY_CATCH (
 define action CATCH_GET_EXCEPTION_REF (): any;
 
 
+// usage example: action SYNCHRONIZED_BLOCK(this.readLock, read_proc());
+define action SYNCHRONIZED_BLOCK (
+        lock: any,       // Object
+        bodyProc: void   // subroutine call!
+    ): void;
+
+
 // work-arounds
 
 define action CALL (
