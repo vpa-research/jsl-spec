@@ -30,6 +30,11 @@ define action MAP_GET (
         key: any
     ): any;
 
+// WARNING: check if map is empty or not before calling this
+define action MAP_GET_ANY_KEY (
+        aMap: map<any, any>
+    ): any;
+
 define action MAP_HAS_KEY (
         aMap: map<any, any>,
         key: any
