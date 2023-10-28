@@ -763,8 +763,8 @@ automaton LinkedListAutomaton
     fun *.set (@target self: LinkedList, index: int, element: Object): Object
     {
         _checkElementIndex(index);
-        action LIST_SET(this.storage, index, element);
         result = action LIST_GET(this.storage, index);
+        action LIST_SET(this.storage, index, element);
     }
 
 
