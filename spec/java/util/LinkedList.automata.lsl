@@ -254,6 +254,97 @@ automaton LinkedListAutomaton
     }
 
 
+    @KeepVisible proc _do_sort (start: int, end: int, c: Comparator): void
+    {
+        if (start < end)
+        {
+            val expectedModCount: int = this.modCount;
+
+            // Java has no unsigned primitive data types
+            action ASSUME(start >= 0);
+            action ASSUME(end > 0);
+
+            // plain bubble sorting algorithm
+            val outerLimit: int = end - 1;
+            var innerLimit: int = 0;
+            var i: int = 0;
+            var j: int = 0;
+
+            // check the comparator
+            if (c == null)
+            {
+                // using Comparable::compareTo as a comparator
+
+                // plain bubble sorting algorithm
+                action LOOP_FOR(
+                    i, start, outerLimit, +1,
+                    sort_loop_outer_noComparator(i, j, innerLimit, start, end)
+                );
+            }
+            else
+            {
+                // using the provided comparator
+
+                // plain bubble sorting algorithm (with a comparator)
+                action LOOP_FOR(
+                    i, start, outerLimit, +1,
+                    sort_loop_outer(i, j, innerLimit, start, end, c)
+                );
+            }
+
+            _checkForComodification(expectedModCount);
+        }
+
+        this.modCount += 1;
+    }
+
+    @Phantom proc sort_loop_outer_noComparator (i: int, j: int, innerLimit: int, start: int, end: int): void
+    {
+        innerLimit = end - i - 1;
+        action LOOP_FOR(
+            j, start, innerLimit, +1,
+            sort_loop_inner_noComparator(j)
+        );
+    }
+
+    @Phantom proc sort_loop_inner_noComparator (j: int): void
+    {
+        val idxA: int = j;
+        val idxB: int = j + 1;
+        val a: Object = action LIST_GET(this.storage, idxA);
+        val b: Object = action LIST_GET(this.storage, idxB);
+
+        if (action CALL_METHOD(a as Comparable, "compareTo", [b]) > 0)
+        {
+            action LIST_SET(this.storage, idxA, b);
+            action LIST_SET(this.storage, idxB, a);
+        }
+    }
+
+    @Phantom proc sort_loop_outer (i: int, j: int, innerLimit: int, start: int, end: int, c: Comparator): void
+    {
+        innerLimit = end - i - 1;
+        action LOOP_FOR(
+            j, start, innerLimit, +1,
+            sort_loop_inner(j, c)
+        );
+    }
+
+    @Phantom proc sort_loop_inner (j: int, c: Comparator): void
+    {
+        val idxA: int = j;
+        val idxB: int = j + 1;
+        val a: Object = action LIST_GET(this.storage, idxA);
+        val b: Object = action LIST_GET(this.storage, idxB);
+
+        if (action CALL(c, [a, b]) > 0)
+        {
+            action LIST_SET(this.storage, idxA, b);
+            action LIST_SET(this.storage, idxB, a);
+        }
+    }
+
+
     // constructors
 
     constructor *.LinkedList (@target self: LinkedList)
@@ -777,91 +868,7 @@ automaton LinkedListAutomaton
     // within java.util.List
     fun *.sort (@target self: LinkedList, c: Comparator): void
     {
-        if (this.size != 0)
-        {
-            val expectedModCount: int = this.modCount;
-
-            // Java has no unsigned primitive data types
-            action ASSUME(this.size > 0);
-
-            // plain bubble sorting algorithm
-            val outerLimit: int = this.size - 1;
-            var innerLimit: int = 0;
-            var i: int = 0;
-            var j: int = 0;
-
-            // check the comparator
-            if (c == null)
-            {
-                // using Comparable::compareTo as a comparator
-
-                // plain bubble sorting algorithm
-                action LOOP_FOR(
-                    i, 0, outerLimit, +1,
-                    sort_loop_outer_noComparator(i, j, innerLimit)
-                );
-            }
-            else
-            {
-                // using the provided comparator
-
-                // plain bubble sorting algorithm (with a comparator)
-                action LOOP_FOR(
-                    i, 0, outerLimit, +1,
-                    sort_loop_outer(i, j, innerLimit, c)
-                );
-            }
-
-            _checkForComodification(expectedModCount);
-        }
-
-        this.modCount += 1;
-    }
-
-    @Phantom proc sort_loop_outer_noComparator (i: int, j: int, innerLimit: int): void
-    {
-        innerLimit = this.size - i - 1;
-        action LOOP_FOR(
-            j, 0, innerLimit, +1,
-            sort_loop_inner_noComparator(j)
-        );
-    }
-
-    @Phantom proc sort_loop_inner_noComparator (j: int): void
-    {
-        val idxA: int = j;
-        val idxB: int = j + 1;
-        val a: Object = action LIST_GET(this.storage, idxA);
-        val b: Object = action LIST_GET(this.storage, idxB);
-
-        if (action CALL_METHOD(a as Comparable, "compareTo", [b]) > 0)
-        {
-            action LIST_SET(this.storage, idxA, b);
-            action LIST_SET(this.storage, idxB, a);
-        }
-    }
-
-    @Phantom proc sort_loop_outer (i: int, j: int, innerLimit: int, c: Comparator): void
-    {
-        innerLimit = this.size - i - 1;
-        action LOOP_FOR(
-            j, 0, innerLimit, +1,
-            sort_loop_inner(j, c)
-        );
-    }
-
-    @Phantom proc sort_loop_inner (j: int, c: Comparator): void
-    {
-        val idxA: int = j;
-        val idxB: int = j + 1;
-        val a: Object = action LIST_GET(this.storage, idxA);
-        val b: Object = action LIST_GET(this.storage, idxB);
-
-        if (action CALL(c, [a, b]) > 0)
-        {
-            action LIST_SET(this.storage, idxA, b);
-            action LIST_SET(this.storage, idxB, a);
-        }
+        _do_sort(0, this.size, c);
     }
 
 

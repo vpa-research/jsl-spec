@@ -19,6 +19,9 @@ import java/io/Flushable;
 {
 }
 
+// see java.io.Console#istty
+val CONSOLE_ISTTY: boolean = action SYMBOLIC("boolean");
+
 
 // global aliases and type overrides
 
