@@ -1,4 +1,3 @@
-//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -8,371 +7,340 @@ library std
 
 // imports
 
-import java.common;
-import java/io/File;
-import java/io/FilterOutputStream;
-import java/io/_interfaces;
-import java/lang/_interfaces;
-import java/nio/charset/_interfaces;
+import java/lang/CharSequence;
+import java/lang/Object;
+import java/lang/String;
 import java/util/Locale;
 
-
-// local semantic types
-
-@extends("java.io.FilterOutputStream")
-@implements("java.lang.Appendable")
-@implements("java.io.Closeable")
-@public type PrintStream
-    is java.io.PrintStream
-    for Object
-{
-}
+import java/lang/System;
+import runtime/utils/VoidOutputStream;
 
 
 // automata
 
-automaton PrintStreamAutomaton
+automaton System_PrintStreamAutomaton
 (
 )
-: PrintStream
+: System_PrintStream
 {
     // states and shifts
 
-    initstate Allocated;
-    state Initialized;
-
-    shift Allocated -> Initialized by [
-        // constructors
-        PrintStream (PrintStream, File),
-        PrintStream (PrintStream, File, Charset),
-        PrintStream (PrintStream, File, String),
-        PrintStream (PrintStream, OutputStream),
-        PrintStream (PrintStream, OutputStream, boolean),
-        PrintStream (PrintStream, OutputStream, boolean, Charset),
-        PrintStream (PrintStream, OutputStream, boolean, String),
-        PrintStream (PrintStream, String),
-        PrintStream (PrintStream, String, Charset),
-        PrintStream (PrintStream, String, String),
-        PrintStream (PrintStream, boolean, Charset, OutputStream),
-        PrintStream (PrintStream, boolean, OutputStream),
-    ];
+    initstate Initialized;
 
     shift Initialized -> self by [
         // instance methods
-        append (PrintStream, CharSequence),
-        append (PrintStream, CharSequence, int, int),
-        append (PrintStream, char),
+        append (System_PrintStream, CharSequence),
+        append (System_PrintStream, CharSequence, int, int),
+        append (System_PrintStream, char),
         checkError,
         close,
         flush,
-        format (PrintStream, Locale, String, array<Object>),
-        format (PrintStream, String, array<Object>),
-        print (PrintStream, Object),
-        print (PrintStream, String),
-        print (PrintStream, boolean),
-        print (PrintStream, char),
-        print (PrintStream, array<char>),
-        print (PrintStream, double),
-        print (PrintStream, float),
-        print (PrintStream, int),
-        print (PrintStream, long),
-        printf (PrintStream, Locale, String, array<Object>),
-        printf (PrintStream, String, array<Object>),
-        println (PrintStream),
-        println (PrintStream, Object),
-        println (PrintStream, String),
-        println (PrintStream, boolean),
-        println (PrintStream, char),
-        println (PrintStream, array<char>),
-        println (PrintStream, double),
-        println (PrintStream, float),
-        println (PrintStream, int),
-        println (PrintStream, long),
-        write (PrintStream, array<byte>),
-        write (PrintStream, array<byte>, int, int),
-        write (PrintStream, int),
+        format (System_PrintStream, Locale, String, array<Object>),
+        format (System_PrintStream, String, array<Object>),
+        print (System_PrintStream, Object),
+        print (System_PrintStream, String),
+        print (System_PrintStream, boolean),
+        print (System_PrintStream, char),
+        print (System_PrintStream, array<char>),
+        print (System_PrintStream, double),
+        print (System_PrintStream, float),
+        print (System_PrintStream, int),
+        print (System_PrintStream, long),
+        printf (System_PrintStream, Locale, String, array<Object>),
+        printf (System_PrintStream, String, array<Object>),
+        println (System_PrintStream),
+        println (System_PrintStream, Object),
+        println (System_PrintStream, String),
+        println (System_PrintStream, boolean),
+        println (System_PrintStream, char),
+        println (System_PrintStream, array<char>),
+        println (System_PrintStream, double),
+        println (System_PrintStream, float),
+        println (System_PrintStream, int),
+        println (System_PrintStream, long),
+        write (System_PrintStream, array<byte>),
+        write (System_PrintStream, array<byte>, int, int),
+        write (System_PrintStream, int),
     ];
 
     // internal variables
 
+    var closed: boolean = false;
+    var error: boolean = false;
+
+
     // utilities
 
+    @AutoInline @Phantom proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
+    @AutoInline @Phantom proc _checkOpen (): void
+    {
+        if (this.closed)
+            this.error = true;
+    }
+
+
     // constructors
-
-    @throws(["java.io.FileNotFoundException"])
-    constructor *.PrintStream (@target self: PrintStream, file: File)
-    {
-        action TODO();
-    }
-
-
-    @throws(["java.io.IOException"])
-    constructor *.PrintStream (@target self: PrintStream, file: File, charset: Charset)
-    {
-        action TODO();
-    }
-
-
-    @throws(["java.io.FileNotFoundException", "java.io.UnsupportedEncodingException"])
-    constructor *.PrintStream (@target self: PrintStream, file: File, csn: String)
-    {
-        action TODO();
-    }
-
-
-    constructor *.PrintStream (@target self: PrintStream, out: OutputStream)
-    {
-        action TODO();
-    }
-
-
-    constructor *.PrintStream (@target self: PrintStream, out: OutputStream, autoFlush: boolean)
-    {
-        action TODO();
-    }
-
-
-    constructor *.PrintStream (@target self: PrintStream, out: OutputStream, autoFlush: boolean, charset: Charset)
-    {
-        action TODO();
-    }
-
-
-    @throws(["java.io.UnsupportedEncodingException"])
-    constructor *.PrintStream (@target self: PrintStream, out: OutputStream, autoFlush: boolean, encoding: String)
-    {
-        action TODO();
-    }
-
-
-    @throws(["java.io.FileNotFoundException"])
-    constructor *.PrintStream (@target self: PrintStream, fileName: String)
-    {
-        action TODO();
-    }
-
-
-    @throws(["java.io.IOException"])
-    constructor *.PrintStream (@target self: PrintStream, fileName: String, charset: Charset)
-    {
-        action TODO();
-    }
-
-
-    @throws(["java.io.FileNotFoundException", "java.io.UnsupportedEncodingException"])
-    constructor *.PrintStream (@target self: PrintStream, fileName: String, csn: String)
-    {
-        action TODO();
-    }
-
-
-    @private constructor *.PrintStream (@target self: PrintStream, autoFlush: boolean, charset: Charset, out: OutputStream)
-    {
-        action TODO();
-    }
-
-
-    @private constructor *.PrintStream (@target self: PrintStream, autoFlush: boolean, out: OutputStream)
-    {
-        action TODO();
-    }
-
 
     // static methods
 
     // methods
 
-    fun *.append (@target self: PrintStream, csq: CharSequence): PrintStream
+    fun *.append (@target self: System_PrintStream, csq: CharSequence): PrintStream
     {
-        action TODO();
+        if (csq == null)
+            _throwNPE();
+
+        _checkOpen();
+
+        result = self;
     }
 
 
-    fun *.append (@target self: PrintStream, csq: CharSequence, start: int, end: int): PrintStream
+    fun *.append (@target self: System_PrintStream, csq: CharSequence, start: int, end: int): PrintStream
     {
-        action TODO();
+        if (csq == null)
+            _throwNPE();
+
+        val size: int = action CALL_METHOD(csq, "length", []);
+        if (start < 0 || end >= size)
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
+
+        _checkOpen();
+
+        result = self;
     }
 
 
-    fun *.append (@target self: PrintStream, c: char): PrintStream
+    fun *.append (@target self: System_PrintStream, c: char): PrintStream
     {
-        action TODO();
+        _checkOpen();
+
+        result = self;
     }
 
 
-    fun *.checkError (@target self: PrintStream): boolean
+    fun *.checkError (@target self: System_PrintStream): boolean
     {
-        action TODO();
+        result = this.error;
     }
 
 
-    fun *.close (@target self: PrintStream): void
+    fun *.close (@target self: System_PrintStream): void
     {
-        action TODO();
+        this.closed = true;
     }
 
 
-    fun *.flush (@target self: PrintStream): void
+    fun *.flush (@target self: System_PrintStream): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
-    @varargs fun *.format (@target self: PrintStream, l: Locale, format: String, args: array<Object>): PrintStream
+    @varargs fun *.format (@target self: System_PrintStream, l: Locale, format: String, args: array<Object>): PrintStream
     {
-        action TODO();
+        if (l == null || format == null || args == null)
+            _throwNPE();
+
+        _checkOpen();
+
+        result = self;
     }
 
 
-    @varargs fun *.format (@target self: PrintStream, format: String, args: array<Object>): PrintStream
+    @varargs fun *.format (@target self: System_PrintStream, format: String, args: array<Object>): PrintStream
     {
-        action TODO();
+        if (format == null || args == null)
+            _throwNPE();
+
+        _checkOpen();
+
+        result = self;
     }
 
 
-    fun *.print (@target self: PrintStream, obj: Object): void
+    fun *.print (@target self: System_PrintStream, obj: Object): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
-    fun *.print (@target self: PrintStream, s: String): void
+    fun *.print (@target self: System_PrintStream, s: String): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
-    fun *.print (@target self: PrintStream, b: boolean): void
+    fun *.print (@target self: System_PrintStream, b: boolean): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
-    fun *.print (@target self: PrintStream, c: char): void
+    fun *.print (@target self: System_PrintStream, c: char): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
-    fun *.print (@target self: PrintStream, s: array<char>): void
+    fun *.print (@target self: System_PrintStream, s: array<char>): void
     {
-        action TODO();
+        if (s == null)
+            _throwNPE();
+
+        _checkOpen();
     }
 
 
-    fun *.print (@target self: PrintStream, d: double): void
+    fun *.print (@target self: System_PrintStream, d: double): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
-    fun *.print (@target self: PrintStream, f: float): void
+    fun *.print (@target self: System_PrintStream, f: float): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
-    fun *.print (@target self: PrintStream, i: int): void
+    fun *.print (@target self: System_PrintStream, i: int): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
-    fun *.print (@target self: PrintStream, l: long): void
+    fun *.print (@target self: System_PrintStream, l: long): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
-    @varargs fun *.printf (@target self: PrintStream, l: Locale, format: String, args: array<Object>): PrintStream
+    @varargs fun *.printf (@target self: System_PrintStream, l: Locale, format: String, args: array<Object>): PrintStream
     {
-        action TODO();
+        if (l == null || format == null || args == null)
+            _throwNPE();
+
+        _checkOpen();
+
+        result = self;
     }
 
 
-    @varargs fun *.printf (@target self: PrintStream, format: String, args: array<Object>): PrintStream
+    @varargs fun *.printf (@target self: System_PrintStream, format: String, args: array<Object>): PrintStream
     {
-        action TODO();
+        if (format == null || args == null)
+            _throwNPE();
+
+        _checkOpen();
+
+        result = self;
     }
 
 
-    fun *.println (@target self: PrintStream): void
+    fun *.println (@target self: System_PrintStream): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
-    fun *.println (@target self: PrintStream, x: Object): void
+    fun *.println (@target self: System_PrintStream, x: Object): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
-    fun *.println (@target self: PrintStream, x: String): void
+    fun *.println (@target self: System_PrintStream, x: String): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
-    fun *.println (@target self: PrintStream, x: boolean): void
+    fun *.println (@target self: System_PrintStream, x: boolean): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
-    fun *.println (@target self: PrintStream, x: char): void
+    fun *.println (@target self: System_PrintStream, x: char): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
-    fun *.println (@target self: PrintStream, x: array<char>): void
+    fun *.println (@target self: System_PrintStream, x: array<char>): void
     {
-        action TODO();
+        if (x == null)
+            _throwNPE();
+
+        _checkOpen();
     }
 
 
-    fun *.println (@target self: PrintStream, x: double): void
+    fun *.println (@target self: System_PrintStream, x: double): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
-    fun *.println (@target self: PrintStream, x: float): void
+    fun *.println (@target self: System_PrintStream, x: float): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
-    fun *.println (@target self: PrintStream, x: int): void
+    fun *.println (@target self: System_PrintStream, x: int): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
-    fun *.println (@target self: PrintStream, x: long): void
+    fun *.println (@target self: System_PrintStream, x: long): void
     {
-        action TODO();
+        _checkOpen();
     }
 
 
     @throws(["java.io.IOException"])
     // within java.io.OutputStream
-    fun *.write (@target self: PrintStream, b: array<byte>): void
+    fun *.write (@target self: System_PrintStream, b: array<byte>): void
     {
-        action TODO();
+        if (b == null)
+            _throwNPE();
+
+        _checkOpen();
     }
 
 
-    fun *.write (@target self: PrintStream, buf: array<byte>, off: int, len: int): void
+    fun *.write (@target self: System_PrintStream, buf: array<byte>, off: int, len: int): void
     {
-        action TODO();
+        if (buf == null)
+            _throwNPE();
+
+        val size: int = action ARRAY_SIZE(buf);
+        if (off < 0 || off + len > size)
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
+
+        _checkOpen();
     }
 
 
-    fun *.write (@target self: PrintStream, b: int): void
+    fun *.write (@target self: System_PrintStream, b: int): void
     {
-        action TODO();
+        _checkOpen();
+    }
+
+
+    // special methods
+
+    @Phantom @static fun *.__super__ (): array<Object>
+    {
+        result = [new VoidOutputStreamAutomaton(state = Initialized, closed = false)];
     }
 
 }

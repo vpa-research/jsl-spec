@@ -415,7 +415,7 @@ automaton IntegerAutomaton
 
     // special: class initialization
 
-    @Phantom fun *.__clinit__ (): void
+    @Phantom @static fun *.__clinit__ (): void
     {
         // WARNING: this should be empty, do not change!
     }

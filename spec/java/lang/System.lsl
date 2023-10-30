@@ -56,9 +56,9 @@ import java/lang/Throwable;
     for System
 {
     // #todo: attach I/O streams from this
-    @private @static var ioConsole: Console = null;
+    @private @static var console: Console = null;
 
-    @public @static var in: InputStream = null;  // WARNING: do not change!
+    @public @static var in: InputStream = null;         // WARNING: do not change!
     @public @static var out: PrintStream = null; // WARNING: do not change!
     @public @static var err: PrintStream = null; // WARNING: do not change!
 
@@ -68,3 +68,11 @@ import java/lang/Throwable;
 
 val SYSTEM_IS_WINDOWS: boolean = action SYMBOLIC("boolean");
 
+
+@GenerateMe
+@extends("java.io.PrintStream")
+@public @final type System_PrintStream
+    is java.lang.System_PrintStream
+    for PrintStream
+{
+}

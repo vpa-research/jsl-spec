@@ -245,12 +245,184 @@ automaton LinkedListAutomaton
     }
 
 
+    @KeepVisible proc _removeIf (filter: Predicate, start: int, end: int): boolean
+    {
+        if (filter == null)
+            _throwNPE();
+
+        val oldSize: int = this.size;
+        val expectedModCount: int = this.modCount;
+
+        // remove elements from the back first
+        action ASSUME(start <= end);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, end - 1, start, -1,
+            _removeIf_loop(i, filter)
+        );
+
+        _checkForComodification(expectedModCount);
+
+        result = oldSize != this.size;
+    }
+
+    @Phantom proc _removeIf_loop (i: int, filter: Predicate): void
+    {
+        val item: Object = action LIST_GET(this.storage, i);
+        if (action CALL(filter, [item]))
+        {
+            action LIST_REMOVE(this.storage, i);
+            this.size -= 1;
+        }
+    }
+
+
+    @KeepVisible proc _equalsRange (other: List, from: int, to: int): boolean
+    {
+        result = true;
+        var i: int = from;
+
+        var otherLength: int = 0;
+        var otherStorage: list<Object> = null;
+
+        if (other has LinkedListAutomaton)
+        {
+            otherLength = LinkedListAutomaton(other).size;
+            action ASSUME(otherLength >= 0);
+
+            // assumptions: no multithreading, from == 0
+            result = to == otherLength;
+            if (result)
+            {
+                otherStorage = LinkedListAutomaton(other).storage;
+                action ASSUME(otherStorage != null);
+
+                action LOOP_WHILE(
+                    result && i < to,
+                    _equalsRange_loop_optimized(i, otherStorage, result)
+                );
+            }
+        }
+        /*else if (other has LinkedList_SubListAutomaton)
+        {
+            otherLength = LinkedList_SubListAutomaton(other).size;
+            action ASSUME(otherLength >= 0);
+
+            // assumptions: no multithreading, from >= 0
+            result = to == otherLength;
+            if (result)
+            {
+                val otherRoot: LinkedList = LinkedList_SubListAutomaton(other).root;
+                action ASSUME(otherRoot != null);
+
+                otherStorage = LinkedListAutomaton(otherRoot).storage;
+                action ASSUME(otherStorage != null);
+
+                action LOOP_WHILE(
+                    result && i < to,
+                    _equalsRange_loop_optimized(i, otherStorage, result)
+                );
+            }
+        }*/
+        else
+        {
+            val iter: Iterator = action CALL_METHOD(other, "iterator", []);
+            action LOOP_WHILE(
+                result && i < to && action CALL_METHOD(iter, "hasNext", []),
+                _equalsRange_loop_regular(iter, i, result)
+            );
+
+            result &= !action CALL_METHOD(iter, "hasNext", []);
+        }
+    }
+
+    @Phantom proc _equalsRange_loop_optimized (i: int, otherStorage: list<Object>, result: boolean): void
+    {
+        val a: Object = action LIST_GET(otherStorage, i);
+        val b: Object = action LIST_GET(this.storage, i);
+
+        result = action OBJECT_EQUALS(a, b);
+
+        i += 1;
+    }
+
+    @Phantom proc _equalsRange_loop_regular (iter: Iterator, i: int, result: boolean): void
+    {
+        val a: Object = action CALL_METHOD(iter, "next", []);
+        val b: Object = action LIST_GET(this.storage, i);
+
+        result = action OBJECT_EQUALS(a, b);
+
+        i += 1;
+    }
+
+
     proc _makeStream (parallel: boolean): Stream
     {
         // #todo: use custom stream implementation
         result = action SYMBOLIC("java.util.stream.Stream");
         action ASSUME(result != null);
         action ASSUME(action CALL_METHOD(result, "isParallel", []) == parallel);
+    }
+
+
+    @KeepVisible proc _batchRemove (c: Collection, complement: boolean, start: int, end: int): boolean
+    {
+        val oldSize: int = this.size;
+        if (oldSize == 0 || start >= end)
+        {
+            result = false;
+        }
+        else
+        {
+            val otherLength: int = action CALL_METHOD(c, "size", []);
+            if (otherLength == 0)
+            {
+                result = false;
+            }
+            else
+            {
+                action ASSUME(otherLength > 0);
+
+                var i: int = 0;
+                start -= 1;
+                end -= 1;
+
+                if (c has LinkedListAutomaton)
+                {
+                    val otherStorage: list<Object> = LinkedListAutomaton(c).storage;
+                    action ASSUME(otherStorage != null);
+
+                    action LOOP_FOR(
+                        i, end, start, -1,
+                        _batchRemove_loop_optimized(i, otherStorage, complement)
+                    );
+                }
+                else
+                {
+                    action LOOP_FOR(
+                        i, end, start, -1,
+                        _batchRemove_loop_regular(i, c, complement)
+                    );
+                }
+
+                result = oldSize != this.size;
+            }
+        }
+    }
+
+    @Phantom proc _batchRemove_loop_optimized (i: int, otherStorage: list<Object>, complement: boolean): void
+    {
+        val item: Object = action LIST_GET(this.storage, i);
+        if ((action LIST_FIND(otherStorage, item, 0, this.size) == -1) == complement)
+            _unlinkAny(i);
+    }
+
+    @Phantom proc _batchRemove_loop_regular (i: int, c: Collection, complement: boolean): void
+    {
+        val item: Object = action LIST_GET(this.storage, i);
+        if (action CALL_METHOD(c, "contains", [item]) != complement)
+            _unlinkAny(i);
     }
 
 
@@ -537,11 +709,10 @@ automaton LinkedListAutomaton
             _throwNPE();
 
         val expectedModCount: int = this.modCount;
-        val length: int = this.size;
 
         var i: int = 0;
         action LOOP_WHILE(
-            this.modCount == expectedModCount && i < length,
+            this.modCount == expectedModCount && i < this.size,
             forEach_loop(i, _action)
         );
 
@@ -774,7 +945,7 @@ automaton LinkedListAutomaton
     // within java.util.AbstractCollection
     fun *.removeAll (@target self: LinkedList, c: Collection): boolean
     {
-        action TODO();
+        result = _batchRemove(c, /* complement = */false, 0, this.size);
     }
 
 
@@ -793,7 +964,7 @@ automaton LinkedListAutomaton
     // within java.util.Collection
     fun *.removeIf (@target self: LinkedList, filter: Predicate): boolean
     {
-        action TODO();
+        result = _removeIf(filter, 0, this.size);
     }
 
 
@@ -847,7 +1018,7 @@ automaton LinkedListAutomaton
     // within java.util.AbstractCollection
     fun *.retainAll (@target self: LinkedList, c: Collection): boolean
     {
-        action TODO();
+        result = _batchRemove(c, /* complement = */true, 0, this.size);
     }
 
 

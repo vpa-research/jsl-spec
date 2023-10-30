@@ -103,7 +103,7 @@ automaton SystemAutomaton
 
     @static fun *.console (): Console
     {
-        result = ioConsole;
+        result = console;
     }
 
 
@@ -285,18 +285,19 @@ automaton SystemAutomaton
 
     @Phantom @static fun *.__clinit__ (): void
     {
-        // configure the standard input stream
+        // configure the standard <INPUT> stream
         val newInput: InputStream = new SymbolicInputStreamAutomaton(state = Initialized,
             maxSize = 1000,
             supportMarks = false,
         );
         in = action DEBUG_DO("new java.io.BufferedInputStream(newInput)");
 
-        // configure the standard output stream
-        action TODO();
+        // configure the standard <OUTPUT> stream
+        val o1: System_PrintStream = new System_PrintStreamAutomaton(state = Initialized);
+        out = o1 as PrintStream;
 
-        // configure the standard error stream
-        action TODO();
+        // configure the standard <ERROR> stream
+        //err = new System_PrintStreamAutomaton(state = Initialized) as PrintStream;
     }
 
 }

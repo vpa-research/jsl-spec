@@ -827,7 +827,7 @@ automaton ArrayListAutomaton
 
     fun *.removeAll (@target self: ArrayList, c: Collection): boolean
     {
-        result = _batchRemove(c, false, 0, this.length);
+        result = _batchRemove(c, /* complement = */false, 0, this.length);
     }
 
 
@@ -849,7 +849,7 @@ automaton ArrayListAutomaton
 
     fun *.retainAll (@target self: ArrayList, c: Collection): boolean
     {
-        result = _batchRemove(c, true, 0, this.length);
+        result = _batchRemove(c, /* complement = */true, 0, this.length);
     }
 
 
