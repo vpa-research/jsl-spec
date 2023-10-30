@@ -13,6 +13,7 @@ import java/util/Spliterator;
 import java/util/Comparator;
 
 
+// #note - base class of this specification was: "java.util.Spliterators$ArraySpliterator";
 // automata
 
 automaton StreamSpliteratorAutomaton
@@ -159,7 +160,6 @@ automaton StreamSpliteratorAutomaton
     }
 
 
-    // #note - realization of tis method was from class: "Spliterators.ArraySpliterator"; This is right ?
     fun *.getComparator (@target self: StreamLSLSpliterator): Comparator
     {
         if (_hasCharacteristics(SPLITERATOR_SORTED))
