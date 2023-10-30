@@ -1095,7 +1095,7 @@ automaton StreamAutomaton
     {
         _checkConsumed();
 
-        val default_characteristics: int = SPLITERATOR_SORTED | SPLITERATOR_IMMUTABLE | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED;
+        val default_characteristics: int = SPLITERATOR_ORDERED | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED;
         result = new StreamSpliteratorAutomaton(state = Initialized,
             parent = self,
             index = 0,

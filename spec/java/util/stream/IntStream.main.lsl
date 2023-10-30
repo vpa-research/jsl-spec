@@ -906,7 +906,7 @@ automaton IntStreamAutomaton
     {
         _checkConsumed();
 
-        val default_characteristics: int = SPLITERATOR_SORTED | SPLITERATOR_IMMUTABLE | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED;
+        val default_characteristics: int = SPLITERATOR_ORDERED | SPLITERATOR_IMMUTABLE | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED;
         result = new IntStreamSpliteratorAutomaton(state = Initialized,
             parent = self,
             index = 0,
