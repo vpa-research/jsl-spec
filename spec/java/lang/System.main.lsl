@@ -290,14 +290,13 @@ automaton SystemAutomaton
             maxSize = 1000,
             supportMarks = false,
         );
-        in = action DEBUG_DO("new java.io.BufferedInputStream(newInput)");
+        in = newInput;//action DEBUG_DO("new java.io.BufferedInputStream(newInput)");
 
         // configure the standard <OUTPUT> stream
-        val o1: System_PrintStream = new System_PrintStreamAutomaton(state = Initialized);
-        out = o1 as PrintStream;
+        out = new System_PrintStreamAutomaton(state = Initialized);
 
         // configure the standard <ERROR> stream
-        //err = new System_PrintStreamAutomaton(state = Initialized) as PrintStream;
+        err = new System_PrintStreamAutomaton(state = Initialized);
     }
 
 }
