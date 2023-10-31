@@ -43,7 +43,7 @@ import java/util/Spliterator;
 
 
 @GenerateMe
-@implements("java.util.Spliterator")
+@implements("java.util.Spliterator.OfDouble")
 @public type DoubleStreamLSLSpliterator
     is java.util.DoubleStreamLSLSpliterator
     for Spliterator_OfDouble

@@ -43,7 +43,7 @@ import java/util/Spliterator;
 
 
 @GenerateMe
-@implements("java.util.Spliterator")
+@implements("java.util.Spliterator.OfInt")
 @public type IntStreamLSLSpliterator
     is java.util.IntStreamLSLSpliterator
     for Spliterator_OfInt

@@ -43,7 +43,7 @@ import java/util/Spliterator;
 
 
 @GenerateMe
-@implements("java.util.Spliterator")
+@implements("java.util.Spliterator.OfLong")
 @public type LongStreamLSLSpliterator
     is java.util.LongStreamLSLSpliterator
     for Spliterator_OfLong
