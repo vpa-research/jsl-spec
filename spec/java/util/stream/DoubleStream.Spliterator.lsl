@@ -117,12 +117,12 @@ automaton DoubleStreamSpliteratorAutomaton
 
         action LOOP_FOR(
             i, i, hi, +1,
-            forEachRemaining_IntConsumer_loop(i, a, _action)
+            forEachRemaining_DoubleConsumer_loop(i, a, _action)
         );
     }
 
 
-    @Phantom proc forEachRemaining_IntConsumer_loop (i: int, a: array<double>, _action: DoubleConsumer): void
+    @Phantom proc forEachRemaining_DoubleConsumer_loop (i: int, a: array<double>, _action: DoubleConsumer): void
     {
         val item: double = a[i];
         action CALL(_action, [item]);
@@ -131,8 +131,6 @@ automaton DoubleStreamSpliteratorAutomaton
 
     fun *.forEachRemaining (@target self: DoubleStreamLSLSpliterator, _action: Consumer): void
     {
-        // #question Do we need such cheking like in original class ? "if (action instanceof DoubleConsumer)"
-
         if (_action == null)
             _throwNPE();
 
@@ -145,8 +143,15 @@ automaton DoubleStreamSpliteratorAutomaton
 
         action LOOP_FOR(
             i, i, hi, +1,
-            forEachRemaining_IntConsumer_loop(i, a, _action)
+            forEachRemaining_Consumer_loop(i, a, _action)
         );
+    }
+
+
+    @Phantom proc forEachRemaining_Consumer_loop (i: int, a: array<double>, _action: Consumer): void
+    {
+        val item: double = a[i];
+        action CALL(_action, [item]);
     }
 
 
@@ -179,8 +184,6 @@ automaton DoubleStreamSpliteratorAutomaton
 
     fun *.tryAdvance (@target self: DoubleStreamLSLSpliterator, _action: Consumer): boolean
     {
-        // #question Do we need such cheking like in original class ? "if (action instanceof DoubleConsumer)"
-
         if (_action == null)
             _throwNPE();
 

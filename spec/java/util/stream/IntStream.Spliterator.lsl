@@ -131,8 +131,6 @@ automaton IntStreamSpliteratorAutomaton
 
     fun *.forEachRemaining (@target self: IntStreamLSLSpliterator, _action: Consumer): void
     {
-        // #question Do we need such cheking like in original class ? "if (action instanceof IntConsumer)"
-
         if (_action == null)
             _throwNPE();
 
@@ -145,8 +143,15 @@ automaton IntStreamSpliteratorAutomaton
 
         action LOOP_FOR(
             i, i, hi, +1,
-            forEachRemaining_IntConsumer_loop(i, a, _action)
+            forEachRemaining_Consumer_loop(i, a, _action)
         );
+    }
+
+
+    @Phantom proc forEachRemaining_Consumer_loop (i: int, a: array<int>, _action: Consumer): void
+    {
+        val item: int = a[i];
+        action CALL(_action, [item]);
     }
 
 
@@ -179,8 +184,6 @@ automaton IntStreamSpliteratorAutomaton
 
     fun *.tryAdvance (@target self: IntStreamLSLSpliterator, _action: Consumer): boolean
     {
-        // #question Do we need such cheking like in original class ? "if (action instanceof IntConsumer)"
-
         if (_action == null)
             _throwNPE();
 

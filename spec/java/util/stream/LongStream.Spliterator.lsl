@@ -131,8 +131,6 @@ automaton LongStreamSpliteratorAutomaton
 
     fun *.forEachRemaining (@target self: LongStreamLSLSpliterator, _action: Consumer): void
     {
-        // #question Do we need such cheking like in original class ? "if (action instanceof LongConsumer)"
-
         if (_action == null)
             _throwNPE();
 
@@ -145,8 +143,15 @@ automaton LongStreamSpliteratorAutomaton
 
         action LOOP_FOR(
             i, i, hi, +1,
-            forEachRemaining_LongConsumer_loop(i, a, _action)
+            forEachRemaining_Consumer_loop(i, a, _action)
         );
+    }
+
+
+    @Phantom proc forEachRemaining_Consumer_loop (i: int, a: array<int>, _action: Consumer): void
+    {
+        val item: long = a[i];
+        action CALL(_action, [item]);
     }
 
 
@@ -179,8 +184,6 @@ automaton LongStreamSpliteratorAutomaton
 
     fun *.tryAdvance (@target self: LongStreamLSLSpliterator, _action: Consumer): boolean
     {
-        // #question Do we need such cheking like in original class ? "if (action instanceof LongConsumer)"
-
         if (_action == null)
             _throwNPE();
 
