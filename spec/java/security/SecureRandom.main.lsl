@@ -92,9 +92,85 @@ automaton SecureRandomAutomaton
 
     proc _getDefaultPRNG (setSeed: boolean, seed: array<byte>): void
     {
-        this.algorithm = "SHA1PRNG";
-        this.secureRandomSpi = action DEBUG_DO("new sun.security.provider.SecureRandom()");
-        this.provider = action DEBUG_DO("sun.security.jca.Providers.getSunProvider()");
+        val providersList: array<Provider> = action DEBUG_DO("java.security.Security.getProviders()");
+        val providersListLength: int = action ARRAY_SIZE(providersList);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, providersListLength, +1,
+            findProvider_loop(i, providersList)
+        );
+
+        action ASSUME(this.provider != null);
+        action ASSUME(this.algorithm != null);
+
+        // #draft_below (maybe it will be deleted)
+
+        // val firstProviderName: String = action DEBUG_DO("providersList[0].getName()");
+        // action ASSUME(action OBJECT_EQUALS("firstProviderName", "SUN"));
+        // val services: Set = action DEBUG_DO("providersList[0].getServices()");
+
+        // #note: this is list of default algorithms https://docs.oracle.com/en/java/javase/11/docs/specs/security/standard-names.html#securerandom-number-generation-algorithms
+        /* if (action CALL_METHOD(services, "contains", ["NativePRNGNonBlocking"]))
+        {
+            // todo: it can throws AssertionError
+            this.secureRandomSpi = action DEBUG_DO("new sun.security.provider.NativePRNG.NonBlocking()");
+        }
+        else if (action CALL_METHOD(services, "contains", ["NativePRNGBlocking"]))
+        {
+            // todo: it can throws AssertionError
+            this.secureRandomSpi = action DEBUG_DO("new sun.security.provider.NativePRNG.Blocking()");
+        }
+        else if (action CALL_METHOD(services, "contains", ["NativePRNG"]))
+        {
+            // todo: it can throws AssertionError
+            this.secureRandomSpi = action DEBUG_DO("new sun.security.provider.NativePRNG()");
+        }
+        else if (action CALL_METHOD(services, "contains", ["Windows-PRNG"]))
+        {
+
+        }
+        else if (action CALL_METHOD(services, "contains", ["SHA1PRNG"]))
+        {
+            // todo: it has reflection calls inside; That's why must be created automaton ! And constructor must be approximated;
+            this.secureRandomSpi = action DEBUG_DO("new sun.security.provider.SecureRandom()");
+        }
+        else if (action CALL_METHOD(services, "contains", ["DRBG"]))
+        {
+            this.secureRandomSpi = action DEBUG_DO("new sun.security.provider.NativePRNG()");
+        }
+        else if (action CALL_METHOD(services, "contains", ["PKCS11"]))
+        {
+
+        }*/
+    }
+
+
+    @Phantom proc findProvider_loop (i: int, providersList: array<Provider>): void
+    {
+        val curProvider: Provider = providersList[i];
+        val services: Set = action DEBUG_DO("curProvider.getServices()");
+        val servicesLength: int = action CALL_METHOD(services, "size", []);
+
+        var j: int = 0;
+        action LOOP_FOR(
+            j, 0, providersListLength, +1,
+            findService_loop(j, services, curProvider)
+        );
+    }
+
+
+    @Phantom proc findService_loop (j: int, services: Set, curProvider: Provider): void
+    {
+        val curService: Service = action DEBUG_DO("services[j].getServices()");
+        val curServiceType: String = action DEBUG_DO("curService.getType()");
+
+        if (action OBJECT_EQUALS(curServiceType, "SecureRandom"))
+        {
+            this.provider = curProvider;
+            this.algorithm = action DEBUG_DO("curService.getAlgorithm()");
+            action LOOP_BREAK();
+        }
     }
 
 
