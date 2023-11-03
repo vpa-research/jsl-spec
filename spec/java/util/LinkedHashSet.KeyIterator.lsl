@@ -88,12 +88,9 @@ automaton LinkedHashSet_KeyIteratorAutomaton
         if (!atValidPosition)
             action THROW_NEW("java.util.NoSuchElementException", []);
 
-        val key: Object = action SYMBOLIC("java.lang.Object");
-        action ASSUME(key != null);
-        action ASSUME(key != this.currentKey);
         val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
-        val sourceStorageHasKey: boolean = action MAP_HAS_KEY(parentStorage, key);
-        action ASSUME(sourceStorageHasKey);
+        val key: Object = action MAP_GET_ANY_KEY(parentStorage);
+        action ASSUME(key != this.currentKey);
         val dstStorageHasKey: boolean = action MAP_HAS_KEY(this.visitedKeys, key);
         action ASSUME(!dstStorageHasKey);
 
@@ -150,14 +147,11 @@ automaton LinkedHashSet_KeyIteratorAutomaton
     {
         _checkForComodification();
 
-        val key: Object = action SYMBOLIC("java.lang.Object");
-        action ASSUME(key != null);
-        action ASSUME(key != this.currentKey);
         val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
-        val sourceStorageHasKey: boolean = action MAP_HAS_KEY(parentStorage, key);
-        action ASSUME(sourceStorageHasKey);
-        val destStorageHasKey: boolean = action MAP_HAS_KEY(this.visitedKeys, key);
-        action ASSUME(!destStorageHasKey);
+        val key: Object = action MAP_GET_ANY_KEY(parentStorage);
+        action ASSUME(key != this.currentKey);
+        val dstStorageHasKey: boolean = action MAP_HAS_KEY(this.visitedKeys, key);
+        action ASSUME(!dstStorageHasKey);
 
         this.currentKey = key;
         action MAP_SET(this.visitedKeys, this.currentKey, SOMETHING);

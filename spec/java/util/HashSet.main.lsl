@@ -127,10 +127,7 @@ automaton HashSetAutomaton
 
     proc _generateKey (visitedKeys: map<Object, Object>): Object
     {
-        result = action SYMBOLIC("java.lang.Object");
-        action ASSUME(result != null);
-        val isKeyExist: boolean = action MAP_HAS_KEY(this.storage, result);
-        action ASSUME(isKeyExist);
+        result = action MAP_GET_ANY_KEY(this.storage);
 
         val isKeyWasVisited: boolean = action MAP_HAS_KEY(visitedKeys, result);
         action ASSUME(!isKeyWasVisited);
