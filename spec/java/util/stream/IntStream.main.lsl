@@ -901,13 +901,18 @@ automaton IntStreamAutomaton
     }
 
 
-    // #todo: must be created spliterator realization
+    // #question: This is right realization of the spliterator ? Or not ? And this is right characteristics ?
     fun *.spliterator (@target self: IntStream): Spliterator_OfInt
     {
         _checkConsumed();
 
-        result = action SYMBOLIC("java.util.Spliterator.OfInt");
-        action ASSUME(result != null);
+        val default_characteristics: int = SPLITERATOR_ORDERED | SPLITERATOR_IMMUTABLE | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED;
+        result = new IntStreamSpliteratorAutomaton(state = Initialized,
+            parent = self,
+            index = 0,
+            fence = this.length,
+            characteristics = default_characteristics,
+        );
 
         _consume();
     }

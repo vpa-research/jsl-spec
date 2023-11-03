@@ -250,8 +250,11 @@ automaton StreamAutomaton
             _mapToInt_loop(i, mapper, mappedStorage)
         );
 
-        // #todo: Temporary decision (we don't have IntStream automaton at this moment)
-        result = action DEBUG_DO("java.util.Arrays.stream(mappedStorage)");
+        result = new IntStreamAutomaton(state = Initialized,
+            storage = mappedStorage,
+            length = this.length,
+            closeHandlers = this.closeHandlers,
+        );
 
         _consume();
     }
@@ -278,8 +281,11 @@ automaton StreamAutomaton
             _mapToLong_loop(i, mapper, mappedStorage)
         );
 
-        // #todo: Temporary decision (we don't have IntStream automaton at this moment)
-        result = action DEBUG_DO("java.util.Arrays.stream(mappedStorage)");
+        result = new LongStreamAutomaton(state = Initialized,
+            storage = mappedStorage,
+            length = this.length,
+            closeHandlers = this.closeHandlers,
+        );
 
         _consume();
     }
@@ -306,8 +312,11 @@ automaton StreamAutomaton
             _mapToDouble_loop(i, mapper, mappedStorage)
         );
 
-        // #todo: Temporary decision (we don't have IntStream automaton at this moment)
-        result = action DEBUG_DO("java.util.Arrays.stream(mappedStorage)");
+        result = new DoubleStreamAutomaton(state = Initialized,
+            storage = mappedStorage,
+            length = this.length,
+            closeHandlers = this.closeHandlers,
+        );
 
         _consume();
     }
@@ -1086,8 +1095,13 @@ automaton StreamAutomaton
     {
         _checkConsumed();
 
-        result = action DEBUG_DO("java.util.Spliterators.spliterator(this.storage, Spliterator.ORDERED)");
-
+        val default_characteristics: int = SPLITERATOR_ORDERED | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED;
+        result = new StreamSpliteratorAutomaton(state = Initialized,
+            parent = self,
+            index = 0,
+            fence = this.length,
+            characteristics = default_characteristics,
+        );
         _consume();
     }
 
