@@ -21,7 +21,7 @@ type AtomicLong
 }
 
 
-// automata
+// global aliases and type overrides
 
 @extends("java.lang.Number")
 @implements("java.io.Serializable")
