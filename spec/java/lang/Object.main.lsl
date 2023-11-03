@@ -122,7 +122,7 @@ automaton ObjectAutomaton
 
     // special: static initialization
 
-    @Phantom fun *.__clinit__ (): void
+    @Phantom @static fun *.__clinit__ (): void
     {
         action DO_NOTHING();
     }
