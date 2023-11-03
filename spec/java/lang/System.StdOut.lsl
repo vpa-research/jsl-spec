@@ -340,7 +340,11 @@ automaton System_PrintStreamAutomaton
 
     @Phantom @static fun *.__super__ (): array<Object>
     {
-        result = [new VoidOutputStreamAutomaton(state = Initialized, closed = false)];
+        result = [
+            new VoidOutputStreamAutomaton(state = Initialized,
+                closed = false
+            )
+        ];
     }
 
 }
