@@ -23,7 +23,7 @@ type AtomicReference
 // global aliases and type overrides
 
 @implements("java.io.Serializable")
-@public type LSLAtomicReference
+type LSLAtomicReference
     is java.util.concurrent.atomic.AtomicReference
     for AtomicReference
 {
