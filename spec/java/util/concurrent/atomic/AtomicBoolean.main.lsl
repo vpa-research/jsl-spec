@@ -81,10 +81,8 @@ automaton AtomicBooleanAutomaton
 
     @final fun *.compareAndExchange (@target self: LSLAtomicBoolean, expectedValue: boolean, newValue: boolean): boolean
     {
-        val currentValue: boolean = this.value != FALSE;
-        result = currentValue;
-
-        if (currentValue == expectedValue)
+        result = this.value != FALSE;
+        if (result == expectedValue)
         {
             if (newValue)
                 this.value = TRUE;
@@ -97,10 +95,8 @@ automaton AtomicBooleanAutomaton
     @final fun *.compareAndExchangeAcquire (@target self: LSLAtomicBoolean, expectedValue: boolean, newValue: boolean): boolean
     {
         // #problem: unable to model memory effects here
-        val currentValue: boolean = this.value != FALSE;
-        result = currentValue;
-
-        if (currentValue == expectedValue)
+        result = this.value != FALSE;
+        if (result == expectedValue)
         {
             if (newValue)
                 this.value = TRUE;
@@ -113,10 +109,8 @@ automaton AtomicBooleanAutomaton
     @final fun *.compareAndExchangeRelease (@target self: LSLAtomicBoolean, expectedValue: boolean, newValue: boolean): boolean
     {
         // #problem: unable to model memory effects here
-        val currentValue: boolean = this.value != FALSE;
-        result = currentValue;
-
-        if (currentValue == expectedValue)
+        result = this.value != FALSE;
+        if (result == expectedValue)
         {
             if (newValue)
                 this.value = TRUE;

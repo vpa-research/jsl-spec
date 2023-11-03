@@ -3,24 +3,24 @@ libsl "1.1.0";
 library std
     version "11"
     language "Java"
-    url "https://github.com/openjdk/jdk11/blob/master/src/java.base/share/classes/java/util/concurrent/atomic/AtomicInteger.java";
+    url "https://github.com/openjdk/jdk11/blob/master/src/java.base/share/classes/java/util/concurrent/atomic/AtomicLong.java";
 
 // imports
 
 import java/lang/String;
-import java/util/function/IntBinaryOperator;
-import java/util/function/IntUnaryOperator;
+import java/util/function/LongBinaryOperator;
+import java/util/function/LongUnaryOperator;
 
-import java/util/concurrent/atomic/AtomicInteger;
+import java/util/concurrent/atomic/AtomicLong;
 
 
 // automata
 
-automaton AtomicIntegerAutomaton
+automaton AtomicLongAutomaton
 (
-    @private @volatile var value: int = 0, // WARNING: do not rename!
+    @private @volatile var value: long = 0L, // WARNING: do not rename!
 )
-: LSLAtomicInteger
+: LSLAtomicLong
 {
     // states and shifts
 
@@ -29,8 +29,8 @@ automaton AtomicIntegerAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LSLAtomicInteger (LSLAtomicInteger),
-        LSLAtomicInteger (LSLAtomicInteger, int),
+        LSLAtomicLong (LSLAtomicLong),
+        LSLAtomicLong (LSLAtomicLong, long),
     ];
 
     shift Initialized -> self by [
@@ -79,13 +79,13 @@ automaton AtomicIntegerAutomaton
 
     // constructors
 
-    constructor *.LSLAtomicInteger (@target self: LSLAtomicInteger)
+    constructor *.LSLAtomicLong (@target self: LSLAtomicLong)
     {
-        this.value = 0;
+        this.value = 0L;
     }
 
 
-    constructor *.LSLAtomicInteger (@target self: LSLAtomicInteger, initialValue: int)
+    constructor *.LSLAtomicLong (@target self: LSLAtomicLong, initialValue: long)
     {
         this.value = initialValue;
     }
@@ -95,14 +95,14 @@ automaton AtomicIntegerAutomaton
 
     // methods
 
-    @final fun *.accumulateAndGet (@target self: LSLAtomicInteger, x: int, accumulatorFunction: IntBinaryOperator): int
+    @final fun *.accumulateAndGet (@target self: LSLAtomicLong, x: long, accumulatorFunction: LongBinaryOperator): long
     {
         result = action CALL(accumulatorFunction, [this.value, x]);
         this.value = result;
     }
 
 
-    @final fun *.addAndGet (@target self: LSLAtomicInteger, delta: int): int
+    @final fun *.addAndGet (@target self: LSLAtomicLong, delta: long): long
     {
         result = this.value + delta;
         this.value = result;
@@ -110,13 +110,13 @@ automaton AtomicIntegerAutomaton
 
 
     // within java.lang.Number
-    fun *.byteValue (@target self: LSLAtomicInteger): byte
+    fun *.byteValue (@target self: LSLAtomicLong): byte
     {
         result = this.value as byte;
     }
 
 
-    @final fun *.compareAndExchange (@target self: LSLAtomicInteger, expectedValue: int, newValue: int): int
+    @final fun *.compareAndExchange (@target self: LSLAtomicLong, expectedValue: long, newValue: long): long
     {
         result = this.value;
         if (result == expectedValue)
@@ -124,16 +124,7 @@ automaton AtomicIntegerAutomaton
     }
 
 
-    @final fun *.compareAndExchangeAcquire (@target self: LSLAtomicInteger, expectedValue: int, newValue: int): int
-    {
-        // #problem: unable to model memory side-effects
-        result = this.value;
-        if (result == expectedValue)
-            this.value = newValue;
-    }
-
-
-    @final fun *.compareAndExchangeRelease (@target self: LSLAtomicInteger, expectedValue: int, newValue: int): int
+    @final fun *.compareAndExchangeAcquire (@target self: LSLAtomicLong, expectedValue: long, newValue: long): long
     {
         // #problem: unable to model memory side-effects
         result = this.value;
@@ -142,7 +133,16 @@ automaton AtomicIntegerAutomaton
     }
 
 
-    @final fun *.compareAndSet (@target self: LSLAtomicInteger, expectedValue: int, newValue: int): boolean
+    @final fun *.compareAndExchangeRelease (@target self: LSLAtomicLong, expectedValue: long, newValue: long): long
+    {
+        // #problem: unable to model memory side-effects
+        result = this.value;
+        if (result == expectedValue)
+            this.value = newValue;
+    }
+
+
+    @final fun *.compareAndSet (@target self: LSLAtomicLong, expectedValue: long, newValue: long): boolean
     {
         result = this.value == expectedValue;
         if (result)
@@ -150,141 +150,141 @@ automaton AtomicIntegerAutomaton
     }
 
 
-    @final fun *.decrementAndGet (@target self: LSLAtomicInteger): int
+    @final fun *.decrementAndGet (@target self: LSLAtomicLong): long
     {
-        result = this.value - 1;
+        result = this.value - 1L;
         this.value = result;
     }
 
 
-    fun *.doubleValue (@target self: LSLAtomicInteger): double
+    fun *.doubleValue (@target self: LSLAtomicLong): double
     {
         result = this.value as double;
     }
 
 
-    fun *.floatValue (@target self: LSLAtomicInteger): float
+    fun *.floatValue (@target self: LSLAtomicLong): float
     {
         result = this.value as float;
     }
 
 
-    @final fun *.get (@target self: LSLAtomicInteger): int
+    @final fun *.get (@target self: LSLAtomicLong): long
     {
         result = this.value;
     }
 
 
-    @final fun *.getAcquire (@target self: LSLAtomicInteger): int
+    @final fun *.getAcquire (@target self: LSLAtomicLong): long
     {
         // #problem: unable to model memory side-effects
         result = this.value;
     }
 
 
-    @final fun *.getAndAccumulate (@target self: LSLAtomicInteger, x: int, accumulatorFunction: IntBinaryOperator): int
+    @final fun *.getAndAccumulate (@target self: LSLAtomicLong, x: long, accumulatorFunction: LongBinaryOperator): long
     {
         result = this.value;
         this.value = action CALL(accumulatorFunction, [result, x]);
     }
 
 
-    @final fun *.getAndAdd (@target self: LSLAtomicInteger, delta: int): int
+    @final fun *.getAndAdd (@target self: LSLAtomicLong, delta: long): long
     {
         result = this.value;
         this.value = result + delta;
     }
 
 
-    @final fun *.getAndDecrement (@target self: LSLAtomicInteger): int
+    @final fun *.getAndDecrement (@target self: LSLAtomicLong): long
     {
         result = this.value;
-        this.value = result - 1;
+        this.value = result - 1L;
     }
 
 
-    @final fun *.getAndIncrement (@target self: LSLAtomicInteger): int
+    @final fun *.getAndIncrement (@target self: LSLAtomicLong): long
     {
         result = this.value;
-        this.value = result + 1;
+        this.value = result + 1L;
     }
 
 
-    @final fun *.getAndSet (@target self: LSLAtomicInteger, newValue: int): int
+    @final fun *.getAndSet (@target self: LSLAtomicLong, newValue: long): long
     {
         result = this.value;
         this.value = newValue;
     }
 
 
-    @final fun *.getAndUpdate (@target self: LSLAtomicInteger, updateFunction: IntUnaryOperator): int
+    @final fun *.getAndUpdate (@target self: LSLAtomicLong, updateFunction: LongUnaryOperator): long
     {
         result = this.value;
         this.value = action CALL(updateFunction, [result]);
     }
 
 
-    @final fun *.getOpaque (@target self: LSLAtomicInteger): int
+    @final fun *.getOpaque (@target self: LSLAtomicLong): long
     {
         // #problem: unable to model memory side-effects
         result = this.value;
     }
 
 
-    @final fun *.getPlain (@target self: LSLAtomicInteger): int
+    @final fun *.getPlain (@target self: LSLAtomicLong): long
     {
         // #problem: unable to model memory side-effects
         result = this.value;
     }
 
 
-    @final fun *.incrementAndGet (@target self: LSLAtomicInteger): int
+    @final fun *.incrementAndGet (@target self: LSLAtomicLong): long
     {
-        result = this.value + 1;
+        result = this.value + 1L;
         this.value = result;
     }
 
 
-    fun *.intValue (@target self: LSLAtomicInteger): int
+    fun *.intValue (@target self: LSLAtomicLong): int
     {
-        result = this.value;
+        result = this.value as int;
     }
 
 
-    @final fun *.lazySet (@target self: LSLAtomicInteger, newValue: int): void
+    @final fun *.lazySet (@target self: LSLAtomicLong, newValue: long): void
     {
         // #problem: unable to delay variable update
         this.value = newValue;
     }
 
 
-    fun *.longValue (@target self: LSLAtomicInteger): long
+    fun *.longValue (@target self: LSLAtomicLong): long
     {
-        result = this.value as long;
+        result = this.value;
     }
 
 
-    @final fun *.set (@target self: LSLAtomicInteger, newValue: int): void
+    @final fun *.set (@target self: LSLAtomicLong, newValue: long): void
     {
         this.value = newValue;
     }
 
 
-    @final fun *.setOpaque (@target self: LSLAtomicInteger, newValue: int): void
+    @final fun *.setOpaque (@target self: LSLAtomicLong, newValue: long): void
     {
         // #problem: unable to model memory side-effects
         this.value = newValue;
     }
 
 
-    @final fun *.setPlain (@target self: LSLAtomicInteger, newValue: int): void
+    @final fun *.setPlain (@target self: LSLAtomicLong, newValue: long): void
     {
         // #problem: unable to model memory side-effects
         this.value = newValue;
     }
 
 
-    @final fun *.setRelease (@target self: LSLAtomicInteger, newValue: int): void
+    @final fun *.setRelease (@target self: LSLAtomicLong, newValue: long): void
     {
         // #problem: unable to model memory side-effects
         this.value = newValue;
@@ -292,35 +292,26 @@ automaton AtomicIntegerAutomaton
 
 
     // within java.lang.Number
-    fun *.shortValue (@target self: LSLAtomicInteger): short
+    fun *.shortValue (@target self: LSLAtomicLong): short
     {
         result = this.value as short;
     }
 
 
-    fun *.toString (@target self: LSLAtomicInteger): String
+    fun *.toString (@target self: LSLAtomicLong): String
     {
         result = action OBJECT_TO_STRING(this.value);
     }
 
 
-    @final fun *.updateAndGet (@target self: LSLAtomicInteger, updateFunction: IntUnaryOperator): int
+    @final fun *.updateAndGet (@target self: LSLAtomicLong, updateFunction: LongUnaryOperator): long
     {
         result = action CALL(updateFunction, [this.value]);
         this.value = result;
     }
 
 
-    @final fun *.weakCompareAndSet (@target self: LSLAtomicInteger, expectedValue: int, newValue: int): boolean
-    {
-        // #problem: unable to delay variable update
-        result = this.value == expectedValue;
-        if (result)
-            this.value = newValue;
-    }
-
-
-    @final fun *.weakCompareAndSetAcquire (@target self: LSLAtomicInteger, expectedValue: int, newValue: int): boolean
+    @final fun *.weakCompareAndSet (@target self: LSLAtomicLong, expectedValue: long, newValue: long): boolean
     {
         // #problem: unable to model memory side-effects
         result = this.value == expectedValue;
@@ -329,7 +320,7 @@ automaton AtomicIntegerAutomaton
     }
 
 
-    @final fun *.weakCompareAndSetPlain (@target self: LSLAtomicInteger, expectedValue: int, newValue: int): boolean
+    @final fun *.weakCompareAndSetAcquire (@target self: LSLAtomicLong, expectedValue: long, newValue: long): boolean
     {
         // #problem: unable to model memory side-effects
         result = this.value == expectedValue;
@@ -338,7 +329,7 @@ automaton AtomicIntegerAutomaton
     }
 
 
-    @final fun *.weakCompareAndSetRelease (@target self: LSLAtomicInteger, expectedValue: int, newValue: int): boolean
+    @final fun *.weakCompareAndSetPlain (@target self: LSLAtomicLong, expectedValue: long, newValue: long): boolean
     {
         // #problem: unable to model memory side-effects
         result = this.value == expectedValue;
@@ -347,7 +338,16 @@ automaton AtomicIntegerAutomaton
     }
 
 
-    @final fun *.weakCompareAndSetVolatile (@target self: LSLAtomicInteger, expectedValue: int, newValue: int): boolean
+    @final fun *.weakCompareAndSetRelease (@target self: LSLAtomicLong, expectedValue: long, newValue: long): boolean
+    {
+        // #problem: unable to model memory side-effects
+        result = this.value == expectedValue;
+        if (result)
+            this.value = newValue;
+    }
+
+
+    @final fun *.weakCompareAndSetVolatile (@target self: LSLAtomicLong, expectedValue: long, newValue: long): boolean
     {
         // #problem: unable to model memory side-effects
         result = this.value == expectedValue;
