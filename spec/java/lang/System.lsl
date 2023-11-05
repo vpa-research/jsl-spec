@@ -14,6 +14,7 @@ import java/io/PrintStream;
 import java/lang/Object;
 import java/lang/String;
 import java/lang/Throwable;
+import java/util/Properties;
 
 
 // primary semantic types
@@ -55,10 +56,12 @@ import java/lang/Throwable;
     is java.lang.System
     for System
 {
+    @private @static var props: Properties = null; // WARNING: do not change!
+
     // #todo: attach I/O streams from this
     @private @static var console: Console = null;
 
-    @public @static var in: InputStream = null;         // WARNING: do not change!
+    @public @static var in: InputStream = null;  // WARNING: do not change!
     @public @static var out: PrintStream = null; // WARNING: do not change!
     @public @static var err: PrintStream = null; // WARNING: do not change!
 

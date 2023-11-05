@@ -17,6 +17,7 @@ import java/nio/channels/Channel;
 import java/util/Map;
 import java/util/Properties;
 import java/util/ResourceBundle;
+import jdk/internal/misc/VM;
 
 import java/lang/System;
 
@@ -79,6 +80,14 @@ automaton SystemAutomaton
     }
 
 
+    @static proc _initProperties (): void
+    {
+        // #problem: no approximation for Properties
+        props = null;//new Properties(84);
+        // #todo
+    }
+
+
     // constructors
 
     @private constructor *.LSLSystem (@target self: LSLSystem)
@@ -91,7 +100,7 @@ automaton SystemAutomaton
 
     @Phantom @static fun *.arraycopy (arg0: Object, arg1: int, arg2: Object, arg3: int, arg4: int): void
     {
-        // NOTE: using the original method
+        // WARNING: do not approximate this method - infinite recursion!
     }
 
 
@@ -281,22 +290,82 @@ automaton SystemAutomaton
 
     // methods
 
-    // special: static initialization
+    // special: internal class initialization by the JRE
 
-    @Phantom @static fun *.__clinit__ (): void
+    @private @static proc initPhase1 (): void  // WARNING: do not rename!
     {
-        // configure the standard <INPUT> stream
+        _initProperties();
+
+        //action CALL_METHOD(null as VM, "saveAndRemoveProperties", [props]);
+
+        //action CALL_METHOD(null as StaticProperty, "javaHome", []);
+        //VersionProps.init();
+
+        // configure the standard <INPUT/OUTPUT/ERROR> streams
         val newInput: InputStream = new SymbolicInputStreamAutomaton(state = Initialized,
             maxSize = 1000,
             supportMarks = false,
         );
+        // #todo: unsafe operations in BufferedInputStream
         in = newInput;//action DEBUG_DO("new java.io.BufferedInputStream(newInput)");
-
-        // configure the standard <OUTPUT> stream
         out = new System_PrintStreamAutomaton(state = Initialized);
-
-        // configure the standard <ERROR> stream
         err = new System_PrintStreamAutomaton(state = Initialized);
+
+        // #problem: no OS signal support
+        //Terminator.setup();
+
+        // JDK comment: system is fully initialized
+        action CALL_METHOD(null as VM, "initializeOSEnvironment", []);
+
+        // #problem: no thread support
+        //val current: Thread = action CALL_METHOD(null as Thread, "currentThread", []);
+        //val threadGroup: ThreadGroup = action CALL_METHOD(current, "getThreadGroup", []);
+        //action CALL_METHOD(threadGroup, "add", [current]);
+
+        // #todo
+        //setJavaLangAccess();
+
+        // #problem: too complex, package-private
+        //action CALL_METHOD(null as ClassLoader, "initLibraryPaths", []);
+
+        // JDK comment: IMPORTANT: Ensure that this remains the last initialization action!
+        action CALL_METHOD(null as VM, "initLevel", [1]);
+    }
+
+
+    @private @static proc initPhase2 (): int  // WARNING: do not change!
+    {
+        // #problem: java.lang.System#bootLayer initialization
+
+        // JDK comment: module system initialized
+        action CALL_METHOD(null as VM, "initLevel", [2]);
+
+        // JDK comment: JNI_OK
+        result = 0;
+    }
+
+
+    @private @static proc initPhase3 (): void  // WARNING: do not rename!
+    {
+        // #todo
+
+        // JDK comment: initializing the system class loader
+        action CALL_METHOD(null as VM, "initLevel", [3]);
+
+        // #todo
+
+        // JDK comment: system is fully initialized
+        action CALL_METHOD(null as VM, "initLevel", [4]);
+    }
+
+
+    // special: static initialization
+
+    @Phantom @static fun *.__clinit__ (): void
+    {
+        initPhase1();
+        initPhase2();
+        initPhase3();
     }
 
 }
