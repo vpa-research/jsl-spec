@@ -87,6 +87,7 @@ automaton SecureRandomAutomaton
     var provider: Provider;
     var algorithm: String;
     var threadSafe: boolean;
+    var defaultProvider: boolean = false;
 
     // utilities
 
@@ -104,45 +105,7 @@ automaton SecureRandomAutomaton
         action ASSUME(this.provider != null);
         action ASSUME(this.algorithm != null);
 
-        // #draft_below (maybe it will be deleted)
-
-        // val firstProviderName: String = action DEBUG_DO("providersList[0].getName()");
-        // action ASSUME(action OBJECT_EQUALS("firstProviderName", "SUN"));
-        // val services: Set = action DEBUG_DO("providersList[0].getServices()");
-
-        // #note: this is list of default algorithms https://docs.oracle.com/en/java/javase/11/docs/specs/security/standard-names.html#securerandom-number-generation-algorithms
-        /* if (action CALL_METHOD(services, "contains", ["NativePRNGNonBlocking"]))
-        {
-            // todo: it can throws AssertionError
-            this.secureRandomSpi = action DEBUG_DO("new sun.security.provider.NativePRNG.NonBlocking()");
-        }
-        else if (action CALL_METHOD(services, "contains", ["NativePRNGBlocking"]))
-        {
-            // todo: it can throws AssertionError
-            this.secureRandomSpi = action DEBUG_DO("new sun.security.provider.NativePRNG.Blocking()");
-        }
-        else if (action CALL_METHOD(services, "contains", ["NativePRNG"]))
-        {
-            // todo: it can throws AssertionError
-            this.secureRandomSpi = action DEBUG_DO("new sun.security.provider.NativePRNG()");
-        }
-        else if (action CALL_METHOD(services, "contains", ["Windows-PRNG"]))
-        {
-
-        }
-        else if (action CALL_METHOD(services, "contains", ["SHA1PRNG"]))
-        {
-            // todo: it has reflection calls inside; That's why must be created automaton ! And constructor must be approximated;
-            this.secureRandomSpi = action DEBUG_DO("new sun.security.provider.SecureRandom()");
-        }
-        else if (action CALL_METHOD(services, "contains", ["DRBG"]))
-        {
-            this.secureRandomSpi = action DEBUG_DO("new sun.security.provider.NativePRNG()");
-        }
-        else if (action CALL_METHOD(services, "contains", ["PKCS11"]))
-        {
-
-        }*/
+        _isDefaultProvider();
     }
 
 
@@ -154,7 +117,7 @@ automaton SecureRandomAutomaton
 
         var j: int = 0;
         action LOOP_FOR(
-            j, 0, providersListLength, +1,
+            j, 0, servicesLength, +1,
             findService_loop(j, services, curProvider)
         );
     }
@@ -177,6 +140,74 @@ automaton SecureRandomAutomaton
     proc _setSeed(): void
     {
         // TODO()
+    }
+
+
+    proc _isDefaultProvider(): void
+    {
+        val providerName: String = action DEBUG_DO("this.provider.getName()");
+
+        // #note: list of default providers https://docs.oracle.com/en/java/javase/11/security/oracle-providers.html#GUID-F41EE1C9-DD6A-4BAB-8979-EB7654094029
+        if (action OBJECT_EQUALS(providerName, "SUN"))
+        {
+            this.defaultProvider = true;
+        }
+        else if (action OBJECT_EQUALS(providerName, "SunRsaSign"))
+        {
+            this.defaultProvider = true;
+        }
+        else if (action OBJECT_EQUALS(providerName, "SunJSSE"))
+        {
+            this.defaultProvider = true;
+        }
+        else if (action OBJECT_EQUALS(providerName, "SunJCE"))
+        {
+            this.defaultProvider = true;
+        }
+        else if (action OBJECT_EQUALS(providerName, "Apple"))
+        {
+            this.defaultProvider = true;
+        }
+        else if (action OBJECT_EQUALS(providerName, "JdkLDAP"))
+        {
+            this.defaultProvider = true;
+        }
+        else if (action OBJECT_EQUALS(providerName, "SunJGSS"))
+        {
+            this.defaultProvider = true;
+        }
+        else if (action OBJECT_EQUALS(providerName, "SunSASL"))
+        {
+            this.defaultProvider = true;
+        }
+        else if (action OBJECT_EQUALS(providerName, "SunPCSC"))
+        {
+            this.defaultProvider = true;
+        }
+        else if (action OBJECT_EQUALS(providerName, "XMLDSig"))
+        {
+            this.defaultProvider = true;
+        }
+        else if (action OBJECT_EQUALS(providerName, "SunPKCS11"))
+        {
+            this.defaultProvider = true;
+        }
+        else if (action OBJECT_EQUALS(providerName, "SunEC"))
+        {
+            this.defaultProvider = true;
+        }
+        else if (action OBJECT_EQUALS(providerName, "SunMSCAPI"))
+        {
+            this.defaultProvider = true;
+        }
+        else if (action OBJECT_EQUALS(providerName, "OracleUcrypto"))
+        {
+            this.defaultProvider = true;
+        }
+        else if (action OBJECT_EQUALS(providerName, "JdkSASL"))
+        {
+            this.defaultProvider = true;
+        }
     }
 
 
