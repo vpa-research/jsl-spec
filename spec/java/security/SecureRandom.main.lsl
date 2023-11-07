@@ -266,21 +266,24 @@ automaton SecureRandomAutomaton
     }
 
 
+    // #question: do we need such realization of constructor ? Or it must be empty because this is "protected" ?
     @protected constructor *.SecureRandom (@target self: SecureRandom, secureRandomSpi: SecureRandomSpi, provider: Provider)
     {
-        action TODO();
+        action ERROR("Protected constructor call");
     }
 
 
+    // #question: do we need such realization of constructor ? Or it must be empty because this is "private" ?
     @private constructor *.SecureRandom (@target self: SecureRandom, secureRandomSpi: SecureRandomSpi, provider: Provider, algorithm: String)
     {
-        action TODO();
+        action ERROR("Private constructor call");
     }
 
 
     constructor *.SecureRandom (@target self: SecureRandom, seed: array<byte>)
     {
-        action TODO();
+        _getDefaultPRNG(false, null);
+        this.threadSafe = _getThreadSafe();
     }
 
 
