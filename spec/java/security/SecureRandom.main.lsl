@@ -83,14 +83,29 @@ automaton SecureRandomAutomaton
         toString,
     ];
 
+
     // internal variables
+
     var secureRandomSpi: SecureRandomSpi;
     var provider: Provider;
     var algorithm: String;
     var threadSafe: boolean;
     var defaultProvider: boolean = false;
 
+
     // utilities
+
+    @AutoInline @Phantom proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
+    @AutoInline @Phantom proc _throwIAE (): void
+    {
+        action THROW_NEW("java.lang.IllegalArgumentException", []);
+    }
+
 
     proc _getDefaultPRNG (setSeed: boolean, seed: array<byte>): void
     {
@@ -140,13 +155,7 @@ automaton SecureRandomAutomaton
     }
 
 
-    proc _setSeed(): void
-    {
-        // TODO()
-    }
-
-
-    proc _isDefaultProvider(): void
+    proc _isDefaultProvider (): void
     {
         val providerName: String = action DEBUG_DO("this.provider.getName()");
 
@@ -214,11 +223,37 @@ automaton SecureRandomAutomaton
     }
 
 
-    proc _getThreadSafe(): boolean
+    proc _getThreadSafe (): boolean
     {
         val arg0: String = "SecureRandom.SHA1PRNG ThreadSafe";
         val arg1: String = "false";
         result = action DEBUG_DO("Boolean.parseBoolean(provider.getProperty(arg0, arg1))");
+    }
+
+
+    @Phantom proc _nextBytes (bytes: array<byte>): void
+    {
+        // #question: is there a more efficient way?
+        val size: int = action ARRAY_SIZE(bytes);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, size, +1,
+            nextBytes_loop(i, bytes)
+        );
+    }
+
+
+    @Phantom proc _generateSeed (result: array<byte>, numBytes: int): void
+    {
+        // #question: is there a more efficient way?
+        val size: int = numBytes;
+        var bytes: array<byte> = action ARRAY_NEW("byte", size);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, size, +1,
+            nextBytes_loop(i, bytes)
+        );
+        result = bytes;
     }
 
 
@@ -338,13 +373,16 @@ automaton SecureRandomAutomaton
 
     fun *.generateSeed (@target self: SecureRandom, numBytes: int): array<byte>
     {
-        action TODO();
+        if (numBytes < 0)
+            _throwIAE();
+
+        action SYNCHRONIZED_BLOCK(self, _generateSeed(result, numBytes));
     }
 
 
     fun *.getAlgorithm (@target self: SecureRandom): String
     {
-        action TODO();
+        result = this.algorithm;
     }
 
 
@@ -356,7 +394,7 @@ automaton SecureRandomAutomaton
 
     @final fun *.getProvider (@target self: SecureRandom): Provider
     {
-        action TODO();
+        result = this.provider;
     }
 
 
@@ -419,85 +457,114 @@ automaton SecureRandomAutomaton
     // within java.util.Random
     fun *.nextBoolean (@target self: SecureRandom): boolean
     {
-        action TODO();
+        result = action SYMBOLIC("boolean");
     }
 
 
     fun *.nextBytes (@target self: SecureRandom, bytes: array<byte>): void
     {
-        action TODO();
+        action SYNCHRONIZED_BLOCK(self, _nextBytes(bytes));
+    }
+
+
+    @Phantom proc nextBytes_loop (i: int, bytes: array<byte>): void
+    {
+        bytes[i] = action SYMBOLIC("byte");
     }
 
 
     fun *.nextBytes (@target self: SecureRandom, bytes: array<byte>, params: SecureRandomParameters): void
     {
-        action TODO();
+        if (params == null)
+            _throwIAE();
+
+        if (bytes == null)
+            _throwNPE();
+
+        action SYNCHRONIZED_BLOCK(self, _nextBytes(bytes));
     }
 
 
     // within java.util.Random
     fun *.nextDouble (@target self: SecureRandom): double
     {
-        action TODO();
+        result = action SYMBOLIC("double");
+
+        action ASSUME(0.0 <= result);
+        action ASSUME(result < 1.0);
     }
 
 
     // within java.util.Random
     fun *.nextFloat (@target self: SecureRandom): float
     {
-        action TODO();
+        result = action SYMBOLIC("float");
+
+        action ASSUME(0.0f <= result);
+        action ASSUME(result < 1.0f);
     }
 
 
     // within java.util.Random
     @synchronized fun *.nextGaussian (@target self: SecureRandom): double
     {
-        action TODO();
+        result = action SYMBOLIC("double");
+        val isNaN: boolean = action DEBUG_DO("Double.isNaN(result)");
+        action ASSUME(isNaN == false);
     }
 
 
     // within java.util.Random
     fun *.nextInt (@target self: SecureRandom): int
     {
-        action TODO();
+        result = action SYMBOLIC("int");
     }
 
 
     // within java.util.Random
     fun *.nextInt (@target self: SecureRandom, bound: int): int
     {
-        action TODO();
+        if (bound <= 0)
+            action THROW_NEW("java.lang.IllegalArgumentException", ["bound must be positive"]);
+
+        result = action SYMBOLIC("int");
+
+        action ASSUME(0 <= result);
+        action ASSUME(result < bound);
     }
 
 
     // within java.util.Random
     fun *.nextLong (@target self: SecureRandom): long
     {
-        action TODO();
+        result = action SYMBOLIC("long");
     }
 
 
     fun *.reseed (@target self: SecureRandom): void
     {
-        action TODO();
+        action DO_NOTHING();
     }
 
 
     fun *.reseed (@target self: SecureRandom, params: SecureRandomParameters): void
     {
-        action TODO();
+        if (params == null)
+            _throwIAE();
+
+        action DO_NOTHING();
     }
 
 
     fun *.setSeed (@target self: SecureRandom, seed: array<byte>): void
     {
-        action TODO();
+        action DO_NOTHING();
     }
 
 
     fun *.setSeed (@target self: SecureRandom, seed: long): void
     {
-        action TODO();
+        action DO_NOTHING();
     }
 
 
