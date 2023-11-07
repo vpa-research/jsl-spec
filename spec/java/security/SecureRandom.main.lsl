@@ -11,6 +11,7 @@ import java/lang/Object;
 import java/lang/String;
 import java/security/SecureRandom;
 import java/security/Provider;
+import java/security/Service;
 import java/security/SecureRandomParameters;
 import java/security/SecureRandomSpi;
 import java/util/Random;
@@ -114,18 +115,20 @@ automaton SecureRandomAutomaton
         val curProvider: Provider = providersList[i];
         val services: Set = action DEBUG_DO("curProvider.getServices()");
         val servicesLength: int = action CALL_METHOD(services, "size", []);
+        val services_array: array<Provider_Service> = action CALL_METHOD(services, "toArray", []) as array<Provider_Service>;
 
         var j: int = 0;
         action LOOP_FOR(
             j, 0, servicesLength, +1,
-            findService_loop(j, services, curProvider)
+            findService_loop(j, services_array, curProvider)
         );
     }
 
 
-    @Phantom proc findService_loop (j: int, services: Set, curProvider: Provider): void
+    @Phantom proc findService_loop (j: int, services_array: array<Provider_Service>, curProvider: Provider): void
     {
-        val curService: Service = action DEBUG_DO("services[j].getServices()");
+        val curService: Provider_Service = services_array[j];
+
         val curServiceType: String = action DEBUG_DO("curService.getType()");
 
         if (action OBJECT_EQUALS(curServiceType, "SecureRandom"))
@@ -211,15 +214,20 @@ automaton SecureRandomAutomaton
     }
 
 
+    proc _getThreadSafe(): boolean
+    {
+        val arg0: String = "SecureRandom.SHA1PRNG ThreadSafe";
+        val arg1: String = "false";
+        result = action DEBUG_DO("Boolean.parseBoolean(provider.getProperty(arg0, arg1))");
+    }
+
+
     // constructors
 
     constructor *.SecureRandom (@target self: SecureRandom)
     {
-        _setSeed();
         _getDefaultPRNG(false, null);
-        val arg0: String = "SecureRandom.SHA1PRNG ThreadSafe";
-        val arg1: String = "false";
-        this.threadSafe = action DEBUG_DO("Boolean.parseBoolean(provider.getProperty(arg0, arg1))");
+        this.threadSafe = _getThreadSafe();
     }
 
 

@@ -12,9 +12,8 @@ import java/lang/Object;
 
 // local semantic types
 
-@GenerateMe
-@public @static type Service
-    is java.security.Service
+@public @static type Provider_Service
+    is java.security.Provider.Service
     for Object
 {
 }
