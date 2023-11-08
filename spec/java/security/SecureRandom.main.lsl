@@ -161,67 +161,8 @@ automaton SecureRandomAutomaton
     {
         val providerName: String = action CALL_METHOD(this.provider, "getName", []);
 
-        // #note: list of default providers https://docs.oracle.com/en/java/javase/11/security/oracle-providers.html#GUID-F41EE1C9-DD6A-4BAB-8979-EB7654094029
-        if (action OBJECT_EQUALS(providerName, "SUN"))
-        {
+        if (action MAP_HAS_KEY(this.defaultProvidersMap, providerName))
             this.defaultProvider = true;
-        }
-        else if (action OBJECT_EQUALS(providerName, "SunRsaSign"))
-        {
-            this.defaultProvider = true;
-        }
-        else if (action OBJECT_EQUALS(providerName, "SunJSSE"))
-        {
-            this.defaultProvider = true;
-        }
-        else if (action OBJECT_EQUALS(providerName, "SunJCE"))
-        {
-            this.defaultProvider = true;
-        }
-        else if (action OBJECT_EQUALS(providerName, "Apple"))
-        {
-            this.defaultProvider = true;
-        }
-        else if (action OBJECT_EQUALS(providerName, "JdkLDAP"))
-        {
-            this.defaultProvider = true;
-        }
-        else if (action OBJECT_EQUALS(providerName, "SunJGSS"))
-        {
-            this.defaultProvider = true;
-        }
-        else if (action OBJECT_EQUALS(providerName, "SunSASL"))
-        {
-            this.defaultProvider = true;
-        }
-        else if (action OBJECT_EQUALS(providerName, "SunPCSC"))
-        {
-            this.defaultProvider = true;
-        }
-        else if (action OBJECT_EQUALS(providerName, "XMLDSig"))
-        {
-            this.defaultProvider = true;
-        }
-        else if (action OBJECT_EQUALS(providerName, "SunPKCS11"))
-        {
-            this.defaultProvider = true;
-        }
-        else if (action OBJECT_EQUALS(providerName, "SunEC"))
-        {
-            this.defaultProvider = true;
-        }
-        else if (action OBJECT_EQUALS(providerName, "SunMSCAPI"))
-        {
-            this.defaultProvider = true;
-        }
-        else if (action OBJECT_EQUALS(providerName, "OracleUcrypto"))
-        {
-            this.defaultProvider = true;
-        }
-        else if (action OBJECT_EQUALS(providerName, "JdkSASL"))
-        {
-            this.defaultProvider = true;
-        }
     }
 
 
@@ -248,6 +189,32 @@ automaton SecureRandomAutomaton
             nextBytes_loop(i, bytes)
         );
         result = bytes;
+    }
+
+
+    // special: static initialization
+
+
+    @Phantom @static fun *.__clinit__ (): void
+    {
+        // #note: list of default providers https://docs.oracle.com/javase/9/security/oracleproviders.htm#JSSEC-GUID-F41EE1C9-DD6A-4BAB-8979-EB7654094029
+
+        action MAP_SET(defaultProvidersMap, "SUN", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunRsaSign", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunJSSE", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunJCE", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "Apple", SOMETHING);
+
+        action MAP_SET(defaultProvidersMap, "JdkLDAP", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunJGSS", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunSASL", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunPCSC", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "XMLDSig", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunPKCS11", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunEC", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunMSCAPI", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "OracleUcrypto", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "JdkSASL", SOMETHING);
     }
 
 
