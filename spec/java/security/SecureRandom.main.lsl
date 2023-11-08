@@ -106,6 +106,12 @@ automaton SecureRandomAutomaton
     }
 
 
+    @AutoInline @Phantom proc _throwIE (): void
+    {
+        action THROW_NEW("java.lang.InternalError", []);
+    }
+
+
     proc _getDefaultPRNG (setSeed: boolean, seed: array<byte>): void
     {
         val providersList: array<Provider> = action CALL_METHOD(null as Security, "getProviders", [])
@@ -117,8 +123,8 @@ automaton SecureRandomAutomaton
             findProvider_loop(i, providersList)
         );
 
-        action ASSUME(this.provider != null);
-        action ASSUME(this.algorithm != null);
+        if (this.provider == null || this.algorithm == null)
+            _throwIE();
 
         _isDefaultProvider();
     }
