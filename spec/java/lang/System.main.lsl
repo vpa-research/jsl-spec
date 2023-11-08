@@ -315,7 +315,7 @@ automaton SystemAutomaton
         //Terminator.setup();
 
         // JDK comment: system is fully initialized
-        action CALL_METHOD(null as VM, "initializeOSEnvironment", []);
+        //action CALL_METHOD(null as VM, "initializeOSEnvironment", []); <- NPE
 
         // #problem: no thread support
         //val current: Thread = action CALL_METHOD(null as Thread, "currentThread", []);
