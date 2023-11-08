@@ -17,7 +17,7 @@ import java/util/OptionalInt;
 
 // globals
 
-val EMPTY_OPTIONAL_INT: LSLOptionalInt
+val EMPTY_OPTIONAL_INT: OptionalInt
     = new OptionalIntAutomaton(state = Initialized,
         value = 0,
         present = false
@@ -90,13 +90,13 @@ automaton OptionalIntAutomaton
 
     // static methods
 
-    @static fun *.empty (): LSLOptionalInt
+    @static fun *.empty (): OptionalInt
     {
         result = EMPTY_OPTIONAL_INT;
     }
 
 
-    @static fun *.of (x: int): LSLOptionalInt
+    @static fun *.of (x: int): OptionalInt
     {
         result = new OptionalIntAutomaton(state = Initialized,
             value = x,

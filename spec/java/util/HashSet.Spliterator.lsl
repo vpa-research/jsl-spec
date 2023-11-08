@@ -191,7 +191,7 @@ automaton HashSet_KeySpliteratorAutomaton
     }
 
 
-    fun *.trySplit (@target self: HashSet_KeySpliterator): HashSet_KeySpliterator
+    fun *.trySplit (@target self: HashSet_KeySpliterator): Spliterator
     {
         action ASSUME(this.parent != null);
 

@@ -17,7 +17,7 @@ import java/util/OptionalDouble;
 
 // globals
 
-val EMPTY_OPTIONAL_DOUBLE: LSLOptionalDouble
+val EMPTY_OPTIONAL_DOUBLE: OptionalDouble
     = new OptionalDoubleAutomaton(state = Initialized,
         value = 0.0,
         present = false
@@ -90,13 +90,13 @@ automaton OptionalDoubleAutomaton
 
     // static methods
 
-    @static fun *.empty (): LSLOptionalDouble
+    @static fun *.empty (): OptionalDouble
     {
         result = EMPTY_OPTIONAL_DOUBLE;
     }
 
 
-    @static fun *.of (x: double): LSLOptionalDouble
+    @static fun *.of (x: double): OptionalDouble
     {
         result = new OptionalDoubleAutomaton(state = Initialized,
             value = x,

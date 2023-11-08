@@ -18,7 +18,10 @@ import java/util/Optional;
 // globals
 
 // #problem: type parameter is missing
-val EMPTY_OPTIONAL: LSLOptional = new OptionalAutomaton(state=Initialized, value=null);
+val EMPTY_OPTIONAL: Optional
+    = new OptionalAutomaton(state = Initialized,
+        value = null
+    );
 
 
 // automata
@@ -70,12 +73,6 @@ automaton OptionalAutomaton
 
     // utilities
 
-    @static proc _makeEmpty (): LSLOptional
-    {
-        result = EMPTY_OPTIONAL;
-    }
-
-
     @AutoInline @Phantom proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
@@ -112,15 +109,15 @@ automaton OptionalAutomaton
 
     @Parameterized(["T"])
     @ParameterizedResult(["T"])
-    @static fun *.empty (): LSLOptional
+    @static fun *.empty (): Optional
     {
-        result = _makeEmpty();
+        result = EMPTY_OPTIONAL;
     }
 
 
     @Parameterized(["T"])
     @ParameterizedResult(["T"])
-    @static fun *.of (obj: Object): LSLOptional
+    @static fun *.of (obj: Object): Optional
     {
         requires obj != null;
 
@@ -135,10 +132,10 @@ automaton OptionalAutomaton
 
     @Parameterized(["T"])
     @ParameterizedResult(["T"])
-    @static fun *.ofNullable (obj: Object): LSLOptional
+    @static fun *.ofNullable (obj: Object): Optional
     {
         if (obj == null)
-            result = _makeEmpty();
+            result = EMPTY_OPTIONAL;
         else
             result = new OptionalAutomaton(state = Initialized,
                 value = obj
@@ -191,7 +188,7 @@ automaton OptionalAutomaton
             if (sat)
                 result = self;
             else
-                result = _makeEmpty();
+                result = EMPTY_OPTIONAL as Object as LSLOptional;
         }
     }
 
@@ -200,7 +197,7 @@ automaton OptionalAutomaton
     @ParameterizedResult(["U"])
     // #problem
     fun *.flatMap (@target @Parameterized(["T"]) self: LSLOptional,
-                   @Parameterized(["? super T", "? extends LSLOptional<? extends U>"]) mapper: Function): LSLOptional
+                   @Parameterized(["? super T", "? extends LSLOptional<? extends U>"]) mapper: Function): Optional
     {
         requires mapper != null;
 
@@ -209,12 +206,12 @@ automaton OptionalAutomaton
 
         if (this.value == null)
         {
-            result = _makeEmpty();
+            result = EMPTY_OPTIONAL;
         }
         else
         {
             // #problem: cast action return value to LSLOptional
-            result = action CALL(mapper, [this.value]) as LSLOptional;
+            result = action CALL(mapper, [this.value]) as Optional;
 
             if (result == null)
                 _throwNPE();
@@ -292,7 +289,7 @@ automaton OptionalAutomaton
     @Parameterized(["U"])
     @ParameterizedResult(["U"])
     fun *.map (@target @Parameterized(["T"]) self: LSLOptional,
-               @Parameterized(["? super T", "? extends U"]) mapper: Function): LSLOptional
+               @Parameterized(["? super T", "? extends U"]) mapper: Function): Optional
     {
         requires mapper != null;
 
@@ -301,7 +298,7 @@ automaton OptionalAutomaton
 
         if (this.value == null)
         {
-            result = _makeEmpty();
+            result = EMPTY_OPTIONAL;
         }
         else
         {
@@ -309,7 +306,7 @@ automaton OptionalAutomaton
             val mappedValue: Object = action CALL(mapper, [this.value]);
 
             if (mappedValue == null)
-                result = _makeEmpty();
+                result = EMPTY_OPTIONAL;
             else
                 // #problem: how to parameterize the result?
                 result = new OptionalAutomaton(state = Initialized,
