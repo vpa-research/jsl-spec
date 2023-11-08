@@ -385,12 +385,13 @@ automaton StringBufferAutomaton
 
     @synchronized fun *.append (@target self: StringBuffer, sb: StringBuffer): StringBuffer
     {
-        if (sb == null)
+        val s: Object = sb;
+        if (s == null)
         {
             this.storage += "null";
             this.length += 4;
         }
-        else if (sb has StringBufferAutomaton)
+        else if (s has StringBufferAutomaton)
         {
             this.storage += StringBufferAutomaton(sb).storage;
             this.length += StringBufferAutomaton(sb).length;

@@ -193,7 +193,7 @@ automaton ArrayList_SpliteratorAutomaton
     }
 
 
-    fun *.trySplit (@target self: ArrayList_Spliterator): ArrayList_Spliterator
+    fun *.trySplit (@target self: ArrayList_Spliterator): Spliterator
     {
         val hi: int = _getFence();
         val lo: int = this.index;

@@ -78,13 +78,13 @@ automaton CharsetAutomaton
     }
 
 
-    @static fun *.defaultCharset (): Charset
+    @static fun *.defaultCharset (): LSLCharset
     {
         action TODO();
     }
 
 
-    @static fun *.forName (charsetName: String): Charset
+    @static fun *.forName (charsetName: String): LSLCharset
     {
         action TODO();
     }

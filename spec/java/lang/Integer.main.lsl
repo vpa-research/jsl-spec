@@ -125,7 +125,7 @@ automaton IntegerAutomaton
 
 
     @throws(["java.lang.NumberFormatException"])
-    @Phantom @static fun *.decode (nm: String): LSLInteger
+    @Phantom @static fun *.decode (nm: String): Integer
     {
         // NOTE: using the original method
     }
@@ -137,19 +137,19 @@ automaton IntegerAutomaton
     }
 
 
-    @Phantom @static fun *.getInteger (nm: String): LSLInteger
+    @Phantom @static fun *.getInteger (nm: String): Integer
     {
         // NOTE: using the original method
     }
 
 
-    @Phantom @static fun *.getInteger (nm: String, _val: Integer): LSLInteger
+    @Phantom @static fun *.getInteger (nm: String, _val: Integer): Integer
     {
         // NOTE: using the original method
     }
 
 
-    @Phantom @static fun *.getInteger (nm: String, _val: int): LSLInteger
+    @Phantom @static fun *.getInteger (nm: String, _val: int): Integer
     {
         // NOTE: using the original method
     }
@@ -330,20 +330,20 @@ automaton IntegerAutomaton
 
 
     @throws(["java.lang.NumberFormatException"])
-    @Phantom @static fun *.valueOf (s: String): LSLInteger
+    @Phantom @static fun *.valueOf (s: String): Integer
     {
         // NOTE: using the original method
     }
 
 
     @throws(["java.lang.NumberFormatException"])
-    @Phantom @static fun *.valueOf (s: String, radix: int): LSLInteger
+    @Phantom @static fun *.valueOf (s: String, radix: int): Integer
     {
         // NOTE: using the original method
     }
 
 
-    @static fun *.valueOf (i: int): LSLInteger
+    @static fun *.valueOf (i: int): Integer
     {
         result = new IntegerAutomaton(state = Initialized,
             value = i

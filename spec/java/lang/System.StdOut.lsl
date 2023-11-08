@@ -97,7 +97,7 @@ automaton System_PrintStreamAutomaton
 
         _checkOpen();
 
-        result = self;
+        result = self as Object as PrintStream;
     }
 
 
@@ -112,7 +112,7 @@ automaton System_PrintStreamAutomaton
 
         _checkOpen();
 
-        result = self;
+        result = self as Object as PrintStream;
     }
 
 
@@ -120,7 +120,7 @@ automaton System_PrintStreamAutomaton
     {
         _checkOpen();
 
-        result = self;
+        result = self as Object as PrintStream;
     }
 
 
@@ -149,7 +149,7 @@ automaton System_PrintStreamAutomaton
 
         _checkOpen();
 
-        result = self;
+        result = self as Object as PrintStream;
     }
 
 
@@ -160,7 +160,7 @@ automaton System_PrintStreamAutomaton
 
         _checkOpen();
 
-        result = self;
+        result = self as Object as PrintStream;
     }
 
 
@@ -228,7 +228,7 @@ automaton System_PrintStreamAutomaton
 
         _checkOpen();
 
-        result = self;
+        result = self as Object as PrintStream;
     }
 
 
@@ -239,7 +239,7 @@ automaton System_PrintStreamAutomaton
 
         _checkOpen();
 
-        result = self;
+        result = self as Object as PrintStream;
     }
 
 
@@ -341,9 +341,7 @@ automaton System_PrintStreamAutomaton
     @Phantom @static fun *.__super__ (): array<Object>
     {
         result = [
-            new VoidOutputStreamAutomaton(state = Initialized,
-                closed = false
-            )
+            null as OutputStream,
         ];
     }
 

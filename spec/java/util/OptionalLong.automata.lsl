@@ -17,7 +17,7 @@ import java/util/OptionalLong;
 
 // globals
 
-val EMPTY_OPTIONAL_LONG: LSLOptionalLong
+val EMPTY_OPTIONAL_LONG: OptionalLong
     = new OptionalLongAutomaton(state = Initialized,
         value = 0L,
         present = false
@@ -90,13 +90,13 @@ automaton OptionalLongAutomaton
 
     // static methods
 
-    @static fun *.empty (): LSLOptionalLong
+    @static fun *.empty (): OptionalLong
     {
         result = EMPTY_OPTIONAL_LONG;
     }
 
 
-    @static fun *.of (x: long): LSLOptionalLong
+    @static fun *.of (x: long): OptionalLong
     {
         result = new OptionalLongAutomaton(state = Initialized,
             value = x,
