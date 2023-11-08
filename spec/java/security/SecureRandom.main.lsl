@@ -9,6 +9,7 @@ library std
 
 import java/lang/Object;
 import java/lang/String;
+import java/security/Security;
 import java/security/SecureRandom;
 import java/security/Provider;
 import java/security/Service;
@@ -86,10 +87,8 @@ automaton SecureRandomAutomaton
 
     // internal variables
 
-    var secureRandomSpi: SecureRandomSpi;
     var provider: Provider;
     var algorithm: String;
-    var threadSafe: boolean;
     var defaultProvider: boolean = false;
 
 
@@ -109,7 +108,7 @@ automaton SecureRandomAutomaton
 
     proc _getDefaultPRNG (setSeed: boolean, seed: array<byte>): void
     {
-        val providersList: array<Provider> = action DEBUG_DO("java.security.Security.getProviders()");
+        val providersList: array<Provider> = action CALL_METHOD(null as Security, "getProviders", [])
         val providersListLength: int = action ARRAY_SIZE(providersList);
 
         var i: int = 0;
@@ -128,7 +127,7 @@ automaton SecureRandomAutomaton
     @Phantom proc findProvider_loop (i: int, providersList: array<Provider>): void
     {
         val curProvider: Provider = providersList[i];
-        val services: Set = action DEBUG_DO("curProvider.getServices()");
+        val services: Set = action CALL_METHOD(curProvider, "getServices", []);
         val servicesLength: int = action CALL_METHOD(services, "size", []);
         val services_array: array<Provider_Service> = action CALL_METHOD(services, "toArray", []) as array<Provider_Service>;
 
@@ -143,13 +142,12 @@ automaton SecureRandomAutomaton
     @Phantom proc findService_loop (j: int, services_array: array<Provider_Service>, curProvider: Provider): void
     {
         val curService: Provider_Service = services_array[j];
-
-        val curServiceType: String = action DEBUG_DO("curService.getType()");
+        val curServiceType: String = action CALL_METHOD(curService, "getType", []);
 
         if (action OBJECT_EQUALS(curServiceType, "SecureRandom"))
         {
             this.provider = curProvider;
-            this.algorithm = action DEBUG_DO("curService.getAlgorithm()");
+            this.algorithm = action CALL_METHOD(curService, "getAlgorithm", []);
             action LOOP_BREAK();
         }
     }
@@ -157,7 +155,7 @@ automaton SecureRandomAutomaton
 
     proc _isDefaultProvider (): void
     {
-        val providerName: String = action DEBUG_DO("this.provider.getName()");
+        val providerName: String = action CALL_METHOD(this.provider, "getName", []);
 
         // #note: list of default providers https://docs.oracle.com/en/java/javase/11/security/oracle-providers.html#GUID-F41EE1C9-DD6A-4BAB-8979-EB7654094029
         if (action OBJECT_EQUALS(providerName, "SUN"))
@@ -223,14 +221,6 @@ automaton SecureRandomAutomaton
     }
 
 
-    proc _getThreadSafe (): boolean
-    {
-        val arg0: String = "SecureRandom.SHA1PRNG ThreadSafe";
-        val arg1: String = "false";
-        result = action DEBUG_DO("Boolean.parseBoolean(provider.getProperty(arg0, arg1))");
-    }
-
-
     @Phantom proc _nextBytes (bytes: array<byte>): void
     {
         // #question: is there a more efficient way?
@@ -262,7 +252,6 @@ automaton SecureRandomAutomaton
     constructor *.SecureRandom (@target self: SecureRandom)
     {
         _getDefaultPRNG(false, null);
-        this.threadSafe = _getThreadSafe();
     }
 
 
@@ -283,7 +272,6 @@ automaton SecureRandomAutomaton
     constructor *.SecureRandom (@target self: SecureRandom, seed: array<byte>)
     {
         _getDefaultPRNG(false, null);
-        this.threadSafe = _getThreadSafe();
     }
 
 

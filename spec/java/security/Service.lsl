@@ -8,6 +8,7 @@ library std
 // imports
 
 import java/lang/Object;
+import java/lang/String;
 
 
 // local semantic types
@@ -16,4 +17,7 @@ import java/lang/Object;
     is java.security.Provider.Service
     for Object
 {
+    fun *.getType(): String;
+
+    fun *.getAlgorithm(): String;
 }
