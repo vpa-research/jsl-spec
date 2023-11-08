@@ -128,20 +128,18 @@ automaton SecureRandomAutomaton
     {
         val curProvider: Provider = providersList[i];
         val services: Set = action CALL_METHOD(curProvider, "getServices", []);
-        val servicesLength: int = action CALL_METHOD(services, "size", []);
-        val services_array: array<Provider_Service> = action CALL_METHOD(services, "toArray", []) as array<Provider_Service>;
+        val iter: Iterator = action CALL_METHOD(services, "iterator", []);
 
-        var j: int = 0;
-        action LOOP_FOR(
-            j, 0, servicesLength, +1,
-            findService_loop(j, services_array, curProvider)
+        action LOOP_WHILE(
+            action CALL_METHOD(iter, "hasNext", []),
+            findService_loop(iter, curProvider)
         );
     }
 
 
-    @Phantom proc findService_loop (j: int, services_array: array<Provider_Service>, curProvider: Provider): void
+    @Phantom proc findService_loop (iter: Iterator, curProvider: Provider): void
     {
-        val curService: Provider_Service = services_array[j];
+        val curService: Provider_Service = action CALL_METHOD(iter, "next", []) as Provider_Service;
         val curServiceType: String = action CALL_METHOD(curService, "getType", []);
 
         if (action OBJECT_EQUALS(curServiceType, "SecureRandom"))
