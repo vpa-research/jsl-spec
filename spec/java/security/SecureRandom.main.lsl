@@ -744,10 +744,4 @@ automaton SecureRandomAutomaton
         action DO_NOTHING();
     }
 
-
-    fun *.toString (@target self: SecureRandom): String
-    {
-        action TODO();
-    }
-
 }
