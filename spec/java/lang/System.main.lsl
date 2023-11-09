@@ -240,6 +240,8 @@ automaton SystemAutomaton
 
         if (SYSTEM_IS_WINDOWS)
             result = libname + ".dll";
+        else if (SYSTEM_IS_MAC)
+            result = "lib" + libname + ".dylib";
         else
             result = "lib" + libname + ".so";
     }

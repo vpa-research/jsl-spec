@@ -71,8 +71,9 @@ import java/util/Properties;
     @private @static val NANOTIME_WARP_MAX: long = 1000L;
 }
 
-val SYSTEM_IS_WINDOWS: boolean = action SYMBOLIC("boolean");
-val SYSTEM_IS_MAC: boolean     = !SYSTEM_IS_WINDOWS && action SYMBOLIC("boolean");
+// WARNING: declaration order is important!
+val SYSTEM_IS_MAC: boolean     = action SYMBOLIC("boolean");
+val SYSTEM_IS_WINDOWS: boolean = !SYSTEM_IS_MAC && action SYMBOLIC("boolean");
 
 
 @GenerateMe
