@@ -98,7 +98,7 @@ automaton SystemAutomaton
 
     // static methods
 
-    @Phantom @static fun *.arraycopy (arg0: Object, arg1: int, arg2: Object, arg3: int, arg4: int): void
+    @Phantom @static fun *.arraycopy (src: Object, srcPos: int, dest: Object, destPos: int, length: int): void
     {
         // WARNING: do not approximate this method - infinite recursion!
     }
@@ -125,7 +125,7 @@ automaton SystemAutomaton
 
     @static fun *.exit (status: int): void
     {
-        // #problem: not way to forcebly shutdown the program execution
+        // #problem: not way to forcibly shutdown the program execution
         action ERROR("Unexpected shutdown");
     }
 
@@ -175,13 +175,21 @@ automaton SystemAutomaton
     @Phantom @static fun *.getenv (): Map
     {
         // NOTE: using the original method
+
+        // #todo: provide an actual map with symbolic values
     }
 
 
     @static fun *.getenv (name: String): String
     {
-        result = action SYMBOLIC("java.lang.String");
-        action ASSUME(result != null);
+        val symbolCount: int = action SYMBOLIC("int");
+        action ASSUME(symbolCount >= 0);
+        action ASSUME(symbolCount < 256);
+
+        val symbols: array<char> = action SYMBOLIC_ARRAY("char", symbolCount);
+        action ASSUME(symbols != null);
+
+        result = action OBJECT_TO_STRING(symbols);
     }
 
 
@@ -220,9 +228,20 @@ automaton SystemAutomaton
     }
 
 
-    @Phantom @static fun *.mapLibraryName (arg0: String): String
+    @static fun *.mapLibraryName (libname: String): String
     {
-        // NOTE: using the original method
+        if (libname == null)
+            _throwNPE();
+
+        // https://hg.openjdk.org/jdk8/jdk8/jdk/file/687fd7c7986d/src/share/native/java/lang/System.c#l466
+        val len: int = action CALL_METHOD(libname, "length", []);
+        if (len > 240)
+            action THROW_NEW("java.lang.IllegalArgumentException", ["name too long"]);
+
+        if (SYSTEM_IS_WINDOWS)
+            result = libname + ".dll";
+        else
+            result = "lib" + libname + ".so";
     }
 
 
@@ -233,10 +252,9 @@ automaton SystemAutomaton
     }
 
 
-    @Phantom @static fun *.runFinalization (): void
+    @static fun *.runFinalization (): void
     {
-        // #problem: what do we need to do here?
-        action TODO();
+        // #problem: it is not possible to call finalizer method on an arbitrary object
     }
 
 
@@ -270,15 +288,19 @@ automaton SystemAutomaton
     }
 
 
-    @Phantom @static fun *.setProperties (props: Properties): void
+    @static fun *.setProperties (p: Properties): void
     {
-        // NOTE: using the original method
+        // #todo: improve after there will be some implementation for Properties
+        props = p;
     }
 
 
-    @Phantom @static fun *.setProperty (key: String, value: String): String
+    @static fun *.setProperty (key: String, value: String): String
     {
-        // NOTE: using the original method
+        if (key == null)
+            _throwNPE();
+
+        // #todo: change the property
     }
 
 
@@ -347,12 +369,14 @@ automaton SystemAutomaton
 
     @private @static proc initPhase3 (): void  // WARNING: do not rename!
     {
-        // #todo
+        // #problem: reflective access during security manager initialization
+        // #todo: check property 'java.security.manager'
+        security = null;//new SecurityManagerAutomaton(state = Initialized);
 
         // JDK comment: initializing the system class loader
         action CALL_METHOD(null as VM, "initLevel", [3]);
 
-        // #todo
+        // #problem: java.lang.ClassLoader#initSystemClassLoader is package-private
 
         // JDK comment: system is fully initialized
         action CALL_METHOD(null as VM, "initLevel", [4]);

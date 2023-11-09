@@ -12,6 +12,7 @@ import java/io/Console;
 import java/io/InputStream;
 import java/io/PrintStream;
 import java/lang/Object;
+import java/lang/SecurityManager;
 import java/lang/String;
 import java/lang/Throwable;
 import java/util/Properties;
@@ -56,7 +57,8 @@ import java/util/Properties;
     is java.lang.System
     for System
 {
-    @private @static var props: Properties = null; // WARNING: do not change!
+    @private @static @volatile var security: SecurityManager = null; // WARNING: do not change!
+    @private @static var props: Properties = null;                   // WARNING: do not change!
 
     // #todo: attach I/O streams from this
     @private @static var console: Console = null;
@@ -70,6 +72,7 @@ import java/util/Properties;
 }
 
 val SYSTEM_IS_WINDOWS: boolean = action SYMBOLIC("boolean");
+val SYSTEM_IS_MAC: boolean     = !SYSTEM_IS_WINDOWS && action SYMBOLIC("boolean");
 
 
 @GenerateMe
