@@ -116,6 +116,12 @@ automaton SecureRandomAutomaton
     }
 
 
+    @AutoInline @Phantom proc _throwIAE (): void
+    {
+        action THROW_NEW("java.lang.IllegalArgumentException", []);
+    }
+
+
     proc _getDefaultPRNG (setSeed: boolean, seed: array<byte>): void
     {
         val providersList: array<Provider> = action CALL_METHOD(null as Security, "getProviders", [])
@@ -417,7 +423,32 @@ automaton SecureRandomAutomaton
     @throws(["java.security.NoSuchAlgorithmException"])
     @static fun *.getInstance (algorithm: String, provider: Provider): SecureRandom
     {
-        action TODO();
+        if (provider == null)
+            _throwIAE();
+
+        val providersListLength: int = 1;
+        val providersList: array<Provider> = action ARRAY_NEW("java.security.Provider", providersListLength);
+        providersList[0] = provider;
+        var resultProvider: Provider = null;
+        var resultAlgorithm: String = null;
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, providersListLength, +1,
+            findAlgorithmByAllProviders_loop(i, providersList, algorithm, resultProvider, resultAlgorithm)
+        );
+
+        if (resultAlgorithm == null)
+            _throwNSAE();
+
+        val isDefaultProvider: boolean = _isDefaultProvider(resultProvider);
+
+        result = new SecureRandomAutomaton(state = Initialized,
+            provider = resultProvider,
+            algorithm = resultAlgorithm,
+            defaultProvider = isDefaultProvider,
+        );
+
     }
 
 
