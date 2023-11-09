@@ -18,5 +18,5 @@ import java/util/Random;
     for Random
 {
     @private @static @final var serialVersionUID: long = 4940670005562187L;
-    @private @static var defaultProvidersMap: map<String, Object> = action MAP_NEW();;
+    @private @static var defaultProvidersMap: map<String, Object> = action MAP_NEW();
 }

@@ -192,8 +192,115 @@ automaton SecureRandomAutomaton
     }
 
 
-    // special: static initialization
+    proc _generateRandomIntegerArray (size: int): array<int>
+    {
+        result = action ARRAY_NEW("int", size);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, size, +1,
+            generateIntArray_loop(i, result)
+        );
+    }
 
+
+    @Phantom proc generateIntArray_loop (i: int, result: array<int>): void
+    {
+        result[i] = action SYMBOLIC("int");
+    }
+
+
+    proc _generateRandomIntegerArrayWithBounds (size: int, randomNumberOrigin: int, randomNumberBound: int): array<int>
+    {
+        result = action ARRAY_NEW("int", size);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, size, +1,
+            generateIntArrayWithBounds_loop(i, result, randomNumberOrigin, randomNumberBound)
+        );
+    }
+
+
+    @Phantom proc generateIntArrayWithBounds_loop (i: int, result: array<int>, randomNumberOrigin: int, randomNumberBound: int): void
+    {
+        result[i] = action SYMBOLIC("int");
+        action ASSUME(result[i] >= randomNumberOrigin);
+        action ASSUME(result[i] < randomNumberBound);
+    }
+
+
+    proc _generateRandomLongArray (size: int): array<long>
+    {
+        result = action ARRAY_NEW("long", size);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, size, +1,
+            generateLongArray_loop(i, result)
+        );
+    }
+
+
+    @Phantom proc generateLongArray_loop (i: int, result: array<long>): void
+    {
+        result[i] = action SYMBOLIC("long");
+    }
+
+
+    proc _generateRandomLongArrayWithBounds (size: int, randomNumberOrigin: long, randomNumberBound: long): array<long>
+    {
+        result = action ARRAY_NEW("long", size);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, size, +1,
+            generateLongArrayWithBounds_loop(i, result, randomNumberOrigin, randomNumberBound)
+        );
+    }
+
+
+    @Phantom proc generateLongArrayWithBounds_loop (i: int, result: array<long>, randomNumberOrigin: long, randomNumberBound: long): void
+    {
+        result[i] = action SYMBOLIC("long");
+        action ASSUME(result[i] >= randomNumberOrigin);
+        action ASSUME(result[i] < randomNumberBound);
+    }
+
+
+    proc _generateRandomDoubleArray (size: int): array<double>
+    {
+        result = action ARRAY_NEW("double", size);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, size, +1,
+            generateDoubleArray_loop(i, result)
+        );
+    }
+
+
+    @Phantom proc generateDoubleArray_loop (i: int, result: array<double>): void
+    {
+        result[i] = action SYMBOLIC("double");
+    }
+
+
+    proc _generateRandomDoubleArrayWithBounds (size: int, randomNumberOrigin: double, randomNumberBound: double): array<double>
+    {
+        result = action ARRAY_NEW("double", size);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, size, +1,
+            generateDoubleArrayWithBounds_loop(i, result, randomNumberOrigin, randomNumberBound)
+        );
+    }
+
+
+    @Phantom proc generateDoubleArrayWithBounds_loop (i: int, result: array<double>, randomNumberOrigin: double, randomNumberBound: double): void
+    {
+        result[i] = action SYMBOLIC("double");
+        action ASSUME(result[i] >= randomNumberOrigin);
+        action ASSUME(result[i] < randomNumberBound);
+    }
+
+
+    // special: static initialization
 
     @Phantom @static fun *.__clinit__ (): void
     {
@@ -308,28 +415,64 @@ automaton SecureRandomAutomaton
     // within java.util.Random
     fun *.doubles (@target self: SecureRandom): DoubleStream
     {
-        action TODO();
+        val mass: array<double> = _generateRandomDoubleArray(MAX_RANDOM_STREAM_SIZE);
+        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
+
+        result = new DoubleStreamAutomaton(state = Initialized,
+            storage = mass,
+            length = MAX_RANDOM_STREAM_SIZE,
+            closeHandlers = emptyCloseHandlersList,
+        );
     }
 
 
     // within java.util.Random
     fun *.doubles (@target self: SecureRandom, randomNumberOrigin: double, randomNumberBound: double): DoubleStream
     {
-        action TODO();
+        val mass: array<double> = _generateRandomDoubleArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound);
+        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
+
+        result = new DoubleStreamAutomaton(state = Initialized,
+            storage = mass,
+            length = MAX_RANDOM_STREAM_SIZE,
+            closeHandlers = emptyCloseHandlersList,
+        );
     }
 
 
     // within java.util.Random
     fun *.doubles (@target self: SecureRandom, streamSize: long): DoubleStream
     {
-        action TODO();
+        var size: int = streamSize as int;
+        if (size > MAX_RANDOM_STREAM_SIZE)
+            size = MAX_RANDOM_STREAM_SIZE;
+
+        val mass: array<double> = _generateRandomDoubleArray(size);
+        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
+
+        result = new DoubleStreamAutomaton(state = Initialized,
+            storage = mass,
+            length = size,
+            closeHandlers = emptyCloseHandlersList,
+        );
     }
 
 
     // within java.util.Random
     fun *.doubles (@target self: SecureRandom, streamSize: long, randomNumberOrigin: double, randomNumberBound: double): DoubleStream
     {
-        action TODO();
+        var size: int = streamSize as int;
+        if (size > MAX_RANDOM_STREAM_SIZE)
+            size = MAX_RANDOM_STREAM_SIZE;
+
+        val mass: array<double> = _generateRandomDoubleArrayWithBounds(size, randomNumberOrigin, randomNumberBound);
+        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
+
+        result = new DoubleStreamAutomaton(state = Initialized,
+            storage = mass,
+            length = size,
+            closeHandlers = emptyCloseHandlersList,
+        );
     }
 
 
@@ -363,56 +506,128 @@ automaton SecureRandomAutomaton
     // within java.util.Random
     fun *.ints (@target self: SecureRandom): IntStream
     {
-        action TODO();
+        val mass: array<int> = _generateRandomIntegerArray(MAX_RANDOM_STREAM_SIZE);
+        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
+
+        result = new IntStreamAutomaton(state = Initialized,
+            storage = mass,
+            length = MAX_RANDOM_STREAM_SIZE,
+            closeHandlers = emptyCloseHandlersList,
+        );
     }
 
 
     // within java.util.Random
     fun *.ints (@target self: SecureRandom, randomNumberOrigin: int, randomNumberBound: int): IntStream
     {
-        action TODO();
+        val mass: array<int> = _generateRandomIntegerArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound);
+        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
+
+        result = new IntStreamAutomaton(state = Initialized,
+            storage = mass,
+            length = MAX_RANDOM_STREAM_SIZE,
+            closeHandlers = emptyCloseHandlersList,
+        );
     }
 
 
     // within java.util.Random
     fun *.ints (@target self: SecureRandom, streamSize: long): IntStream
     {
-        action TODO();
+        var size: int = streamSize as int;
+        if (size > MAX_RANDOM_STREAM_SIZE)
+            size = MAX_RANDOM_STREAM_SIZE;
+
+        val mass: array<int> = _generateRandomIntegerArray(size);
+        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
+
+        result = new IntStreamAutomaton(state = Initialized,
+            storage = mass,
+            length = size,
+            closeHandlers = emptyCloseHandlersList,
+        );
     }
 
 
     // within java.util.Random
     fun *.ints (@target self: SecureRandom, streamSize: long, randomNumberOrigin: int, randomNumberBound: int): IntStream
     {
-        action TODO();
+        var size: int = streamSize as int;
+        if (size > MAX_RANDOM_STREAM_SIZE)
+            size = MAX_RANDOM_STREAM_SIZE;
+
+        val mass: array<int> = _generateRandomIntegerArrayWithBounds(size, randomNumberOrigin, randomNumberBound);
+        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
+
+        result = new IntStreamAutomaton(state = Initialized,
+            storage = mass,
+            length = size,
+            closeHandlers = emptyCloseHandlersList,
+        );
     }
 
 
     // within java.util.Random
     fun *.longs (@target self: SecureRandom): LongStream
     {
-        action TODO();
+        val mass: array<long> = _generateRandomLongArray(MAX_RANDOM_STREAM_SIZE);
+        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
+
+        result = new LongStreamAutomaton(state = Initialized,
+            storage = mass,
+            length = MAX_RANDOM_STREAM_SIZE,
+            closeHandlers = emptyCloseHandlersList,
+        );
     }
 
 
     // within java.util.Random
     fun *.longs (@target self: SecureRandom, streamSize: long): LongStream
     {
-        action TODO();
+        var size: int = streamSize as int;
+        if (size > MAX_RANDOM_STREAM_SIZE)
+            size = MAX_RANDOM_STREAM_SIZE;
+
+        val mass: array<long> = _generateRandomLongArray(size);
+        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
+
+        result = new LongStreamAutomaton(state = Initialized,
+            storage = mass,
+            length = size,
+            closeHandlers = emptyCloseHandlersList,
+        );
     }
 
 
     // within java.util.Random
     fun *.longs (@target self: SecureRandom, randomNumberOrigin: long, randomNumberBound: long): LongStream
     {
-        action TODO();
+        val mass: array<long> = _generateRandomLongArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound);
+        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
+
+        result = new LongStreamAutomaton(state = Initialized,
+            storage = mass,
+            length = MAX_RANDOM_STREAM_SIZE,
+            closeHandlers = emptyCloseHandlersList,
+        );
     }
 
 
     // within java.util.Random
     fun *.longs (@target self: SecureRandom, streamSize: long, randomNumberOrigin: long, randomNumberBound: long): LongStream
     {
-        action TODO();
+        var size: int = streamSize as int;
+        if (size > MAX_RANDOM_STREAM_SIZE)
+            size = MAX_RANDOM_STREAM_SIZE;
+
+        val mass: array<long> = _generateRandomLongArrayWithBounds(size, randomNumberOrigin, randomNumberBound);
+        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
+
+        result = new LongStreamAutomaton(state = Initialized,
+            storage = mass,
+            length = size,
+            closeHandlers = emptyCloseHandlersList,
+        );
     }
 
 
