@@ -90,73 +90,15 @@ automaton SystemAutomaton
     }
 
 
-    @static proc _makeValidString (minLen: int, maxLen: int): String
-    {
-        val len: int = action SYMBOLIC("int");
-        action ASSUME(len >= minLen);
-        action ASSUME(len <  maxLen);
-        val lastCharIdx: int = len - 1;
-
-        val chars: array<char> = action ARRAY_NEW("char", len);
-        val forbidenLetters: String = ":/\\*\"'?<>|";
-        var spaces: int = 0;
-
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, len, +1,
-            _makeValidString_loop(i, chars, spaces, forbidenLetters)
-        );
-
-        // there should be at least a single character
-        action ASSUME(spaces + 1 < maxLen);
-        // last character cannot be space (Win-specific)
-        action ASSUME(chars[lastCharIdx] != 20);
-
-        result = action OBJECT_TO_STRING(chars);
-    }
-
-    @Phantom proc _makeValidString_loop (i: int, chars: array<char>, spaces: int, forbidenLetters: String): void
-    {
-        val c: char = action SYMBOLIC("char");
-        action ASSUME(c >= 20);
-        action ASSUME(action CALL_METHOD(forbidenLetters, "indexOf", [c]) == -1);
-        // #problem: Unicode symbols?
-
-        if (c == 20)
-            spaces += 1;
-
-        chars[i] = c;
-    }
-
-
-    proc _getRandomDriveLetter (): String
-    {
-        val letters: array<String> = [
-            "A", "B", "C", "D", "E",
-            "F", "G", "H", "I", "J",
-            "K", "L", "M", "N", "O",
-            "P", "Q", "R", "S", "T",
-            "U", "V", "W", "X", "Y",
-            "Z",
-        ];
-
-        val idx: int = action SYMBOLIC("int");
-        action ASSUME(idx >= 0);
-        action ASSUME(idx < action ARRAY_SIZE(letters));
-
-        result = letters[idx];
-    }
-
-
     @static proc _initProperties (): void
     {
         // prepare raw values
 
-        val javaVersion: int = action SYMBOLIC("int");
-        action ASSUME(javaVersion >= 8);
-        action ASSUME(javaVersion <= 11);
+        // NOTE: symbolic JRE version is too expensive to use
+        val javaVersion: int = 8;
 
-        val userName: String = _makeValidString(1, 25);
+        // NOTE: valid symbolic name is too expensive to use and construct
+        val userName: String = "Admin";
 
         // convert it into properties
 
@@ -382,14 +324,12 @@ automaton SystemAutomaton
 
     @static fun *.getenv (name: String): String
     {
-        val symbolCount: int = action SYMBOLIC("int");
-        action ASSUME(symbolCount >= 0);
-        action ASSUME(symbolCount < 256);
+        result = action SYMBOLIC("java.lang.String");
+        action ASSUME(result != null);
 
-        val symbols: array<char> = action SYMBOLIC_ARRAY("char", symbolCount);
-        action ASSUME(symbols != null);
-
-        result = action OBJECT_TO_STRING(symbols);
+        val len: int = action CALL_METHOD(result, "length", []);
+        action ASSUME(len >= 0);
+        action ASSUME(len < 250);
     }
 
 
