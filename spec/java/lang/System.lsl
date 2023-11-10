@@ -57,6 +57,8 @@ import java/util/Properties;
     is java.lang.System
     for System
 {
+    @private @static val propsMap: map<String, String> = action MAP_NEW();
+
     @private @static @volatile var security: SecurityManager = null; // WARNING: do not change!
     @private @static var props: Properties = null;                   // WARNING: do not change!
 

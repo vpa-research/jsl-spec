@@ -82,9 +82,118 @@ automaton SystemAutomaton
 
     @static proc _initProperties (): void
     {
+        // prepare raw values
+
+        val javaVersion: int = action SYMBOLIC("int");
+        action ASSUME(javaVersion >= 8);
+        action ASSUME(javaVersion <= 11);
+
+        val userName: String = action SYMBOLIC("java.lang.String");
+        action ASSUME(userName != null);
+
+        // convert it into properties
+
+        action MAP_SET(propsMap, "file.encoding", "Cp1251");
+        action MAP_SET(propsMap, "sun.io.unicode.encoding", "UnicodeLittle");
+        action MAP_SET(propsMap, "sun.jnu.encoding", "Cp1251");
+        action MAP_SET(propsMap, "sun.stderr.encoding", "cp866");
+        action MAP_SET(propsMap, "sun.stdout.encoding", "cp866");
+
+        val versionStrings: array<String> = [
+            "0", "1", "2", "3", "4", "5", "6", "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12", "13", "14", "15",
+        ];
+        val versionString: String = versionStrings[javaVersion];
+
+        action MAP_SET(propsMap, "java.specification.name", "Java Platform API Specification");
+        action MAP_SET(propsMap, "java.specification.vendor", "Oracle Corporation");
+        action MAP_SET(propsMap, "java.specification.version", versionString);
+        action MAP_SET(propsMap, "java.vm.info", "mixed mode");
+        action MAP_SET(propsMap, "java.vm.name", "OpenJDK 64-Bit Server VM");
+        action MAP_SET(propsMap, "java.vm.specification.name", "Java Virtual Machine Specification");
+        action MAP_SET(propsMap, "java.vm.specification.vendor", "Oracle Corporation");
+        action MAP_SET(propsMap, "java.vm.specification.version", versionString);
+        action MAP_SET(propsMap, "java.vm.vendor", "Eclipse Adoptium");
+        action MAP_SET(propsMap, "java.vm.version", versionString + ".0.362+9");
+
+        action MAP_SET(propsMap, "java.library.path", "C:\\Program Files\\Eclipse Adoptium\\jdk-8.0.362.9-hotspot\\bin;C:\\Windows\\Sun\\Java\\bin;C:\\Windows\\system32;.");
+        action MAP_SET(propsMap, "java.home", "C:\\Program Files\\Eclipse Adoptium\\jdk-8.0.362.9-hotspot");
+        action MAP_SET(propsMap, "sun.boot.library.path", "C:\\Program Files\\Eclipse Adoptium\\jdk-8.0.362.9-hotspot\\bin");
+        action MAP_SET(propsMap, "java.io.tmpdir", "T:\\Temp\\");
+        action MAP_SET(propsMap, "java.class.path", ".");
+
+        if (SYSTEM_IS_WINDOWS)
+        {
+            action MAP_SET(propsMap, "file.separator", "\\");
+            action MAP_SET(propsMap, "line.separator", "\r\n");
+            action MAP_SET(propsMap, "path.separator", ";");
+        }
+        else
+        {
+            action MAP_SET(propsMap, "file.separator", "/");
+            action MAP_SET(propsMap, "line.separator", "\n");
+            action MAP_SET(propsMap, "path.separator", ":");
+        }
+
+        action MAP_SET(propsMap, "user.country", "RU");
+        action MAP_SET(propsMap, "user.country.format", "US");
+        action MAP_SET(propsMap, "user.language", "ru");
+
+        val bytecodeVersions: array<String> = [
+            "?",    /* 0? */
+            "?",    /* 1? */
+            "?",    /* 2? */
+            "?",    /* 3? */
+            "?",    /* 4? */
+            "49.0", /* Java SE 5  */
+            "50.0", /* Java SE 6  */
+            "51.0", /* Java SE 7  */
+            "52.0", /* Java SE 8  */
+            "53.0", /* Java SE 9  */
+            "54.0", /* Java SE 10 */
+            "55.0", /* Java SE 11 */
+            "?",    /* 12? */
+            "?",    /* 13? */
+            "?",    /* 14? */
+            "?",    /* 15? */
+        ];
+        action MAP_SET(propsMap, "java.class.version", bytecodeVersions[javaVersion]);
+
+        action MAP_SET(propsMap, "os.arch", "amd64");
+        action MAP_SET(propsMap, "os.name", "Windows 10");
+        action MAP_SET(propsMap, "os.version", "10.0");
+        action MAP_SET(propsMap, "sun.arch.data.model", "64");
+        action MAP_SET(propsMap, "sun.cpu.endian", "little");
+        action MAP_SET(propsMap, "sun.cpu.isalist", "amd64");
+        action MAP_SET(propsMap, "sun.desktop", "windows");
+
+        action MAP_SET(propsMap, "user.dir", "D:\\Company\\Prod\\Service");
+        action MAP_SET(propsMap, "user.home", "C:\\Users\\" + userName);
+        action MAP_SET(propsMap, "user.name", userName);
+        action MAP_SET(propsMap, "user.script", "");
+        action MAP_SET(propsMap, "user.timezone", "");
+        action MAP_SET(propsMap, "user.variant", "");
+
+        // unknown misc stuff
+        action MAP_SET(propsMap, "sun.java.command", "org.example.MainClass"); // #problem: main class
+        action MAP_SET(propsMap, "awt.toolkit", "sun.awt.windows.WToolkit");
+        action MAP_SET(propsMap, "java.awt.graphicsenv", "sun.awt.Win32GraphicsEnvironment");
+        action MAP_SET(propsMap, "java.awt.printerjob", "sun.awt.windows.WPrinterJob");
+        action MAP_SET(propsMap, "sun.java.launcher", "SUN_STANDARD");
+        action MAP_SET(propsMap, "sun.management.compiler", "HotSpot 64-Bit Tiered Compilers");
+        action MAP_SET(propsMap, "sun.nio.MaxDirectMemorySize", "-1");
+        action MAP_SET(propsMap, "sun.os.patch.level", "");
+        action MAP_SET(propsMap, "java.vm.compressedOopsMode", "Zero based");
+        action MAP_SET(propsMap, "jdk.boot.class.path.append", "");
+        action MAP_SET(propsMap, "jdk.debug", "release");
+
         // #problem: no approximation for Properties
         props = null;//new Properties(84);
-        // #todo
+        // #todo: init 'props' from the map above
     }
 
 
@@ -148,15 +257,23 @@ automaton SystemAutomaton
     }
 
 
-    @Phantom @static fun *.getProperties (): Properties
+    @static fun *.getProperties (): Properties
     {
-        // NOTE: using the original method
+        // #todo: throw SecurityException
+        result = props;
     }
 
 
-    @Phantom @static fun *.getProperty (key: String): String
+    @static fun *.getProperty (key: String): String
     {
-        // NOTE: using the original method
+        if (key == null)
+            _throwNPE();
+
+        // #todo: throw SecurityException
+        if (action MAP_HAS_KEY(propsMap, key))
+            result = action MAP_GET(propsMap, key);
+        else
+            result = null;
     }
 
 
@@ -209,10 +326,7 @@ automaton SystemAutomaton
 
     @static fun *.lineSeparator (): String
     {
-        if (SYSTEM_IS_WINDOWS)
-            result = "\r\n";
-        else
-            result = "\n";
+        result = action MAP_GET(propsMap, "line.separator");
     }
 
 
@@ -302,7 +416,14 @@ automaton SystemAutomaton
         if (key == null)
             _throwNPE();
 
-        // #todo: change the property
+        // #todo: update 'props'
+
+        if (action MAP_HAS_KEY(propsMap, key))
+            result = action MAP_GET(propsMap, key);
+        else
+            result = null;
+
+        action MAP_SET(propsMap, key, value);
     }
 
 
