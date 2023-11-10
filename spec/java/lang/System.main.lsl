@@ -80,6 +80,16 @@ automaton SystemAutomaton
     }
 
 
+    @AutoInline @Phantom proc _checkKey (key: String): void
+    {
+        if (key == null)
+            action THROW_NEW("java.lang.NullPointerException", ["key can't be null"]);
+
+        if (action CALL_METHOD(key, "length", []) == 0)
+            action THROW_NEW("java.lang.NullPointerException", ["key can't be empty"]);
+    }
+
+
     @static proc _makeValidString (minLen: int, maxLen: int): String
     {
         val len: int = action SYMBOLIC("int");
@@ -270,9 +280,20 @@ automaton SystemAutomaton
     }
 
 
-    @Phantom @static fun *.clearProperty (key: String): String
+    @static fun *.clearProperty (key: String): String
     {
-        // NOTE: using the original method
+        _checkKey(key);
+
+        // #todo: check permission
+
+        if (action MAP_HAS_KEY(propsMap, key))
+        {
+            result = action MAP_GET(propsMap, key);
+
+            // #todo: remove key from 'props'
+
+            action MAP_REMOVE(propsMap, key);
+        }
     }
 
 
@@ -323,8 +344,7 @@ automaton SystemAutomaton
 
     @static fun *.getProperty (key: String): String
     {
-        if (key == null)
-            _throwNPE();
+        _checkKey(key);
 
         // #todo: throw SecurityException
         if (action MAP_HAS_KEY(propsMap, key))
@@ -334,9 +354,15 @@ automaton SystemAutomaton
     }
 
 
-    @Phantom @static fun *.getProperty (key: String, def: String): String
+    @static fun *.getProperty (key: String, def: String): String
     {
-        // NOTE: using the original method
+        _checkKey(key);
+
+        // #todo: throw SecurityException
+        if (action MAP_HAS_KEY(propsMap, key))
+            result = action MAP_GET(propsMap, key);
+        else
+            result = def;
     }
 
 
@@ -470,8 +496,7 @@ automaton SystemAutomaton
 
     @static fun *.setProperty (key: String, value: String): String
     {
-        if (key == null)
-            _throwNPE();
+        _checkKey(key);
 
         // #todo: update 'props'
 
