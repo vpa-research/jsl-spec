@@ -18,7 +18,7 @@ import java/lang/Integer;
 
 automaton IntegerAutomaton
 (
-    @private val value: int // WARNING: do not rename!
+    @private var value: int // WARNING: do not rename!
 )
 : LSLInteger
 {
@@ -98,29 +98,58 @@ automaton IntegerAutomaton
     }
 
 
-    @Phantom constructor *.Integer (@target self: LSLInteger, value: int)
+    constructor *.Integer (@target self: LSLInteger, v: int)
     {
-        // NOTE: using the original method
+        this.value = v;
     }
 
 
     // static methods
 
-    @Phantom @static fun *.bitCount (i: int): int
+    @static fun *.bitCount (i: int): int
     {
-        // NOTE: using the original method
+        // direct adaptation from the JDK
+        i = i - ((i >>> 1) & 1431655765);
+        i = (i & 858993459) + ((i >>> 2) & 858993459);
+        i = (i + (i >>> 4)) & 252645135;
+        i = i + (i >>> 8);
+        i = i + (i >>> 16);
+        result = i & 63;
     }
 
 
-    @Phantom @static fun *.compare (x: int, y: int): int
+    @static fun *.compare (x: int, y: int): int
     {
-        // NOTE: using the original method
+        if (x == y)
+        {
+            result = 0;
+        }
+        else
+        {
+            if (x < y)
+                result = -1;
+            else
+                result = +1;
+        }
     }
 
 
-    @Phantom @static fun *.compareUnsigned (x: int, y: int): int
+    @static fun *.compareUnsigned (x: int, y: int): int
     {
-        // NOTE: using the original method
+        x += MIN_VALUE;
+        y += MIN_VALUE;
+
+        if (x == y)
+        {
+            result = 0;
+        }
+        else
+        {
+            if (x < y)
+                result = -1;
+            else
+                result = +1;
+        }
     }
 
 
@@ -155,45 +184,89 @@ automaton IntegerAutomaton
     }
 
 
-    @Phantom @static fun *.hashCode (value: int): int
+    @static fun *.hashCode (value: int): int
     {
-        // NOTE: using the original method
+        result = value;
     }
 
 
-    @Phantom @static fun *.highestOneBit (i: int): int
+    @static fun *.highestOneBit (i: int): int
     {
-        // NOTE: using the original method
+        // direct adaptation from the JDK
+        i |= (i >>  1);
+        i |= (i >>  2);
+        i |= (i >>  4);
+        i |= (i >>  8);
+        i |= (i >> 16);
+        result = i - (i >>> 1);
     }
 
 
-    @Phantom @static fun *.lowestOneBit (i: int): int
+    @static fun *.lowestOneBit (i: int): int
     {
-        // NOTE: using the original method
+        // direct adaptation from the JDK
+        result = i & -i;
     }
 
 
-    @Phantom @static fun *.max (a: int, b: int): int
+    @static fun *.max (a: int, b: int): int
     {
-        // NOTE: using the original method
+        if (a > b)
+            result = a;
+        else
+            result = b;
     }
 
 
-    @Phantom @static fun *.min (a: int, b: int): int
+    @static fun *.min (a: int, b: int): int
     {
-        // NOTE: using the original method
+        if (a < b)
+            result = a;
+        else
+            result = b;
     }
 
 
-    @Phantom @static fun *.numberOfLeadingZeros (i: int): int
+    @static fun *.numberOfLeadingZeros (i: int): int
     {
-        // NOTE: using the original method
+        if (i == 0)
+        {
+            result = 32;
+        }
+        else
+        {
+            // direct adaptation from the JDK
+            result = 1;
+
+            if (i >>> 16 == 0) { result += 16; i <<= 16; }
+            if (i >>> 24 == 0) { result +=  8; i <<=  8; }
+            if (i >>> 28 == 0) { result +=  4; i <<=  4; }
+            if (i >>> 30 == 0) { result +=  2; i <<=  2; }
+
+            result -= i >>> 31;
+        }
     }
 
 
-    @Phantom @static fun *.numberOfTrailingZeros (i: int): int
+    @static fun *.numberOfTrailingZeros (i: int): int
     {
-        // NOTE: using the original method
+        if (i == 0)
+        {
+            result = 32;
+        }
+        else
+        {
+            // direct adaptation from the JDK
+            var y: int = 0;
+            var n: int = 31;
+
+            y = i << 16;  if (y != 0) { n -= 16; i = y; }
+            y = i <<  8;  if (y != 0) { n -=  8; i = y; }
+            y = i <<  4;  if (y != 0) { n -=  4; i = y; }
+            y = i <<  2;  if (y != 0) { n -=  2; i = y; }
+
+            result = n - ((i << 1) >>> 31);
+        }
     }
 
 
@@ -245,39 +318,53 @@ automaton IntegerAutomaton
     }
 
 
-    @Phantom @static fun *.reverse (i: int): int
+    @static fun *.reverse (i: int): int
     {
-        // NOTE: using the original method
+        // direct adaptation from the JDK
+        i = (i & 1431655765) << 1 | (i >>> 1) & 1431655765;
+        i = (i &  858993459) << 2 | (i >>> 2) & 858993459;
+        i = (i &  252645135) << 4 | (i >>> 4) & 252645135;
+        i = (i << 24) | ((i & 65280) << 8) |
+            ((i >>> 8) & 65280) | (i >>> 24);
+
+        result = i;
     }
 
 
-    @Phantom @static fun *.reverseBytes (i: int): int
+    @static fun *.reverseBytes (i: int): int
     {
-        // NOTE: using the original method
+        // direct adaptation from the JDK
+        result = ((i >>> 24)           ) |
+                 ((i >>   8) &    65280) |
+                 ((i <<   8) & 16711680) |
+                 ((i << 24));
     }
 
 
-    @Phantom @static fun *.rotateLeft (i: int, distance: int): int
+    @static fun *.rotateLeft (i: int, distance: int): int
     {
-        // NOTE: using the original method
+        // direct adaptation from the JDK
+        result = (i << distance) | (i >>> -distance);
     }
 
 
-    @Phantom @static fun *.rotateRight (i: int, distance: int): int
+    @static fun *.rotateRight (i: int, distance: int): int
     {
-        // NOTE: using the original method
+        // direct adaptation from the JDK
+        result = (i >>> distance) | (i << -distance);
     }
 
 
-    @Phantom @static fun *.signum (i: int): int
+    @static fun *.signum (i: int): int
     {
-        // NOTE: using the original method
+        // direct adaptation from the JDK
+        result = (i >> 31) | (-i >>> 31);
     }
 
 
-    @Phantom @static fun *.sum (a: int, b: int): int
+    @static fun *.sum (a: int, b: int): int
     {
-        // NOTE: using the original method
+        result = a + b;
     }
 
 
@@ -299,9 +386,9 @@ automaton IntegerAutomaton
     }
 
 
-    @Phantom @static fun *.toString (i: int): String
+    @static fun *.toString (i: int): String
     {
-        // NOTE: using the original method
+        result = action OBJECT_TO_STRING(i);
     }
 
 
@@ -311,9 +398,10 @@ automaton IntegerAutomaton
     }
 
 
-    @Phantom @static fun *.toUnsignedLong (x: int): long
+    @static fun *.toUnsignedLong (x: int): long
     {
-        // NOTE: using the original method
+        // direct adaptation from the JDK
+        result = x as long & 4294967295L;
     }
 
 
@@ -353,9 +441,9 @@ automaton IntegerAutomaton
 
     // methods
 
-    @Phantom fun *.byteValue (@target self: LSLInteger): byte
+    fun *.byteValue (@target self: LSLInteger): byte
     {
-        // NOTE: using the original method
+        result = this.value as byte;
     }
 
 
@@ -365,9 +453,9 @@ automaton IntegerAutomaton
     }
 
 
-    @Phantom fun *.doubleValue (@target self: LSLInteger): double
+    fun *.doubleValue (@target self: LSLInteger): double
     {
-        // NOTE: using the original method
+        result = this.value as double;
     }
 
 
@@ -377,47 +465,39 @@ automaton IntegerAutomaton
     }
 
 
-    @Phantom fun *.floatValue (@target self: LSLInteger): float
+    fun *.floatValue (@target self: LSLInteger): float
     {
-        // NOTE: using the original method
+        result = this.value as float;
     }
 
 
-    @Phantom fun *.hashCode (@target self: LSLInteger): int
+    fun *.hashCode (@target self: LSLInteger): int
     {
-        // NOTE: using the original method
+        result = this.value;
     }
 
 
-    @Phantom fun *.intValue (@target self: LSLInteger): int
+    fun *.intValue (@target self: LSLInteger): int
     {
-        // NOTE: using the original method
+        result = this.value;
     }
 
 
-    @Phantom fun *.longValue (@target self: LSLInteger): long
+    fun *.longValue (@target self: LSLInteger): long
     {
-        // NOTE: using the original method
+        result = this.value as long;
     }
 
 
-    @Phantom fun *.shortValue (@target self: LSLInteger): short
+    fun *.shortValue (@target self: LSLInteger): short
     {
-        // NOTE: using the original method
+        result = this.value as short;
     }
 
 
-    @Phantom fun *.toString (@target self: LSLInteger): String
+    fun *.toString (@target self: LSLInteger): String
     {
-        // NOTE: using the original method
-    }
-
-
-    // special: class initialization
-
-    @Phantom @static fun *.__clinit__ (): void
-    {
-        // WARNING: this should be empty, do not change!
+        result = action OBJECT_TO_STRING(this.value);
     }
 
 }
