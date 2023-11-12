@@ -20,6 +20,7 @@ import java/lang/Number;
     is java.lang.Integer
     for Comparable, Number, int
 {
+    @static fun *.valueOf(x: int): Number; // #problem: self-reference
 }
 
 
@@ -28,7 +29,7 @@ import java/lang/Number;
 // note: this is a partial implementation, no need for additional constraints (abstract class) and synthetic methods (Comparable)
 // @extends("java.lang.Number")
 // @implements("java.lang.Comparable<Integer>")
-@public @final type LSLInteger
+@final type LSLInteger
     is java.lang.Integer
     for Integer
 {
@@ -37,7 +38,8 @@ import java/lang/Number;
     @public @static val MIN_VALUE: int = -2147483648;
     @public @static val MAX_VALUE: int =  2147483647;
 
-    @public @static val TYPE: Class = action DEBUG_DO("int.class");
+    // #problem: unable to get reference to primitive type
+    @public @static val TYPE: Class = action DEBUG_DO("java.lang.Integer.class"); // preventing recursion
 
     @public @static val SIZE: int = 32;
     @public @static val BYTES: int = 4;

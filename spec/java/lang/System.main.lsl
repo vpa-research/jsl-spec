@@ -335,8 +335,24 @@ automaton SystemAutomaton
 
     @static fun *.identityHashCode (x: Object): int
     {
-        // #problem: there are no ways of converting a reference to a "memory address" yet
-        result = action SYMBOLIC("int");
+        if (x == null)
+        {
+            result = 0;
+        }
+        else if (action MAP_HAS_KEY(identityHashCodeMap, x))
+        {
+            val value: Integer = action MAP_GET(identityHashCodeMap, x);
+            action ASSUME(value != null);
+            result = action CALL_METHOD(value, "intValue", []);
+        }
+        else
+        {
+            // sequential unique numbers
+            result = action MAP_SIZE(identityHashCodeMap);
+
+            val hash: Integer = action CALL_METHOD(null as Integer, "valueOf", [result]);
+            action MAP_SET(identityHashCodeMap, x, hash);
+        }
     }
 
 
@@ -353,15 +369,25 @@ automaton SystemAutomaton
     }
 
 
-    @Phantom @static fun *.load (filename: String): void
+    @static fun *.load (filename: String): void
     {
-        // NOTE: using the original method
+        if (filename == null)
+            _throwNPE();
+
+        // faking underlying checks and loading procedures
+        if (action SYMBOLIC("boolean")) action THROW_NEW("java.lang.SecurityException",    ["<message>"]);
+        if (action SYMBOLIC("boolean")) action THROW_NEW("java.lang.UnsatisfiedLinkError", ["<message>"]);
     }
 
 
-    @Phantom @static fun *.loadLibrary (libname: String): void
+    @static fun *.loadLibrary (libname: String): void
     {
-        // NOTE: using the original method
+        if (libname == null)
+            _throwNPE();
+
+        // faking underlying checks and loading procedures
+        if (action SYMBOLIC("boolean")) action THROW_NEW("java.lang.SecurityException",    ["<message>"]);
+        if (action SYMBOLIC("boolean")) action THROW_NEW("java.lang.UnsatisfiedLinkError", ["<message>"]);
     }
 
 
@@ -370,7 +396,7 @@ automaton SystemAutomaton
         if (libname == null)
             _throwNPE();
 
-        // https://hg.openjdk.org/jdk8/jdk8/jdk/file/687fd7c7986d/src/share/native/java/lang/System.c#l466
+        // https://github.com/openjdk/jdk8/blob/master/jdk/src/share/native/java/lang/System.c#L466
         val len: int = action CALL_METHOD(libname, "length", []);
         if (len > 240)
             action THROW_NEW("java.lang.IllegalArgumentException", ["name too long"]);

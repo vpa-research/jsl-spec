@@ -160,9 +160,11 @@ automaton IntegerAutomaton
     }
 
 
-    @Phantom @static fun *.divideUnsigned (dividend: int, divisor: int): int
+    @static fun *.divideUnsigned (dividend: int, divisor: int): int
     {
-        // NOTE: using the original method
+        val unsignedDividend: long = dividend as long & 4294967295L;
+        val unsignedDivisor: long = divisor as long & 4294967295L;
+        result = (unsignedDividend / unsignedDivisor) as int;
     }
 
 
@@ -312,9 +314,11 @@ automaton IntegerAutomaton
     }
 
 
-    @Phantom @static fun *.remainderUnsigned (dividend: int, divisor: int): int
+    @static fun *.remainderUnsigned (dividend: int, divisor: int): int
     {
-        // NOTE: using the original method
+        val unsignedDividend: long = dividend as long & 4294967295L;
+        val unsignedDivisor: long = divisor as long & 4294967295L;
+        result = (unsignedDividend % unsignedDivisor) as int;
     }
 
 
@@ -459,9 +463,12 @@ automaton IntegerAutomaton
     }
 
 
-    @Phantom fun *.equals (@target self: LSLInteger, obj: Object): boolean
+    fun *.equals (@target self: LSLInteger, obj: Object): boolean
     {
-        // NOTE: using the original method
+        if (obj is Integer)
+            result = this.value == IntegerAutomaton(obj).value;
+        else
+            result = false;
     }
 
 

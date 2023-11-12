@@ -11,6 +11,7 @@ library std
 import java/io/Console;
 import java/io/InputStream;
 import java/io/PrintStream;
+import java/lang/Integer;
 import java/lang/Object;
 import java/lang/SecurityManager;
 import java/lang/String;
@@ -71,6 +72,8 @@ import java/util/Properties;
 
     @private @static val NANOTIME_BEGINNING_OF_TIME: long = 1000L;
     @private @static val NANOTIME_WARP_MAX: long = 1000L;
+
+    @private @static val identityHashCodeMap: map<Object, Integer> = action IDENTITY_MAP_NEW();
 }
 
 // WARNING: declaration order is important!
