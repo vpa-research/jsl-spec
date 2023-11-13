@@ -169,7 +169,7 @@ automaton FloatAutomaton
     @static fun *.intBitsToFloat (value: int): float
     {
         if (value == 2143289344)
-            result = 0.0f / 0.0f;
+            result = NaN;
         else if (value == -2147483648)
             result = -0.0f;
         else if (value == 0)
@@ -271,7 +271,7 @@ automaton FloatAutomaton
 
 
     @throws(["java.lang.NumberFormatException"])
-    @Phantom @static fun *.valueOf (s: String): LSLFloat
+    @Phantom @static fun *.valueOf (s: String): Float
     {
         // NOTE: using the original version
         result = new FloatAutomaton(state = Initialized,
@@ -280,7 +280,7 @@ automaton FloatAutomaton
     }
 
 
-    @static fun *.valueOf (f: float): LSLFloat
+    @static fun *.valueOf (f: float): Float
     {
         result = new FloatAutomaton(state = Initialized,
             value = f
@@ -296,10 +296,10 @@ automaton FloatAutomaton
     }
 
 
-    fun *.compareTo (@target self: LSLFloat, anotherFloat: LSLFloat): int
+    fun *.compareTo (@target self: LSLFloat, anotherFloat: Float): int
     {
         val a: float = this.value;
-        val b: float = anotherFloat;
+        val b: float = action CALL_METHOD(anotherFloat, "floatValue", []);
 
         // #problem: does not catch (-0.0, 0.0)
         if (a == b || a != a || b != b) // include NaN's
