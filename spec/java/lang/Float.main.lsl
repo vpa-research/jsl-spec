@@ -96,12 +96,24 @@ automaton FloatAutomaton
     }
 
 
+    @throws(["java.lang.NumberFormatException"])
+    @static proc _parse (str: String): float
+    {
+        if (str == null)
+            action THROW_NEW("java.lang.NullPointerException", []);
+
+        // #todo: add implementation if necessary
+        action TODO();
+    }
+
+
     // constructors
 
     @throws(["java.lang.NumberFormatException"])
     @Phantom constructor *.LSLFloat (@target self: LSLFloat, s: String)
     {
         // NOTE: using the original method
+        this.value = _parse(s);
     }
 
 
@@ -122,7 +134,7 @@ automaton FloatAutomaton
     @static fun *.compare (a: float, b: float): int
     {
         // #problem: does not catch (-0.0, 0.0)
-        if (a == b)
+        if (a == b || a != a || b != b) // include NaN's
         {
             result = 0;
         }
@@ -221,6 +233,7 @@ automaton FloatAutomaton
     @Phantom @static fun *.parseFloat (s: String): float
     {
         // NOTE: using the original method
+        result = _parse(s);
     }
 
 
@@ -261,6 +274,9 @@ automaton FloatAutomaton
     @Phantom @static fun *.valueOf (s: String): LSLFloat
     {
         // NOTE: using the original version
+        result = new FloatAutomaton(state = Initialized,
+            value = _parse(s)
+        );
     }
 
 
@@ -282,7 +298,21 @@ automaton FloatAutomaton
 
     fun *.compareTo (@target self: LSLFloat, anotherFloat: LSLFloat): int
     {
-        action TODO();
+        val a: float = this.value;
+        val b: float = anotherFloat;
+
+        // #problem: does not catch (-0.0, 0.0)
+        if (a == b || a != a || b != b) // include NaN's
+        {
+            result = 0;
+        }
+        else
+        {
+            if (a < b)
+                result = -1;
+            else
+                result = +1;
+        }
     }
 
 
@@ -294,7 +324,10 @@ automaton FloatAutomaton
 
     fun *.equals (@target self: LSLFloat, obj: Object): boolean
     {
-        action TODO();
+        if (obj is Float)
+            result = this.value == FloatAutomaton(obj).value;
+        else
+            result = false;
     }
 
 

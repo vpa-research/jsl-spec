@@ -89,12 +89,24 @@ automaton IntegerAutomaton
 
     // utilities
 
+    @throws(["java.lang.NumberFormatException"])
+    @static proc _parse (str: String): int
+    {
+        if (str == null)
+            action THROW_NEW("java.lang.NullPointerException", []);
+
+        // #todo: add implementation if necessary
+        action TODO();
+    }
+
+
     // constructors
 
     @throws(["java.lang.NumberFormatException"])
     @Phantom constructor *.Integer (@target self: LSLInteger, s: String)
     {
         // NOTE: using the original method
+        this.value = _parse(s);
     }
 
 
