@@ -13,7 +13,6 @@ import java/security/Security;
 import java/security/SecureRandom;
 import java/security/Provider;
 import java/security/Service;
-import java/security/SecureRandomParameters;
 import java/security/SecureRandomSpi;
 import java/util/Random;
 import java/util/stream/DoubleStream;
@@ -58,7 +57,6 @@ automaton SecureRandomAutomaton
         doubles (SecureRandom, long, double, double),
         generateSeed,
         getAlgorithm,
-        getParameters,
         getProvider,
         ints (SecureRandom),
         ints (SecureRandom, int, int),
@@ -70,21 +68,15 @@ automaton SecureRandomAutomaton
         longs (SecureRandom, long, long, long),
         nextBoolean,
         nextBytes (SecureRandom, array<byte>),
-        nextBytes (SecureRandom, array<byte>, SecureRandomParameters),
         nextDouble,
         nextFloat,
         nextGaussian,
         nextInt (SecureRandom),
         nextInt (SecureRandom, int),
         nextLong,
-        reseed (SecureRandom),
-        reseed (SecureRandom, SecureRandomParameters),
         setSeed (SecureRandom, array<byte>),
         setSeed (SecureRandom, long),
     ];
-
-
-    // internal variables
 
 
     // utilities
@@ -514,7 +506,10 @@ automaton SecureRandomAutomaton
 
     @static fun *.getSeed (numBytes: int): array<byte>
     {
-        action TODO();
+        if (numBytes < 0)
+            _throwIAE();
+
+        _generateSeed(result, numBytes);
     }
 
 
@@ -589,19 +584,13 @@ automaton SecureRandomAutomaton
         if (numBytes < 0)
             _throwIAE();
 
-        action SYNCHRONIZED_BLOCK(self, _generateSeed(result, numBytes));
+        _generateSeed(result, numBytes);
     }
 
 
     fun *.getAlgorithm (@target self: SecureRandom): String
     {
         result = this.algorithm;
-    }
-
-
-    fun *.getParameters (@target self: SecureRandom): SecureRandomParameters
-    {
-        action TODO();
     }
 
 
@@ -748,25 +737,13 @@ automaton SecureRandomAutomaton
 
     fun *.nextBytes (@target self: SecureRandom, bytes: array<byte>): void
     {
-        action SYNCHRONIZED_BLOCK(self, _nextBytes(bytes));
+        _nextBytes(bytes);
     }
 
 
     @Phantom proc nextBytes_loop (i: int, bytes: array<byte>): void
     {
         bytes[i] = action SYMBOLIC("byte");
-    }
-
-
-    fun *.nextBytes (@target self: SecureRandom, bytes: array<byte>, params: SecureRandomParameters): void
-    {
-        if (params == null)
-            _throwIAE();
-
-        if (bytes == null)
-            _throwNPE();
-
-        action SYNCHRONIZED_BLOCK(self, _nextBytes(bytes));
     }
 
 
@@ -826,22 +803,7 @@ automaton SecureRandomAutomaton
     }
 
 
-    fun *.reseed (@target self: SecureRandom): void
-    {
-        action DO_NOTHING();
-    }
-
-
-    fun *.reseed (@target self: SecureRandom, params: SecureRandomParameters): void
-    {
-        if (params == null)
-            _throwIAE();
-
-        action DO_NOTHING();
-    }
-
-
-    fun *.setSeed (@target self: SecureRandom, seed: array<byte>): void
+    @synchronized fun *.setSeed (@target self: SecureRandom, seed: array<byte>): void
     {
         action DO_NOTHING();
     }
