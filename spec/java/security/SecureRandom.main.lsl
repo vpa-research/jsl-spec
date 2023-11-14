@@ -45,9 +45,6 @@ automaton SecureRandomAutomaton
         // static operations
         getInstance (String),
         getInstance (String, Provider),
-        getInstance (String, SecureRandomParameters),
-        getInstance (String, SecureRandomParameters, Provider),
-        getInstance (String, SecureRandomParameters, String),
         getInstance (String, String),
         getInstanceStrong,
         getSeed,
@@ -122,9 +119,15 @@ automaton SecureRandomAutomaton
     }
 
 
+    @AutoInline @Phantom proc _throwNSPE (): void
+    {
+        action THROW_NEW("java.security.NoSuchProviderException", []);
+    }
+
+
     proc _getDefaultPRNG (setSeed: boolean, seed: array<byte>): void
     {
-        val providersList: array<Provider> = action CALL_METHOD(null as Security, "getProviders", [])
+        val providersList: array<Provider> = action CALL_METHOD(null as Security, "getProviders", []);
         val providersListLength: int = action ARRAY_SIZE(providersList);
 
         var i: int = 0;
@@ -368,7 +371,7 @@ automaton SecureRandomAutomaton
     @throws(["java.security.NoSuchAlgorithmException"])
     @static fun *.getInstance (algorithm: String): SecureRandom
     {
-        val providersList: array<Provider> = action CALL_METHOD(null as Security, "getProviders", [])
+        val providersList: array<Provider> = action CALL_METHOD(null as Security, "getProviders", []);
         val providersListLength: int = action ARRAY_SIZE(providersList);
         var resultProvider: Provider = null;
         var resultAlgorithm: String = null;
@@ -448,35 +451,57 @@ automaton SecureRandomAutomaton
             algorithm = resultAlgorithm,
             defaultProvider = isDefaultProvider,
         );
-
-    }
-
-
-    @throws(["java.security.NoSuchAlgorithmException"])
-    @static fun *.getInstance (algorithm: String, params: SecureRandomParameters): SecureRandom
-    {
-        action TODO();
-    }
-
-
-    @throws(["java.security.NoSuchAlgorithmException"])
-    @static fun *.getInstance (algorithm: String, params: SecureRandomParameters, provider: Provider): SecureRandom
-    {
-        action TODO();
     }
 
 
     @throws(["java.security.NoSuchAlgorithmException", "java.security.NoSuchProviderException"])
-    @static fun *.getInstance (algorithm: String, params: SecureRandomParameters, provider: String): SecureRandom
+    @static fun *.getInstance (algorithm: String, providerName: String): SecureRandom
     {
-        action TODO();
+        if (providerName == null || action CALL_METHOD(providerName, "length", []) == 0)
+            _throwIAE();
+
+        val providersList: array<Provider> = action CALL_METHOD(null as Security, "getProviders", []);
+        val providersListLength: int = action ARRAY_SIZE(providersList);
+        var resultProvider: Provider = null;
+        var resultAlgorithm: String = null;
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, providersListLength, +1,
+            findAlgorithmByAllProvidersByName_loop(i, providersList, algorithm, resultProvider, resultAlgorithm, providerName)
+        );
+
+        if (resultProvider == null)
+            _throwNSPE();
+
+        if (resultAlgorithm == null)
+            _throwNSAE();
+
+        val isDefaultProvider: boolean = _isDefaultProvider(resultProvider);
+
+        result = new SecureRandomAutomaton(state = Initialized,
+            provider = resultProvider,
+            algorithm = resultAlgorithm,
+            defaultProvider = isDefaultProvider,
+        );
     }
 
 
-    @throws(["java.security.NoSuchAlgorithmException", "java.security.NoSuchProviderException"])
-    @static fun *.getInstance (algorithm: String, provider: String): SecureRandom
+    @Phantom proc findAlgorithmByAllProvidersByName_loop (i: int, providersList: array<Provider>, algorithm: String, resultProvider: Provider, resultAlgorithm: String, providerName: String): void
     {
-        action TODO();
+        val curProvider: Provider = providersList[i];
+        val curProviderName: String = action CALL_METHOD(curProvider, "getName", []);
+        if (action OBJECT_EQUALS(curProviderName, providerName))
+        {
+            val services: Set = action CALL_METHOD(curProvider, "getServices", []);
+            val iter: Iterator = action CALL_METHOD(services, "iterator", []);
+            resultProvider = curProvider;
+
+            action LOOP_WHILE(
+                action CALL_METHOD(iter, "hasNext", []),
+                findAlgorithm_loop(iter, curProvider, algorithm, resultAlgorithm)
+            );
+        }
     }
 
 
