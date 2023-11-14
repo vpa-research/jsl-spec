@@ -53,7 +53,7 @@ import java/util/Spliterator;
 @GenerateMe
 @implements("java.util.Spliterator")
 @public type StreamLSLSpliterator
-    is java.util.StreamLSLSpliterator
+    is java.util.stream.StreamLSLSpliterator
     for Spliterator
 {
 }
