@@ -58,6 +58,7 @@ automaton HashSetAutomaton
         toArray(HashSet),
         toArray(HashSet, array<Object>),
         toArray(HashSet, IntFunction),
+        toString,
 
         // write operations
         add,
@@ -662,5 +663,12 @@ automaton HashSetAutomaton
     @private fun *.readObject (@target self: HashSet, s: ObjectInputStream): void
     {
         action NOT_IMPLEMENTED("no serialization support yet");
+    }
+
+
+    // within java.util.AbstractCollection
+    fun *.toString (@target self: HashSet): String
+    {
+        result = action OBJECT_TO_STRING(this.storage);
     }
 }

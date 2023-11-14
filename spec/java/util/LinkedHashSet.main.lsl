@@ -56,6 +56,7 @@ automaton LinkedHashSetAutomaton
         toArray(LinkedHashSet),
         toArray(LinkedHashSet, array<Object>),
         toArray(LinkedHashSet, IntFunction),
+        toString,
 
         // write operations
         add,
@@ -654,4 +655,10 @@ automaton LinkedHashSetAutomaton
         action NOT_IMPLEMENTED("no serialization support yet");
     }
 
+
+    // within java.util.AbstractCollection
+    fun *.toString (@target self: LinkedHashSet): String
+    {
+        result = action OBJECT_TO_STRING(this.storage);
+    }
 }
