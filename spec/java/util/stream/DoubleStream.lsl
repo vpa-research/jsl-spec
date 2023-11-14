@@ -30,6 +30,10 @@ import java/util/Spliterator;
     is java.util.stream.DoubleStreamLSL
     for DoubleStream
 {
+    @private @static val DOUBLE_POSITIVE_INFINITY: double = 1.0 / 0.0;
+    @private @static val DOUBLE_NEGATIVE_INFINITY: double = -1.0 / 0.0;
+
+    @private @static val DOUBLE_NAN: double = 0.0 / 0.0;
 }
 
 

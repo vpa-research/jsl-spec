@@ -28,7 +28,7 @@ import java/lang/Number;
 // note: this is a partial implementation, no need for additional constraints (abstract class) and synthetic methods (Comparable)
 // @extends("java.lang.Number")
 // @implements("java.lang.Comparable<Float>")
-@public @final type LSLFloat
+@final type LSLFloat
     is java.lang.Float
     for Float
 {

@@ -1,4 +1,3 @@
-//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -8,42 +7,19 @@ library std
 
 // imports
 
-import java/lang/Comparable;
-import java/lang/Number;
 import java/lang/Object;
 import java/lang/String;
 
-
-// local semantic types
-
-@extends("java.lang.Number")
-@implements("java.lang.Comparable")
-@public @final type Double
-    is java.lang.Double
-    for Object
-{
-    @private @static @final var serialVersionUID: long = -9172774392245257468;
-
-    @static @final @public var BYTES: int = 8;
-    @static @final @public var MAX_EXPONENT: int = 1023;
-    @static @final @public var MAX_VALUE: double = 1.7976931348623157E308;
-    @static @final @public var MIN_EXPONENT: int = -1022;
-    @static @final @public var MIN_NORMAL: double = 2.2250738585072014E-308;
-    @static @final @public var MIN_VALUE: double = 4.9E-324;
-    @static @final @public var NEGATIVE_INFINITY: double = -Infinity;
-    @static @final @public var NaN: double = NaN;
-    @static @final @public var POSITIVE_INFINITY: double = Infinity;
-    @static @final @public var SIZE: int = 64;
-    @static @final @public var TYPE: Class = double;
-}
+import java/lang/Double;
 
 
 // automata
 
 automaton DoubleAutomaton
 (
+    var value: double = 0.0,
 )
-: Double
+: LSLDouble
 {
     // states and shifts
 
@@ -52,8 +28,9 @@ automaton DoubleAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        Double (Double, String),
-        Double (Double, double),
+        Double (LSLDouble, String),
+        Double (LSLDouble, double),
+
         // static operations
         compare,
         doubleToLongBits,
@@ -80,205 +57,319 @@ automaton DoubleAutomaton
         doubleValue,
         equals,
         floatValue,
-        hashCode (Double),
+        hashCode (LSLDouble),
         intValue,
-        isInfinite (Double),
-        isNaN (Double),
+        isInfinite (LSLDouble),
+        isNaN (LSLDouble),
         longValue,
         shortValue,
-        toString (Double),
+        toString (LSLDouble),
     ];
 
     // internal variables
 
     // utilities
 
-    // constructors
+    @static proc _getRawBits (v: double): long
+    {
+        if (v != v) // a NaN?
+            result = 9221120237041090560L;
+        else if (1.0 / v == NEGATIVE_INFINITY) // is it a "-0.0" ?
+            result = -9223372036854775808L;
+        else if (v == 0.0)
+            result = 0L;
+        else if (v == POSITIVE_INFINITY)
+            result = 9218868437227405312L;
+        else if (v == NEGATIVE_INFINITY)
+            result = -4503599627370496L;
+        else
+        {
+            // #todo: find more sophisticated approach
+            result = action SYMBOLIC("long");
+
+            action ASSUME(result != 9221120237041090560L);
+            action ASSUME(result != -9223372036854775808L);
+            action ASSUME(result != 0L);
+            action ASSUME(result != 9218868437227405312L);
+            action ASSUME(result != -4503599627370496L);
+        }
+    }
+
 
     @throws(["java.lang.NumberFormatException"])
-    constructor *.Double (@target self: Double, s: String)
+    @static proc _parse (str: String): double
     {
+        if (str == null)
+            action THROW_NEW("java.lang.NullPointerException", []);
+
+        // #todo: add implementation if necessary
         action TODO();
     }
 
 
-    constructor *.Double (@target self: Double, value: double)
+    // constructors
+
+    @throws(["java.lang.NumberFormatException"])
+    @Phantom constructor *.Double (@target self: LSLDouble, s: String)
     {
-        action TODO();
+        // NOTE: using original method
+    }
+
+
+    constructor *.Double (@target self: LSLDouble, v: double)
+    {
+        this.value = v;
     }
 
 
     // static methods
 
-    @static fun *.compare (d1: double, d2: double): int
+    @static fun *.compare (a: double, b: double): int
     {
-        action TODO();
+        // #problem: does not catch (-0.0, 0.0)
+        if (a == b || a != a || b != b) // include NaN's
+        {
+            result = 0;
+        }
+        else
+        {
+            if (a < b)
+                result = -1;
+            else
+                result = +1;
+        }
     }
 
 
     @static fun *.doubleToLongBits (value: double): long
     {
-        action TODO();
+        result = _getRawBits(value);
     }
 
 
-    @static fun *.doubleToRawLongBits (arg0: double): long
+    @static fun *.doubleToRawLongBits (value: double): long
     {
-        action TODO();
+        result = _getRawBits(value);
     }
 
 
     @static fun *.hashCode (value: double): int
     {
-        action TODO();
+        result = _getRawBits(value) as int;
     }
 
 
     @static fun *.isFinite (d: double): boolean
     {
-        action TODO();
+        result = (d != POSITIVE_INFINITY) &&
+                 (d != NEGATIVE_INFINITY);
     }
 
 
     @static fun *.isInfinite (v: double): boolean
     {
-        action TODO();
+        result = (v == POSITIVE_INFINITY) ||
+                 (v == NEGATIVE_INFINITY);
     }
 
 
     @static fun *.isNaN (v: double): boolean
     {
-        action TODO();
+        result = v != v;
     }
 
 
-    @static fun *.longBitsToDouble (arg0: long): double
+    @static fun *.longBitsToDouble (value: long): double
     {
-        action TODO();
+        if (value == 9221120237041090560L)
+            result = NaN;
+        else if (value == -9223372036854775808L)
+            result = -0.0;
+        else if (value == 0L)
+            result = 0.0;
+        else if (value == 9218868437227405312L)
+            result = POSITIVE_INFINITY;
+        else if (value == -4503599627370496L)
+            result = NEGATIVE_INFINITY;
+        else
+        {
+            // #todo: find more sophisticated approach
+            result = action SYMBOLIC("double");
+
+            action ASSUME(result != 0.0);
+            action ASSUME(result == result);
+            action ASSUME(result != POSITIVE_INFINITY);
+            action ASSUME(result != NEGATIVE_INFINITY);
+        }
     }
 
 
     @static fun *.max (a: double, b: double): double
     {
-        action TODO();
+        if (a > b)
+            result = a;
+        else
+            result = b;
     }
 
 
     @static fun *.min (a: double, b: double): double
     {
-        action TODO();
+        if (a < b)
+            result = a;
+        else
+            result = b;
     }
 
 
     @throws(["java.lang.NumberFormatException"])
-    @static fun *.parseDouble (s: String): double
+    @Phantom @static fun *.parseDouble (s: String): double
     {
-        action TODO();
+        // NOTE: using original method
+        result = _parse(s);
     }
 
 
     @static fun *.sum (a: double, b: double): double
     {
-        action TODO();
+        result = a + b;
     }
 
 
     @static fun *.toHexString (d: double): String
     {
-        action TODO();
+             if (d != d)                       result = "NaN";
+        else if (d == POSITIVE_INFINITY)       result = "Infinity";
+        else if (d == NEGATIVE_INFINITY)       result = "-Infinity";
+        else if (1.0 / d == NEGATIVE_INFINITY) result = "-0x0.0p0";
+        else if (d == 0.0f)                    result = "0x0.0p0";
+        else if (d == 1.0f)                    result = "0x1.0p0";
+        else if (d == -1.0f)                   result = "-0x1.0p0";
+        else
+        {
+            // #todo: add implementation if necessary
+            result = action SYMBOLIC("java.lang.String");
+            action ASSUME(result != null);
+            val len: int = action CALL_METHOD(result, "length", []);
+            action ASSUME(len >= 7);  // 0x1.0p0
+            action ASSUME(len <= 22); // 0x1.fffffffffffffp1023
+        }
     }
 
 
     @static fun *.toString (d: double): String
     {
-        action TODO();
+        result = action OBJECT_TO_STRING(d);
     }
 
 
     @throws(["java.lang.NumberFormatException"])
-    @static fun *.valueOf (s: String): Double
+    @Phantom @static fun *.valueOf (s: String): Double
     {
-        action TODO();
+        // NOTE: using original method
+        result = new DoubleAutomaton(state = Initialized,
+            value = _parse(s)
+        );
     }
 
 
     @static fun *.valueOf (d: double): Double
     {
-        action TODO();
+        result = new DoubleAutomaton(state = Initialized,
+            value = d
+        );
     }
 
 
     // methods
 
-    fun *.byteValue (@target self: Double): byte
+    fun *.byteValue (@target self: LSLDouble): byte
     {
-        action TODO();
+        result = this.value as byte;
     }
 
 
-    fun *.compareTo (@target self: Double, anotherDouble: Double): int
+    fun *.compareTo (@target self: LSLDouble, anotherDouble: Double): int
     {
-        action TODO();
+        val a: double = this.value;
+        val b: double = DoubleAutomaton(anotherDouble).value;
+
+        // #problem: does not catch (-0.0, 0.0)
+        if (a == b || a != a || b != b) // include NaN's
+        {
+            result = 0;
+        }
+        else
+        {
+            if (a < b)
+                result = -1;
+            else
+                result = +1;
+        }
     }
 
 
-    fun *.doubleValue (@target self: Double): double
+    fun *.doubleValue (@target self: LSLDouble): double
     {
-        action TODO();
+        result = this.value;
     }
 
 
-    fun *.equals (@target self: Double, obj: Object): boolean
+    fun *.equals (@target self: LSLDouble, obj: Object): boolean
     {
-        action TODO();
+        if (obj is Double)
+            result = this.value == DoubleAutomaton(obj).value;
+        else
+            result = false;
     }
 
 
-    fun *.floatValue (@target self: Double): float
+    fun *.floatValue (@target self: LSLDouble): float
     {
-        action TODO();
+        result = this.value as float;
     }
 
 
-    fun *.hashCode (@target self: Double): int
+    fun *.hashCode (@target self: LSLDouble): int
     {
-        action TODO();
+        result = _getRawBits(this.value) as int;
     }
 
 
-    fun *.intValue (@target self: Double): int
+    fun *.intValue (@target self: LSLDouble): int
     {
-        action TODO();
+        result = this.value as int;
     }
 
 
-    fun *.isInfinite (@target self: Double): boolean
+    fun *.isInfinite (@target self: LSLDouble): boolean
     {
-        action TODO();
+        result = (this.value == POSITIVE_INFINITY) ||
+                 (this.value == NEGATIVE_INFINITY);
     }
 
 
-    fun *.isNaN (@target self: Double): boolean
+    fun *.isNaN (@target self: LSLDouble): boolean
     {
-        action TODO();
+        result = this.value != this.value;
     }
 
 
-    fun *.longValue (@target self: Double): long
+    fun *.longValue (@target self: LSLDouble): long
     {
-        action TODO();
+        result = this.value as long;
     }
 
 
-    fun *.shortValue (@target self: Double): short
+    fun *.shortValue (@target self: LSLDouble): short
     {
-        action TODO();
+        result = this.value as short;
     }
 
 
-    fun *.toString (@target self: Double): String
+    fun *.toString (@target self: LSLDouble): String
     {
-        action TODO();
+        result = action OBJECT_TO_STRING(this.value);
     }
 
 }
