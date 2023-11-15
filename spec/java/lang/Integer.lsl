@@ -18,8 +18,10 @@ import java/lang/Number;
 @FunctionalInterface("intValue")
 @final type Integer
     is java.lang.Integer
-    for Comparable, Number, int
+    for Comparable, Number
 {
+    // WARNING: use 'intValue' to get primitive value
+
     @static fun *.valueOf(x: int): Number; // #problem: self-reference
 }
 
@@ -39,7 +41,7 @@ import java/lang/Number;
     @public @static val MAX_VALUE: int =  2147483647;
 
     // #problem: unable to get reference to primitive type
-    @public @static val TYPE: Class = action DEBUG_DO("java.lang.Integer.class"); // preventing recursion
+    @public @static val TYPE: Class = action TYPE_OF("Integer"); // preventing recursion
 
     @public @static val SIZE: int = 32;
     @public @static val BYTES: int = 4;

@@ -18,8 +18,9 @@ import java/lang/Number;
 @FunctionalInterface("doubleValue")
 @final type Double
     is java.lang.Double
-    for Comparable, Number, double
+    for Comparable, Number
 {
+    // WARNING: use 'doubleValue' to get primitive value
 }
 
 
@@ -50,5 +51,5 @@ import java/lang/Number;
 
     @public @static val NaN: double = 0.0 / 0.0;
 
-    @public @static val TYPE: Class = action DEBUG_DO("Double.class");
+    @public @static val TYPE: Class = action TYPE_OF("Double");
 }

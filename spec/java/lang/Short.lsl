@@ -17,8 +17,9 @@ import java/lang/Number;
 @FunctionalInterface("shortValue")
 @final type Short
     is java.lang.Short
-    for Comparable, Number, short
+    for Comparable, Number
 {
+    // WARNING: use 'shortValue' to get primitive value
 }
 
 

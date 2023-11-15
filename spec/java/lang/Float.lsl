@@ -18,8 +18,9 @@ import java/lang/Number;
 @FunctionalInterface("floatValue")
 @final type Float
     is java.lang.Float
-    for Comparable, Number, float, double
+    for Comparable, Number
 {
+    // WARNING: use 'floatValue' to get primitive value
 }
 
 
@@ -51,5 +52,5 @@ import java/lang/Number;
     @public @static val NaN: float = 0.0f / 0.0f;
 
     // #problem: unable to get reference to primitive type
-    @public @static val TYPE: Class = action DEBUG_DO("Float.class"); // preventing recursion
+    @public @static val TYPE: Class = action TYPE_OF("Float"); // preventing recursion
 }
