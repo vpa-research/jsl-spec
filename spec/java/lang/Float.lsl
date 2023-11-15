@@ -21,6 +21,13 @@ import java/lang/Number;
     for Comparable, Number
 {
     // WARNING: use 'floatValue' to get primitive value
+
+    @static fun *.isNaN(x: float): boolean;
+
+    @static fun *.isFinite(x: float): boolean;
+    @static fun *.isInfinite(x: float): boolean;
+
+    @static fun *.valueOf(x: float): Number; // #problem: self-reference
 }
 
 
@@ -35,22 +42,22 @@ import java/lang/Number;
 {
     @private @static val serialVersionUID: long = -2671257302660747028L;
 
-    @public @static val BYTES: int = 4;
-    @public @static val SIZE: int = 32;
+    @static val BYTES: int = 4;
+    @static val SIZE: int = 32;
 
-    @public @static val MAX_EXPONENT: int = 127;
-    @public @static val MIN_EXPONENT: int = -126;
+    @static val MAX_EXPONENT: int = 127;
+    @static val MIN_EXPONENT: int = -126;
 
     // #problem: no "scientific" notation support
-    @public @static val MAX_VALUE: float = action DEBUG_DO("3.4028235e+38f");
-    @public @static val MIN_VALUE: float = action DEBUG_DO("1.4e-45f");
+    @static val MAX_VALUE: float = action DEBUG_DO("3.4028235e+38f");
+    @static val MIN_VALUE: float = action DEBUG_DO("1.4e-45f");
 
-    @public @static val MIN_NORMAL: float = action DEBUG_DO("1.17549435e-38f");
+    @static val MIN_NORMAL: float = action DEBUG_DO("1.17549435e-38f");
 
-    @public @static val NEGATIVE_INFINITY: float = -1.0f / 0.0f;
-    @public @static val POSITIVE_INFINITY: float = 1.0f / 0.0f;
-    @public @static val NaN: float = 0.0f / 0.0f;
+    @static val NEGATIVE_INFINITY: float = -1.0f / 0.0f;
+    @static val POSITIVE_INFINITY: float = 1.0f / 0.0f;
+    @static val NaN: float = 0.0f / 0.0f;
 
     // #problem: unable to get reference to primitive type
-    @public @static val TYPE: Class = action TYPE_OF("Float"); // preventing recursion
+    @static val TYPE: Class = action TYPE_OF("Float"); // preventing recursion
 }

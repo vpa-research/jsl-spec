@@ -151,12 +151,12 @@ automaton StreamAutomaton
     {
         if (this.length == 0)
         {
-            result = action DEBUG_DO("Optional.empty()");
+            result = action CALL_METHOD(null as Optional, "empty", []);
         }
         else
         {
             val first: Object = this.storage[0];
-            result = action DEBUG_DO("Optional.ofNullable(first)");
+            result = action CALL_METHOD(null as Optional, "ofNullable", [first]);
         }
     }
 
@@ -791,7 +791,7 @@ automaton StreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("Optional.empty()");
+            result = action CALL_METHOD(null as Optional, "empty", []);
         }
         else if (this.length > 0)
         {
@@ -803,7 +803,7 @@ automaton StreamAutomaton
                 _accumulate_optional_loop(i, accumulator, value)
             );
 
-            result = action DEBUG_DO("Optional.ofNullable(value)");
+            result = action CALL_METHOD(null as Optional, "ofNullable", [value]);
         }
 
         _consume();
@@ -908,7 +908,7 @@ automaton StreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("Optional.empty()");
+            result = action CALL_METHOD(null as Optional, "empty", []);
         }
         else
         {
@@ -920,7 +920,7 @@ automaton StreamAutomaton
                 _find_min_loop(i, comparator, min)
             );
 
-            result = action DEBUG_DO("Optional.ofNullable(min)");
+            result = action CALL_METHOD(null as Optional, "ofNullable", [min]);
         }
 
         _consume();
@@ -943,7 +943,7 @@ automaton StreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("Optional.empty()");
+            result = action CALL_METHOD(null as Optional, "empty", []);
         }
         else
         {
@@ -955,7 +955,7 @@ automaton StreamAutomaton
                 _find_max_loop(i, comparator, max)
             );
 
-            result = action DEBUG_DO("Optional.ofNullable(max)");
+            result = action CALL_METHOD(null as Optional, "ofNullable", [max]);
         }
 
         _consume();

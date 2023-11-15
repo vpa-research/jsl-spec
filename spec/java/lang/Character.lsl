@@ -9,6 +9,7 @@ library std
 // imports
 
 import java/io/Serializable;
+import java/lang/CharSequence;
 import java/lang/Comparable;
 
 
@@ -20,6 +21,8 @@ import java/lang/Comparable;
     for Comparable, Serializable, char
 {
     fun *.charValue(): char;
+
+    @static fun *.offsetByCodePoints(seq: CharSequence, index: int, codePointOffset: int): int;
 }
 
 

@@ -21,6 +21,13 @@ import java/lang/Number;
     for Comparable, Number
 {
     // WARNING: use 'doubleValue' to get primitive value
+
+    @static fun *.isNaN(x: double): boolean;
+
+    @static fun *.isFinite(x: double): boolean;
+    @static fun *.isInfinite(x: double): boolean;
+
+    @static fun *.valueOf(x: double): Number; // #problem: self-reference
 }
 
 
@@ -35,21 +42,21 @@ import java/lang/Number;
 {
     @private @static val serialVersionUID: long = -9172774392245257468L;
 
-    @public @static val BYTES: int = 8;
-    @public @static val SIZE: int = 64;
+    @static val BYTES: int = 8;
+    @static val SIZE: int = 64;
 
-    @public @static val MAX_EXPONENT: int = 1023;
-    @public @static val MIN_EXPONENT: int = -1022;
+    @static val MAX_EXPONENT: int = 1023;
+    @static val MIN_EXPONENT: int = -1022;
 
     // #problem: no support for scientific notation
-    @public @static val MAX_VALUE: double = action DEBUG_DO("1.7976931348623157E308");
-    @public @static val MIN_VALUE: double = action DEBUG_DO("4.9E-324");
-    @public @static val MIN_NORMAL: double = action DEBUG_DO("2.2250738585072014E-308");
+    @static val MAX_VALUE: double = action DEBUG_DO("1.7976931348623157E308");
+    @static val MIN_VALUE: double = action DEBUG_DO("4.9E-324");
+    @static val MIN_NORMAL: double = action DEBUG_DO("2.2250738585072014E-308");
 
-    @public @static val POSITIVE_INFINITY: double = 1.0 / 0.0;
-    @public @static val NEGATIVE_INFINITY: double = -1.0 / 0.0;
+    @static val POSITIVE_INFINITY: double = 1.0 / 0.0;
+    @static val NEGATIVE_INFINITY: double = -1.0 / 0.0;
 
-    @public @static val NaN: double = 0.0 / 0.0;
+    @static val NaN: double = 0.0 / 0.0;
 
-    @public @static val TYPE: Class = action TYPE_OF("Double");
+    @static val TYPE: Class = action TYPE_OF("Double");
 }

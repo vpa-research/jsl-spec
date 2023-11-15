@@ -134,12 +134,12 @@ automaton DoubleStreamAutomaton
     {
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalDouble.empty()");
+            result = action CALL_METHOD(null as OptionalDouble, "empty", []);
         }
         else
         {
             val first: double = this.storage[0];
-            result = action DEBUG_DO("OptionalDouble.of(first)");
+            result = action CALL_METHOD(null as OptionalDouble, "of", [first]);
         }
     }
 
@@ -178,7 +178,7 @@ automaton DoubleStreamAutomaton
         val element: double = this.storage[i];
         result += element;
 
-        if (action DEBUG_DO("Double.isNaN(element)"))
+        if (element != element /* NaN */)
             anyNaN = true;
 
         if (element == DOUBLE_POSITIVE_INFINITY)
@@ -684,7 +684,7 @@ automaton DoubleStreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalDouble.empty()");
+            result = action CALL_METHOD(null as OptionalDouble, "empty", []);
         }
         else if (this.length > 0)
         {
@@ -696,7 +696,7 @@ automaton DoubleStreamAutomaton
                 _accumulate_optional_loop(i, accumulator, value)
             );
 
-            result = action DEBUG_DO("OptionalDouble.of(value)");
+            result = action CALL_METHOD(null as OptionalDouble, "of", [value]);
         }
 
         _consume();
@@ -747,7 +747,7 @@ automaton DoubleStreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalDouble.empty()");
+            result = action CALL_METHOD(null as OptionalDouble, "empty", []);
         }
         else
         {
@@ -759,7 +759,7 @@ automaton DoubleStreamAutomaton
                 _find_min_loop(i, min)
             );
 
-            result = action DEBUG_DO("OptionalDouble.of(min)");
+            result = action CALL_METHOD(null as OptionalDouble, "of", [min]);
         }
 
         _consume();
@@ -779,7 +779,7 @@ automaton DoubleStreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalDouble.empty()");
+            result = action CALL_METHOD(null as OptionalDouble, "empty", []);
         }
         else
         {
@@ -791,7 +791,7 @@ automaton DoubleStreamAutomaton
                 _find_max_loop(i, max)
             );
 
-            result = action DEBUG_DO("OptionalDouble.of(max)");
+            result = action CALL_METHOD(null as OptionalDouble, "of", [max]);
         }
 
         _consume();
@@ -1178,13 +1178,13 @@ automaton DoubleStreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalDouble.empty()");
+            result = action CALL_METHOD(null as OptionalDouble, "empty", []);
         }
         else
         {
             var curSum: double = _sum();
             var divisionResult: double = curSum / this.length;
-            result = action DEBUG_DO("OptionalDouble.of(divisionResult)");
+            result = action CALL_METHOD(null as OptionalDouble, "of", [divisionResult]);
         }
 
         _consume();

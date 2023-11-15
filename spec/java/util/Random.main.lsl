@@ -221,7 +221,7 @@ automaton RandomAutomaton
     @synchronized fun *.nextGaussian (@target self: Random): double
     {
         result = action SYMBOLIC("double");
-        val isNaN: boolean = action DEBUG_DO("Double.isNaN(result)");
+        val isNaN: boolean = result != result;
         action ASSUME(isNaN == false);
     }
 

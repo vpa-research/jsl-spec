@@ -87,7 +87,7 @@ automaton LongStreamAutomaton
     var linkedOrConsumed: boolean = false;
 
     // utilities
-    
+
     @AutoInline @Phantom proc _checkConsumed (): void
     {
         if (this.linkedOrConsumed)
@@ -99,7 +99,7 @@ automaton LongStreamAutomaton
     {
         this.linkedOrConsumed = true;
     }
-    
+
 
     @AutoInline @Phantom proc _throwNPE (): void
     {
@@ -136,12 +136,12 @@ automaton LongStreamAutomaton
     {
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalLong.empty()");
+            result = action CALL_METHOD(null as OptionalLong, "empty", []);
         }
         else
         {
             val first: long = this.storage[0];
-            result = action DEBUG_DO("OptionalLong.of(first)");
+            result = action CALL_METHOD(null as OptionalLong, "of", [first]);
         }
     }
 
@@ -661,7 +661,7 @@ automaton LongStreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalLong.empty()");
+            result = action CALL_METHOD(null as OptionalLong, "empty", []);
         }
         else if (this.length > 0)
         {
@@ -673,7 +673,7 @@ automaton LongStreamAutomaton
                 _accumulate_optional_loop(i, accumulator, value)
             );
 
-            result = action DEBUG_DO("OptionalLong.of(value)");
+            result = action CALL_METHOD(null as OptionalLong, "of", [value]);
         }
 
         _consume();
@@ -724,7 +724,7 @@ automaton LongStreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalLong.empty()");
+            result = action CALL_METHOD(null as OptionalLong, "empty", []);
         }
         else
         {
@@ -736,7 +736,7 @@ automaton LongStreamAutomaton
                 _find_min_loop(i, min)
             );
 
-            result = action DEBUG_DO("OptionalLong.of(min)");
+            result = action CALL_METHOD(null as OptionalLong, "of", [min]);
         }
 
         _consume();
@@ -756,7 +756,7 @@ automaton LongStreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalLong.empty()");
+            result = action CALL_METHOD(null as OptionalLong, "empty", []);
         }
         else
         {
@@ -768,7 +768,7 @@ automaton LongStreamAutomaton
                 _find_max_loop(i, max)
             );
 
-            result = action DEBUG_DO("OptionalLong.of(max)");
+            result = action CALL_METHOD(null as OptionalLong, "of", [max]);
         }
 
         _consume();
@@ -1197,13 +1197,13 @@ automaton LongStreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalDouble.empty()");
+            result = action CALL_METHOD(null as OptionalDouble, "empty", []);
         }
         else
         {
             var curSum: double = _sum();
             var divisionResult: double = curSum / this.length;
-            result = action DEBUG_DO("OptionalDouble.of(divisionResult)");
+            result = action CALL_METHOD(null as OptionalDouble, "of", [divisionResult]);
         }
 
         _consume();

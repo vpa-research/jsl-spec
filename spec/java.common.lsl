@@ -28,6 +28,8 @@ annotation packageprivate ();
 
 annotation public ();
 
+annotation abstract ();
+
 annotation extends (
     canonicalClassName: string,
 );
