@@ -17,5 +17,7 @@ import java/security/Provider;
     is java.security.Security
     for Object
 {
-    @static *.getProviders(): array<Provider>
+    @static *.getProviders(): array<Provider>;
+
+    @static *.getProperty(key: String): String;
 }
