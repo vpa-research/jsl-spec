@@ -337,13 +337,13 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.append (@target self: StringBuffer, seq: CharSequence, start: int, end: int): StringBuffer
+    @synchronized fun *.append (@target self: StringBuffer, s: CharSequence, start: int, end: int): StringBuffer
     {
         var seqLength: int = 4;
-        if (seq == null)
-            seq = "null";
-
-        seqLength = action CALL_METHOD(seq, "length", []);
+        var seq: String = "null";
+        if (s != null)
+            seq = s;
+            seqLength = action CALL_METHOD(s, "length", []);
 
         _checkRange(start, end, seqLength);
         this.length += end - start;
