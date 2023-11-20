@@ -10,6 +10,7 @@ library std
 
 import java/lang/Character;
 import java/lang/StringBuffer;
+import java/lang/Runnable;
 
 
 // automata
@@ -542,9 +543,12 @@ automaton StringBufferAutomaton
     // within java.lang.AbstractStringBuilder
     fun *.chars (@target self: StringBuffer): IntStream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.IntStream");
-        action ASSUME(result != null);
+        val handlers: list<Runnable> = action LIST_NEW();
+        result = new IntStreamAutomaton(state = Initialized,
+                                        storage = this.storage,
+                                        length = this.length,
+                                        closeHandlers = handlers,
+                                       );
     }
 
 
@@ -577,9 +581,12 @@ automaton StringBufferAutomaton
     // within java.lang.AbstractStringBuilder
     fun *.codePoints (@target self: StringBuffer): IntStream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.IntStream");
-        action ASSUME(result != null);
+        val handlers: list<Runnable> = action LIST_NEW();
+        result = new IntStreamAutomaton(state = Initialized,
+                                        storage = this.storage,
+                                        length = this.length,
+                                        closeHandlers = handlers,
+                                       );
     }
 
 
