@@ -1,4 +1,3 @@
-///#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -878,7 +877,9 @@ automaton StringBufferAutomaton
     {
         _checkIndex(index);
 
-        result = action DEBUG_DO("Character.offsetByCodePoints(this.storage, index, codePointOffset)");
+        // result = action DEBUG_DO("Character.offsetByCodePoints(this.storage, index, codePointOffset)"); //current
+
+        result = action CALL_METHOD(null as Character, "offsetByCodePoints", [this.storage, index, codePointOffset]) //need
     }
 
 
