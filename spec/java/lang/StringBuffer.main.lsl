@@ -280,17 +280,19 @@ automaton StringBufferAutomaton
         val newStr: array<char> = action ARRAY_NEW("char", sizeNewString);
 
         var i: int = 0;
+        var newStr_i: int = 0;
         action LOOP_FOR(
             i, start, end, +1,
-            _newSubString_loop(i, newStr)
+            _newSubString_loop(i, newStr, newStr_i)
         );
         result = action OBJECT_TO_STRING(newStr);
     }
 
 
-    @Phantom proc _newSubString_loop (i: int, newStr: array<char>): void
+    @Phantom proc _newSubString_loop (i: int, newStr: array<char>, newStr_i: int): void
     {
-        newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
+        newStr[newStr_i] = action CALL_METHOD(this.storage, "charAt", [i]);
+        newStr_i += 1;
     }
 
     // constructors
