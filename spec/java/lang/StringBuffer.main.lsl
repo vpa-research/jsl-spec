@@ -792,7 +792,7 @@ automaton StringBufferAutomaton
 
         val s: String = action OBJECT_TO_STRING(str);
 
-        _insertCharSequence(index, s, len, offset, offset + len);
+        _insertCharSequence(index, s, lenStr, offset, offset + len);
 
         result = self;
     }
