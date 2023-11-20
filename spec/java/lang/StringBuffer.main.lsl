@@ -664,12 +664,13 @@ automaton StringBufferAutomaton
     {
         _checkOffset(dstOffset);
         var len: int = 4;
-        if (s == null)
-            s = "null";
-        else
+        var new_s: String = "null";
+        if (s != null)
+        {
             len = action CALL_METHOD(s, "length", []);
-
-        _insertCharSequence(dstOffset, s, len, 0, len);
+            new_s = s;
+        }
+        _insertCharSequence(dstOffset, new_s, len, 0, len);
 
         result = self;
     }
@@ -679,12 +680,13 @@ automaton StringBufferAutomaton
     {
         _checkOffset(dstOffset);
         var len: int = 4;
-        if (s == null)
-            s = "null";
-        else
+        var new_s: String = "null";
+        if (s != null)
+        {
             len = action CALL_METHOD(s, "length", []);
-
-        _insertCharSequence(dstOffset, s, len, start, end);
+            new_s = s;
+        }
+        _insertCharSequence(dstOffset, new_s, len, start, end);
 
         result = self;
     }
