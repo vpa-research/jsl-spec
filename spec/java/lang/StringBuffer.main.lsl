@@ -543,12 +543,27 @@ automaton StringBufferAutomaton
     // within java.lang.AbstractStringBuilder
     fun *.chars (@target self: StringBuffer): IntStream
     {
+        var intStorage: array<int> = action ARRAY_NEW("int", this.length);
+        var storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _toIntArray_loop(i, intStorage, storageChars)
+        );
+
         val handlers: list<Runnable> = action LIST_NEW();
         result = new IntStreamAutomaton(state = Initialized,
-                                        storage = this.storage,
+                                        storage = intStorage,
                                         length = this.length,
-                                        closeHandlers = handlers,
+                                        closeHandlers = handlers
                                        );
+    }
+
+
+    @Phantom proc _toIntArray_loop(i: int, intStorage: array<int>, storageChars: array<char>): void
+    {
+        intStorage[i] = storageChars[i] as int;
     }
 
 
@@ -581,11 +596,20 @@ automaton StringBufferAutomaton
     // within java.lang.AbstractStringBuilder
     fun *.codePoints (@target self: StringBuffer): IntStream
     {
+        var intStorage: array<int> = action ARRAY_NEW("int", this.length);
+        var storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _toIntArray_loop(i, intStorage, storageChars)
+        );
+
         val handlers: list<Runnable> = action LIST_NEW();
         result = new IntStreamAutomaton(state = Initialized,
-                                        storage = this.storage,
+                                        storage = intStorage,
                                         length = this.length,
-                                        closeHandlers = handlers,
+                                        closeHandlers = handlers
                                        );
     }
 
