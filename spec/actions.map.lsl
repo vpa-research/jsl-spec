@@ -25,9 +25,19 @@ define action MAP_FREE (
 // === READ operations ===
 
 
+// NOTE: more efficient (and internal type aware) version of "MAP_NEW + MAP_UNION_WITH"
+define action MAP_CLONE (
+        aMap: map<any, any>
+    ): map<any, any>;
+
 define action MAP_GET (
         aMap: map<any, any>,
         key: any
+    ): any;
+
+// WARNING: check if map is empty or not before calling this
+define action MAP_GET_ANY_KEY (
+        aMap: map<any, any>
     ): any;
 
 define action MAP_HAS_KEY (

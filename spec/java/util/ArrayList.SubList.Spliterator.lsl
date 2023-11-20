@@ -180,7 +180,7 @@ automaton ArrayList_SubList_SpliteratorAutomaton
     }
 
 
-    fun *.trySplit (@target self: ArrayList_SubList_Spliterator): ArrayList_SubList_Spliterator
+    fun *.trySplit (@target self: ArrayList_SubList_Spliterator): Spliterator
     {
         val hi: int = _getFence();
         val lo: int = this.index;

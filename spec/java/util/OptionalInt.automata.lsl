@@ -31,7 +31,7 @@ automaton OptionalIntAutomaton
     var value: int,
     var present: boolean
 )
-: OptionalInt
+: LSLOptionalInt
 {
     // states and shifts
 
@@ -40,8 +40,8 @@ automaton OptionalIntAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        OptionalInt (OptionalInt),
-        OptionalInt (OptionalInt, int),
+        LSLOptionalInt (LSLOptionalInt),
+        LSLOptionalInt (LSLOptionalInt, int),
 
         // static methods
         empty,
@@ -58,8 +58,8 @@ automaton OptionalIntAutomaton
         stream,
         orElse,
         orElseGet,
-        orElseThrow (OptionalInt),
-        orElseThrow (OptionalInt, Supplier),
+        orElseThrow (LSLOptionalInt),
+        orElseThrow (LSLOptionalInt, Supplier),
         toString,
         hashCode,
         equals,
@@ -76,13 +76,13 @@ automaton OptionalIntAutomaton
 
     // constructors
 
-    @private constructor *.OptionalInt (@target self: OptionalInt)
+    @private constructor *.LSLOptionalInt (@target self: LSLOptionalInt)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
 
 
-    @private constructor *.OptionalInt (@target self: OptionalInt, x: int)
+    @private constructor *.LSLOptionalInt (@target self: LSLOptionalInt, x: int)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
@@ -108,7 +108,7 @@ automaton OptionalIntAutomaton
     // methods
 
     @AnnotatedWith("java.lang.Override")
-    fun *.equals (@target self: OptionalInt, other: Object): boolean
+    fun *.equals (@target self: LSLOptionalInt, other: Object): boolean
     {
         if (other == self)
         {
@@ -135,7 +135,7 @@ automaton OptionalIntAutomaton
     }
 
 
-    fun *.getAsInt (@target self: OptionalInt): int
+    fun *.getAsInt (@target self: LSLOptionalInt): int
     {
         if (!this.present)
             action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
@@ -145,7 +145,7 @@ automaton OptionalIntAutomaton
 
 
     @AnnotatedWith("java.lang.Override")
-    fun *.hashCode (@target self: OptionalInt): int
+    fun *.hashCode (@target self: LSLOptionalInt): int
     {
         if (this.present)
             result = action OBJECT_HASH_CODE(this.value);
@@ -154,7 +154,7 @@ automaton OptionalIntAutomaton
     }
 
 
-    fun *.ifPresent (@target self: OptionalInt, consumer: IntConsumer): void
+    fun *.ifPresent (@target self: LSLOptionalInt, consumer: IntConsumer): void
     {
         requires !this.present || (this.present && consumer != null);
 
@@ -168,7 +168,7 @@ automaton OptionalIntAutomaton
     }
 
 
-    fun *.ifPresentOrElse (@target self: OptionalInt, consumer: IntConsumer, emptyAction: Runnable): void
+    fun *.ifPresentOrElse (@target self: LSLOptionalInt, consumer: IntConsumer, emptyAction: Runnable): void
     {
         requires !this.present || (this.present  && consumer != null);
         requires this.present  || (!this.present && emptyAction != null);
@@ -190,19 +190,19 @@ automaton OptionalIntAutomaton
     }
 
 
-    fun *.isEmpty (@target self: OptionalInt): boolean
+    fun *.isEmpty (@target self: LSLOptionalInt): boolean
     {
         result = this.present == false;
     }
 
 
-    fun *.isPresent (@target self: OptionalInt): boolean
+    fun *.isPresent (@target self: LSLOptionalInt): boolean
     {
         result = this.present == true;
     }
 
 
-    fun *.orElse (@target self: OptionalInt, other: int): int
+    fun *.orElse (@target self: LSLOptionalInt, other: int): int
     {
         if (this.present)
             result = this.value;
@@ -211,7 +211,7 @@ automaton OptionalIntAutomaton
     }
 
 
-    fun *.orElseGet (@target self: OptionalInt, supplier: IntSupplier): int
+    fun *.orElseGet (@target self: LSLOptionalInt, supplier: IntSupplier): int
     {
         requires supplier != null;
 
@@ -225,7 +225,7 @@ automaton OptionalIntAutomaton
     }
 
 
-    fun *.orElseThrow (@target self: OptionalInt): int
+    fun *.orElseThrow (@target self: LSLOptionalInt): int
     {
         requires this.present;
 
@@ -238,7 +238,7 @@ automaton OptionalIntAutomaton
 
     @Parameterized(["X extends java.lang.Throwable"])
     @throws(["java.lang.Throwable"])
-    fun *.orElseThrow(@target self: OptionalInt, @Parameterized(["? extends X"]) exceptionSupplier: Supplier): int
+    fun *.orElseThrow(@target self: LSLOptionalInt, @Parameterized(["? extends X"]) exceptionSupplier: Supplier): int
     {
         requires exceptionSupplier != null;
 
@@ -257,7 +257,7 @@ automaton OptionalIntAutomaton
     }
 
 
-    fun *.stream (@target self: OptionalInt): IntStream
+    fun *.stream (@target self: LSLOptionalInt): IntStream
     {
         // #todo: use custom stream implementation
         result = action SYMBOLIC("java.util.stream.IntStream");
@@ -266,7 +266,7 @@ automaton OptionalIntAutomaton
 
 
     @AnnotatedWith("java.lang.Override", [])
-    fun *.toString (@target self: OptionalInt): String
+    fun *.toString (@target self: LSLOptionalInt): String
     {
         if (this.present)
         {

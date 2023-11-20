@@ -17,4 +17,5 @@ import java/lang/Object;
     is java.lang.Cloneable
     for Object
 {
+    fun *.clone(): Object;
 }

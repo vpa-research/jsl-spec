@@ -4,11 +4,11 @@ libsl "1.1.0";
 library std
     version "11"
     language "Java"
-    url "https://github.com/openjdk/jdk11/blob/master/src/java.base/share/classes/java/util/HashSet.java";
+    url "https://github.com/openjdk/jdk11/blob/master/src/java.base/share/classes/java/util/LinkedHashSet.java";
 
 // imports
 
-import java/util/HashSet;
+import java/util/LinkedHashSet;
 import java/lang/Object;
 import java/util/HashMap;
 import java/util/function/Consumer;
@@ -16,16 +16,16 @@ import java/util/function/Consumer;
 
 // automata
 
-automaton HashSet_KeySpliteratorAutomaton
+automaton LinkedHashSet_KeySpliteratorAutomaton
 (
     var keysStorage: array<Object>,
     var index: int,
     var fence: int,
     var est: int,
     var expectedModCount: int,
-    var parent: HashSet
+    var parent: LinkedHashSet
 )
-: HashSet_KeySpliterator
+: LinkedHashSet_KeySpliterator
 {
     // states and shifts
 
@@ -34,7 +34,7 @@ automaton HashSet_KeySpliteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        HashSet_KeySpliterator
+        LinkedHashSet_KeySpliterator
     ];
 
     shift Initialized -> self by [
@@ -58,9 +58,9 @@ automaton HashSet_KeySpliteratorAutomaton
         var hi: int = this.fence;
         if (hi < 0)
         {
-            val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
-            this.est = HashSetAutomaton(this.parent).length;
-            this.expectedModCount = HashSetAutomaton(this.parent).modCount;
+            val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
+            this.est = LinkedHashSetAutomaton(this.parent).length;
+            this.expectedModCount = LinkedHashSetAutomaton(this.parent).modCount;
             this.fence = this.est;
             // That's right ?
             // Original code: "hi = fence = (tab == null) ? 0 : tab.length;"
@@ -78,7 +78,7 @@ automaton HashSet_KeySpliteratorAutomaton
 
     proc _checkForComodification (): void
     {
-        val modCount: int = HashSetAutomaton(this.parent).modCount;
+        val modCount: int = LinkedHashSetAutomaton(this.parent).modCount;
         if (this.expectedModCount != modCount)
             action THROW_NEW("java.util.ConcurrentModificationException", []);
     }
@@ -86,7 +86,7 @@ automaton HashSet_KeySpliteratorAutomaton
 
     // constructors
 
-    @private constructor *.HashSet_KeySpliterator (@target self: HashSet_KeySpliterator, source: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
+    @private constructor *.LinkedHashSet_KeySpliterator (@target self: LinkedHashSet_KeySpliterator, source: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
     {
         this.index = origin;
         this.fence = fence;
@@ -97,19 +97,19 @@ automaton HashSet_KeySpliteratorAutomaton
 
     // methods
 
-    fun *.estimateSize (@target self: HashSet_KeySpliterator): long
+    fun *.estimateSize (@target self: LinkedHashSet_KeySpliterator): long
     {
         _getFence();
         result = this.est as long;
     }
 
 
-    fun *.characteristics (@target self: HashSet_KeySpliterator): int
+    fun *.characteristics (@target self: LinkedHashSet_KeySpliterator): int
     {
         action ASSUME(this.parent != null);
 
         var mask: int = 0;
-        val length: int = HashSetAutomaton(this.parent).length;
+        val length: int = LinkedHashSetAutomaton(this.parent).length;
         if (this.fence < 0 || this.est == length)
             mask = SPLITERATOR_SIZED;
 
@@ -117,7 +117,7 @@ automaton HashSet_KeySpliteratorAutomaton
     }
 
 
-    fun *.forEachRemaining (@target self: HashSet_KeySpliterator, userAction: Consumer): void
+    fun *.forEachRemaining (@target self: LinkedHashSet_KeySpliterator, userAction: Consumer): void
     {
         action ASSUME(this.parent != null);
 
@@ -127,21 +127,16 @@ automaton HashSet_KeySpliteratorAutomaton
         var hi: int = this.fence;
         var mc: int = this.expectedModCount;
         var i: int = this.index;
-        val length: int = HashSetAutomaton(this.parent).length;
+        val length: int = LinkedHashSetAutomaton(this.parent).length;
 
         if(hi < 0)
         {
-            this.expectedModCount = HashSetAutomaton(this.parent).modCount;
+            this.expectedModCount = LinkedHashSetAutomaton(this.parent).modCount;
             mc = this.expectedModCount;
-            // problem
-            // How correctly write such string "hi = fence = (tab == null) ? 0 : tab.length;"
-            // As I see this condition "tab == null" we mustn't check, because we don't have "map.table" field;
             this.fence = length;
             hi = this.fence;
         }
 
-        // Original condition: "if (tab != null && tab.length >= hi && (i = index) >= 0 && (i < (index = hi) || current != null))"
-        // This is correct this condition translation ?
         this.index = hi;
         if (length > 0 && length >= hi && i >= 0 && i < this.index)
         {
@@ -152,7 +147,7 @@ automaton HashSet_KeySpliteratorAutomaton
                 forEachRemaining_loop(userAction, i, storage)
             );
 
-            val modCount: int = HashSetAutomaton(this.parent).modCount;
+            val modCount: int = LinkedHashSetAutomaton(this.parent).modCount;
             if (modCount != mc)
                 action THROW_NEW("java.util.ConcurrentModificationException", []);
         }
@@ -167,7 +162,7 @@ automaton HashSet_KeySpliteratorAutomaton
     }
 
 
-    fun *.tryAdvance (@target self: HashSet_KeySpliterator, userAction: Consumer): boolean
+    fun *.tryAdvance (@target self: LinkedHashSet_KeySpliterator, userAction: Consumer): boolean
     {
         action ASSUME(this.parent != null);
 
@@ -191,7 +186,7 @@ automaton HashSet_KeySpliteratorAutomaton
     }
 
 
-    fun *.trySplit (@target self: HashSet_KeySpliterator): Spliterator
+    fun *.trySplit (@target self: LinkedHashSet_KeySpliterator): Spliterator
     {
         action ASSUME(this.parent != null);
 
@@ -210,7 +205,7 @@ automaton HashSet_KeySpliteratorAutomaton
 
             this.index = mid;
 
-            result = new HashSet_KeySpliteratorAutomaton(state = Initialized,
+            result = new LinkedHashSet_KeySpliteratorAutomaton(state = Initialized,
                 keysStorage = this.keysStorage,
                 index = lo,
                 fence = mid,

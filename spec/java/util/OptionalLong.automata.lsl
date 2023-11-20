@@ -31,7 +31,7 @@ automaton OptionalLongAutomaton
     var value: long,
     var present: boolean,
 )
-: OptionalLong
+: LSLOptionalLong
 {
     // states and shifts
 
@@ -40,8 +40,8 @@ automaton OptionalLongAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        OptionalLong (OptionalLong),
-        OptionalLong (OptionalLong, long),
+        LSLOptionalLong (LSLOptionalLong),
+        LSLOptionalLong (LSLOptionalLong, long),
 
         // static methods
         empty,
@@ -58,8 +58,8 @@ automaton OptionalLongAutomaton
         stream,
         orElse,
         orElseGet,
-        orElseThrow (OptionalLong),
-        orElseThrow (OptionalLong, Supplier),
+        orElseThrow (LSLOptionalLong),
+        orElseThrow (LSLOptionalLong, Supplier),
         toString,
         hashCode,
         equals,
@@ -76,13 +76,13 @@ automaton OptionalLongAutomaton
 
     // constructors
 
-    @private constructor *.OptionalLong (@target self: OptionalLong)
+    @private constructor *.LSLOptionalLong (@target self: LSLOptionalLong)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
 
 
-    @private constructor *.OptionalLong (@target self: OptionalLong, x: long)
+    @private constructor *.LSLOptionalLong (@target self: LSLOptionalLong, x: long)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
@@ -108,7 +108,7 @@ automaton OptionalLongAutomaton
     // methods
 
     @AnnotatedWith("java.lang.Override")
-    fun *.equals (@target self: OptionalLong, other: Object): boolean
+    fun *.equals (@target self: LSLOptionalLong, other: Object): boolean
     {
         if (other == self)
         {
@@ -135,7 +135,7 @@ automaton OptionalLongAutomaton
     }
 
 
-    fun *.getAsLong (@target self: OptionalLong): long
+    fun *.getAsLong (@target self: LSLOptionalLong): long
     {
         if (!this.present)
             action THROW_NEW("java.util.NoSuchElementException", ["No value present"]);
@@ -145,7 +145,7 @@ automaton OptionalLongAutomaton
 
 
     @AnnotatedWith("java.lang.Override")
-    fun *.hashCode (@target self: OptionalLong): int
+    fun *.hashCode (@target self: LSLOptionalLong): int
     {
         if (this.present)
             result = action OBJECT_HASH_CODE(this.value);
@@ -154,7 +154,7 @@ automaton OptionalLongAutomaton
     }
 
 
-    fun *.ifPresent (@target self: OptionalLong, consumer: LongConsumer): void
+    fun *.ifPresent (@target self: LSLOptionalLong, consumer: LongConsumer): void
     {
         requires !this.present || (this.present && consumer != null);
 
@@ -168,7 +168,7 @@ automaton OptionalLongAutomaton
     }
 
 
-    fun *.ifPresentOrElse (@target self: OptionalLong, consumer: LongConsumer, emptyAction: Runnable): void
+    fun *.ifPresentOrElse (@target self: LSLOptionalLong, consumer: LongConsumer, emptyAction: Runnable): void
     {
         requires !this.present || (this.present  && consumer != null);
         requires this.present  || (!this.present && emptyAction != null);
@@ -190,19 +190,19 @@ automaton OptionalLongAutomaton
     }
 
 
-    fun *.isEmpty (@target self: OptionalLong): boolean
+    fun *.isEmpty (@target self: LSLOptionalLong): boolean
     {
         result = this.present == false;
     }
 
 
-    fun *.isPresent (@target self: OptionalLong): boolean
+    fun *.isPresent (@target self: LSLOptionalLong): boolean
     {
         result = this.present == true;
     }
 
 
-    fun *.orElse (@target self: OptionalLong, other: long): long
+    fun *.orElse (@target self: LSLOptionalLong, other: long): long
     {
         if (this.present)
             result = this.value;
@@ -211,7 +211,7 @@ automaton OptionalLongAutomaton
     }
 
 
-    fun *.orElseGet (@target self: OptionalLong, supplier: LongSupplier): long
+    fun *.orElseGet (@target self: LSLOptionalLong, supplier: LongSupplier): long
     {
         requires supplier != null;
 
@@ -225,7 +225,7 @@ automaton OptionalLongAutomaton
     }
 
 
-    fun *.orElseThrow (@target self: OptionalLong): long
+    fun *.orElseThrow (@target self: LSLOptionalLong): long
     {
         requires this.present;
 
@@ -238,7 +238,7 @@ automaton OptionalLongAutomaton
 
     @Parameterized(["X extends java.lang.Throwable"])
     @throws(["java.lang.Throwable"])
-    fun *.orElseThrow(@target self: OptionalLong, @Parameterized(["? extends X"]) exceptionSupplier: Supplier): long
+    fun *.orElseThrow(@target self: LSLOptionalLong, @Parameterized(["? extends X"]) exceptionSupplier: Supplier): long
     {
         requires exceptionSupplier != null;
 
@@ -257,7 +257,7 @@ automaton OptionalLongAutomaton
     }
 
 
-    fun *.stream (@target self: OptionalLong): LongStream
+    fun *.stream (@target self: LSLOptionalLong): LongStream
     {
         // #todo: use custom stream implementation
         result = action SYMBOLIC("java.util.stream.LongStream");
@@ -266,7 +266,7 @@ automaton OptionalLongAutomaton
 
 
     @AnnotatedWith("java.lang.Override")
-    fun *.toString (@target self: OptionalLong): String
+    fun *.toString (@target self: LSLOptionalLong): String
     {
         if (this.present)
         {

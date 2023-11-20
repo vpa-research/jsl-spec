@@ -12,6 +12,7 @@ import java/lang/Object;
 import java/util/Iterator;
 import java/util/function/Consumer;
 import java/util/stream/BaseStream;
+import java/util/Spliterator;
 
 
 // primary semantic types
@@ -45,5 +46,14 @@ import java/util/stream/BaseStream;
 @public type StreamLSLIterator
     is java.util.stream.StreamLSLIterator
     for Iterator
+{
+}
+
+
+@GenerateMe
+@implements("java.util.Spliterator")
+@public type StreamLSLSpliterator
+    is java.util.StreamLSLSpliterator
+    for Spliterator
 {
 }
