@@ -342,9 +342,10 @@ automaton StringBufferAutomaton
         var seqLength: int = 4;
         var seq: String = "null";
         if (s != null)
+        {
             seq = s;
             seqLength = action CALL_METHOD(s, "length", []);
-
+        }
         _checkRange(start, end, seqLength);
         this.length += end - start;
 
@@ -700,10 +701,10 @@ automaton StringBufferAutomaton
         var len: int = 4;
 
         if (obj != null)
+        {
             s = action OBJECT_TO_STRING(obj);
-        else
             len = action CALL_METHOD(s, "length", []);
-
+        }
         _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
