@@ -268,8 +268,8 @@ automaton StringBufferAutomaton
 
     @Phantom proc _insertSequence_loop(i: int, arrayIndex: int, newStr: array<char>, s: CharSequence): void
     {
-            newStr[arrayIndex] = action CALL_METHOD(s, "charAt", [i]);
-            arrayIndex += 1;
+        newStr[arrayIndex] = action CALL_METHOD(s, "charAt", [i]);
+        arrayIndex += 1;
     }
 
 
@@ -368,12 +368,12 @@ automaton StringBufferAutomaton
             this.storage += "null";
             this.length += 4;
         }
-            else
-            {
-                val objString: String = action OBJECT_TO_STRING(obj);
-                this.storage += objString;
-                this.length += action CALL_METHOD(objString, "length", []);
-            }
+        else
+        {
+            val objString: String = action OBJECT_TO_STRING(obj);
+            this.storage += objString;
+            this.length += action CALL_METHOD(objString, "length", []);
+        }
         result = self;
     }
 
