@@ -1,3 +1,4 @@
+//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -8,12 +9,29 @@ library std
 // imports
 
 import java/lang/Object;
+import java/util/Enumeration;
 
 
-// local semantic types
+// primary semantic types
 
 @abstract type Dictionary
     is java.util.Dictionary
     for Object
 {
+    fun *.size(): int;
+
+    fun *.isEmpty(): boolean;
+
+    fun *.keys(): Enumeration;
+
+    fun *.elements(): Enumeration;
+
+    fun *.get(key: Object): Object;
+
+    fun *.put(key: Object, value: Object): Object;
+
+    fun *.remove(key: Object): Object;
 }
+
+
+// global aliases and type overrides
