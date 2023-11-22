@@ -123,12 +123,10 @@ automaton LinkedHashSetAutomaton
     }
 
 
-    proc _generateKey (visitedKeys: map<Object, Object>): Object
+    @KeepVisible proc _generateKey (unseenKeys: map<Object, Object>): Object
     {
-        result = action MAP_GET_ANY_KEY(this.storage);
-
-        val isKeyWasVisited: boolean = action MAP_HAS_KEY(visitedKeys, result);
-        action ASSUME(!isKeyWasVisited);
+        result = action MAP_GET_ANY_KEY(unseenKeys);
+        action MAP_REMOVE(unseenKeys, result);
     }
 
 
@@ -239,10 +237,11 @@ automaton LinkedHashSetAutomaton
 
     fun *.iterator (@target self: LinkedHashSet): Iterator
     {
-        val visitedKeysMap: map<Object, Object> = action MAP_NEW();
+        val unseenKeys: map<Object, Object> = action MAP_NEW();
+        action MAP_UNITE_WITH(unseenKeys, this.storage);
         result = new LinkedHashSet_KeyIteratorAutomaton(state = Initialized,
             expectedModCount = this.modCount,
-            visitedKeys = visitedKeysMap,
+            unseenKeys = unseenKeys,
             parent = self
         );
     }
@@ -274,11 +273,13 @@ automaton LinkedHashSetAutomaton
     fun *.spliterator (@target self: LinkedHashSet): Spliterator
     {
         val keysStorageArray: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
-        val visitedKeys: map<Object, Object> = action MAP_NEW();
+        val unseenKeys: map<Object, Object> = action MAP_NEW();
+        action MAP_UNITE_WITH(unseenKeys, this.storage);
+
         var i: int = 0;
         action LOOP_FOR(
             i, 0, this.length, +1,
-            fromMapToArray_loop(i, keysStorageArray, visitedKeys)
+            fromMapToArray_loop(i, keysStorageArray, unseenKeys)
         );
 
         result = new LinkedHashSet_KeySpliteratorAutomaton(state = Initialized,
@@ -292,12 +293,11 @@ automaton LinkedHashSetAutomaton
     }
 
 
-    @Phantom proc fromMapToArray_loop (i: int, keysStorageArray: array<Object>, visitedKeys: map<Object, Object>): void
+    @Phantom proc fromMapToArray_loop (i: int, keysStorageArray: array<Object>, unseenKeys: map<Object, Object>): void
     {
-        val key: Object = _generateKey(visitedKeys);
+        val key: Object = _generateKey(unseenKeys);
 
         keysStorageArray[i] = key;
-        action MAP_SET(visitedKeys, key, SOMETHING);
     }
 
 
@@ -360,10 +360,11 @@ automaton LinkedHashSetAutomaton
         }
         else
         {
-            val visitedKeys: map<Object, Object> = action MAP_NEW();
+            val unseenKeys: map<Object, Object> = action MAP_NEW();
+            action MAP_UNITE_WITH(unseenKeys, this.storage);
             action LOOP_WHILE(
                 i < this.length,
-                _removeAllElements_loop_indirect(i, c, visitedKeys)
+                _removeAllElements_loop_indirect(i, c, unseenKeys)
             );
         }
 
@@ -387,9 +388,9 @@ automaton LinkedHashSetAutomaton
     }
 
 
-    @Phantom proc _removeAllElements_loop_indirect (i: int, c: Collection, visitedKeys: map<Object, Object>): void
+    @Phantom proc _removeAllElements_loop_indirect (i: int, c: Collection, unseenKeys: map<Object, Object>): void
     {
-        val key: Object = _generateKey(visitedKeys);
+        val key: Object = _generateKey(unseenKeys);
 
         val isCollectionContainsKey: boolean = action CALL_METHOD(c, "contains", [key]);
 
@@ -399,7 +400,6 @@ automaton LinkedHashSetAutomaton
             this.length -= 1;
         }
 
-        action MAP_SET(visitedKeys, key, SOMETHING);
         i += 1;
     }
 
@@ -409,25 +409,24 @@ automaton LinkedHashSetAutomaton
         val len: int = this.length;
         result = action ARRAY_NEW("java.lang.Object", len);
         val expectedModCount: int = this.modCount;
-        val visitedKeys: map<Object, Object> = action MAP_NEW();
+        val unseenKeys: map<Object, Object> = action MAP_NEW();
+        action MAP_UNITE_WITH(unseenKeys, this.storage);
         var i: int = 0;
 
         action LOOP_FOR(
             i, 0, len, +1,
-            toArray_loop(i, visitedKeys, result)
+            toArray_loop(i, unseenKeys, result)
         );
 
         _checkForComodification(expectedModCount);
     }
 
 
-    @Phantom proc toArray_loop(i: int, visitedKeys: map<Object, Object>, result: array<Object>): void
+    @Phantom proc toArray_loop(i: int, unseenKeys: map<Object, Object>, result: array<Object>): void
     {
-        val key: Object = _generateKey(visitedKeys);
+        val key: Object = _generateKey(unseenKeys);
 
         result[i] = key;
-
-        action MAP_SET(visitedKeys, key, SOMETHING);
     }
 
 
@@ -436,7 +435,8 @@ automaton LinkedHashSetAutomaton
         val expectedModCount: int = this.modCount;
         val aLen: int = action ARRAY_SIZE(a);
         val len: int = this.length;
-        val visitedKeys: map<Object, Object> = action MAP_NEW();
+        val unseenKeys: map<Object, Object> = action MAP_NEW();
+        action MAP_UNITE_WITH(unseenKeys, this.storage);
         var i: int = 0;
 
         if (aLen < len)
@@ -446,7 +446,7 @@ automaton LinkedHashSetAutomaton
 
         action LOOP_FOR(
             i, 0, len, +1,
-            toArray_loop(i, visitedKeys, result)
+            toArray_loop(i, unseenKeys, result)
         );
 
         if (aLen > this.length)
@@ -464,12 +464,13 @@ automaton LinkedHashSetAutomaton
         val len: int = this.length;
         result = action CALL(generator, [0]) as array<Object>;
         val expectedModCount: int = this.modCount;
-        val visitedKeys: map<Object, Object> = action MAP_NEW();
+        val unseenKeys: map<Object, Object> = action MAP_NEW();
+        action MAP_UNITE_WITH(unseenKeys, this.storage);
         var i: int = 0;
 
         action LOOP_FOR(
             i, 0, len, +1,
-            toArray_loop(i, visitedKeys, result)
+            toArray_loop(i, unseenKeys, result)
         );
 
         _checkForComodification(expectedModCount);
@@ -556,11 +557,12 @@ automaton LinkedHashSetAutomaton
         val lengthBeforeAdd: int = this.length;
         val expectedModCount: int = this.modCount;
         var i: int = 0;
-        val visitedKeys: map<Object, Object> = action MAP_NEW();
+        val unseenKeys: map<Object, Object> = action MAP_NEW();
+        action MAP_UNITE_WITH(unseenKeys, this.storage);
 
         action LOOP_WHILE(
             i < lengthBeforeAdd,
-            _removeIf_loop(i, visitedKeys, filter)
+            _removeIf_loop(i, unseenKeys, filter)
         );
 
         _checkForComodification(expectedModCount);
@@ -576,9 +578,9 @@ automaton LinkedHashSetAutomaton
     }
 
 
-    @Phantom proc _removeIf_loop (i: int, visitedKeys: map<Object, Object>, filter: Predicate): void
+    @Phantom proc _removeIf_loop (i: int, unseenKeys: map<Object, Object>, filter: Predicate): void
     {
-        val key: Object = _generateKey(visitedKeys);
+        val key: Object = _generateKey(unseenKeys);
 
         var isDelete: boolean = action CALL(filter, [key]);
 
@@ -589,7 +591,6 @@ automaton LinkedHashSetAutomaton
         }
 
         i += 1;
-        action MAP_SET(visitedKeys, key, SOMETHING);
     }
 
 
@@ -600,25 +601,25 @@ automaton LinkedHashSetAutomaton
 
         var i: int = 0;
         val expectedModCount: int = this.modCount;
-        val visitedKeys: map<Object, Object> = action MAP_NEW();
+        val unseenKeys: map<Object, Object> = action MAP_NEW();
+        action MAP_UNITE_WITH(unseenKeys, this.storage);
 
         action LOOP_WHILE(
             i < this.length,
-            forEach_loop(i, visitedKeys, userAction)
+            forEach_loop(i, unseenKeys, userAction)
         );
 
         _checkForComodification(expectedModCount);
     }
 
 
-    @Phantom proc forEach_loop (i: int, visitedKeys: map<Object, Object>, userAction: Consumer): void
+    @Phantom proc forEach_loop (i: int, unseenKeys: map<Object, Object>, userAction: Consumer): void
     {
-        val key: Object = _generateKey(visitedKeys);
+        val key: Object = _generateKey(unseenKeys);
 
         action CALL(userAction, [key]);
 
         i += 1;
-        action MAP_SET(visitedKeys, key, SOMETHING);
     }
 
 

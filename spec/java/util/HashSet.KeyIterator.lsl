@@ -19,7 +19,7 @@ import java/util/function/Consumer;
 automaton HashSet_KeyIteratorAutomaton
 (
     var expectedModCount: int,
-    var visitedKeys: map<Object, Object>,
+    var unseenKeys: map<Object, Object>,
     var parent: HashSet
 )
 : HashSet_KeyIterator
@@ -89,16 +89,12 @@ automaton HashSet_KeyIteratorAutomaton
         if (!atValidPosition)
             action THROW_NEW("java.util.NoSuchElementException", []);
 
-        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
-        val key: Object = action MAP_GET_ANY_KEY(parentStorage);
+        val key: Object = HashSetAutomaton(this.parent)._generateKey(this.unseenKeys);
         action ASSUME(key != this.currentKey);
-        val dstStorageHasKey: boolean = action MAP_HAS_KEY(this.visitedKeys, key);
-        action ASSUME(!dstStorageHasKey);
 
         this.currentKey = key;
         result = key;
 
-        action MAP_SET(this.visitedKeys, this.currentKey, SOMETHING);
         this.index += 1;
         this.nextWasCalled = true;
     }
@@ -148,14 +144,10 @@ automaton HashSet_KeyIteratorAutomaton
     {
         _checkForComodification();
 
-        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
-        val key: Object = action MAP_GET_ANY_KEY(parentStorage);
+        val key: Object = HashSetAutomaton(this.parent)._generateKey(this.unseenKeys);
         action ASSUME(key != this.currentKey);
-        val dstStorageHasKey: boolean = action MAP_HAS_KEY(this.visitedKeys, key);
-        action ASSUME(!dstStorageHasKey);
 
         this.currentKey = key;
-        action MAP_SET(this.visitedKeys, this.currentKey, SOMETHING);
 
         action CALL(userAction, [key]);
         i += 1;
