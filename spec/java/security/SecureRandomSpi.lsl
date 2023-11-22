@@ -8,15 +8,14 @@ library std
 // imports
 
 import java/io/Serializable;
-import java/lang/Object;
 
 
-// local semantic types
+// primary semantic types
 
 @implements("java.io.Serializable")
 @abstract type SecureRandomSpi
     is java.security.SecureRandomSpi
-    for Object, Serializable
+    for Serializable
 {
     @private @static @final var serialVersionUID: long = -2991854161009191830L;
 }

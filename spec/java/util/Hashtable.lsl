@@ -13,7 +13,7 @@ import java/util/Dictionary;
 import java/util/Map;
 
 
-// local semantic types
+// primary semantic types
 
 @extends("java.util.Dictionary")
 @implements("java.util.Map")

@@ -11,9 +11,9 @@ import java/lang/Object;
 import java/security/Provider;
 
 
-// local semantic types
+// primary semantic types
 
-@public @final type Security
+@final type Security
     is java.security.Security
     for Object
 {

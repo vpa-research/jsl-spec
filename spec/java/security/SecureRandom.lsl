@@ -10,7 +10,7 @@ library std
 import java/util/Random;
 
 
-// local semantic types
+// primary semantic types
 
 @extends("java.util.Random")
 @public type SecureRandom
@@ -18,5 +18,5 @@ import java/util/Random;
     for Random
 {
     @private @static val serialVersionUID: long = 4940670005562187L;
-    @private @static var defaultProvidersMap: map<String, Object> = action MAP_NEW();
+    @private @static val defaultProvidersMap: map<String, Object> = action MAP_NEW();
 }

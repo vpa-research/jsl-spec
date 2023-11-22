@@ -12,7 +12,6 @@ import java/lang/String;
 import java/security/Security;
 import java/security/SecureRandom;
 import java/security/Provider;
-import java/security/Service;
 import java/security/SecureRandomSpi;
 import java/util/Random;
 import java/util/stream/DoubleStream;
@@ -125,7 +124,7 @@ automaton SecureRandomAutomaton
         var i: int = 0;
         action LOOP_FOR(
             i, 0, providersListLength, +1,
-            findProvider_loop(i, providersList)
+            _getDefaultPRNG_findProvider_loop(i, providersList)
         );
 
         if (this.provider == null || this.algorithm == null)
@@ -135,7 +134,7 @@ automaton SecureRandomAutomaton
     }
 
 
-    @Phantom proc findProvider_loop (i: int, providersList: array<Provider>): void
+    @Phantom proc _getDefaultPRNG_findProvider_loop (i: int, providersList: array<Provider>): void
     {
         val curProvider: Provider = providersList[i];
         val services: Set = action CALL_METHOD(curProvider, "getServices", []);
@@ -143,17 +142,17 @@ automaton SecureRandomAutomaton
 
         action LOOP_WHILE(
             action CALL_METHOD(iter, "hasNext", []),
-            findService_loop(iter, curProvider)
+            _getDefaultPRNG_findProvider_findService_loop(iter, curProvider)
         );
     }
 
 
-    @Phantom proc findService_loop (iter: Iterator, curProvider: Provider): void
+    @Phantom proc _getDefaultPRNG_findProvider_findService_loop (iter: Iterator, curProvider: Provider): void
     {
         val curService: Provider_Service = action CALL_METHOD(iter, "next", []) as Provider_Service;
         val curServiceType: String = action CALL_METHOD(curService, "getType", []);
 
-        if (action OBJECT_EQUALS(curServiceType, "SecureRandom"))
+        if (action OBJECT_EQUALS("SecureRandom", curServiceType))
         {
             this.provider = curProvider;
             this.algorithm = action CALL_METHOD(curService, "getAlgorithm", []);
@@ -407,7 +406,7 @@ automaton SecureRandomAutomaton
         val curServiceType: String = action CALL_METHOD(curService, "getType", []);
         val curServiceAlgorithm: String = action CALL_METHOD(curService, "getAlgorithm", []);
 
-        if (action OBJECT_EQUALS(curServiceType, "SecureRandom") && action OBJECT_EQUALS(curServiceAlgorithm, _algorithm))
+        if (action OBJECT_EQUALS("SecureRandom", curServiceType) && action OBJECT_EQUALS(curServiceAlgorithm, _algorithm))
         {
             resultAlgorithm = curServiceAlgorithm;
             action LOOP_BREAK();

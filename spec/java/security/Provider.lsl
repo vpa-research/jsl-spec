@@ -10,9 +10,10 @@ library std
 import java/util/Properties;
 import java/lang/String;
 import java/util/Set;
+import java/lang/Object;
 
 
-// local semantic types
+// primary semantic types
 
 @extends("java.util.Properties")
 @abstract type Provider
@@ -24,4 +25,14 @@ import java/util/Set;
     fun *.getName(): String;
 
     fun *.getServices(): Set;
+}
+
+
+@static type Provider_Service
+    is java.security.Provider.Service
+    for Object
+{
+    fun *.getType(): String;
+
+    fun *.getAlgorithm(): String;
 }

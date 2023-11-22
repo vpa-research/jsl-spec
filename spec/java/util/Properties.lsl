@@ -1,3 +1,4 @@
+//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -10,12 +11,13 @@ library std
 import java/util/Hashtable;
 
 
-// local semantic types
+// primary semantic types
 
-@extends("java.util.Hashtable")
-@public type Properties
+type Properties
     is java.util.Properties
     for Hashtable
 {
-    @private @static @final var serialVersionUID: long = 4112578634029874840L;
 }
+
+
+// global aliases and type overrides
