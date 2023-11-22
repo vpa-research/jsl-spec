@@ -23,5 +23,5 @@ import java/util/Map;
     is java.util.Hashtable
     for Dictionary, Map, Cloneable, Serializable
 {
-    @private @static @final var serialVersionUID: long = 1421746759512286392L;
+    @private @static val serialVersionUID: long = 1421746759512286392L;
 }

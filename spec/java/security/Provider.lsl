@@ -19,7 +19,7 @@ import java/util/Set;
     is java.security.Provider
     for Properties
 {
-    @private @static @final var serialVersionUID: long = -4298000515446427739L;
+    @private @static val serialVersionUID: long = -4298000515446427739L;
 
     fun *.getName(): String;
 

@@ -17,6 +17,6 @@ import java/util/Random;
     is java.security.SecureRandom
     for Random
 {
-    @private @static @final var serialVersionUID: long = 4940670005562187L;
+    @private @static val serialVersionUID: long = 4940670005562187L;
     @private @static var defaultProvidersMap: map<String, Object> = action MAP_NEW();
 }
