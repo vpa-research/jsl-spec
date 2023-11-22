@@ -92,6 +92,11 @@ automaton FloatAutomaton
             action ASSUME(result != 0);
             action ASSUME(result != 2139095040);
             action ASSUME(result != -8388608);
+
+            if (v < 0.0f)
+                action ASSUME(result < 0);
+            else
+                action ASSUME(result > 0);
         }
     }
 
@@ -187,6 +192,11 @@ automaton FloatAutomaton
             action ASSUME(result == result);
             action ASSUME(result != POSITIVE_INFINITY);
             action ASSUME(result != NEGATIVE_INFINITY);
+
+            if (value < 0)
+                action ASSUME(result < 0.0f);
+            else
+                action ASSUME(result > 0.0f);
         }
     }
 

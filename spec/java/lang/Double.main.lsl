@@ -92,6 +92,11 @@ automaton DoubleAutomaton
             action ASSUME(result != 0L);
             action ASSUME(result != 9218868437227405312L);
             action ASSUME(result != -4503599627370496L);
+
+            if (v < 0.0)
+                action ASSUME(result < 0L);
+            else
+                action ASSUME(result > 0L);
         }
     }
 
@@ -200,6 +205,11 @@ automaton DoubleAutomaton
             action ASSUME(result == result);
             action ASSUME(result != POSITIVE_INFINITY);
             action ASSUME(result != NEGATIVE_INFINITY);
+
+            if (value < 0L)
+                action ASSUME(result < 0.0);
+            else
+                action ASSUME(result > 0.0);
         }
     }
 
