@@ -228,6 +228,7 @@ automaton SecureRandomAutomaton
 
     @Phantom proc checkDoubleBounds_loop (i: int, result: array<double>, randomNumberOrigin: double, randomNumberBound: double): void
     {
+        action ASSUME(result[i] != DOUBLE_NAN);
         action ASSUME(result[i] >= randomNumberOrigin);
         action ASSUME(result[i] < randomNumberBound);
     }
@@ -490,7 +491,7 @@ automaton SecureRandomAutomaton
     fun *.doubles (@target self: SecureRandom): DoubleStream
     {
         result = new DoubleStreamAutomaton(state = Initialized,
-            storage = action SYMBOLIC_ARRAY("double", MAX_RANDOM_STREAM_SIZE),
+            storage = _generateRandomDoubleArrayWithBounds(MAX_RANDOM_STREAM_SIZE, 0, 1),
             length = MAX_RANDOM_STREAM_SIZE,
             closeHandlers = action LIST_NEW(),
         );
