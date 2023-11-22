@@ -167,43 +167,15 @@ automaton SecureRandomAutomaton
 
         if (action MAP_HAS_KEY(this.defaultProvidersMap, providerName))
             result = true;
+        else
+            result = false;
     }
 
 
-    proc _nextBytes (bytes: array<byte>): void
+    @static proc _nextBytes (result: array<byte>, numBytes: int): void
     {
-        // #question: is there a more efficient way?
-        val size: int = action ARRAY_SIZE(bytes);
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, size, +1,
-            nextBytes_loop(i, bytes)
-        );
-    }
-
-
-    @static proc _generateSeed (result: array<byte>, numBytes: int): void
-    {
-        // #question: is there a more efficient way?
-        val size: int = numBytes;
-        var bytes: array<byte> = action ARRAY_NEW("byte", size);
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, size, +1,
-            nextBytes_loop(i, bytes)
-        );
-        result = bytes;
-    }
-
-
-    proc _generateRandomIntegerArray (size: int): array<int>
-    {
-        result = action ARRAY_NEW("int", size);
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, size, +1,
-            generateIntArray_loop(i, result)
-        );
+        val symbolicArray: array<byte> = action SYMBOLIC_ARRAY("byte", numBytes);
+        action ARRAY_COPY(symbolicArray, 0, result, 0, numBytes);
     }
 
 
@@ -215,90 +187,53 @@ automaton SecureRandomAutomaton
 
     proc _generateRandomIntegerArrayWithBounds (size: int, randomNumberOrigin: int, randomNumberBound: int): array<int>
     {
-        result = action ARRAY_NEW("int", size);
+        result = action SYMBOLIC_ARRAY("int", size);
         var i: int = 0;
         action LOOP_FOR(
             i, 0, size, +1,
-            generateIntArrayWithBounds_loop(i, result, randomNumberOrigin, randomNumberBound)
+            checkIntBounds_loop(i, result, randomNumberOrigin, randomNumberBound)
         );
     }
 
 
-    @Phantom proc generateIntArrayWithBounds_loop (i: int, result: array<int>, randomNumberOrigin: int, randomNumberBound: int): void
+    @Phantom proc checkIntBounds_loop (i: int, result: array<int>, randomNumberOrigin: int, randomNumberBound: int): void
     {
-        result[i] = action SYMBOLIC("int");
         action ASSUME(result[i] >= randomNumberOrigin);
         action ASSUME(result[i] < randomNumberBound);
-    }
-
-
-    proc _generateRandomLongArray (size: int): array<long>
-    {
-        result = action ARRAY_NEW("long", size);
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, size, +1,
-            generateLongArray_loop(i, result)
-        );
-    }
-
-
-    @Phantom proc generateLongArray_loop (i: int, result: array<long>): void
-    {
-        result[i] = action SYMBOLIC("long");
     }
 
 
     proc _generateRandomLongArrayWithBounds (size: int, randomNumberOrigin: long, randomNumberBound: long): array<long>
     {
-        result = action ARRAY_NEW("long", size);
+        result = action SYMBOLIC_ARRAY("long", size);
         var i: int = 0;
         action LOOP_FOR(
             i, 0, size, +1,
-            generateLongArrayWithBounds_loop(i, result, randomNumberOrigin, randomNumberBound)
+            checkLongBounds_loop(i, result, randomNumberOrigin, randomNumberBound)
         );
     }
 
 
-    @Phantom proc generateLongArrayWithBounds_loop (i: int, result: array<long>, randomNumberOrigin: long, randomNumberBound: long): void
+    @Phantom proc checkLongBounds_loop (i: int, result: array<long>, randomNumberOrigin: long, randomNumberBound: long): void
     {
-        result[i] = action SYMBOLIC("long");
         action ASSUME(result[i] >= randomNumberOrigin);
         action ASSUME(result[i] < randomNumberBound);
     }
 
 
-    proc _generateRandomDoubleArray (size: int): array<double>
-    {
-        result = action ARRAY_NEW("double", size);
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, size, +1,
-            generateDoubleArray_loop(i, result)
-        );
-    }
-
-
-    @Phantom proc generateDoubleArray_loop (i: int, result: array<double>): void
-    {
-        result[i] = action SYMBOLIC("double");
-    }
-
-
     proc _generateRandomDoubleArrayWithBounds (size: int, randomNumberOrigin: double, randomNumberBound: double): array<double>
     {
-        result = action ARRAY_NEW("double", size);
+        result = action SYMBOLIC_ARRAY("double", size);
         var i: int = 0;
         action LOOP_FOR(
             i, 0, size, +1,
-            generateDoubleArrayWithBounds_loop(i, result, randomNumberOrigin, randomNumberBound)
+            checkDoubleBounds_loop(i, result, randomNumberOrigin, randomNumberBound)
         );
     }
 
 
-    @Phantom proc generateDoubleArrayWithBounds_loop (i: int, result: array<double>, randomNumberOrigin: double, randomNumberBound: double): void
+    @Phantom proc checkDoubleBounds_loop (i: int, result: array<double>, randomNumberOrigin: double, randomNumberBound: double): void
     {
-        result[i] = action SYMBOLIC("double");
         action ASSUME(result[i] >= randomNumberOrigin);
         action ASSUME(result[i] < randomNumberBound);
     }
@@ -575,8 +510,8 @@ automaton SecureRandomAutomaton
     {
         if (numBytes < 0)
             _throwIAE();
-
-        _generateSeed(result, numBytes);
+        result = action ARRAY_NEW("byte", numBytes);
+        _nextBytes(result, numBytes);
     }
 
 
@@ -585,7 +520,7 @@ automaton SecureRandomAutomaton
     // within java.util.Random
     fun *.doubles (@target self: SecureRandom): DoubleStream
     {
-        val mass: array<double> = _generateRandomDoubleArray(MAX_RANDOM_STREAM_SIZE);
+        val mass: array<double> = action SYMBOLIC_ARRAY("double", MAX_RANDOM_STREAM_SIZE);
 
         result = new DoubleStreamAutomaton(state = Initialized,
             storage = mass,
@@ -615,7 +550,7 @@ automaton SecureRandomAutomaton
         if (size > MAX_RANDOM_STREAM_SIZE)
             size = MAX_RANDOM_STREAM_SIZE;
 
-        val mass: array<double> = _generateRandomDoubleArray(size);
+        val mass: array<double> = action SYMBOLIC_ARRAY("double", size);
 
         result = new DoubleStreamAutomaton(state = Initialized,
             storage = mass,
@@ -647,7 +582,8 @@ automaton SecureRandomAutomaton
         if (numBytes < 0)
             _throwIAE();
 
-        _generateSeed(result, numBytes);
+        result = action ARRAY_NEW("byte", numBytes);
+        _nextBytes(result, numBytes);
     }
 
 
@@ -666,7 +602,7 @@ automaton SecureRandomAutomaton
     // within java.util.Random
     fun *.ints (@target self: SecureRandom): IntStream
     {
-        val mass: array<int> = _generateRandomIntegerArray(MAX_RANDOM_STREAM_SIZE);
+        val mass: array<int> = action SYMBOLIC_ARRAY("int", MAX_RANDOM_STREAM_SIZE);
 
         result = new IntStreamAutomaton(state = Initialized,
             storage = mass,
@@ -696,7 +632,7 @@ automaton SecureRandomAutomaton
         if (size > MAX_RANDOM_STREAM_SIZE)
             size = MAX_RANDOM_STREAM_SIZE;
 
-        val mass: array<int> = _generateRandomIntegerArray(size);
+        val mass: array<int> = action SYMBOLIC_ARRAY("int", size);
 
         result = new IntStreamAutomaton(state = Initialized,
             storage = mass,
@@ -726,7 +662,7 @@ automaton SecureRandomAutomaton
     // within java.util.Random
     fun *.longs (@target self: SecureRandom): LongStream
     {
-        val mass: array<long> = _generateRandomLongArray(MAX_RANDOM_STREAM_SIZE);
+        val mass: array<long> = action SYMBOLIC_ARRAY("long", MAX_RANDOM_STREAM_SIZE);
 
         result = new LongStreamAutomaton(state = Initialized,
             storage = mass,
@@ -743,7 +679,7 @@ automaton SecureRandomAutomaton
         if (size > MAX_RANDOM_STREAM_SIZE)
             size = MAX_RANDOM_STREAM_SIZE;
 
-        val mass: array<long> = _generateRandomLongArray(size);
+        val mass: array<long> = action SYMBOLIC_ARRAY("long", size);
 
         result = new LongStreamAutomaton(state = Initialized,
             storage = mass,
@@ -792,7 +728,7 @@ automaton SecureRandomAutomaton
 
     fun *.nextBytes (@target self: SecureRandom, bytes: array<byte>): void
     {
-        _nextBytes(bytes);
+        _nextBytes(bytes, action ARRAY_SIZE(bytes));
     }
 
 

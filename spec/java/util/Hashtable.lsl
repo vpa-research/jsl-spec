@@ -1,3 +1,4 @@
+//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -25,3 +26,6 @@ import java/util/Map;
 {
     @private @static val serialVersionUID: long = 1421746759512286392L;
 }
+
+
+// global aliases and type overrides

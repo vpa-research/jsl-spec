@@ -1,3 +1,4 @@
+//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -19,3 +20,6 @@ import java/io/Serializable;
 {
     @private @static @final var serialVersionUID: long = -2991854161009191830L;
 }
+
+
+// global aliases and type overrides
