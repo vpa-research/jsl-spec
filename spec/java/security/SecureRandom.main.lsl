@@ -80,12 +80,6 @@ automaton SecureRandomAutomaton
 
     // utilities
 
-    @AutoInline @Phantom proc _throwNPE (): void
-    {
-        action THROW_NEW("java.lang.NullPointerException", []);
-    }
-
-
     @AutoInline @Phantom proc _throwIAE (): void
     {
         action THROW_NEW("java.lang.IllegalArgumentException", []);
@@ -123,6 +117,7 @@ automaton SecureRandomAutomaton
         this.defaultProvider = _isDefaultProvider(this.provider);
     }
 
+
     @static proc _isDefaultProvider (curProvider: Provider): boolean
     {
         val providerName: String = action CALL_METHOD(curProvider, "getName", []);
@@ -138,12 +133,6 @@ automaton SecureRandomAutomaton
     {
         val symbolicArray: array<byte> = action SYMBOLIC_ARRAY("byte", numBytes);
         action ARRAY_COPY(symbolicArray, 0, result, 0, numBytes);
-    }
-
-
-    @Phantom proc generateIntArray_loop (i: int, result: array<int>): void
-    {
-        result[i] = action SYMBOLIC("int");
     }
 
 
