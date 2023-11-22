@@ -123,13 +123,6 @@ automaton LinkedHashSetAutomaton
     }
 
 
-    @KeepVisible proc _generateKey (unseenKeys: map<Object, Object>): Object
-    {
-        result = action MAP_GET_ANY_KEY(unseenKeys);
-        action MAP_REMOVE(unseenKeys, result);
-    }
-
-
     // constructors
 
     constructor *.LinkedHashSet (@target self: LinkedHashSet)
@@ -209,9 +202,7 @@ automaton LinkedHashSetAutomaton
 
     fun *.clone (@target self: LinkedHashSet): Object
     {
-        val storageCopy: map<Object, Object> = action MAP_NEW();
-
-        action MAP_UNITE_WITH(storageCopy, this.storage);
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
 
         result = new LinkedHashSetAutomaton(state = Initialized,
             storage = storageCopy,
@@ -237,8 +228,7 @@ automaton LinkedHashSetAutomaton
 
     fun *.iterator (@target self: LinkedHashSet): Iterator
     {
-        val unseenKeys: map<Object, Object> = action MAP_NEW();
-        action MAP_UNITE_WITH(unseenKeys, this.storage);
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
         result = new LinkedHashSet_KeyIteratorAutomaton(state = Initialized,
             expectedModCount = this.modCount,
             unseenKeys = unseenKeys,
@@ -273,8 +263,7 @@ automaton LinkedHashSetAutomaton
     fun *.spliterator (@target self: LinkedHashSet): Spliterator
     {
         val keysStorageArray: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
-        val unseenKeys: map<Object, Object> = action MAP_NEW();
-        action MAP_UNITE_WITH(unseenKeys, this.storage);
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
 
         var i: int = 0;
         action LOOP_FOR(
@@ -295,7 +284,8 @@ automaton LinkedHashSetAutomaton
 
     @Phantom proc fromMapToArray_loop (i: int, keysStorageArray: array<Object>, unseenKeys: map<Object, Object>): void
     {
-        val key: Object = _generateKey(unseenKeys);
+        val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
+        action MAP_REMOVE(unseenKeys, key);
 
         keysStorageArray[i] = key;
     }
@@ -360,8 +350,7 @@ automaton LinkedHashSetAutomaton
         }
         else
         {
-            val unseenKeys: map<Object, Object> = action MAP_NEW();
-            action MAP_UNITE_WITH(unseenKeys, this.storage);
+            val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
             action LOOP_WHILE(
                 i < this.length,
                 _removeAllElements_loop_indirect(i, c, unseenKeys)
@@ -390,7 +379,8 @@ automaton LinkedHashSetAutomaton
 
     @Phantom proc _removeAllElements_loop_indirect (i: int, c: Collection, unseenKeys: map<Object, Object>): void
     {
-        val key: Object = _generateKey(unseenKeys);
+        val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
+        action MAP_REMOVE(unseenKeys, key);
 
         val isCollectionContainsKey: boolean = action CALL_METHOD(c, "contains", [key]);
 
@@ -409,8 +399,7 @@ automaton LinkedHashSetAutomaton
         val len: int = this.length;
         result = action ARRAY_NEW("java.lang.Object", len);
         val expectedModCount: int = this.modCount;
-        val unseenKeys: map<Object, Object> = action MAP_NEW();
-        action MAP_UNITE_WITH(unseenKeys, this.storage);
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
         var i: int = 0;
 
         action LOOP_FOR(
@@ -424,7 +413,8 @@ automaton LinkedHashSetAutomaton
 
     @Phantom proc toArray_loop(i: int, unseenKeys: map<Object, Object>, result: array<Object>): void
     {
-        val key: Object = _generateKey(unseenKeys);
+        val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
+        action MAP_REMOVE(unseenKeys, key);
 
         result[i] = key;
     }
@@ -435,8 +425,7 @@ automaton LinkedHashSetAutomaton
         val expectedModCount: int = this.modCount;
         val aLen: int = action ARRAY_SIZE(a);
         val len: int = this.length;
-        val unseenKeys: map<Object, Object> = action MAP_NEW();
-        action MAP_UNITE_WITH(unseenKeys, this.storage);
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
         var i: int = 0;
 
         if (aLen < len)
@@ -464,8 +453,7 @@ automaton LinkedHashSetAutomaton
         val len: int = this.length;
         result = action CALL(generator, [0]) as array<Object>;
         val expectedModCount: int = this.modCount;
-        val unseenKeys: map<Object, Object> = action MAP_NEW();
-        action MAP_UNITE_WITH(unseenKeys, this.storage);
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
         var i: int = 0;
 
         action LOOP_FOR(
@@ -557,8 +545,7 @@ automaton LinkedHashSetAutomaton
         val lengthBeforeAdd: int = this.length;
         val expectedModCount: int = this.modCount;
         var i: int = 0;
-        val unseenKeys: map<Object, Object> = action MAP_NEW();
-        action MAP_UNITE_WITH(unseenKeys, this.storage);
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
 
         action LOOP_WHILE(
             i < lengthBeforeAdd,
@@ -580,7 +567,8 @@ automaton LinkedHashSetAutomaton
 
     @Phantom proc _removeIf_loop (i: int, unseenKeys: map<Object, Object>, filter: Predicate): void
     {
-        val key: Object = _generateKey(unseenKeys);
+        val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
+        action MAP_REMOVE(unseenKeys, key);
 
         var isDelete: boolean = action CALL(filter, [key]);
 
@@ -601,8 +589,7 @@ automaton LinkedHashSetAutomaton
 
         var i: int = 0;
         val expectedModCount: int = this.modCount;
-        val unseenKeys: map<Object, Object> = action MAP_NEW();
-        action MAP_UNITE_WITH(unseenKeys, this.storage);
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
 
         action LOOP_WHILE(
             i < this.length,
@@ -615,7 +602,8 @@ automaton LinkedHashSetAutomaton
 
     @Phantom proc forEach_loop (i: int, unseenKeys: map<Object, Object>, userAction: Consumer): void
     {
-        val key: Object = _generateKey(unseenKeys);
+        val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
+        action MAP_REMOVE(unseenKeys, key);
 
         action CALL(userAction, [key]);
 

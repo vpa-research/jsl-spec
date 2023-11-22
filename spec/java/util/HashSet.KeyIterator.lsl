@@ -89,7 +89,8 @@ automaton HashSet_KeyIteratorAutomaton
         if (!atValidPosition)
             action THROW_NEW("java.util.NoSuchElementException", []);
 
-        val key: Object = HashSetAutomaton(this.parent)._generateKey(this.unseenKeys);
+        val key: Object = action MAP_GET_ANY_KEY(this.unseenKeys);
+        action MAP_REMOVE(this.unseenKeys, key);
         action ASSUME(key != this.currentKey);
 
         this.currentKey = key;
@@ -144,7 +145,8 @@ automaton HashSet_KeyIteratorAutomaton
     {
         _checkForComodification();
 
-        val key: Object = HashSetAutomaton(this.parent)._generateKey(this.unseenKeys);
+        val key: Object = action MAP_GET_ANY_KEY(this.unseenKeys);
+        action MAP_REMOVE(this.unseenKeys, key);
         action ASSUME(key != this.currentKey);
 
         this.currentKey = key;

@@ -126,13 +126,6 @@ automaton HashSetAutomaton
     }
 
 
-    @KeepVisible proc _generateKey (unseenKeys: map<Object, Object>): Object
-    {
-        result = action MAP_GET_ANY_KEY(unseenKeys);
-        action MAP_REMOVE(unseenKeys, result);
-    }
-
-
     // constructors
 
     constructor *.HashSet (@target self: HashSet)
@@ -218,9 +211,7 @@ automaton HashSetAutomaton
 
     fun *.clone (@target self: HashSet): Object
     {
-        val storageCopy: map<Object, Object> = action MAP_NEW();
-
-        action MAP_UNITE_WITH(storageCopy, this.storage);
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
 
         result = new HashSetAutomaton(state = Initialized,
             storage = storageCopy,
@@ -246,8 +237,7 @@ automaton HashSetAutomaton
 
     fun *.iterator (@target self: HashSet): Iterator
     {
-        val unseenKeys: map<Object, Object> = action MAP_NEW();
-        action MAP_UNITE_WITH(unseenKeys, this.storage);
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
         result = new HashSet_KeyIteratorAutomaton(state = Initialized,
             expectedModCount = this.modCount,
             unseenKeys = unseenKeys,
@@ -282,8 +272,7 @@ automaton HashSetAutomaton
     fun *.spliterator (@target self: HashSet): Spliterator
     {
         val keysStorageArray: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
-        val unseenKeys: map<Object, Object> = action MAP_NEW();
-        action MAP_UNITE_WITH(unseenKeys, this.storage);
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
 
         var i: int = 0;
         action LOOP_FOR(
@@ -305,7 +294,8 @@ automaton HashSetAutomaton
 
     @Phantom proc fromMapToArray_loop (i: int, keysStorageArray: array<Object>, unseenKeys: map<Object, Object>): void
     {
-        val key: Object = _generateKey(unseenKeys);
+        val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
+        action MAP_REMOVE(unseenKeys, key);
 
         keysStorageArray[i] = key;
     }
@@ -370,8 +360,7 @@ automaton HashSetAutomaton
         }
         else
         {
-            val unseenKeys: map<Object, Object> = action MAP_NEW();
-            action MAP_UNITE_WITH(unseenKeys, this.storage);
+            val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
 
             action LOOP_WHILE(
                 i < this.length,
@@ -401,7 +390,8 @@ automaton HashSetAutomaton
 
     @Phantom proc _removeAllElements_loop_indirect (i: int, c: Collection, unseenKeys: map<Object, Object>): void
     {
-        val key: Object = _generateKey(unseenKeys);
+        val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
+        action MAP_REMOVE(unseenKeys, key);
 
         val isCollectionContainsKey: boolean = action CALL_METHOD(c, "contains", [key]);
 
@@ -420,8 +410,7 @@ automaton HashSetAutomaton
         val len: int = this.length;
         result = action ARRAY_NEW("java.lang.Object", len);
         val expectedModCount: int = this.modCount;
-        val unseenKeys: map<Object, Object> = action MAP_NEW();
-        action MAP_UNITE_WITH(unseenKeys, this.storage);
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
         var i: int = 0;
 
         action LOOP_FOR(
@@ -435,7 +424,8 @@ automaton HashSetAutomaton
 
     @Phantom proc toArray_loop(i: int, unseenKeys: map<Object, Object>, result: array<Object>): void
     {
-        val key: Object = _generateKey(unseenKeys);
+        val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
+        action MAP_REMOVE(unseenKeys, key);
 
         result[i] = key;
     }
@@ -446,8 +436,7 @@ automaton HashSetAutomaton
         val expectedModCount: int = this.modCount;
         val aLen: int = action ARRAY_SIZE(a);
         val len: int = this.length;
-        val unseenKeys: map<Object, Object> = action MAP_NEW();
-        action MAP_UNITE_WITH(unseenKeys, this.storage);
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
         var i: int = 0;
 
         if (aLen < len)
@@ -475,8 +464,7 @@ automaton HashSetAutomaton
         val len: int = this.length;
         result = action CALL(generator, [0]) as array<Object>;
         val expectedModCount: int = this.modCount;
-        val unseenKeys: map<Object, Object> = action MAP_NEW();
-        action MAP_UNITE_WITH(unseenKeys, this.storage);
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
         var i: int = 0;
 
         action LOOP_FOR(
@@ -568,8 +556,7 @@ automaton HashSetAutomaton
         val lengthBeforeAdd: int = this.length;
         val expectedModCount: int = this.modCount;
         var i: int = 0;
-        val unseenKeys: map<Object, Object> = action MAP_NEW();
-        action MAP_UNITE_WITH(unseenKeys, this.storage);
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
 
         action LOOP_WHILE(
             i < lengthBeforeAdd,
@@ -591,7 +578,8 @@ automaton HashSetAutomaton
 
     @Phantom proc _removeIf_loop (i: int, unseenKeys: map<Object, Object>, filter: Predicate): void
     {
-        val key: Object = _generateKey(unseenKeys);
+        val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
+        action MAP_REMOVE(unseenKeys, key);
 
         var isDelete: boolean = action CALL(filter, [key]);
 
@@ -612,8 +600,7 @@ automaton HashSetAutomaton
 
         var i: int = 0;
         val expectedModCount: int = this.modCount;
-        val unseenKeys: map<Object, Object> = action MAP_NEW();
-        action MAP_UNITE_WITH(unseenKeys, this.storage);
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
 
         action LOOP_WHILE(
             i < this.length,
@@ -626,7 +613,8 @@ automaton HashSetAutomaton
 
     @Phantom proc forEach_loop (i: int, unseenKeys: map<Object, Object>, userAction: Consumer): void
     {
-        val key: Object = _generateKey(unseenKeys);
+        val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
+        action MAP_REMOVE(unseenKeys, key);
 
         action CALL(userAction, [key]);
 
