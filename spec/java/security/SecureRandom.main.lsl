@@ -586,12 +586,11 @@ automaton SecureRandomAutomaton
     fun *.doubles (@target self: SecureRandom): DoubleStream
     {
         val mass: array<double> = _generateRandomDoubleArray(MAX_RANDOM_STREAM_SIZE);
-        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
 
         result = new DoubleStreamAutomaton(state = Initialized,
             storage = mass,
             length = MAX_RANDOM_STREAM_SIZE,
-            closeHandlers = emptyCloseHandlersList,
+            closeHandlers = action LIST_NEW(),
         );
     }
 
@@ -600,12 +599,11 @@ automaton SecureRandomAutomaton
     fun *.doubles (@target self: SecureRandom, randomNumberOrigin: double, randomNumberBound: double): DoubleStream
     {
         val mass: array<double> = _generateRandomDoubleArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound);
-        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
 
         result = new DoubleStreamAutomaton(state = Initialized,
             storage = mass,
             length = MAX_RANDOM_STREAM_SIZE,
-            closeHandlers = emptyCloseHandlersList,
+            closeHandlers = action LIST_NEW(),
         );
     }
 
@@ -618,12 +616,11 @@ automaton SecureRandomAutomaton
             size = MAX_RANDOM_STREAM_SIZE;
 
         val mass: array<double> = _generateRandomDoubleArray(size);
-        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
 
         result = new DoubleStreamAutomaton(state = Initialized,
             storage = mass,
             length = size,
-            closeHandlers = emptyCloseHandlersList,
+            closeHandlers = action LIST_NEW(),
         );
     }
 
@@ -636,12 +633,11 @@ automaton SecureRandomAutomaton
             size = MAX_RANDOM_STREAM_SIZE;
 
         val mass: array<double> = _generateRandomDoubleArrayWithBounds(size, randomNumberOrigin, randomNumberBound);
-        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
 
         result = new DoubleStreamAutomaton(state = Initialized,
             storage = mass,
             length = size,
-            closeHandlers = emptyCloseHandlersList,
+            closeHandlers = action LIST_NEW(),
         );
     }
 
@@ -671,12 +667,11 @@ automaton SecureRandomAutomaton
     fun *.ints (@target self: SecureRandom): IntStream
     {
         val mass: array<int> = _generateRandomIntegerArray(MAX_RANDOM_STREAM_SIZE);
-        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
 
         result = new IntStreamAutomaton(state = Initialized,
             storage = mass,
             length = MAX_RANDOM_STREAM_SIZE,
-            closeHandlers = emptyCloseHandlersList,
+            closeHandlers = action LIST_NEW(),
         );
     }
 
@@ -685,12 +680,11 @@ automaton SecureRandomAutomaton
     fun *.ints (@target self: SecureRandom, randomNumberOrigin: int, randomNumberBound: int): IntStream
     {
         val mass: array<int> = _generateRandomIntegerArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound);
-        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
 
         result = new IntStreamAutomaton(state = Initialized,
             storage = mass,
             length = MAX_RANDOM_STREAM_SIZE,
-            closeHandlers = emptyCloseHandlersList,
+            closeHandlers = action LIST_NEW(),
         );
     }
 
@@ -703,12 +697,11 @@ automaton SecureRandomAutomaton
             size = MAX_RANDOM_STREAM_SIZE;
 
         val mass: array<int> = _generateRandomIntegerArray(size);
-        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
 
         result = new IntStreamAutomaton(state = Initialized,
             storage = mass,
             length = size,
-            closeHandlers = emptyCloseHandlersList,
+            closeHandlers = action LIST_NEW(),
         );
     }
 
@@ -721,12 +714,11 @@ automaton SecureRandomAutomaton
             size = MAX_RANDOM_STREAM_SIZE;
 
         val mass: array<int> = _generateRandomIntegerArrayWithBounds(size, randomNumberOrigin, randomNumberBound);
-        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
 
         result = new IntStreamAutomaton(state = Initialized,
             storage = mass,
             length = size,
-            closeHandlers = emptyCloseHandlersList,
+            closeHandlers = action LIST_NEW(),
         );
     }
 
@@ -735,12 +727,11 @@ automaton SecureRandomAutomaton
     fun *.longs (@target self: SecureRandom): LongStream
     {
         val mass: array<long> = _generateRandomLongArray(MAX_RANDOM_STREAM_SIZE);
-        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
 
         result = new LongStreamAutomaton(state = Initialized,
             storage = mass,
             length = MAX_RANDOM_STREAM_SIZE,
-            closeHandlers = emptyCloseHandlersList,
+            closeHandlers = action LIST_NEW(),
         );
     }
 
@@ -753,12 +744,11 @@ automaton SecureRandomAutomaton
             size = MAX_RANDOM_STREAM_SIZE;
 
         val mass: array<long> = _generateRandomLongArray(size);
-        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
 
         result = new LongStreamAutomaton(state = Initialized,
             storage = mass,
             length = size,
-            closeHandlers = emptyCloseHandlersList,
+            closeHandlers = action LIST_NEW(),
         );
     }
 
@@ -767,12 +757,11 @@ automaton SecureRandomAutomaton
     fun *.longs (@target self: SecureRandom, randomNumberOrigin: long, randomNumberBound: long): LongStream
     {
         val mass: array<long> = _generateRandomLongArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound);
-        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
 
         result = new LongStreamAutomaton(state = Initialized,
             storage = mass,
             length = MAX_RANDOM_STREAM_SIZE,
-            closeHandlers = emptyCloseHandlersList,
+            closeHandlers = action LIST_NEW(),
         );
     }
 
@@ -785,12 +774,11 @@ automaton SecureRandomAutomaton
             size = MAX_RANDOM_STREAM_SIZE;
 
         val mass: array<long> = _generateRandomLongArrayWithBounds(size, randomNumberOrigin, randomNumberBound);
-        var emptyCloseHandlersList: list<Runnable> = action LIST_NEW();
 
         result = new LongStreamAutomaton(state = Initialized,
             storage = mass,
             length = size,
-            closeHandlers = emptyCloseHandlersList,
+            closeHandlers = action LIST_NEW(),
         );
     }
 
