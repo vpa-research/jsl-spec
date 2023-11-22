@@ -104,19 +104,13 @@ automaton SecureRandomAutomaton
     }
 
 
-    @AutoInline @Phantom proc _throwIAE (): void
-    {
-        action THROW_NEW("java.lang.IllegalArgumentException", []);
-    }
-
-
     @AutoInline @Phantom proc _throwNSPE (): void
     {
         action THROW_NEW("java.security.NoSuchProviderException", []);
     }
 
 
-    proc _getDefaultPRNG (setSeed: boolean, seed: array<byte>): void
+    proc _getDefaultPRNG (): void
     {
         val providersList: array<Provider> = action CALL_METHOD(null as Security, "getProviders", []);
         val providersListLength: int = action ARRAY_SIZE(providersList);
@@ -239,36 +233,11 @@ automaton SecureRandomAutomaton
     }
 
 
-    // special: static initialization
-
-    @Phantom @static fun *.__clinit__ (): void
-    {
-        // #note: list of default providers https://docs.oracle.com/javase/9/security/oracleproviders.htm#JSSEC-GUID-F41EE1C9-DD6A-4BAB-8979-EB7654094029
-
-        action MAP_SET(defaultProvidersMap, "SUN", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunRsaSign", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunJSSE", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunJCE", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "Apple", SOMETHING);
-
-        action MAP_SET(defaultProvidersMap, "JdkLDAP", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunJGSS", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunSASL", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunPCSC", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "XMLDSig", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunPKCS11", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunEC", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunMSCAPI", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "OracleUcrypto", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "JdkSASL", SOMETHING);
-    }
-
-
     // constructors
 
     constructor *.SecureRandom (@target self: SecureRandom)
     {
-        _getDefaultPRNG(false, null);
+        _getDefaultPRNG();
     }
 
 
@@ -288,7 +257,7 @@ automaton SecureRandomAutomaton
 
     constructor *.SecureRandom (@target self: SecureRandom, seed: array<byte>)
     {
-        _getDefaultPRNG(false, null);
+        _getDefaultPRNG();
     }
 
 
@@ -520,10 +489,8 @@ automaton SecureRandomAutomaton
     // within java.util.Random
     fun *.doubles (@target self: SecureRandom): DoubleStream
     {
-        val mass: array<double> = action SYMBOLIC_ARRAY("double", MAX_RANDOM_STREAM_SIZE);
-
         result = new DoubleStreamAutomaton(state = Initialized,
-            storage = mass,
+            storage = action SYMBOLIC_ARRAY("double", MAX_RANDOM_STREAM_SIZE),
             length = MAX_RANDOM_STREAM_SIZE,
             closeHandlers = action LIST_NEW(),
         );
@@ -533,10 +500,10 @@ automaton SecureRandomAutomaton
     // within java.util.Random
     fun *.doubles (@target self: SecureRandom, randomNumberOrigin: double, randomNumberBound: double): DoubleStream
     {
-        val mass: array<double> = _generateRandomDoubleArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound);
-
+        if (randomNumberOrigin >= randomNumberBound)
+            _throwIAE();
         result = new DoubleStreamAutomaton(state = Initialized,
-            storage = mass,
+            storage = _generateRandomDoubleArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound),
             length = MAX_RANDOM_STREAM_SIZE,
             closeHandlers = action LIST_NEW(),
         );
@@ -547,13 +514,14 @@ automaton SecureRandomAutomaton
     fun *.doubles (@target self: SecureRandom, streamSize: long): DoubleStream
     {
         var size: int = streamSize as int;
+        if (size < 0)
+            _throwIAE();
+        // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
         if (size > MAX_RANDOM_STREAM_SIZE)
             size = MAX_RANDOM_STREAM_SIZE;
 
-        val mass: array<double> = action SYMBOLIC_ARRAY("double", size);
-
         result = new DoubleStreamAutomaton(state = Initialized,
-            storage = mass,
+            storage = action SYMBOLIC_ARRAY("double", size),
             length = size,
             closeHandlers = action LIST_NEW(),
         );
@@ -564,13 +532,16 @@ automaton SecureRandomAutomaton
     fun *.doubles (@target self: SecureRandom, streamSize: long, randomNumberOrigin: double, randomNumberBound: double): DoubleStream
     {
         var size: int = streamSize as int;
+        if (size < 0)
+            _throwIAE();
+        if (randomNumberOrigin >= randomNumberBound)
+            _throwIAE();
+        // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
         if (size > MAX_RANDOM_STREAM_SIZE)
             size = MAX_RANDOM_STREAM_SIZE;
 
-        val mass: array<double> = _generateRandomDoubleArrayWithBounds(size, randomNumberOrigin, randomNumberBound);
-
         result = new DoubleStreamAutomaton(state = Initialized,
-            storage = mass,
+            storage = _generateRandomDoubleArrayWithBounds(size, randomNumberOrigin, randomNumberBound),
             length = size,
             closeHandlers = action LIST_NEW(),
         );
@@ -602,10 +573,8 @@ automaton SecureRandomAutomaton
     // within java.util.Random
     fun *.ints (@target self: SecureRandom): IntStream
     {
-        val mass: array<int> = action SYMBOLIC_ARRAY("int", MAX_RANDOM_STREAM_SIZE);
-
         result = new IntStreamAutomaton(state = Initialized,
-            storage = mass,
+            storage = action SYMBOLIC_ARRAY("int", MAX_RANDOM_STREAM_SIZE),
             length = MAX_RANDOM_STREAM_SIZE,
             closeHandlers = action LIST_NEW(),
         );
@@ -615,10 +584,10 @@ automaton SecureRandomAutomaton
     // within java.util.Random
     fun *.ints (@target self: SecureRandom, randomNumberOrigin: int, randomNumberBound: int): IntStream
     {
-        val mass: array<int> = _generateRandomIntegerArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound);
-
+        if (randomNumberOrigin >= randomNumberBound)
+            _throwIAE();
         result = new IntStreamAutomaton(state = Initialized,
-            storage = mass,
+            storage = _generateRandomIntegerArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound),
             length = MAX_RANDOM_STREAM_SIZE,
             closeHandlers = action LIST_NEW(),
         );
@@ -629,13 +598,14 @@ automaton SecureRandomAutomaton
     fun *.ints (@target self: SecureRandom, streamSize: long): IntStream
     {
         var size: int = streamSize as int;
+        if (size < 0)
+            _throwIAE();
+        // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
         if (size > MAX_RANDOM_STREAM_SIZE)
             size = MAX_RANDOM_STREAM_SIZE;
 
-        val mass: array<int> = action SYMBOLIC_ARRAY("int", size);
-
         result = new IntStreamAutomaton(state = Initialized,
-            storage = mass,
+            storage = action SYMBOLIC_ARRAY("int", size),
             length = size,
             closeHandlers = action LIST_NEW(),
         );
@@ -646,13 +616,16 @@ automaton SecureRandomAutomaton
     fun *.ints (@target self: SecureRandom, streamSize: long, randomNumberOrigin: int, randomNumberBound: int): IntStream
     {
         var size: int = streamSize as int;
+        if (size < 0)
+            _throwIAE();
+        if (randomNumberOrigin >= randomNumberBound)
+            _throwIAE();
+        // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
         if (size > MAX_RANDOM_STREAM_SIZE)
             size = MAX_RANDOM_STREAM_SIZE;
 
-        val mass: array<int> = _generateRandomIntegerArrayWithBounds(size, randomNumberOrigin, randomNumberBound);
-
         result = new IntStreamAutomaton(state = Initialized,
-            storage = mass,
+            storage = _generateRandomIntegerArrayWithBounds(size, randomNumberOrigin, randomNumberBound),
             length = size,
             closeHandlers = action LIST_NEW(),
         );
@@ -662,10 +635,8 @@ automaton SecureRandomAutomaton
     // within java.util.Random
     fun *.longs (@target self: SecureRandom): LongStream
     {
-        val mass: array<long> = action SYMBOLIC_ARRAY("long", MAX_RANDOM_STREAM_SIZE);
-
         result = new LongStreamAutomaton(state = Initialized,
-            storage = mass,
+            storage = action SYMBOLIC_ARRAY("long", MAX_RANDOM_STREAM_SIZE),
             length = MAX_RANDOM_STREAM_SIZE,
             closeHandlers = action LIST_NEW(),
         );
@@ -676,13 +647,14 @@ automaton SecureRandomAutomaton
     fun *.longs (@target self: SecureRandom, streamSize: long): LongStream
     {
         var size: int = streamSize as int;
+        if (size < 0)
+            _throwIAE();
+        // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
         if (size > MAX_RANDOM_STREAM_SIZE)
             size = MAX_RANDOM_STREAM_SIZE;
 
-        val mass: array<long> = action SYMBOLIC_ARRAY("long", size);
-
         result = new LongStreamAutomaton(state = Initialized,
-            storage = mass,
+            storage = action SYMBOLIC_ARRAY("long", size),
             length = size,
             closeHandlers = action LIST_NEW(),
         );
@@ -692,10 +664,10 @@ automaton SecureRandomAutomaton
     // within java.util.Random
     fun *.longs (@target self: SecureRandom, randomNumberOrigin: long, randomNumberBound: long): LongStream
     {
-        val mass: array<long> = _generateRandomLongArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound);
-
+        if (randomNumberOrigin >= randomNumberBound)
+            _throwIAE();
         result = new LongStreamAutomaton(state = Initialized,
-            storage = mass,
+            storage = _generateRandomLongArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound),
             length = MAX_RANDOM_STREAM_SIZE,
             closeHandlers = action LIST_NEW(),
         );
@@ -706,13 +678,16 @@ automaton SecureRandomAutomaton
     fun *.longs (@target self: SecureRandom, streamSize: long, randomNumberOrigin: long, randomNumberBound: long): LongStream
     {
         var size: int = streamSize as int;
+        if (size < 0)
+            _throwIAE();
+        if (randomNumberOrigin >= randomNumberBound)
+            _throwIAE();
+        // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
         if (size > MAX_RANDOM_STREAM_SIZE)
             size = MAX_RANDOM_STREAM_SIZE;
 
-        val mass: array<long> = _generateRandomLongArrayWithBounds(size, randomNumberOrigin, randomNumberBound);
-
         result = new LongStreamAutomaton(state = Initialized,
-            storage = mass,
+            storage = _generateRandomLongArrayWithBounds(size, randomNumberOrigin, randomNumberBound),
             length = size,
             closeHandlers = action LIST_NEW(),
         );
@@ -762,7 +737,7 @@ automaton SecureRandomAutomaton
     @synchronized fun *.nextGaussian (@target self: SecureRandom): double
     {
         result = action SYMBOLIC("double");
-        val isNaN: boolean = action DEBUG_DO("Double.isNaN(result)");
+        val isNaN: boolean = result != result;
         action ASSUME(isNaN == false);
     }
 
@@ -778,7 +753,7 @@ automaton SecureRandomAutomaton
     fun *.nextInt (@target self: SecureRandom, bound: int): int
     {
         if (bound <= 0)
-            action THROW_NEW("java.lang.IllegalArgumentException", ["bound must be positive"]);
+            _throwIAE();
 
         result = action SYMBOLIC("int");
 
@@ -803,6 +778,31 @@ automaton SecureRandomAutomaton
     fun *.setSeed (@target self: SecureRandom, seed: long): void
     {
         action DO_NOTHING();
+    }
+
+
+    // special: static initialization
+
+    @Phantom @static fun *.__clinit__ (): void
+    {
+        // #note: list of default providers https://docs.oracle.com/javase/9/security/oracleproviders.htm#JSSEC-GUID-F41EE1C9-DD6A-4BAB-8979-EB7654094029
+
+        action MAP_SET(defaultProvidersMap, "SUN", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunRsaSign", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunJSSE", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunJCE", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "Apple", SOMETHING);
+
+        action MAP_SET(defaultProvidersMap, "JdkLDAP", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunJGSS", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunSASL", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunPCSC", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "XMLDSig", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunPKCS11", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunEC", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "SunMSCAPI", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "OracleUcrypto", SOMETHING);
+        action MAP_SET(defaultProvidersMap, "JdkSASL", SOMETHING);
     }
 
 }
