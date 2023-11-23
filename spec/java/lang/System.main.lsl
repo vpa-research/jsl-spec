@@ -93,6 +93,7 @@ automaton SystemAutomaton
     @static proc _initProperties (): void
     {
         // prepare raw values
+        val pm: map<String, String> = propsMap; // NOTE: avoiding unwanted frequent static field access
 
         // NOTE: symbolic JRE version is too expensive to use
         val javaVersion: int = 8;
@@ -102,11 +103,11 @@ automaton SystemAutomaton
 
         // convert it into properties
 
-        action MAP_SET(propsMap, "file.encoding", "Cp1251");
-        action MAP_SET(propsMap, "sun.io.unicode.encoding", "UnicodeLittle");
-        action MAP_SET(propsMap, "sun.jnu.encoding", "Cp1251");
-        action MAP_SET(propsMap, "sun.stderr.encoding", "cp866");
-        action MAP_SET(propsMap, "sun.stdout.encoding", "cp866");
+        action MAP_SET(pm, "file.encoding", "Cp1251");
+        action MAP_SET(pm, "sun.io.unicode.encoding", "UnicodeLittle");
+        action MAP_SET(pm, "sun.jnu.encoding", "Cp1251");
+        action MAP_SET(pm, "sun.stderr.encoding", "cp866");
+        action MAP_SET(pm, "sun.stdout.encoding", "cp866");
 
         val versionStrings: array<String> = [
             "0", "1", "2", "3", "4", "5", "6", "7",
@@ -118,39 +119,39 @@ automaton SystemAutomaton
         ];
         val versionString: String = versionStrings[javaVersion];
 
-        action MAP_SET(propsMap, "java.specification.name", "Java Platform API Specification");
-        action MAP_SET(propsMap, "java.specification.vendor", "Oracle Corporation");
-        action MAP_SET(propsMap, "java.specification.version", versionString);
-        action MAP_SET(propsMap, "java.vm.info", "mixed mode");
-        action MAP_SET(propsMap, "java.vm.name", "OpenJDK 64-Bit Server VM");
-        action MAP_SET(propsMap, "java.vm.specification.name", "Java Virtual Machine Specification");
-        action MAP_SET(propsMap, "java.vm.specification.vendor", "Oracle Corporation");
-        action MAP_SET(propsMap, "java.vm.specification.version", versionString);
-        action MAP_SET(propsMap, "java.vm.vendor", "Eclipse Adoptium");
-        action MAP_SET(propsMap, "java.vm.version", versionString + ".0.362+9");
+        action MAP_SET(pm, "java.specification.name", "Java Platform API Specification");
+        action MAP_SET(pm, "java.specification.vendor", "Oracle Corporation");
+        action MAP_SET(pm, "java.specification.version", versionString);
+        action MAP_SET(pm, "java.vm.info", "mixed mode");
+        action MAP_SET(pm, "java.vm.name", "OpenJDK 64-Bit Server VM");
+        action MAP_SET(pm, "java.vm.specification.name", "Java Virtual Machine Specification");
+        action MAP_SET(pm, "java.vm.specification.vendor", "Oracle Corporation");
+        action MAP_SET(pm, "java.vm.specification.version", versionString);
+        action MAP_SET(pm, "java.vm.vendor", "Eclipse Adoptium");
+        action MAP_SET(pm, "java.vm.version", versionString + ".0.362+9");
 
-        action MAP_SET(propsMap, "java.library.path", "C:\\Program Files\\Eclipse Adoptium\\jdk-8.0.362.9-hotspot\\bin;C:\\Windows\\Sun\\Java\\bin;C:\\Windows\\system32;.");
-        action MAP_SET(propsMap, "java.home", "C:\\Program Files\\Eclipse Adoptium\\jdk-8.0.362.9-hotspot");
-        action MAP_SET(propsMap, "sun.boot.library.path", "C:\\Program Files\\Eclipse Adoptium\\jdk-8.0.362.9-hotspot\\bin");
-        action MAP_SET(propsMap, "java.io.tmpdir", "T:\\Temp\\");
-        action MAP_SET(propsMap, "java.class.path", ".");
+        action MAP_SET(pm, "java.library.path", "C:\\Program Files\\Eclipse Adoptium\\jdk-8.0.362.9-hotspot\\bin;C:\\Windows\\Sun\\Java\\bin;C:\\Windows\\system32;.");
+        action MAP_SET(pm, "java.home", "C:\\Program Files\\Eclipse Adoptium\\jdk-8.0.362.9-hotspot");
+        action MAP_SET(pm, "sun.boot.library.path", "C:\\Program Files\\Eclipse Adoptium\\jdk-8.0.362.9-hotspot\\bin");
+        action MAP_SET(pm, "java.io.tmpdir", "T:\\Temp\\");
+        action MAP_SET(pm, "java.class.path", ".");
 
         if (SYSTEM_IS_WINDOWS)
         {
-            action MAP_SET(propsMap, "file.separator", "\\");
-            action MAP_SET(propsMap, "line.separator", "\r\n");
-            action MAP_SET(propsMap, "path.separator", ";");
+            action MAP_SET(pm, "file.separator", "\\");
+            action MAP_SET(pm, "line.separator", "\r\n");
+            action MAP_SET(pm, "path.separator", ";");
         }
         else
         {
-            action MAP_SET(propsMap, "file.separator", "/");
-            action MAP_SET(propsMap, "line.separator", "\n");
-            action MAP_SET(propsMap, "path.separator", ":");
+            action MAP_SET(pm, "file.separator", "/");
+            action MAP_SET(pm, "line.separator", "\n");
+            action MAP_SET(pm, "path.separator", ":");
         }
 
-        action MAP_SET(propsMap, "user.country", "RU");
-        action MAP_SET(propsMap, "user.country.format", "US");
-        action MAP_SET(propsMap, "user.language", "ru");
+        action MAP_SET(pm, "user.country", "RU");
+        action MAP_SET(pm, "user.country.format", "US");
+        action MAP_SET(pm, "user.language", "ru");
 
         val bytecodeVersions: array<String> = [
             "?",    /* 0? */
@@ -170,35 +171,35 @@ automaton SystemAutomaton
             "?",    /* 14? */
             "?",    /* 15? */
         ];
-        action MAP_SET(propsMap, "java.class.version", bytecodeVersions[javaVersion]);
+        action MAP_SET(pm, "java.class.version", bytecodeVersions[javaVersion]);
 
-        action MAP_SET(propsMap, "os.arch", "amd64");
-        action MAP_SET(propsMap, "os.name", "Windows 10");
-        action MAP_SET(propsMap, "os.version", "10.0");
-        action MAP_SET(propsMap, "sun.arch.data.model", "64");
-        action MAP_SET(propsMap, "sun.cpu.endian", "little");
-        action MAP_SET(propsMap, "sun.cpu.isalist", "amd64");
-        action MAP_SET(propsMap, "sun.desktop", "windows");
+        action MAP_SET(pm, "os.arch", "amd64");
+        action MAP_SET(pm, "os.name", "Windows 10");
+        action MAP_SET(pm, "os.version", "10.0");
+        action MAP_SET(pm, "sun.arch.data.model", "64");
+        action MAP_SET(pm, "sun.cpu.endian", "little");
+        action MAP_SET(pm, "sun.cpu.isalist", "amd64");
+        action MAP_SET(pm, "sun.desktop", "windows");
 
-        action MAP_SET(propsMap, "user.dir", "D:\\Company\\Prod\\Service");
-        action MAP_SET(propsMap, "user.home", "C:\\Users\\" + userName);
-        action MAP_SET(propsMap, "user.name", userName);
-        action MAP_SET(propsMap, "user.script", "");
-        action MAP_SET(propsMap, "user.timezone", "");
-        action MAP_SET(propsMap, "user.variant", "");
+        action MAP_SET(pm, "user.dir", "D:\\Company\\Prod\\Service");
+        action MAP_SET(pm, "user.home", "C:\\Users\\" + userName);
+        action MAP_SET(pm, "user.name", userName);
+        action MAP_SET(pm, "user.script", "");
+        action MAP_SET(pm, "user.timezone", "");
+        action MAP_SET(pm, "user.variant", "");
 
         // unknown misc stuff
-        action MAP_SET(propsMap, "sun.java.command", "org.example.MainClass"); // #problem: main class
-        action MAP_SET(propsMap, "awt.toolkit", "sun.awt.windows.WToolkit");
-        action MAP_SET(propsMap, "java.awt.graphicsenv", "sun.awt.Win32GraphicsEnvironment");
-        action MAP_SET(propsMap, "java.awt.printerjob", "sun.awt.windows.WPrinterJob");
-        action MAP_SET(propsMap, "sun.java.launcher", "SUN_STANDARD");
-        action MAP_SET(propsMap, "sun.management.compiler", "HotSpot 64-Bit Tiered Compilers");
-        action MAP_SET(propsMap, "sun.nio.MaxDirectMemorySize", "-1");
-        action MAP_SET(propsMap, "sun.os.patch.level", "");
-        action MAP_SET(propsMap, "java.vm.compressedOopsMode", "Zero based");
-        action MAP_SET(propsMap, "jdk.boot.class.path.append", "");
-        action MAP_SET(propsMap, "jdk.debug", "release");
+        action MAP_SET(pm, "sun.java.command", "org.example.MainClass"); // #problem: main class
+        action MAP_SET(pm, "awt.toolkit", "sun.awt.windows.WToolkit");
+        action MAP_SET(pm, "java.awt.graphicsenv", "sun.awt.Win32GraphicsEnvironment");
+        action MAP_SET(pm, "java.awt.printerjob", "sun.awt.windows.WPrinterJob");
+        action MAP_SET(pm, "sun.java.launcher", "SUN_STANDARD");
+        action MAP_SET(pm, "sun.management.compiler", "HotSpot 64-Bit Tiered Compilers");
+        action MAP_SET(pm, "sun.nio.MaxDirectMemorySize", "-1");
+        action MAP_SET(pm, "sun.os.patch.level", "");
+        action MAP_SET(pm, "java.vm.compressedOopsMode", "Zero based");
+        action MAP_SET(pm, "jdk.boot.class.path.append", "");
+        action MAP_SET(pm, "jdk.debug", "release");
 
         // #problem: no approximation for Properties
         props = null;//new Properties(84);
