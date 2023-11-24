@@ -614,10 +614,10 @@ automaton StringBuilderAutomaton
         var len: int = 4;
 
         if (obj != null)
+        {
             s = action OBJECT_TO_STRING(obj);
-        else
             len = action CALL_METHOD(s, "length", []);
-
+        }
         _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
