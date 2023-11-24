@@ -938,9 +938,11 @@ automaton StringBuilderAutomaton
             _copyToCharArray_loop(i, arrayIndex, newStr)
         );
         newStr[index] = ch;
+        arrayIndex += 1;
+
         action LOOP_FOR(
             i, index + 1, this.length, +1,
-            _copyToCharArray_loop(i, index, newStr)
+            _copyToCharArray_loop(i, arrayIndex, newStr)
         );
 
         this.storage = action OBJECT_TO_STRING(newStr);
