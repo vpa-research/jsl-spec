@@ -1009,11 +1009,7 @@ automaton StringBuilderAutomaton
         if (beginIndex < 0 || endIndex > this.length || beginIndex > endIndex)
             action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
 
-        val codePoint: int = action SYMBOLIC("int");
-        val leftBorder: int = endIndex - beginIndex;
-        val rightBorder: int = (endIndex - beginIndex) * 2;
-        action ASSUME(codePoint >= leftBorder);
-        action ASSUME(codePoint <= rightBorder);
+        result = action CALL_METHOD(this.storage, "codePointCount", [beginIndex, endIndex]);
     }
 
 
