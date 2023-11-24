@@ -1047,7 +1047,7 @@ automaton StringBuilderAutomaton
     {
         _checkIndex(index);
 
-        result = action DEBUG_DO("Character.offsetByCodePoints(this.storage, index, codePointOffset)");
+        result = action CALL_METHOD(null as Character, "offsetByCodePoints", [this.storage, index, codePointOffset]);
     }
 
 
