@@ -230,7 +230,8 @@ automaton SecureRandomAutomaton
         if (resultAlgorithm == null)
             _throwNSAE();
 
-        action ASSUME(action CALL_METHOD(this.algorithm, "length", []) > 0);
+        val resultAlgorithmLength: int = action CALL_METHOD(resultAlgorithm, "length", []);
+        action ASSUME(resultAlgorithmLength > 0);
 
         result = new SecureRandomAutomaton(state = Initialized,
             provider = resultProvider,
@@ -252,7 +253,8 @@ automaton SecureRandomAutomaton
         if (resultAlgorithm == null)
             _throwNSAE();
 
-        action ASSUME(action CALL_METHOD(this.algorithm, "length", []) > 0);
+        val resultAlgorithmLength: int = action CALL_METHOD(resultAlgorithm, "length", []);
+        action ASSUME(resultAlgorithmLength > 0);
 
         result = new SecureRandomAutomaton(state = Initialized,
             provider = resultProvider,
@@ -277,7 +279,8 @@ automaton SecureRandomAutomaton
         if (resultAlgorithm == null)
             _throwNSAE();
 
-        action ASSUME(action CALL_METHOD(this.algorithm, "length", []) > 0);
+        val resultAlgorithmLength: int = action CALL_METHOD(resultAlgorithm, "length", []);
+        action ASSUME(resultAlgorithmLength > 0);
 
         result = new SecureRandomAutomaton(state = Initialized,
             provider = resultProvider,
