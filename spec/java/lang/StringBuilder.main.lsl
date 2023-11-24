@@ -269,8 +269,8 @@ automaton StringBuilderAutomaton
 
     @Phantom proc _insertSequence_loop(i: int, arrayIndex: int, newStr: array<char>, s: CharSequence): void
     {
-            newStr[arrayIndex] = action CALL_METHOD(s, "charAt", [i]);
-            arrayIndex += 1;
+        newStr[arrayIndex] = action CALL_METHOD(s, "charAt", [i]);
+        arrayIndex += 1;
     }
 
 
