@@ -1018,10 +1018,7 @@ automaton StringBuilderAutomaton
     {
         _checkIndex(index);
 
-        val codePoint: int = action SYMBOLIC("int");
-        action ASSUME(codePoint >= MIN_CODE_POINT);
-        action ASSUME(codePoint <= MAX_CODE_POINT);
-        result = codePoint;
+        result = action CALL_METHOD(this.storage, "codePointAt", [index]);
     }
 
 
