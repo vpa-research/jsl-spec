@@ -1054,18 +1054,48 @@ automaton StringBuilderAutomaton
     // within java.lang.AbstractStringBuilder
     fun *.codePoints (@target self: StringBuilder): IntStream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.IntStream");
-        action ASSUME(result != null);
+        var intStorage: array<int> = action ARRAY_NEW("int", this.length);
+        var storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _toIntArray_loop(i, intStorage, storageChars)
+        );
+
+        val handlers: list<Runnable> = action LIST_NEW();
+        result = new IntStreamAutomaton(state = Initialized,
+                                        storage = intStorage,
+                                        length = this.length,
+                                        closeHandlers = handlers
+                                       );
     }
 
 
     // within java.lang.AbstractStringBuilder
     fun *.chars (@target self: StringBuilder): IntStream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.IntStream");
-        action ASSUME(result != null);
+        var intStorage: array<int> = action ARRAY_NEW("int", this.length);
+        var storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _toIntArray_loop(i, intStorage, storageChars)
+        );
+
+        val handlers: list<Runnable> = action LIST_NEW();
+        result = new IntStreamAutomaton(state = Initialized,
+                                        storage = intStorage,
+                                        length = this.length,
+                                        closeHandlers = handlers
+                                       );
+    }
+
+
+    @Phantom proc _toIntArray_loop(i: int, intStorage: array<int>, storageChars: array<char>): void
+    {
+        intStorage[i] = storageChars[i] as int;
     }
 
 
