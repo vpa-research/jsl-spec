@@ -33,9 +33,8 @@ import java/lang/Number;
 
 // global aliases and type overrides
 
-// note: this is a partial implementation, no need for additional constraints (abstract class) and synthetic methods (Comparable)
-// @extends("java.lang.Number")
-// @implements("java.lang.Comparable<Float>")
+@extends("java.lang.Number")
+@implements("java.lang.Comparable<Float>")
 @final type LSLFloat
     is java.lang.Float
     for Float

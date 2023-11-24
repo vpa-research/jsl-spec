@@ -8,16 +8,14 @@ library std
 
 // imports
 
-import java/io/Serializable;
-import java/lang/String;
+import java/lang/Object;
 
 
 // primary semantic types
 
 @final type ClassLoader
     is java.lang.ClassLoader
-    // #problem: no reflection support
-    for Serializable //, GenericDeclaration, Type, AnnotatedElement
+    for Object
 {
 }
 

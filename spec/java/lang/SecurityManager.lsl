@@ -9,6 +9,7 @@ library std
 // imports
 
 import java/lang/Object;
+import java/security/Permission;
 
 
 // primary semantic types
@@ -17,6 +18,7 @@ import java/lang/Object;
     is java.lang.SecurityManager
     for Object
 {
+    fun *.checkPermission(perm: Permission): void;
 }
 
 

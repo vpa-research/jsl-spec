@@ -272,14 +272,14 @@ automaton IntegerAutomaton
         {
             // direct adaptation from the JDK
             var y: int = 0;
-            var n: int = 31;
+            result = 31;
 
-            y = i << 16;  if (y != 0) { n -= 16; i = y; }
-            y = i <<  8;  if (y != 0) { n -=  8; i = y; }
-            y = i <<  4;  if (y != 0) { n -=  4; i = y; }
-            y = i <<  2;  if (y != 0) { n -=  2; i = y; }
+            y = i << 16;  if (y != 0) { result -= 16; i = y; }
+            y = i <<  8;  if (y != 0) { result -=  8; i = y; }
+            y = i <<  4;  if (y != 0) { result -=  4; i = y; }
+            y = i <<  2;  if (y != 0) { result -=  2; i = y; }
 
-            result = n - ((i << 1) >>> 31);
+            result -= ((i << 1) >>> 31);
         }
     }
 
@@ -463,9 +463,22 @@ automaton IntegerAutomaton
     }
 
 
-    @Phantom fun *.compareTo (@target self: LSLInteger, anotherInteger: Integer): int
+    fun *.compareTo (@target self: LSLInteger, anotherInteger: LSLInteger): int
     {
-        // NOTE: using the original method
+        val x: int = this.value;
+        val y: int = IntegerAutomaton(anotherInteger).value;
+
+        if (x == y)
+        {
+            result = 0;
+        }
+        else
+        {
+            if (x < y)
+                result = -1;
+            else
+                result = +1;
+        }
     }
 
 

@@ -166,8 +166,11 @@ automaton DoubleAutomaton
 
     @static fun *.isFinite (d: double): boolean
     {
-        result = (d != POSITIVE_INFINITY) &&
-                 (d != NEGATIVE_INFINITY);
+        // behaving similarly to Math.abs
+        if (d <= 0.0)
+            d = 0.0 - d;
+
+        result = d <= MAX_VALUE;
     }
 
 
@@ -216,7 +219,11 @@ automaton DoubleAutomaton
 
     @static fun *.max (a: double, b: double): double
     {
-        if (a > b)
+        if (a != a) // catching NaN's
+            result = a;
+        else if (a == 0.0 && b == 0.0 && 1.0 / a == NEGATIVE_INFINITY) // catching '-0.0'
+            result = b;
+        else if (a >= b)
             result = a;
         else
             result = b;
@@ -225,7 +232,11 @@ automaton DoubleAutomaton
 
     @static fun *.min (a: double, b: double): double
     {
-        if (a < b)
+        if (a != a) // catching NaN's
+            result = a;
+        else if (a == 0.0 && b == 0.0 && 1.0 / b == NEGATIVE_INFINITY) // catching '-0.0'
+            result = b;
+        else if (a <= b)
             result = a;
         else
             result = b;
@@ -299,7 +310,7 @@ automaton DoubleAutomaton
     }
 
 
-    fun *.compareTo (@target self: LSLDouble, anotherDouble: Double): int
+    fun *.compareTo (@target self: LSLDouble, anotherDouble: LSLDouble): int
     {
         val a: double = this.value;
         val b: double = DoubleAutomaton(anotherDouble).value;

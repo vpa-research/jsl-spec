@@ -92,9 +92,6 @@ automaton System_PrintStreamAutomaton
 
     fun *.append (@target self: System_PrintStream, csq: CharSequence): PrintStream
     {
-        if (csq == null)
-            _throwNPE();
-
         _checkOpen();
 
         result = self as Object as PrintStream;
@@ -104,11 +101,11 @@ automaton System_PrintStreamAutomaton
     fun *.append (@target self: System_PrintStream, csq: CharSequence, start: int, end: int): PrintStream
     {
         if (csq == null)
-            _throwNPE();
+            csq = "null";
 
         val size: int = action CALL_METHOD(csq, "length", []);
         if (start < 0 || end >= size)
-            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
+            action THROW_NEW("java.lang.StringIndexOutOfBoundsException", []);
 
         _checkOpen();
 
@@ -132,19 +129,21 @@ automaton System_PrintStreamAutomaton
 
     fun *.close (@target self: System_PrintStream): void
     {
+        // #todo: add synchronization for parallel executions
         this.closed = true;
     }
 
 
     fun *.flush (@target self: System_PrintStream): void
     {
+        // #todo: add synchronization for parallel executions
         _checkOpen();
     }
 
 
     @varargs fun *.format (@target self: System_PrintStream, l: Locale, format: String, args: array<Object>): PrintStream
     {
-        if (l == null || format == null || args == null)
+        if (format == null)
             _throwNPE();
 
         _checkOpen();
@@ -155,7 +154,7 @@ automaton System_PrintStreamAutomaton
 
     @varargs fun *.format (@target self: System_PrintStream, format: String, args: array<Object>): PrintStream
     {
-        if (format == null || args == null)
+        if (format == null)
             _throwNPE();
 
         _checkOpen();

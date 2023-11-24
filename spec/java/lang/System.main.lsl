@@ -207,6 +207,16 @@ automaton SystemAutomaton
     }
 
 
+    @AutoInline @Phantom proc _checkIO (): void
+    {
+        val sm: SecurityManager = security;
+        if (sm != null)
+            action CALL_METHOD(sm, "checkPermission", [
+                action DEBUG_DO("new RuntimePermission(\"setIO\")")
+            ]);
+    }
+
+
     // constructors
 
     @private constructor *.LSLSystem (@target self: LSLSystem)
@@ -309,9 +319,9 @@ automaton SystemAutomaton
     }
 
 
-    @Phantom @static fun *.getSecurityManager (): SecurityManager
+    @static fun *.getSecurityManager (): SecurityManager
     {
-        // NOTE: using the original method
+        result = security;
     }
 
 
@@ -426,30 +436,21 @@ automaton SystemAutomaton
 
     @static fun *.setErr (stream: PrintStream): void
     {
-        if (stream == null)
-            _throwNPE();
-
-        // #todo: add checks and exceptions
+        _checkIO();
         err = stream;
     }
 
 
     @static fun *.setIn (stream: InputStream): void
     {
-        if (stream == null)
-            _throwNPE();
-
-        // #todo: add checks and exceptions
+        _checkIO();
         in = stream;
     }
 
 
     @static fun *.setOut (stream: PrintStream): void
     {
-        if (stream == null)
-            _throwNPE();
-
-        // #todo: add checks and exceptions
+        _checkIO();
         out = stream;
     }
 
@@ -476,9 +477,17 @@ automaton SystemAutomaton
     }
 
 
-    @Phantom @static fun *.setSecurityManager (s: SecurityManager): void
+    @static fun *.setSecurityManager (s: SecurityManager): void
     {
-        // NOTE: using the original method
+        val sm: SecurityManager = security;
+        if (sm != null)
+            action CALL_METHOD(sm, "checkPermission", [
+                action DEBUG_DO("new RuntimePermission(\"setSecurityManager\")")
+            ]);
+
+        // #problem: no protection domain checks here
+
+        security = s;
     }
 
 

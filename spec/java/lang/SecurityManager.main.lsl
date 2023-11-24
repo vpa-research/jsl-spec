@@ -98,9 +98,8 @@ automaton SecurityManagerAutomaton
 
     constructor *.LSLSecurityManager (@target self: LSLSecurityManager)
     {
-        val actionName: String = "createSecurityManager";
         _do_checkPermission(
-            action DEBUG_DO("new RuntimePermission(actionName)")
+            action DEBUG_DO("new RuntimePermission(\"createSecurityManager\")")
         );
     }
 

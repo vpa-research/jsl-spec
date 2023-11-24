@@ -18,8 +18,10 @@ import java/lang/Comparable;
 @FunctionalInterface("charValue")
 @final type Character
     is java.lang.Character
-    for Comparable, Serializable, char
+    for Comparable, Serializable
 {
+    // WARNING: use 'charValue' to get primitive value
+
     fun *.charValue(): char;
 
     @static fun *.offsetByCodePoints(seq: CharSequence, index: int, codePointOffset: int): int;

@@ -203,8 +203,11 @@ automaton FloatAutomaton
 
     @static fun *.isFinite (f: float): boolean
     {
-        result = (f != POSITIVE_INFINITY) &&
-                 (f != NEGATIVE_INFINITY);
+        // behaving similarly to Math.abs
+        if (f <= 0.0f)
+            f = 0.0f - f;
+
+        result = f <= MAX_VALUE;
     }
 
 
@@ -223,7 +226,11 @@ automaton FloatAutomaton
 
     @static fun *.max (a: float, b: float): float
     {
-        if (a > b)
+        if (a != a) // catching NaN's
+            result = a;
+        else if (a == 0.0f && b == 0.0f && 1.0f / a == NEGATIVE_INFINITY) // catching '-0.0'
+            result = b;
+        else if (a >= b)
             result = a;
         else
             result = b;
@@ -232,7 +239,11 @@ automaton FloatAutomaton
 
     @static fun *.min (a: float, b: float): float
     {
-        if (a < b)
+        if (a != a) // catching NaN's
+            result = a;
+        else if (a == 0.0f && b == 0.0f && 1.0f / b == NEGATIVE_INFINITY) // catching '-0.0'
+            result = b;
+        else if (a <= b)
             result = a;
         else
             result = b;
@@ -306,10 +317,10 @@ automaton FloatAutomaton
     }
 
 
-    fun *.compareTo (@target self: LSLFloat, anotherFloat: Float): int
+    fun *.compareTo (@target self: LSLFloat, anotherFloat: LSLFloat): int
     {
         val a: float = this.value;
-        val b: float = action CALL_METHOD(anotherFloat, "floatValue", []);
+        val b: float = FloatAutomaton(anotherFloat).value;
 
         // #problem: does not catch (-0.0, 0.0)
         if (a == b || a != a || b != b) // include NaN's
