@@ -239,13 +239,14 @@ automaton SystemAutomaton
 
         // #todo: check permission
 
-        if (action MAP_HAS_KEY(propsMap, key))
+        val pm: map<String, String> = propsMap;
+        if (action MAP_HAS_KEY(pm, key))
         {
-            result = action MAP_GET(propsMap, key);
+            result = action MAP_GET(pm, key);
 
             // #todo: remove key from 'props'
 
-            action MAP_REMOVE(propsMap, key);
+            action MAP_REMOVE(pm, key);
         }
     }
 
@@ -300,8 +301,10 @@ automaton SystemAutomaton
         _checkKey(key);
 
         // #todo: throw SecurityException
-        if (action MAP_HAS_KEY(propsMap, key))
-            result = action MAP_GET(propsMap, key);
+
+        val pm: map<String, String> = propsMap;
+        if (action MAP_HAS_KEY(pm, key))
+            result = action MAP_GET(pm, key);
         else
             result = null;
     }
@@ -312,8 +315,10 @@ automaton SystemAutomaton
         _checkKey(key);
 
         // #todo: throw SecurityException
-        if (action MAP_HAS_KEY(propsMap, key))
-            result = action MAP_GET(propsMap, key);
+
+        val pm: map<String, String> = propsMap;
+        if (action MAP_HAS_KEY(pm, key))
+            result = action MAP_GET(pm, key);
         else
             result = def;
     }
@@ -468,12 +473,13 @@ automaton SystemAutomaton
 
         // #todo: update 'props'
 
-        if (action MAP_HAS_KEY(propsMap, key))
-            result = action MAP_GET(propsMap, key);
+        val pm: map<String, String> = propsMap;
+        if (action MAP_HAS_KEY(pm, key))
+            result = action MAP_GET(pm, key);
         else
             result = null;
 
-        action MAP_SET(propsMap, key, value);
+        action MAP_SET(pm, key, value);
     }
 
 
