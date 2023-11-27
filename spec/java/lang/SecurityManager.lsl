@@ -9,6 +9,7 @@ library std
 // imports
 
 import java/lang/Object;
+import java/lang/String;
 import java/security/Permission;
 
 
@@ -19,6 +20,10 @@ import java/security/Permission;
     for Object
 {
     fun *.checkPermission(perm: Permission): void;
+
+    fun *.checkPropertiesAccess(): void;
+
+    fun *.checkPropertyAccess(key: String): void;
 }
 
 

@@ -17,7 +17,10 @@ import java/nio/channels/Channel;
 import java/util/Map;
 import java/util/Properties;
 import java/util/ResourceBundle;
-import jdk/internal/misc/VM;
+
+import jdk/internal/misc/VM; // #problem: does not exist in Java-8
+import sun/misc/Version;
+import sun/misc/VM; // #problem: does not exist in Java-11
 
 import java/lang/System;
 
@@ -237,7 +240,11 @@ automaton SystemAutomaton
     {
         _checkKey(key);
 
-        // #todo: check permission
+        val sm: SecurityManager = security;
+        if (sm != null)
+            action CALL_METHOD(sm, "checkPermission", [
+                action DEBUG_DO("new java.util.PropertyPermission(key, \"write\")")
+            ]);
 
         val pm: map<String, String> = propsMap;
         if (action MAP_HAS_KEY(pm, key))
@@ -291,7 +298,10 @@ automaton SystemAutomaton
 
     @static fun *.getProperties (): Properties
     {
-        // #todo: throw SecurityException
+        val sm: SecurityManager = security;
+        if (sm != null)
+            action CALL_METHOD(sm, "checkPropertiesAccess", []);
+
         result = props;
     }
 
@@ -300,7 +310,9 @@ automaton SystemAutomaton
     {
         _checkKey(key);
 
-        // #todo: throw SecurityException
+        val sm: SecurityManager = security;
+        if (sm != null)
+            action CALL_METHOD(sm, "checkPropertyAccess", [key]);
 
         val pm: map<String, String> = propsMap;
         if (action MAP_HAS_KEY(pm, key))
@@ -314,7 +326,9 @@ automaton SystemAutomaton
     {
         _checkKey(key);
 
-        // #todo: throw SecurityException
+        val sm: SecurityManager = security;
+        if (sm != null)
+            action CALL_METHOD(sm, "checkPropertyAccess", [key]);
 
         val pm: map<String, String> = propsMap;
         if (action MAP_HAS_KEY(pm, key))
@@ -334,12 +348,24 @@ automaton SystemAutomaton
     {
         // NOTE: using the original method
 
+        val sm: SecurityManager = security;
+        if (sm != null)
+            action CALL_METHOD(sm, "checkPermission", [
+                action DEBUG_DO("new RuntimePermission(\"getenv.*\")")
+            ]);
+
         // #todo: provide an actual map with symbolic values
     }
 
 
     @static fun *.getenv (name: String): String
     {
+        val sm: SecurityManager = security;
+        if (sm != null)
+            action CALL_METHOD(sm, "checkPermission", [
+                action DEBUG_DO("new RuntimePermission(\"getenv.\".concat(name))")
+            ]);
+
         result = action SYMBOLIC("java.lang.String");
         action ASSUME(result != null);
 
@@ -462,6 +488,10 @@ automaton SystemAutomaton
 
     @static fun *.setProperties (p: Properties): void
     {
+        val sm: SecurityManager = security;
+        if (sm != null)
+            action CALL_METHOD(sm, "checkPropertiesAccess", []);
+
         // #todo: improve after there will be some implementation for Properties
         props = p;
     }
@@ -470,6 +500,12 @@ automaton SystemAutomaton
     @static fun *.setProperty (key: String, value: String): String
     {
         _checkKey(key);
+
+        val sm: SecurityManager = security;
+        if (sm != null)
+            action CALL_METHOD(sm, "checkPermission", [
+                action DEBUG_DO("new java.util.PropertyPermission(key, \"write\")")
+            ]);
 
         // #todo: update 'props'
 
@@ -501,7 +537,7 @@ automaton SystemAutomaton
 
     // special: internal class initialization by the JRE
 
-    @private @static proc initPhase1 (): void  // WARNING: do not rename!
+    @private @static proc initPhase1 (): void  // WARNING: do not change signature!
     {
         _initProperties();
 
@@ -531,8 +567,7 @@ automaton SystemAutomaton
         //val threadGroup: ThreadGroup = action CALL_METHOD(current, "getThreadGroup", []);
         //action CALL_METHOD(threadGroup, "add", [current]);
 
-        // #todo
-        //setJavaLangAccess();
+        // #problem: unable to call or model 'java.lang.System#setJavaLangAccess'
 
         // #problem: too complex, package-private
         //action CALL_METHOD(null as ClassLoader, "initLibraryPaths", []);
@@ -542,7 +577,7 @@ automaton SystemAutomaton
     }
 
 
-    @private @static proc initPhase2 (): int  // WARNING: do not change!
+    @private @static proc initPhase2 (): int  // WARNING: do not change signature!
     {
         // #problem: java.lang.System#bootLayer initialization
 
@@ -554,7 +589,7 @@ automaton SystemAutomaton
     }
 
 
-    @private @static proc initPhase3 (): void  // WARNING: do not rename!
+    @private @static proc initPhase3 (): void  // WARNING: do not change signature!
     {
         // #problem: reflective access during security manager initialization
         // #todo: check property 'java.security.manager'
@@ -570,13 +605,47 @@ automaton SystemAutomaton
     }
 
 
+    // NOTE: not using this
+    @Phantom @private @static proc init_as_java8 (): void
+    {
+        // #todo: use dedicated Properties automaton
+        props = action DEBUG_DO("new Properties()");
+
+        _initProperties();
+
+        action CALL_METHOD(null as SUN_Version, "init", []);
+
+        // configure the standard <INPUT/OUTPUT/ERROR> streams
+        val newInput: InputStream = new SymbolicInputStreamAutomaton(state = Initialized,
+            maxSize = 1000,
+            supportMarks = false,
+        );
+        // #todo: unsafe operations in BufferedInputStream
+        in = newInput;//action DEBUG_DO("new java.io.BufferedInputStream(newInput)");
+        out = new System_PrintStreamAutomaton(state = Initialized);
+        err = new System_PrintStreamAutomaton(state = Initialized);
+
+        // #problem: thread group initialization
+
+        // #problem: unable to call or model 'java.lang.System#setJavaLangAccess'
+
+        action CALL_METHOD(null as SUN_VM, "booted", []);
+    }
+
+
     // special: static initialization
 
     @Phantom @static fun *.__clinit__ (): void
     {
+        // #problem: version-specific initialization
+
         initPhase1();
         initPhase2();
         initPhase3();
+
+        /*
+        init_as_java8();
+        */
     }
 
 }
