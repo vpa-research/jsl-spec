@@ -104,6 +104,12 @@ automaton SecureRandomAutomaton
     }
 
 
+    @AutoInline @Phantom proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
     proc _getDefaultPRNG (): void
     {
         this.provider = action SYMBOLIC("java.security.Provider");
@@ -121,11 +127,7 @@ automaton SecureRandomAutomaton
     @static proc _isDefaultProvider (curProvider: Provider): boolean
     {
         val providerName: String = action CALL_METHOD(curProvider, "getName", []);
-
-        if (action MAP_HAS_KEY(this.defaultProvidersMap, providerName))
-            result = true;
-        else
-            result = false;
+        result = action MAP_HAS_KEY(this.defaultProvidersMap, providerName);
     }
 
 
@@ -185,9 +187,10 @@ automaton SecureRandomAutomaton
 
     @Phantom proc checkDoubleBounds_loop (i: int, result: array<double>, randomNumberOrigin: double, randomNumberBound: double): void
     {
-        action ASSUME(result[i] != DOUBLE_NAN);
-        action ASSUME(result[i] >= randomNumberOrigin);
-        action ASSUME(result[i] < randomNumberBound);
+        val item: double = result[i];
+        action ASSUME(item == item);
+        action ASSUME(item >= randomNumberOrigin);
+        action ASSUME(item < randomNumberBound);
     }
 
 
@@ -616,7 +619,12 @@ automaton SecureRandomAutomaton
 
     @synchronized fun *.setSeed (@target self: SecureRandom, seed: array<byte>): void
     {
-        action DO_NOTHING();
+        // #todo: call SecureRandomSpi seed initialization method here
+        if (seed == null)
+        {
+            if (action SYMBOLIC("boolean"))
+                _throwNPE();
+        }
     }
 
 

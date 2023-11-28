@@ -125,9 +125,10 @@ automaton RandomAutomaton
 
     @Phantom proc checkDoubleBounds_loop (i: int, result: array<double>, randomNumberOrigin: double, randomNumberBound: double): void
     {
-        action ASSUME(result[i] != DOUBLE_NAN);
-        action ASSUME(result[i] >= randomNumberOrigin);
-        action ASSUME(result[i] < randomNumberBound);
+        val item: double = result[i];
+        action ASSUME(item == item);
+        action ASSUME(item >= randomNumberOrigin);
+        action ASSUME(item < randomNumberBound);
     }
 
 
