@@ -14,7 +14,7 @@ import java/util/AbstractMap;
 import java/util/Map;
 
 
-// local semantic types
+// primary semantic types
 
 @extends("java.util.AbstractMap")
 @implements("java.util.Map")
@@ -27,3 +27,5 @@ import java/util/Map;
     @private @static val serialVersionUID: long = 362498820763181265L;
 }
 
+
+// global aliases and type overrides
