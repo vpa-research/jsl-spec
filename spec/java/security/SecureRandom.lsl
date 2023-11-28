@@ -18,9 +18,17 @@ import java/util/Random;
     is java.security.SecureRandom
     for Random
 {
-    @private @static val serialVersionUID: long = 4940670005562187L;
-    @private @static val defaultProvidersMap: map<String, Object> = action MAP_NEW();
 }
 
 
 // global aliases and type overrides
+
+// a replacement type for automata construction
+@extends("java.util.Random")
+@public type SecureRandomLSL
+    is java.security.SecureRandom
+    for SecureRandom
+{
+    @private @static val serialVersionUID: long = 4940670005562187L;
+    @private @static val defaultProvidersMap: map<String, Object> = action MAP_NEW();
+}

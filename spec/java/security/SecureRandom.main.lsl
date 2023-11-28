@@ -27,7 +27,7 @@ automaton SecureRandomAutomaton
     var algorithm: String,
     var defaultProvider: boolean
 )
-: SecureRandom
+: SecureRandomLSL
 {
     // states and shifts
 
