@@ -95,14 +95,11 @@ automaton ArrayList_SubList_ListIteratorAutomaton
 
         _checkForComodification();
 
-        val i: int = this.offset + this.cursor;
-        if (i >= ArrayListAutomaton(this.root).length)
-            action THROW_NEW("java.util.NoSuchElementException", []);
-
-        // iterrator validity check
         val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+        val i: int = this.offset + this.cursor;
+        // iterrator validity check
         if (i >= action LIST_SIZE(rootStorage))
-            _throwCME();
+            action THROW_NEW("java.util.NoSuchElementException", []);
 
         this.lastRet = this.cursor;
         this.cursor += 1;
@@ -172,11 +169,13 @@ automaton ArrayList_SubList_ListIteratorAutomaton
 
         _checkForComodification();
 
+        val rootStorage: list<Object> = ArrayListAutomaton(this.root).storage;
+
         val index: int = this.offset + this.lastRet;
-        if (index >= ArrayListAutomaton(this.root).length)
+        if (index >= action LIST_SIZE(rootStorage))
             _throwCME();
         else
-            action LIST_SET(ArrayListAutomaton(this.root).storage, index, e);
+            action LIST_SET(rootStorage, index, e);
     }
 
 
@@ -189,7 +188,7 @@ automaton ArrayList_SubList_ListIteratorAutomaton
 
         val i: int = this.offset + this.cursor;
 
-        if (this.offset + this.lastRet > ArrayListAutomaton(this.root).length)
+        if (this.offset + this.lastRet > action LIST_SIZE(ArrayListAutomaton(this.root).storage))
         {
             _throwCME();
         }

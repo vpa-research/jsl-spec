@@ -166,12 +166,12 @@ automaton ArrayList_SubListAutomaton
 
         if (this.length != 0)
         {
-            val oldRootLength: int = ArrayListAutomaton(this.root).length;
+            val oldRootLength: int = action LIST_SIZE(ArrayListAutomaton(this.root).storage);
 
             result = ArrayListAutomaton(this.root)._batchRemove(c, complement, this.offset, this.offset + this.length);
             if (result)
             {
-                val newRootLength: int = ArrayListAutomaton(this.root).length;
+                val newRootLength: int = action LIST_SIZE(ArrayListAutomaton(this.root).storage);
                 _updateSizeAndModCount(newRootLength - oldRootLength);
             }
         }
@@ -262,7 +262,6 @@ automaton ArrayList_SubListAutomaton
                 clear_loop(i, rootStorage)
             );
 
-            ArrayListAutomaton(this.root).length -= size;
             ArrayListAutomaton(this.root).modCount += 1;
 
             _updateSizeAndModCount(-size);
@@ -580,12 +579,12 @@ automaton ArrayList_SubListAutomaton
         val size: int = this.length;
         if (size != 0)
         {
-            val oldRootLength: int = ArrayListAutomaton(this.root).length;
+            val oldRootLength: int = action LIST_SIZE(ArrayListAutomaton(this.root).storage);
 
             result = ArrayListAutomaton(this.root)._removeIf(filter, this.offset, this.offset + this.length);
             if (result)
             {
-                val newRootLength: int = ArrayListAutomaton(this.root).length;
+                val newRootLength: int = action LIST_SIZE(ArrayListAutomaton(this.root).storage);
                 _updateSizeAndModCount(newRootLength - oldRootLength);
             }
         }

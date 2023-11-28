@@ -14,8 +14,7 @@ import java/util/ArrayList;
 
 automaton ArrayListAutomaton
 (
-    var storage: list<Object>,
-    @transient var length: int
+    var storage: list<Object>
 )
 : ArrayList
 {
@@ -86,7 +85,7 @@ automaton ArrayListAutomaton
         if (index < 0 || length <= index)
         {
             //val idx: String = action OBJECT_TO_STRING(index);
-            //val len: String = action OBJECT_TO_STRING(this.length);
+            //val len: String = action OBJECT_TO_STRING(action LIST_SIZE(this.storage));
             //val message: String = "Index "+ idx + " out of bounds for length "+ len;
             action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
         }
@@ -95,10 +94,10 @@ automaton ArrayListAutomaton
 
     @KeepVisible proc _rangeCheckForAdd (index: int): void
     {
-        if (index > this.length || index < 0)
+        if (index > action LIST_SIZE(this.storage) || index < 0)
         {
             //val idx: String = action OBJECT_TO_STRING(index);
-            //val len: String = action OBJECT_TO_STRING(this.length);
+            //val len: String = action OBJECT_TO_STRING(action LIST_SIZE(this.storage));
             //val message: String = "Index: " + idx + ", Size: " + len;
             action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
         }
@@ -107,12 +106,12 @@ automaton ArrayListAutomaton
 
     @KeepVisible proc _addAllElements (index: int, c: Collection): boolean
     {
-        val oldLength: int = this.length;
+        val oldLength: int = action LIST_SIZE(this.storage);
 
         if (c has ArrayListAutomaton)
         {
             val otherStorage: list<Object> = ArrayListAutomaton(c).storage;
-            val otherLength: int = ArrayListAutomaton(c).length;
+            val otherLength: int = action LIST_SIZE(otherStorage);
 
             action ASSUME(otherStorage != null);
             action ASSUME(otherLength >= 0);
@@ -132,7 +131,7 @@ automaton ArrayListAutomaton
             );
         }
 
-        result = oldLength != this.length;
+        result = oldLength != action LIST_SIZE(this.storage);
         if (result)
             this.modCount += 1;
     }
@@ -143,7 +142,6 @@ automaton ArrayListAutomaton
         action LIST_INSERT_AT(this.storage, index, item);
 
         index += 1;
-        this.length += 1;
     }
 
     @Phantom proc _addAllElements_loop_regular (iter: Iterator, index: int): void
@@ -152,7 +150,6 @@ automaton ArrayListAutomaton
         action LIST_INSERT_AT(this.storage, index, item);
 
         index += 1;
-        this.length += 1;
     }
 
 
@@ -190,12 +187,11 @@ automaton ArrayListAutomaton
 
     @KeepVisible proc _deleteElement (index: int): Object
     {
-        _checkValidIndex(index, this.length);
+        _checkValidIndex(index, action LIST_SIZE(this.storage));
 
         result = action LIST_GET(this.storage, index);
         action LIST_REMOVE(this.storage, index);
 
-        this.length -= 1;
         this.modCount += 1;
     }
 
@@ -206,14 +202,13 @@ automaton ArrayListAutomaton
 
         action LIST_INSERT_AT(this.storage, index, element);
 
-        this.length += 1;
         this.modCount += 1;
     }
 
 
     proc _setElement (index: int, element: Object): Object
     {
-        _checkValidIndex(index, this.length);
+        _checkValidIndex(index, action LIST_SIZE(this.storage));
 
         result = action LIST_GET(this.storage, index);
         action LIST_SET(this.storage, index, element);
@@ -253,7 +248,7 @@ automaton ArrayListAutomaton
         if (filter == null)
             _throwNPE();
 
-        val oldLength: int = this.length;
+        val oldLength: int = action LIST_SIZE(this.storage);
         val expectedModCount: int = this.modCount;
 
         // remove elements from the back first
@@ -266,17 +261,14 @@ automaton ArrayListAutomaton
 
         _checkForComodification(expectedModCount);
 
-        result = oldLength != this.length;
+        result = oldLength != action LIST_SIZE(this.storage);
     }
 
     @Phantom proc _removeIf_loop (i: int, filter: Predicate): void
     {
         val item: Object = action LIST_GET(this.storage, i);
         if (action CALL(filter, [item]))
-        {
             action LIST_REMOVE(this.storage, i);
-            this.length -= 1;
-        }
     }
 
 
@@ -285,47 +277,32 @@ automaton ArrayListAutomaton
         result = true;
         var i: int = from;
 
-        var otherLength: int = 0;
         var otherStorage: list<Object> = null;
 
         if (other has ArrayListAutomaton)
         {
-            otherLength = ArrayListAutomaton(other).length;
-            action ASSUME(otherLength >= 0);
+            otherStorage = ArrayListAutomaton(other).storage;
 
             // assumptions: no multithreading, from == 0
-            result = to == otherLength;
+            result = to == action LIST_SIZE(otherStorage);
             if (result)
-            {
-                otherStorage = ArrayListAutomaton(other).storage;
-                action ASSUME(otherStorage != null);
-
                 action LOOP_WHILE(
                     result && i < to,
                     _equalsRange_loop_optimized(i, otherStorage, result)
                 );
-            }
         }
         else if (other has ArrayList_SubListAutomaton)
         {
-            otherLength = ArrayList_SubListAutomaton(other).length;
-            action ASSUME(otherLength >= 0);
+            val otherRoot: ArrayList = ArrayList_SubListAutomaton(other).root;
+            otherStorage = ArrayListAutomaton(otherRoot).storage;
 
             // assumptions: no multithreading, from >= 0
-            result = to == otherLength;
+            result = to == ArrayList_SubListAutomaton(other).length;
             if (result)
-            {
-                val otherRoot: ArrayList = ArrayList_SubListAutomaton(other).root;
-                action ASSUME(otherRoot != null);
-
-                otherStorage = ArrayListAutomaton(otherRoot).storage;
-                action ASSUME(otherStorage != null);
-
                 action LOOP_WHILE(
                     result && i < to,
                     _equalsRange_loop_optimized(i, otherStorage, result)
                 );
-            }
         }
         else
         {
@@ -371,7 +348,7 @@ automaton ArrayListAutomaton
 
     @KeepVisible proc _batchRemove (c: Collection, complement: boolean, start: int, end: int): boolean
     {
-        val oldLength: int = this.length;
+        val oldLength: int = action LIST_SIZE(this.storage);
         if (oldLength == 0 || start >= end)
         {
             result = false;
@@ -409,7 +386,7 @@ automaton ArrayListAutomaton
                     );
                 }
 
-                result = oldLength != this.length;
+                result = oldLength != action LIST_SIZE(this.storage);
             }
         }
     }
@@ -417,7 +394,7 @@ automaton ArrayListAutomaton
     @Phantom proc _batchRemove_loop_optimized (i: int, otherStorage: list<Object>, complement: boolean): void
     {
         val item: Object = action LIST_GET(this.storage, i);
-        if ((action LIST_FIND(otherStorage, item, 0, this.length) == -1) == complement)
+        if ((action LIST_FIND(otherStorage, item, 0, action LIST_SIZE(this.storage)) == -1) == complement)
             _deleteElement(i);
     }
 
@@ -526,7 +503,6 @@ automaton ArrayListAutomaton
     constructor *.ArrayList (@target self: ArrayList)
     {
         this.storage = action LIST_NEW();
-        this.length = 0;
     }
 
 
@@ -536,7 +512,6 @@ automaton ArrayListAutomaton
             _throwNPE();
 
         this.storage = action LIST_NEW();
-        this.length = 0;
 
         _addAllElements(0, c);
     }
@@ -550,7 +525,6 @@ automaton ArrayListAutomaton
             action THROW_NEW("java.lang.IllegalArgumentException", []);
         }
         this.storage = action LIST_NEW();
-        this.length = 0;
     }
 
 
@@ -558,9 +532,8 @@ automaton ArrayListAutomaton
 
     fun *.add (@target self: ArrayList, e: Object): boolean
     {
-        action LIST_INSERT_AT(this.storage, this.length, e);
+        action LIST_INSERT_AT(this.storage, action LIST_SIZE(this.storage), e);
 
-        this.length += 1;
         this.modCount += 1;
 
         result = true;
@@ -575,7 +548,7 @@ automaton ArrayListAutomaton
 
     fun *.addAll (@target self: ArrayList, c: Collection): boolean
     {
-        result = _addAllElements(this.length, c);
+        result = _addAllElements(action LIST_SIZE(this.storage), c);
     }
 
 
@@ -589,7 +562,6 @@ automaton ArrayListAutomaton
     fun *.clear (@target self: ArrayList): void
     {
         this.storage = action LIST_NEW();
-        this.length = 0;
         this.modCount += 1;
     }
 
@@ -597,18 +569,17 @@ automaton ArrayListAutomaton
     fun *.clone (@target self: ArrayList): Object
     {
         val storageCopy: list<Object> = action LIST_NEW();
-        action LIST_COPY(this.storage, storageCopy, 0, 0, this.length);
+        action LIST_COPY(this.storage, storageCopy, 0, 0, action LIST_SIZE(this.storage));
 
         result = new ArrayListAutomaton(state = Initialized,
             storage = storageCopy,
-            length = this.length
         );
     }
 
 
     fun *.contains (@target self: ArrayList, o: Object): boolean
     {
-        result = action LIST_FIND(this.storage, o, 0, this.length) != -1;
+        result = action LIST_FIND(this.storage, o, 0, action LIST_SIZE(this.storage)) != -1;
     }
 
 
@@ -620,9 +591,9 @@ automaton ArrayListAutomaton
         if (c has ArrayListAutomaton)
         {
             val otherStorage: list<Object> = ArrayListAutomaton(c).storage;
-            val otherLength: int = ArrayListAutomaton(c).length;
-
             action ASSUME(otherStorage != null);
+
+            val otherLength: int = action LIST_SIZE(otherStorage);
             action ASSUME(otherLength >= 0);
 
             var i: int = 0;
@@ -644,7 +615,7 @@ automaton ArrayListAutomaton
     @Phantom proc containsAll_loop_optimized (otherStorage: list<Object>, i: int, result: boolean): void
     {
         val item: Object = action LIST_GET(otherStorage, i);
-        result = action LIST_FIND(this.storage, item, 0, this.length) != -1;
+        result = action LIST_FIND(this.storage, item, 0, action LIST_SIZE(this.storage)) != -1;
 
         i += 1;
     }
@@ -652,7 +623,7 @@ automaton ArrayListAutomaton
     @Phantom proc containsAll_loop_regular (iter: Iterator, result: boolean): void
     {
         val item: Object = action CALL_METHOD(iter, "next", []);
-        result = action LIST_FIND(this.storage, item, 0, this.length) != -1;
+        result = action LIST_FIND(this.storage, item, 0, action LIST_SIZE(this.storage)) != -1;
     }
 
 
@@ -675,11 +646,9 @@ automaton ArrayListAutomaton
             {
                 val expectedModCount: int = this.modCount;
                 val otherExpectedModCount: int = ArrayListAutomaton(other).modCount;
-
                 val otherStorage: list<Object> = ArrayListAutomaton(other).storage;
-                val otherLength: int = ArrayListAutomaton(other).length;
 
-                if (this.length == otherLength)
+                if (action LIST_SIZE(this.storage) == action LIST_SIZE(otherStorage))
                     result = action OBJECT_EQUALS(this.storage, otherStorage);
                 else
                     result = false;
@@ -704,7 +673,7 @@ automaton ArrayListAutomaton
 
         var i: int = 0;
         action LOOP_WHILE(
-            this.modCount == expectedModCount && i < this.length,
+            this.modCount == expectedModCount && i < action LIST_SIZE(this.storage),
             forEach_loop(i, _action)
         );
 
@@ -722,7 +691,7 @@ automaton ArrayListAutomaton
 
     fun *.get (@target self: ArrayList, index: int): Object
     {
-        _checkValidIndex(index, this.length);
+        _checkValidIndex(index, action LIST_SIZE(this.storage));
 
         result = action LIST_GET(this.storage, index);
     }
@@ -736,13 +705,13 @@ automaton ArrayListAutomaton
 
     fun *.indexOf (@target self: ArrayList, o: Object): int
     {
-        result = action LIST_FIND(this.storage, o, 0, this.length);
+        result = action LIST_FIND(this.storage, o, 0, action LIST_SIZE(this.storage));
     }
 
 
     fun *.isEmpty (@target self: ArrayList): boolean
     {
-        result = this.length == 0;
+        result = action LIST_SIZE(this.storage) == 0;
     }
 
 
@@ -758,22 +727,22 @@ automaton ArrayListAutomaton
 
     fun *.lastIndexOf (@target self: ArrayList, o: Object): int
     {
-        if (this.length == 0)
+        if (action LIST_SIZE(this.storage) == 0)
         {
             result = -1;
         }
         else
         {
-            action ASSUME(this.length > 0);
+            action ASSUME(action LIST_SIZE(this.storage) > 0);
 
-            result = action LIST_FIND(this.storage, o, 0, this.length);
+            result = action LIST_FIND(this.storage, o, 0, action LIST_SIZE(this.storage));
             if (result != -1)
             {
                 // there should be no elements to the right of the previously found position
                 val nextIndex: int = result + 1;
-                if (nextIndex < this.length)
+                if (nextIndex < action LIST_SIZE(this.storage))
                 {
-                    val rightIndex: int = action LIST_FIND(this.storage, o, nextIndex, this.length);
+                    val rightIndex: int = action LIST_FIND(this.storage, o, nextIndex, action LIST_SIZE(this.storage));
                     action ASSUME(rightIndex == -1);
                 }
             }
@@ -812,7 +781,7 @@ automaton ArrayListAutomaton
 
     fun *.remove (@target self: ArrayList, o: Object): boolean
     {
-        val index: int = action LIST_FIND(this.storage, o, 0, this.length);
+        val index: int = action LIST_FIND(this.storage, o, 0, action LIST_SIZE(this.storage));
         result = index != -1;
         if (result)
             _deleteElement(index);
@@ -827,13 +796,13 @@ automaton ArrayListAutomaton
 
     fun *.removeAll (@target self: ArrayList, c: Collection): boolean
     {
-        result = _batchRemove(c, /* complement = */false, 0, this.length);
+        result = _batchRemove(c, /* complement = */false, 0, action LIST_SIZE(this.storage));
     }
 
 
     fun *.removeIf (@target self: ArrayList, filter: Predicate): boolean
     {
-        result = _removeIf(filter, 0, this.length);
+        result = _removeIf(filter, 0, action LIST_SIZE(this.storage));
     }
 
 
@@ -842,14 +811,14 @@ automaton ArrayListAutomaton
         if (op == null)
             _throwNPE();
 
-        _replaceAllRange(op, 0, this.length);
+        _replaceAllRange(op, 0, action LIST_SIZE(this.storage));
         this.modCount += 1;
     }
 
 
     fun *.retainAll (@target self: ArrayList, c: Collection): boolean
     {
-        result = _batchRemove(c, /* complement = */true, 0, this.length);
+        result = _batchRemove(c, /* complement = */true, 0, action LIST_SIZE(this.storage));
     }
 
 
@@ -861,13 +830,13 @@ automaton ArrayListAutomaton
 
     fun *.size (@target self: ArrayList): int
     {
-        result = this.length;
+        result = action LIST_SIZE(this.storage);
     }
 
 
     fun *.sort (@target self: ArrayList, c: Comparator): void
     {
-        _do_sort(0, this.length, c);
+        _do_sort(0, action LIST_SIZE(this.storage), c);
     }
 
 
@@ -888,7 +857,7 @@ automaton ArrayListAutomaton
 
     fun *.subList (@target self: ArrayList, fromIndex: int, toIndex: int): List
     {
-        _subListRangeCheck(fromIndex, toIndex, this.length);
+        _subListRangeCheck(fromIndex, toIndex, action LIST_SIZE(this.storage));
 
         result = new ArrayList_SubListAutomaton(state = Initialized,
             root = self,
@@ -902,7 +871,7 @@ automaton ArrayListAutomaton
 
     fun *.toArray (@target self: ArrayList): array<Object>
     {
-        val len: int = this.length;
+        val len: int = action LIST_SIZE(this.storage);
         result = action ARRAY_NEW("java.lang.Object", len);
 
         var i: int = 0;
@@ -926,7 +895,7 @@ automaton ArrayListAutomaton
         val a: array<Object> = action CALL_METHOD(generator, "apply", [0]) as array<Object>;
         val aLen: int = action ARRAY_SIZE(a);
 
-        val len: int = this.length;
+        val len: int = action LIST_SIZE(this.storage);
         // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)
         result = action ARRAY_NEW("java.lang.Object", len);
 
@@ -941,7 +910,7 @@ automaton ArrayListAutomaton
     fun *.toArray (@target self: ArrayList, a: array<Object>): array<Object>
     {
         val aLen: int = action ARRAY_SIZE(a);
-        val len: int = this.length;
+        val len: int = action LIST_SIZE(this.storage);
 
         if (aLen < len)
             // #problem: a.getClass() should be called to construct a type-valid array (USVM issue)

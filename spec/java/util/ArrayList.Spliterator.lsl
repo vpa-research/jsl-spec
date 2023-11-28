@@ -68,7 +68,7 @@ automaton ArrayList_SpliteratorAutomaton
         {
             action ASSUME(this.parent != null);
             this.expectedModCount = ArrayListAutomaton(this.parent).modCount;
-            this.fence = ArrayListAutomaton(this.parent).length;
+            this.fence = action LIST_SIZE(ArrayListAutomaton(this.parent).storage);
         }
 
         result = this.fence;
@@ -117,13 +117,13 @@ automaton ArrayList_SpliteratorAutomaton
         var mc: int = this.expectedModCount;
         if (hi == -1)
         {
-            hi = ArrayListAutomaton(this.parent).length;
+            hi = action LIST_SIZE(a);
             mc = ArrayListAutomaton(this.parent).modCount;
         }
 
         var i: int = this.index;
         this.index = hi;
-        if (i < 0 || hi > ArrayListAutomaton(this.parent).length)
+        if (i < 0 || hi > action LIST_SIZE(a))
             _throwCME();
 
         action LOOP_FOR(
