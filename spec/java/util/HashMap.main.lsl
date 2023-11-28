@@ -84,6 +84,12 @@ automaton HashMapAutomaton
     }
 
 
+    @AutoInline @Phantom proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
     proc _addAllElements (m: Map): void
     {
         val entrySet: Set = action CALL_METHOD(m, "entrySet", []);
@@ -105,6 +111,14 @@ automaton HashMapAutomaton
         action MAP_SET(this.storage, key, value);
         this.length += 1;
     }
+
+
+    @KeepVisible proc _checkForComodification (expectedModCount: int): void
+    {
+        if (this.modCount != expectedModCount)
+            action THROW_NEW("java.util.ConcurrentModificationException", []);
+    }
+
 
     // constructors
 
@@ -155,19 +169,43 @@ automaton HashMapAutomaton
 
     fun *.clear (@target self: HashMap): void
     {
-        action TODO();
+        this.modCount += 1;
+        this.length = 0;
+        this.storage = action MAP_NEW();
     }
 
 
     fun *.clone (@target self: HashMap): Object
     {
-        action TODO();
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+        result = new HashMapAutomaton(state = Initialized,
+            storage = storageCopy,
+            length = this.length
+        );
     }
 
 
     fun *.compute (@target self: HashMap, key: Object, remappingFunction: BiFunction): Object
     {
-        action TODO();
+        if (remappingFunction == null)
+            _throwNPE();
+
+        val oldValue: Object = action MAP_GET(this.storage, key);
+        val expectedModCount: int = this.modCount;
+
+        val newValue: Object = action CALL(remappingFunction, [key, oldValue]);
+        _checkForComodification(expectedModCount);
+
+        if (newValue == null)
+        {
+            action MAP_REMOVE(this.storage, key);
+        }
+        else
+        {
+            action MAP_SET(this.storage, key, newValue);
+        }
+
+        result = newValue;
     }
 
 
