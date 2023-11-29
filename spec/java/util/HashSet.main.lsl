@@ -22,8 +22,7 @@ import java/util/Spliterator;
 
 automaton HashSetAutomaton
 (
-    var storage: map<Object, Object> = null,
-    @transient var length: int = 0
+    var storage: map<Object, Object>
 )
 : HashSet
 {
@@ -87,7 +86,7 @@ automaton HashSetAutomaton
 
     proc _addAllElements (c: Collection): boolean
     {
-        val lengthBeforeAdd: int = this.length;
+        val lengthBeforeAdd: int = action MAP_SIZE(this.storage);
         val iter: Iterator = action CALL_METHOD(c, "iterator", []);
 
         action LOOP_WHILE(
@@ -95,7 +94,7 @@ automaton HashSetAutomaton
             _addAllElements_loop(iter)
         );
 
-        if (lengthBeforeAdd != this.length)
+        if (lengthBeforeAdd != action MAP_SIZE(this.storage))
         {
             this.modCount += 1;
             result = true;
@@ -110,13 +109,9 @@ automaton HashSetAutomaton
     @Phantom proc _addAllElements_loop(iter: Iterator): void
     {
         val key: Object = action CALL_METHOD(iter, "next", []);
-        val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);
 
-        if (!hasKey)
-        {
+        if (action MAP_HAS_KEY(this.storage, key) == false)
             action MAP_SET(this.storage, key, SOMETHING);
-            this.length += 1;
-        }
     }
 
 
@@ -189,10 +184,7 @@ automaton HashSetAutomaton
         }
         else
         {
-            this.length += 1;
-
             action MAP_SET(this.storage, obj, SOMETHING);
-
             result = true;
         }
 
@@ -202,9 +194,7 @@ automaton HashSetAutomaton
 
     fun *.clear (@target self: HashSet): void
     {
-        this.length = 0;
         this.storage = action MAP_NEW();
-
         this.modCount += 1;
     }
 
@@ -215,14 +205,13 @@ automaton HashSetAutomaton
 
         result = new HashSetAutomaton(state = Initialized,
             storage = storageCopy,
-            length = this.length
         );
     }
 
 
     fun *.contains (@target self: HashSet, obj: Object): boolean
     {
-        if (this.length == 0)
+        if (action MAP_SIZE(this.storage) == 0)
             result = false;
         else
             result = action MAP_HAS_KEY(this.storage, obj);
@@ -231,7 +220,7 @@ automaton HashSetAutomaton
 
     fun *.isEmpty (@target self: HashSet): boolean
     {
-        result = this.length == 0;
+        result = action MAP_SIZE(this.storage) == 0;
     }
 
 
@@ -248,11 +237,9 @@ automaton HashSetAutomaton
 
     fun *.remove (@target self: HashSet, obj: Object): boolean
     {
-        val hasKey: boolean = action MAP_HAS_KEY(this.storage, obj);
-        if (hasKey)
+        if (action MAP_HAS_KEY(this.storage, obj))
         {
             action MAP_REMOVE(this.storage, obj);
-            this.length -= 1;
             this.modCount += 1;
             result = true;
         }
@@ -265,18 +252,18 @@ automaton HashSetAutomaton
 
     fun *.size (@target self: HashSet): int
     {
-        result = this.length;
+        result = action MAP_SIZE(this.storage);
     }
 
 
     fun *.spliterator (@target self: HashSet): Spliterator
     {
-        val keysStorageArray: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
+        val keysStorageArray: array<Object> = action ARRAY_NEW("java.lang.Object", action MAP_SIZE(this.storage));
         val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
 
         var i: int = 0;
         action LOOP_FOR(
-            i, 0, this.length, +1,
+            i, 0, action MAP_SIZE(this.storage), +1,
             fromMapToArray_loop(i, keysStorageArray, unseenKeys)
         );
 
@@ -316,9 +303,8 @@ automaton HashSetAutomaton
                 val otherExpectedModCount: int = HashSetAutomaton(other).modCount;
 
                 val otherStorage: map<Object, Object> = HashSetAutomaton(other).storage;
-                val otherLength: int = HashSetAutomaton(other).length;
 
-                if (this.length == otherLength)
+                if (action MAP_SIZE(this.storage) == action MAP_SIZE(otherStorage))
                     result = action OBJECT_EQUALS(this.storage, otherStorage);
                 else
                     result = false;
@@ -348,10 +334,10 @@ automaton HashSetAutomaton
         val expectedModCount: int = this.modCount;
         val otherSize: int = action CALL_METHOD(c, "size", []);
         val iter: Iterator = action CALL_METHOD(c, "iterator", []);
-        val lengthBeforeRemoving: int = this.length;
+        val lengthBeforeRemoving: int = action MAP_SIZE(this.storage);
         var i: int = 0;
 
-        if (this.length > otherSize)
+        if (action MAP_SIZE(this.storage) > otherSize)
         {
             action LOOP_WHILE(
                 action CALL_METHOD(iter, "hasNext", []),
@@ -363,7 +349,7 @@ automaton HashSetAutomaton
             val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
 
             action LOOP_WHILE(
-                i < this.length,
+                i < action MAP_SIZE(this.storage),
                 _removeAllElements_loop_indirect(i, c, unseenKeys)
             );
         }
@@ -371,20 +357,16 @@ automaton HashSetAutomaton
         _checkForComodification(expectedModCount);
         this.modCount += 1;
         // If length changed, it means that at least one element was deleted
-        result = lengthBeforeRemoving != this.length;
+        result = lengthBeforeRemoving != action MAP_SIZE(this.storage);
     }
 
 
     @Phantom proc removeAllElements_loop_direct (iter: Iterator): void
     {
         val key: Object = action CALL_METHOD(iter, "next", []);
-        val isKeyExist: boolean = action MAP_HAS_KEY(this.storage, key);
 
-        if (isKeyExist)
-        {
+        if (action MAP_HAS_KEY(this.storage, key))
             action MAP_REMOVE(this.storage, key);
-            this.length -= 1;
-        }
     }
 
 
@@ -393,13 +375,8 @@ automaton HashSetAutomaton
         val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
         action MAP_REMOVE(unseenKeys, key);
 
-        val isCollectionContainsKey: boolean = action CALL_METHOD(c, "contains", [key]);
-
-        if (isCollectionContainsKey)
-        {
+        if (action CALL_METHOD(c, "contains", [key]))
             action MAP_REMOVE(this.storage, key);
-            this.length -= 1;
-        }
 
         i += 1;
     }
@@ -407,7 +384,7 @@ automaton HashSetAutomaton
 
     fun *.toArray (@target self: HashSet): array<Object>
     {
-        val len: int = this.length;
+        val len: int = action MAP_SIZE(this.storage);
         result = action ARRAY_NEW("java.lang.Object", len);
         val expectedModCount: int = this.modCount;
         val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
@@ -435,7 +412,7 @@ automaton HashSetAutomaton
     {
         val expectedModCount: int = this.modCount;
         val aLen: int = action ARRAY_SIZE(a);
-        val len: int = this.length;
+        val len: int = action MAP_SIZE(this.storage);
         val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
         var i: int = 0;
 
@@ -449,8 +426,8 @@ automaton HashSetAutomaton
             toArray_loop(i, unseenKeys, result)
         );
 
-        if (aLen > this.length)
-            result[this.length] = null;
+        if (aLen > len)
+            result[len] = null;
 
         _checkForComodification(expectedModCount);
     }
@@ -461,7 +438,7 @@ automaton HashSetAutomaton
         if (generator == null)
             _throwNPE();
 
-        val len: int = this.length;
+        val len: int = action MAP_SIZE(this.storage);
         result = action CALL(generator, [0]) as array<Object>;
         val expectedModCount: int = this.modCount;
         val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
@@ -515,7 +492,7 @@ automaton HashSetAutomaton
         if (c == null)
             _throwNPE();
 
-        val lengthBeforeAdd: int = this.length;
+        val lengthBeforeAdd: int = action MAP_SIZE(this.storage);
         val iter: Iterator = action CALL_METHOD(c, "iterator", []);
 
         action LOOP_WHILE(
@@ -523,7 +500,7 @@ automaton HashSetAutomaton
             _retainAllElements_loop(iter)
         );
 
-        if (lengthBeforeAdd != this.length)
+        if (lengthBeforeAdd != action MAP_SIZE(this.storage))
         {
             this.modCount += 1;
             result = true;
@@ -538,13 +515,9 @@ automaton HashSetAutomaton
     @Phantom proc _retainAllElements_loop(iter: Iterator): void
     {
         val key: Object = action CALL_METHOD(iter, "next", []);
-        val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);
 
-        if (!hasKey)
-        {
+        if (action MAP_HAS_KEY(this.storage, key) == false)
             action MAP_REMOVE(this.storage, key);
-            this.length -= 1;
-        }
     }
 
 
@@ -553,7 +526,7 @@ automaton HashSetAutomaton
         if (filter == null)
             _throwNPE();
 
-        val lengthBeforeAdd: int = this.length;
+        val lengthBeforeAdd: int = action MAP_SIZE(this.storage);
         val expectedModCount: int = this.modCount;
         var i: int = 0;
         val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
@@ -564,7 +537,7 @@ automaton HashSetAutomaton
         );
 
         _checkForComodification(expectedModCount);
-        if (lengthBeforeAdd != this.length)
+        if (lengthBeforeAdd != action MAP_SIZE(this.storage))
         {
             this.modCount += 1;
             result = true;
@@ -581,13 +554,8 @@ automaton HashSetAutomaton
         val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
         action MAP_REMOVE(unseenKeys, key);
 
-        var isDelete: boolean = action CALL(filter, [key]);
-
-        if(isDelete)
-        {
+        if(action CALL(filter, [key]))
             action MAP_REMOVE(this.storage, key);
-            this.length -= 1;
-        }
 
         i += 1;
     }
@@ -599,11 +567,12 @@ automaton HashSetAutomaton
             _throwNPE();
 
         var i: int = 0;
+        val count: int = action MAP_SIZE(this.storage);
         val expectedModCount: int = this.modCount;
         val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
 
         action LOOP_WHILE(
-            i < this.length,
+            i < count,
             forEach_loop(i, unseenKeys, userAction)
         );
 

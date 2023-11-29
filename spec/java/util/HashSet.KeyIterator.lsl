@@ -74,7 +74,9 @@ automaton HashSet_KeyIteratorAutomaton
     fun *.hasNext (@target self: HashSet_KeyIterator): boolean
     {
         action ASSUME(this.parent != null);
-        val length: int = HashSetAutomaton(this.parent).length;
+
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        val length: int = action MAP_SIZE(parentStorage);
         result = this.index < length;
     }
 
@@ -84,7 +86,8 @@ automaton HashSet_KeyIteratorAutomaton
         action ASSUME(this.parent != null);
         _checkForComodification();
 
-        val length: int = HashSetAutomaton(this.parent).length;
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        val length: int = action MAP_SIZE(parentStorage);
         val atValidPosition: boolean = this.index < length;
         if (!atValidPosition)
             action THROW_NEW("java.util.NoSuchElementException", []);
@@ -105,7 +108,8 @@ automaton HashSet_KeyIteratorAutomaton
     {
         action ASSUME(this.parent != null);
 
-        val length: int = HashSetAutomaton(this.parent).length;
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        val length: int = action MAP_SIZE(parentStorage);
         val atValidPosition: boolean = this.index < length;
         if (!atValidPosition || !this.nextWasCalled)
             action THROW_NEW("java.lang.IllegalStateException", []);
@@ -114,7 +118,6 @@ automaton HashSet_KeyIteratorAutomaton
 
         _checkForComodification();
 
-        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
         action MAP_REMOVE(parentStorage, this.currentKey);
 
         this.expectedModCount = HashSetAutomaton(this.parent).modCount;
@@ -128,7 +131,8 @@ automaton HashSet_KeyIteratorAutomaton
         if (userAction == null)
             action THROW_NEW("java.lang.NullPointerException", []);
 
-        val length: int = HashSetAutomaton(this.parent).length;
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        val length: int = action MAP_SIZE(parentStorage);
         var i: int = this.index;
 
         action LOOP_WHILE(
