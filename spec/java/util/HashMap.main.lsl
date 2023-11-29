@@ -223,13 +223,36 @@ automaton HashMapAutomaton
 
     fun *.containsKey (@target self: HashMap, key: Object): boolean
     {
-        action TODO();
+        if (this.length == 0)
+            result = false;
+        else
+            result = action MAP_HAS_KEY(this.storage, key);
     }
 
 
     fun *.containsValue (@target self: HashMap, value: Object): boolean
     {
-        action TODO();
+        result = false;
+        if (this.length != 0)
+        {
+            val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+            var i: int = 0;
+            action LOOP_WHILE(
+                result != true,
+                _containsValue_loop(result, storageCopy, value)
+            );
+        }
+    }
+
+
+    @Phantom proc _containsValue_loop (result: boolean, storageCopy: map<Object, Object>, value: Object): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val curValue: Object = action MAP_GET(storageCopy, curKey);
+        if (action OBJECT_EQUALS(curValue, value))
+            result = true;
+        else
+            action MAP_REMOVE(storageCopy, curKey);
     }
 
 
