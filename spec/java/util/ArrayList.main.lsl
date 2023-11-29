@@ -7,6 +7,8 @@ library std
 
 // imports
 
+import java/util/stream/Stream;
+
 import java/util/ArrayList;
 
 
@@ -339,10 +341,28 @@ automaton ArrayListAutomaton
 
     proc _makeStream (parallel: boolean): Stream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
-        action ASSUME(action CALL_METHOD(result, "isParallel", []) == parallel);
+        val count: int = action LIST_SIZE(this.storage);
+        val items: array<Object> = action ARRAY_NEW("java.lang.Object", count);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, count, +1,
+            _makeStream_loop(i, items)
+        );
+
+        // #problem: unable to catch concurrent modifications during stream processing
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = items,
+            length = count,
+            closeHandlers = action LIST_NEW(),
+            isParallel = parallel,
+        );
+    }
+
+    @Phantom proc _makeStream_loop (i: int, items: array<Object>): void
+    {
+        items[i] = action LIST_GET(this.storage, i);
     }
 
 

@@ -9,13 +9,15 @@ library std
 // imports
 
 import java/lang/Object;
-import java/util/HashSet;
 import java/util/function/IntFunction;
 import java/util/function/Consumer;
 import java/util/function/Predicate;
 import java/util/Collection;
 import java/util/Iterator;
 import java/util/Spliterator;
+import java/util/stream/Stream;
+
+import java/util/HashSet;
 
 
 // automata
@@ -118,6 +120,38 @@ automaton HashSetAutomaton
     @AutoInline @Phantom proc _throwNPE (): void
     {
         action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
+    proc _makeStream (parallel: boolean): Stream
+    {
+        val unseen: map<Object, Object> = action MAP_CLONE(this.storage);
+
+        val count: int = action MAP_SIZE(unseen);
+        val items: array<Object> = action ARRAY_NEW("java.lang.Object", count);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, count, +1,
+            _makeStream_loop(i, items, unseen)
+        );
+
+        // #problem: unable to catch concurrent modifications during stream processing
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = items,
+            length = count,
+            closeHandlers = action LIST_NEW(),
+            isParallel = parallel,
+        );
+    }
+
+    @Phantom proc _makeStream_loop (i: int, items: array<Object>, unseen: map<Object, Object>): void
+    {
+        val key: Object = action MAP_GET_ANY_KEY(unseen);
+        action MAP_REMOVE(unseen, key);
+
+        items[i] = key;
     }
 
 
@@ -591,18 +625,14 @@ automaton HashSetAutomaton
     // within java.util.Collection
     fun *.stream (@target self: HashSet): Stream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
+        result = _makeStream(/* parallel = */ false);
     }
 
 
     // within java.util.Collection
     fun *.parallelStream (@target self: HashSet): Stream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
+        result = _makeStream(/* parallel = */ true);
     }
 
 
