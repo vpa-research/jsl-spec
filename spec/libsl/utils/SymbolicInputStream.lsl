@@ -1,3 +1,4 @@
+//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -15,7 +16,7 @@ import java/io/InputStream;
 @GenerateMe
 @extends("java.io.InputStream")
 @public @final type SymbolicInputStream
-    is runtime.utils.SymbolicInputStream
+    is `libsl.utils.SymbolicInputStream`
     for InputStream
 {
 }

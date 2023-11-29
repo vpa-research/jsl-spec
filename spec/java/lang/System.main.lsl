@@ -24,7 +24,7 @@ import sun/misc/VM; // #problem: does not exist in Java-11
 
 import java/lang/System;
 
-import runtime/utils/SymbolicInputStream;
+import libsl/utils/SymbolicInputStream;
 
 
 // automata

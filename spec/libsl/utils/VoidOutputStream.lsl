@@ -16,7 +16,7 @@ import java/io/OutputStream;
 @GenerateMe
 @extends("java.io.OutputStream")
 @public @final type VoidOutputStream
-    is java.io.OutputStream$Void
+    is `libsl.utils.VoidOutputStream`
     for OutputStream
 {
 }

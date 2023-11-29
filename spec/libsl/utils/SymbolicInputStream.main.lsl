@@ -7,7 +7,7 @@ library std
 
 // imports
 
-import runtime/utils/SymbolicInputStream;
+import libsl/utils/SymbolicInputStream;
 
 
 // automata

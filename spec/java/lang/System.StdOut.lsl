@@ -13,7 +13,7 @@ import java/lang/String;
 import java/util/Locale;
 
 import java/lang/System;
-import runtime/utils/VoidOutputStream;
+import libsl/utils/VoidOutputStream;
 
 
 // automata

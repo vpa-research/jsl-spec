@@ -48,7 +48,7 @@ automaton ObjectAutomaton
 
     @Phantom constructor *.LSLObject (@target self: LSLObject)
     {
-        // NOTE: using the original method
+        // WARNING: Using the original method here. Do not change! (infinite recursion otherwise)
     }
 
 

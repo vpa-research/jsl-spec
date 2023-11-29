@@ -16,7 +16,7 @@ import java/io/InputStream;
 @GenerateMe
 @extends("java.io.InputStream")
 @public @final type VoidInputStream
-    is java.io.InputStream$Void
+    is `libsl.utils.VoldInputStream`
     for InputStream
 {
 }
