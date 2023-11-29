@@ -63,6 +63,75 @@ automaton RandomAutomaton
 
     // utilities
 
+    @AutoInline @Phantom proc _throwIAE (): void
+    {
+        action THROW_NEW("java.lang.IllegalArgumentException", []);
+    }
+
+
+    @static proc _nextBytes (result: array<byte>, numBytes: int): void
+    {
+        val symbolicArray: array<byte> = action SYMBOLIC_ARRAY("byte", numBytes);
+        action ARRAY_COPY(symbolicArray, 0, result, 0, numBytes);
+    }
+
+
+    proc _generateRandomIntegerArrayWithBounds (size: int, randomNumberOrigin: int, randomNumberBound: int): array<int>
+    {
+        result = action SYMBOLIC_ARRAY("int", size);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, size, +1,
+            checkIntBounds_loop(i, result, randomNumberOrigin, randomNumberBound)
+        );
+    }
+
+
+    @Phantom proc checkIntBounds_loop (i: int, result: array<int>, randomNumberOrigin: int, randomNumberBound: int): void
+    {
+        action ASSUME(result[i] >= randomNumberOrigin);
+        action ASSUME(result[i] < randomNumberBound);
+    }
+
+
+    proc _generateRandomLongArrayWithBounds (size: int, randomNumberOrigin: long, randomNumberBound: long): array<long>
+    {
+        result = action SYMBOLIC_ARRAY("long", size);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, size, +1,
+            checkLongBounds_loop(i, result, randomNumberOrigin, randomNumberBound)
+        );
+    }
+
+
+    @Phantom proc checkLongBounds_loop (i: int, result: array<long>, randomNumberOrigin: long, randomNumberBound: long): void
+    {
+        action ASSUME(result[i] >= randomNumberOrigin);
+        action ASSUME(result[i] < randomNumberBound);
+    }
+
+
+    proc _generateRandomDoubleArrayWithBounds (size: int, randomNumberOrigin: double, randomNumberBound: double): array<double>
+    {
+        result = action SYMBOLIC_ARRAY("double", size);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, size, +1,
+            checkDoubleBounds_loop(i, result, randomNumberOrigin, randomNumberBound)
+        );
+    }
+
+
+    @Phantom proc checkDoubleBounds_loop (i: int, result: array<double>, randomNumberOrigin: double, randomNumberBound: double): void
+    {
+        val item: double = result[i];
+        action ASSUME(item == item);
+        action ASSUME(item >= randomNumberOrigin);
+        action ASSUME(item < randomNumberBound);
+    }
+
+
     // constructors
 
     constructor *.Random (@target self: Random)
@@ -83,97 +152,175 @@ automaton RandomAutomaton
 
     fun *.doubles (@target self: Random): DoubleStream
     {
-        // #problem: no streams yet
-        result = action SYMBOLIC("java.util.stream.DoubleStream");
-        action ASSUME(result != null);
+        result = new DoubleStreamAutomaton(state = Initialized,
+            storage = _generateRandomDoubleArrayWithBounds(MAX_RANDOM_STREAM_SIZE, 0, 1),
+            length = MAX_RANDOM_STREAM_SIZE,
+            closeHandlers = action LIST_NEW(),
+        );
     }
 
 
     fun *.doubles (@target self: Random, randomNumberOrigin: double, randomNumberBound: double): DoubleStream
     {
-        // #problem: no streams yet
-        result = action SYMBOLIC("java.util.stream.DoubleStream");
-        action ASSUME(result != null);
+        if (randomNumberOrigin >= randomNumberBound)
+            _throwIAE();
+        result = new DoubleStreamAutomaton(state = Initialized,
+            storage = _generateRandomDoubleArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound),
+            length = MAX_RANDOM_STREAM_SIZE,
+            closeHandlers = action LIST_NEW(),
+        );
     }
 
 
     fun *.doubles (@target self: Random, streamSize: long): DoubleStream
     {
-        // #problem: no streams yet
-        result = action SYMBOLIC("java.util.stream.DoubleStream");
-        action ASSUME(result != null);
+        var size: int = streamSize as int;
+        if (size < 0)
+            _throwIAE();
+        // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
+        if (size > MAX_RANDOM_STREAM_SIZE)
+            size = MAX_RANDOM_STREAM_SIZE;
+
+        result = new DoubleStreamAutomaton(state = Initialized,
+            storage = action SYMBOLIC_ARRAY("double", size),
+            length = size,
+            closeHandlers = action LIST_NEW(),
+        );
     }
 
 
     fun *.doubles (@target self: Random, streamSize: long, randomNumberOrigin: double, randomNumberBound: double): DoubleStream
     {
-        // #problem: no streams yet
-        result = action SYMBOLIC("java.util.stream.DoubleStream");
-        action ASSUME(result != null);
+        var size: int = streamSize as int;
+        if (size < 0)
+            _throwIAE();
+        if (randomNumberOrigin >= randomNumberBound)
+            _throwIAE();
+        // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
+        if (size > MAX_RANDOM_STREAM_SIZE)
+            size = MAX_RANDOM_STREAM_SIZE;
+
+        result = new DoubleStreamAutomaton(state = Initialized,
+            storage = _generateRandomDoubleArrayWithBounds(size, randomNumberOrigin, randomNumberBound),
+            length = size,
+            closeHandlers = action LIST_NEW(),
+        );
     }
 
 
     fun *.ints (@target self: Random): IntStream
     {
-        // #problem: no streams yet
-        result = action SYMBOLIC("java.util.stream.IntStream");
-        action ASSUME(result != null);
+        result = new IntStreamAutomaton(state = Initialized,
+            storage = action SYMBOLIC_ARRAY("int", MAX_RANDOM_STREAM_SIZE),
+            length = MAX_RANDOM_STREAM_SIZE,
+            closeHandlers = action LIST_NEW(),
+        );
     }
 
 
     fun *.ints (@target self: Random, randomNumberOrigin: int, randomNumberBound: int): IntStream
     {
-        // #problem: no streams yet
-        result = action SYMBOLIC("java.util.stream.IntStream");
-        action ASSUME(result != null);
+        if (randomNumberOrigin >= randomNumberBound)
+            _throwIAE();
+        result = new IntStreamAutomaton(state = Initialized,
+            storage = _generateRandomIntegerArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound),
+            length = MAX_RANDOM_STREAM_SIZE,
+            closeHandlers = action LIST_NEW(),
+        );
     }
 
 
     fun *.ints (@target self: Random, streamSize: long): IntStream
     {
-        // #problem: no streams yet
-        result = action SYMBOLIC("java.util.stream.IntStream");
-        action ASSUME(result != null);
+        var size: int = streamSize as int;
+        if (size < 0)
+            _throwIAE();
+        // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
+        if (size > MAX_RANDOM_STREAM_SIZE)
+            size = MAX_RANDOM_STREAM_SIZE;
+
+        result = new IntStreamAutomaton(state = Initialized,
+            storage = action SYMBOLIC_ARRAY("int", size),
+            length = size,
+            closeHandlers = action LIST_NEW(),
+        );
     }
 
 
     fun *.ints (@target self: Random, streamSize: long, randomNumberOrigin: int, randomNumberBound: int): IntStream
     {
-        // #problem: no streams yet
-        result = action SYMBOLIC("java.util.stream.IntStream");
-        action ASSUME(result != null);
+        var size: int = streamSize as int;
+        if (size < 0)
+            _throwIAE();
+        if (randomNumberOrigin >= randomNumberBound)
+            _throwIAE();
+        // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
+        if (size > MAX_RANDOM_STREAM_SIZE)
+            size = MAX_RANDOM_STREAM_SIZE;
+
+        result = new IntStreamAutomaton(state = Initialized,
+            storage = _generateRandomIntegerArrayWithBounds(size, randomNumberOrigin, randomNumberBound),
+            length = size,
+            closeHandlers = action LIST_NEW(),
+        );
     }
 
 
     fun *.longs (@target self: Random): LongStream
     {
-        // #problem: no streams yet
-        result = action SYMBOLIC("java.util.stream.LongStream");
-        action ASSUME(result != null);
+        result = new LongStreamAutomaton(state = Initialized,
+            storage = action SYMBOLIC_ARRAY("long", MAX_RANDOM_STREAM_SIZE),
+            length = MAX_RANDOM_STREAM_SIZE,
+            closeHandlers = action LIST_NEW(),
+        );
     }
 
 
     fun *.longs (@target self: Random, streamSize: long): LongStream
     {
-        // #problem: no streams yet
-        result = action SYMBOLIC("java.util.stream.LongStream");
-        action ASSUME(result != null);
+        var size: int = streamSize as int;
+        if (size < 0)
+            _throwIAE();
+        // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
+        if (size > MAX_RANDOM_STREAM_SIZE)
+            size = MAX_RANDOM_STREAM_SIZE;
+
+        result = new LongStreamAutomaton(state = Initialized,
+            storage = action SYMBOLIC_ARRAY("long", size),
+            length = size,
+            closeHandlers = action LIST_NEW(),
+        );
     }
 
 
     fun *.longs (@target self: Random, randomNumberOrigin: long, randomNumberBound: long): LongStream
     {
-        // #problem: no streams yet
-        result = action SYMBOLIC("java.util.stream.LongStream");
-        action ASSUME(result != null);
+        if (randomNumberOrigin >= randomNumberBound)
+            _throwIAE();
+        result = new LongStreamAutomaton(state = Initialized,
+            storage = _generateRandomLongArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound),
+            length = MAX_RANDOM_STREAM_SIZE,
+            closeHandlers = action LIST_NEW(),
+        );
     }
 
 
     fun *.longs (@target self: Random, streamSize: long, randomNumberOrigin: long, randomNumberBound: long): LongStream
     {
-        // #problem: no streams yet
-        result = action SYMBOLIC("java.util.stream.LongStream");
-        action ASSUME(result != null);
+        var size: int = streamSize as int;
+        if (size < 0)
+            _throwIAE();
+        if (randomNumberOrigin >= randomNumberBound)
+            _throwIAE();
+        // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
+        if (size > MAX_RANDOM_STREAM_SIZE)
+            size = MAX_RANDOM_STREAM_SIZE;
+
+        result = new LongStreamAutomaton(state = Initialized,
+            storage = _generateRandomLongArrayWithBounds(size, randomNumberOrigin, randomNumberBound),
+            length = size,
+            closeHandlers = action LIST_NEW(),
+        );
     }
 
 
@@ -185,18 +332,7 @@ automaton RandomAutomaton
 
     fun *.nextBytes (@target self: Random, bytes: array<byte>): void
     {
-        // #question: is there a more efficient way?
-        val size: int = action ARRAY_SIZE(bytes);
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, size, +1,
-            nextBytes_loop(i, bytes)
-        );
-    }
-
-    @Phantom proc nextBytes_loop (i: int, bytes: array<byte>): void
-    {
-        bytes[i] = action SYMBOLIC("byte");
+        _nextBytes(bytes, action ARRAY_SIZE(bytes));
     }
 
 

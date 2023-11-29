@@ -8,6 +8,9 @@ library std
 
 // imports
 
+import java/io/Serializable;
+import java/lang/Cloneable;
+import java/util/Dictionary;
 import java/util/Map;
 
 
@@ -15,7 +18,7 @@ import java/util/Map;
 
 type Hashtable
     is java.util.Hashtable
-    for Map // #todo: add Dictionary and other things
+    for Dictionary, Map, Cloneable, Serializable
 {
 }
 
