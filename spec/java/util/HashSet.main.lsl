@@ -201,10 +201,8 @@ automaton HashSetAutomaton
 
     fun *.clone (@target self: HashSet): Object
     {
-        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
-
         result = new HashSetAutomaton(state = Initialized,
-            storage = storageCopy,
+            storage = action MAP_CLONE(this.storage)
         );
     }
 
@@ -296,8 +294,7 @@ automaton HashSetAutomaton
         }
         else
         {
-            val isSameType: boolean = action OBJECT_SAME_TYPE(self, other);
-            if (isSameType)
+            if (other has HashSetAutomaton)
             {
                 val expectedModCount: int = this.modCount;
                 val otherExpectedModCount: int = HashSetAutomaton(other).modCount;
