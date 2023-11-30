@@ -414,13 +414,34 @@ automaton HashMapAutomaton
 
     fun *.remove (@target self: HashMap, key: Object): Object
     {
-        action TODO();
+        if (action MAP_HAS_KEY(this.storage, key))
+        {
+            result = action MAP_GET(this.storage, key);
+            action MAP_REMOVE(this.storage, key);
+            this.modCount += 1;
+        }
+        else
+        {
+            result = null;
+        }
     }
 
 
     fun *.remove (@target self: HashMap, key: Object, value: Object): boolean
     {
-        action TODO();
+        result = false;
+
+        if (action MAP_HAS_KEY(this.storage, key))
+        {
+            val curValue: Object = action MAP_GET(this.storage, key);
+            // #question: It will throw NPE if curValue == null and value == null ? Or not ?
+            if (action OBJECT_EQUALS(curValue, value))
+            {
+                action MAP_REMOVE(this.storage, key);
+                this.modCount += 1;
+                result = true;
+            }
+        }
     }
 
 
