@@ -400,7 +400,38 @@ automaton HashMapAutomaton
 
     fun *.merge (@target self: HashMap, key: Object, value: Object, remappingFunction: BiFunction): Object
     {
-        action TODO();
+        if (value == null)
+            _throwNPE();
+
+        if (remappingFunction == null)
+            _throwNPE();
+
+        val oldValue: Object = _getMappingOrDefault(key, null);
+        var newValue: Object = value;
+        if (oldValue != null)
+        {
+            val expectedModCount: int = this.modCount;
+            newValue= action CALL(remappingFunction, [oldValue, newValue]);
+            _checkForComodification(expectedModCount);
+            if (newValue == null)
+            {
+                result = action MAP_GET(this.storage, key);
+                action MAP_REMOVE(this.storage, key);
+            }
+            else
+            {
+                action MAP_SET(this.storage, key, newValue);
+            }
+
+            this.modCount += 1;
+            result = newValue;
+        }
+        else
+        {
+            action MAP_SET(this.storage, key, value);
+            this.modCount += 1;
+            result = value;
+        }
     }
 
 
