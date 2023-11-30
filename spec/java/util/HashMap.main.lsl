@@ -472,19 +472,59 @@ automaton HashMapAutomaton
 
     fun *.replace (@target self: HashMap, key: Object, value: Object): Object
     {
-        action TODO();
+        result = null;
+        if (action MAP_HAS_KEY(this.storage, key))
+        {
+            result = action MAP_GET(this.storage, key);
+            action MAP_SET(this.storage, key, value);
+        }
     }
 
 
     fun *.replace (@target self: HashMap, key: Object, oldValue: Object, newValue: Object): boolean
     {
-        action TODO();
+        result = false;
+        if (action MAP_HAS_KEY(this.storage, key))
+        {
+            val curValue: Object = action MAP_GET(this.storage, key);
+            // #question: It will throw NPE if curValue == null and oldValue == null ? Or not ?
+            if (action OBJECT_EQUALS(curValue, oldValue))
+            {
+                action MAP_SET(this.storage, key, newValue);
+                result = true;
+            }
+        }
     }
 
 
     fun *.replaceAll (@target self: HashMap, function: BiFunction): void
     {
-        action TODO();
+        if (function == null)
+            _throwNPE();
+
+        val thisSize: int = action MAP_SIZE(this.storage);
+        if (thisSize > 0)
+        {
+            // #question: this is deepClone ? Or references are equal in both maps ?
+            // #note: this realization suggests that references are equal
+            val storageClone: map<Object, Object> = action MAP_CLONE(this.storage);
+            val expectedModCount: int = this.modCount;
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, thisSize, +1,
+                replaceAll_loop(storageClone, function)
+            );
+            _checkForComodification(expectedModCount);
+        }
+    }
+
+
+    @Phantom proc replaceAll_loop (storageClone: map<Object, Object>, function: BiFunction): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageClone);
+        val curValue: Object = action MAP_GET(storageClone, curKey);
+        action CALL(function, [curKey, curValue]);
+        action MAP_REMOVE(storageClone, curKey);
     }
 
 
