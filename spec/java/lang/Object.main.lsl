@@ -94,8 +94,8 @@ automaton ObjectAutomaton
 
     fun *.toString (@target self: LSLObject): String
     {
-        result = action SYMBOLIC("java.lang.String");
-        action ASSUME(result != null);
+        // #todo: use class name and a random hex string
+        result = "java.lang.Object@735b5592";
     }
 
 

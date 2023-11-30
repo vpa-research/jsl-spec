@@ -655,6 +655,38 @@ automaton HashSetAutomaton
     // within java.util.AbstractCollection
     fun *.toString (@target self: HashSet): String
     {
-        result = action OBJECT_TO_STRING(this.storage);
+        val items: map<Object, Object> = this.storage;
+        var count: int = action MAP_SIZE(items);
+
+        if (count == 0)
+        {
+            result = "[]";
+        }
+        else
+        {
+            action ASSUME(count > 0);
+
+            result = "[";
+
+            val unseen: map<Object, Object> = action MAP_CLONE(items);
+            action LOOP_WHILE(
+                count != 0,
+                toString_loop(unseen, count, result)
+            );
+
+            result += "]";
+        }
+    }
+
+    @Phantom proc toString_loop (unseen: map<Object, Object>, count: int, result: String): void
+    {
+        val key: Object = action MAP_GET_ANY_KEY(unseen);
+        action MAP_REMOVE(unseen, key);
+
+        result += action OBJECT_TO_STRING(key);
+
+        if (count > 1)
+            result += ", ";
+        count -= 1;
     }
 }
