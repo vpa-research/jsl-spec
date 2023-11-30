@@ -337,7 +337,32 @@ automaton HashMapAutomaton
 
     fun *.forEach (@target self: HashMap, _action: BiConsumer): void
     {
-        action TODO();
+        if (_action == null)
+            _throwNPE();
+
+        val thisSize: int = action MAP_SIZE(this.storage);
+        if (thisSize > 0)
+        {
+            // #question: this is deepClone ? Or references are equal in both maps ?
+            // #note: this realization suggests that references are equal
+            val storageClone: map<Object, Object> = action MAP_CLONE(this.storage);
+            val expectedModCount: int = this.modCount;
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, thisSize, +1,
+                forEach_loop(storageClone, _action)
+            );
+            _checkForComodification(expectedModCount);
+        }
+    }
+
+
+    @Phantom proc forEach_loop (storageClone: map<Object, Object>, _action: BiConsumer): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageClone);
+        val curValue: Object = action MAP_GET(storageClone, curKey);
+        action CALL(_action, [curKey, curValue]);
+        action MAP_REMOVE(storageClone, curKey);
     }
 
 
