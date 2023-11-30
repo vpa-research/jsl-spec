@@ -294,9 +294,34 @@ automaton HashMapAutomaton
 
 
     // within java.util.AbstractMap
-    fun *.equals (@target self: HashMap, o: Object): boolean
+    fun *.equals (@target self: HashMap, other: Object): boolean
     {
-        action TODO();
+        if (other == self)
+        {
+            result = true;
+        }
+        else
+        {
+            val isSameType: boolean = action OBJECT_SAME_TYPE(self, other);
+            if (isSameType)
+            {
+                val expectedModCount: int = this.modCount;
+                val otherExpectedModCount: int = HashMapAutomaton(other).modCount;
+
+                val otherStorage: map<Object, Object> = HashSetAutomaton(other).storage;
+                val otherLength: int = action MAP_SIZE(otherStorage);
+                val thisLength: int = action MAP_SIZE(this.storage);
+
+                if (thisLength == otherLength)
+                    result = action OBJECT_EQUALS(this.storage, otherStorage);
+                else
+                    result = false;
+            }
+            else
+            {
+                result = false;
+            }
+        }
     }
 
 
@@ -321,7 +346,8 @@ automaton HashMapAutomaton
     // within java.util.AbstractMap
     fun *.hashCode (@target self: HashMap): int
     {
-        action TODO();
+        // #question: Can we make such realization ? Or we need such realization: "result = hKey ^ hValue;" ?
+        result = action OBJECT_HASH_CODE(this.storage);
     }
 
 
@@ -400,7 +426,8 @@ automaton HashMapAutomaton
     // within java.util.AbstractMap
     fun *.toString (@target self: HashMap): String
     {
-        action TODO();
+        // #question: Can we make such realization ? Or we need such realization: "key + "=" + value" ?
+        result = action OBJECT_TO_STRING(this.storage);
     }
 
 
