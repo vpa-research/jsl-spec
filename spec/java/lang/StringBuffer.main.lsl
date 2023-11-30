@@ -1,4 +1,3 @@
-///#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -10,6 +9,7 @@ library std
 
 import java/lang/Character;
 import java/lang/StringBuffer;
+import java/lang/Runnable;
 
 
 // automata
@@ -268,8 +268,8 @@ automaton StringBufferAutomaton
 
     @Phantom proc _insertSequence_loop(i: int, arrayIndex: int, newStr: array<char>, s: CharSequence): void
     {
-            newStr[arrayIndex] = action CALL_METHOD(s, "charAt", [i]);
-            arrayIndex += 1;
+        newStr[arrayIndex] = action CALL_METHOD(s, "charAt", [i]);
+        arrayIndex += 1;
     }
 
 
@@ -280,17 +280,19 @@ automaton StringBufferAutomaton
         val newStr: array<char> = action ARRAY_NEW("char", sizeNewString);
 
         var i: int = 0;
+        var newStr_i: int = 0;
         action LOOP_FOR(
             i, start, end, +1,
-            _newSubString_loop(i, newStr)
+            _newSubString_loop(i, newStr, newStr_i)
         );
         result = action OBJECT_TO_STRING(newStr);
     }
 
 
-    @Phantom proc _newSubString_loop (i: int, newStr: array<char>): void
+    @Phantom proc _newSubString_loop (i: int, newStr: array<char>, newStr_i: int): void
     {
-        newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
+        newStr[newStr_i] = action CALL_METHOD(this.storage, "charAt", [i]);
+        newStr_i += 1;
     }
 
     // constructors
@@ -337,14 +339,15 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.append (@target self: StringBuffer, seq: CharSequence, start: int, end: int): StringBuffer
+    @synchronized fun *.append (@target self: StringBuffer, s: CharSequence, start: int, end: int): StringBuffer
     {
         var seqLength: int = 4;
-        if (seq == null)
-            seq = "null";
-
-        seqLength = action CALL_METHOD(seq, "length", []);
-
+        var seq: String = "null";
+        if (s != null)
+        {
+            seq = s;
+            seqLength = action CALL_METHOD(s, "length", []);
+        }
         _checkRange(start, end, seqLength);
         this.length += end - start;
 
@@ -365,12 +368,12 @@ automaton StringBufferAutomaton
             this.storage += "null";
             this.length += 4;
         }
-            else
-            {
-                val objString: String = action OBJECT_TO_STRING(obj);
-                this.storage += objString;
-                this.length += action CALL_METHOD(objString, "length", []);
-            }
+        else
+        {
+            val objString: String = action OBJECT_TO_STRING(obj);
+            this.storage += objString;
+            this.length += action CALL_METHOD(objString, "length", []);
+        }
         result = self;
     }
 
@@ -540,9 +543,27 @@ automaton StringBufferAutomaton
     // within java.lang.AbstractStringBuilder
     fun *.chars (@target self: StringBuffer): IntStream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.IntStream");
-        action ASSUME(result != null);
+        var intStorage: array<int> = action ARRAY_NEW("int", this.length);
+        var storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _toIntArray_loop(i, intStorage, storageChars)
+        );
+
+        val handlers: list<Runnable> = action LIST_NEW();
+        result = new IntStreamAutomaton(state = Initialized,
+                                        storage = intStorage,
+                                        length = this.length,
+                                        closeHandlers = handlers
+                                       );
+    }
+
+
+    @Phantom proc _toIntArray_loop(i: int, intStorage: array<int>, storageChars: array<char>): void
+    {
+        intStorage[i] = storageChars[i] as int;
     }
 
 
@@ -575,9 +596,21 @@ automaton StringBufferAutomaton
     // within java.lang.AbstractStringBuilder
     fun *.codePoints (@target self: StringBuffer): IntStream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.IntStream");
-        action ASSUME(result != null);
+        var intStorage: array<int> = action ARRAY_NEW("int", this.length);
+        var storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _toIntArray_loop(i, intStorage, storageChars)
+        );
+
+        val handlers: list<Runnable> = action LIST_NEW();
+        result = new IntStreamAutomaton(state = Initialized,
+                                        storage = intStorage,
+                                        length = this.length,
+                                        closeHandlers = handlers
+                                       );
     }
 
 
@@ -665,12 +698,13 @@ automaton StringBufferAutomaton
     {
         _checkOffset(dstOffset);
         var len: int = 4;
-        if (s == null)
-            s = "null";
-        else
+        var new_s: String = "null";
+        if (s != null)
+        {
             len = action CALL_METHOD(s, "length", []);
-
-        _insertCharSequence(dstOffset, s, len, 0, len);
+            new_s = s;
+        }
+        _insertCharSequence(dstOffset, new_s, len, 0, len);
 
         result = self;
     }
@@ -680,12 +714,13 @@ automaton StringBufferAutomaton
     {
         _checkOffset(dstOffset);
         var len: int = 4;
-        if (s == null)
-            s = "null";
-        else
+        var new_s: String = "null";
+        if (s != null)
+        {
             len = action CALL_METHOD(s, "length", []);
-
-        _insertCharSequence(dstOffset, s, len, start, end);
+            new_s = s;
+        }
+        _insertCharSequence(dstOffset, new_s, len, start, end);
 
         result = self;
     }
@@ -699,10 +734,10 @@ automaton StringBufferAutomaton
         var len: int = 4;
 
         if (obj != null)
+        {
             s = action OBJECT_TO_STRING(obj);
-        else
             len = action CALL_METHOD(s, "length", []);
-
+        }
         _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
@@ -790,7 +825,7 @@ automaton StringBufferAutomaton
 
         val s: String = action OBJECT_TO_STRING(str);
 
-        _insertCharSequence(index, s, len, offset, offset + len);
+        _insertCharSequence(index, s, lenStr, offset, offset + len);
 
         result = self;
     }
@@ -866,7 +901,9 @@ automaton StringBufferAutomaton
     {
         _checkIndex(index);
 
-        result = action DEBUG_DO("Character.offsetByCodePoints(this.storage, index, codePointOffset)");
+        // result = action DEBUG_DO("Character.offsetByCodePoints(this.storage, index, codePointOffset)"); //current
+
+        result = action CALL_METHOD(null as Character, "offsetByCodePoints", [this.storage, index, codePointOffset]) //need
     }
 
 
@@ -947,10 +984,13 @@ automaton StringBufferAutomaton
             i, 0, index, +1,
             _copyToCharArray_loop(i, arrayIndex, newStr)
         );
+
         newStr[index] = ch;
+        arrayIndex += 1;
+
         action LOOP_FOR(
             i, index + 1, this.length, +1,
-            _copyToCharArray_loop(i, index, newStr)
+            _copyToCharArray_loop(i, arrayIndex, newStr)
         );
 
         this.storage = action OBJECT_TO_STRING(newStr);
