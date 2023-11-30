@@ -343,13 +343,13 @@ automaton HashMapAutomaton
 
     fun *.get (@target self: HashMap, key: Object): Object
     {
-        action TODO();
+        result = _getMappingOrDefault(key, null);
     }
 
 
     fun *.getOrDefault (@target self: HashMap, key: Object, defaultValue: Object): Object
     {
-        action TODO();
+        result = _getMappingOrDefault(key, defaultValue);
     }
 
 
