@@ -166,7 +166,7 @@ automaton LinkedListAutomaton
 
     proc _isValidIndex (index: int, size: int): boolean
     {
-        result = 0 <= index && index < action LIST_SIZE(this.storage);
+        result = 0 <= index && index < size;
     }
 
 
