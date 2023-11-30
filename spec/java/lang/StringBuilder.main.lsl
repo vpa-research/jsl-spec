@@ -11,6 +11,7 @@ library std
 import java/lang/Character;
 import java/lang/StringBuilder;
 import java/lang/StringBuffer;
+import java/lang/Runnable;
 
 
 // automata
@@ -269,8 +270,8 @@ automaton StringBuilderAutomaton
 
     @Phantom proc _insertSequence_loop(i: int, arrayIndex: int, newStr: array<char>, s: CharSequence): void
     {
-            newStr[arrayIndex] = action CALL_METHOD(s, "charAt", [i]);
-            arrayIndex += 1;
+        newStr[arrayIndex] = action CALL_METHOD(s, "charAt", [i]);
+        arrayIndex += 1;
     }
 
 
@@ -281,17 +282,19 @@ automaton StringBuilderAutomaton
         val newStr: array<char> = action ARRAY_NEW("char", sizeNewString);
 
         var i: int = 0;
+        var newStr_i: int = 0;
         action LOOP_FOR(
             i, start, end, +1,
-            _newSubString_loop(i, newStr)
+            _newSubString_loop(i, newStr, newStr_i)
         );
         result = action OBJECT_TO_STRING(newStr);
     }
 
 
-    @Phantom proc _newSubString_loop (i: int, newStr: array<char>): void
+    @Phantom proc _newSubString_loop (i: int, newStr: array<char>, newStr_i: int): void
     {
-        newStr[i] = action CALL_METHOD(this.storage, "charAt", [i]);
+        newStr[newStr_i] = action CALL_METHOD(this.storage, "charAt", [i]);
+        newStr_i += 1;
     }
 
     // constructors
@@ -614,10 +617,10 @@ automaton StringBuilderAutomaton
         var len: int = 4;
 
         if (obj != null)
+        {
             s = action OBJECT_TO_STRING(obj);
-        else
             len = action CALL_METHOD(s, "length", []);
-
+        }
         _insertCharSequence(dstOffset, s, len, 0, len);
 
         result = self;
@@ -759,13 +762,13 @@ automaton StringBuilderAutomaton
 
     fun *.lastIndexOf (@target self: StringBuilder, str: String): int
     {
-        result = action DEBUG_DO("this.storage.lastIndexOf(str)");
+        result = action CALL_METHOD(this.storage, "lastIndexOf", [str]);
     }
 
 
     fun *.lastIndexOf (@target self: StringBuilder, str: String, fromIndex: int): int
     {
-        result = action DEBUG_DO("this.storage.lastIndexOf(str, fromIndex)");
+        result = action CALL_METHOD(this.storage, "lastIndexOf", [str, fromIndex]);
     }
 
 
@@ -938,9 +941,11 @@ automaton StringBuilderAutomaton
             _copyToCharArray_loop(i, arrayIndex, newStr)
         );
         newStr[index] = ch;
+        arrayIndex += 1;
+
         action LOOP_FOR(
             i, index + 1, this.length, +1,
-            _copyToCharArray_loop(i, index, newStr)
+            _copyToCharArray_loop(i, arrayIndex, newStr)
         );
 
         this.storage = action OBJECT_TO_STRING(newStr);
@@ -1007,11 +1012,7 @@ automaton StringBuilderAutomaton
         if (beginIndex < 0 || endIndex > this.length || beginIndex > endIndex)
             action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
 
-        val codePoint: int = action SYMBOLIC("int");
-        val leftBorder: int = endIndex - beginIndex;
-        val rightBorder: int = (endIndex - beginIndex) * 2;
-        action ASSUME(codePoint >= leftBorder);
-        action ASSUME(codePoint <= rightBorder);
+        result = action CALL_METHOD(this.storage, "codePointCount", [beginIndex, endIndex]);
     }
 
 
@@ -1020,10 +1021,7 @@ automaton StringBuilderAutomaton
     {
         _checkIndex(index);
 
-        val codePoint: int = action SYMBOLIC("int");
-        action ASSUME(codePoint >= MIN_CODE_POINT);
-        action ASSUME(codePoint <= MAX_CODE_POINT);
-        result = codePoint;
+        result = action CALL_METHOD(this.storage, "codePointAt", [index]);
     }
 
 
@@ -1033,10 +1031,7 @@ automaton StringBuilderAutomaton
         index -= 1;
         _checkIndex(index);
 
-        val codePoint: int = action SYMBOLIC("int");
-        action ASSUME(codePoint >= MIN_CODE_POINT);
-        action ASSUME(codePoint <= MAX_CODE_POINT);
-        result = codePoint;
+        result = action CALL_METHOD(this.storage, "codePointBefore", [index]);
     }
 
 
@@ -1045,25 +1040,55 @@ automaton StringBuilderAutomaton
     {
         _checkIndex(index);
 
-        result = action DEBUG_DO("Character.offsetByCodePoints(this.storage, index, codePointOffset)");
+        result = action CALL_METHOD(null as Character, "offsetByCodePoints", [this.storage, index, codePointOffset]);
     }
 
 
     // within java.lang.AbstractStringBuilder
     fun *.codePoints (@target self: StringBuilder): IntStream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.IntStream");
-        action ASSUME(result != null);
+        var intStorage: array<int> = action ARRAY_NEW("int", this.length);
+        var storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _toIntArray_loop(i, intStorage, storageChars)
+        );
+
+        val handlers: list<Runnable> = action LIST_NEW();
+        result = new IntStreamAutomaton(state = Initialized,
+                                        storage = intStorage,
+                                        length = this.length,
+                                        closeHandlers = handlers
+                                       );
     }
 
 
     // within java.lang.AbstractStringBuilder
     fun *.chars (@target self: StringBuilder): IntStream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.IntStream");
-        action ASSUME(result != null);
+        var intStorage: array<int> = action ARRAY_NEW("int", this.length);
+        var storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, this.length, +1,
+            _toIntArray_loop(i, intStorage, storageChars)
+        );
+
+        val handlers: list<Runnable> = action LIST_NEW();
+        result = new IntStreamAutomaton(state = Initialized,
+                                        storage = intStorage,
+                                        length = this.length,
+                                        closeHandlers = handlers
+                                       );
+    }
+
+
+    @Phantom proc _toIntArray_loop(i: int, intStorage: array<int>, storageChars: array<char>): void
+    {
+        intStorage[i] = storageChars[i] as int;
     }
 
 

@@ -20,6 +20,8 @@ import java/lang/Comparable;
     for Comparable, Serializable, char
 {
     fun *.charValue(): char;
+
+    @static fun offsetByCodePoints(seq: CharSequence, index: int, codePointOffset: int): int;
 }
 
 
