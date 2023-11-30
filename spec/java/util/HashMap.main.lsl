@@ -353,7 +353,7 @@ automaton HashMapAutomaton
 
     fun *.isEmpty (@target self: HashMap): boolean
     {
-        action TODO();
+        result = action MAP_SIZE(this.storage) == 0;
     }
 
 
@@ -419,7 +419,7 @@ automaton HashMapAutomaton
 
     fun *.size (@target self: HashMap): int
     {
-        action TODO();
+        result = action MAP_SIZE(this.storage);
     }
 
 
