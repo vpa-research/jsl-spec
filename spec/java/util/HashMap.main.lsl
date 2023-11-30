@@ -197,13 +197,9 @@ automaton HashMapAutomaton
         _checkForComodification(expectedModCount);
 
         if (newValue == null)
-        {
             action MAP_REMOVE(this.storage, key);
-        }
         else
-        {
             action MAP_SET(this.storage, key, newValue);
-        }
 
         result = newValue;
     }
@@ -211,13 +207,48 @@ automaton HashMapAutomaton
 
     fun *.computeIfAbsent (@target self: HashMap, key: Object, mappingFunction: Function): Object
     {
-        action TODO();
+        if (mappingFunction == null)
+            _throwNPE();
+
+        val oldValue: Object = action MAP_GET(this.storage, key);
+        if (oldValue != null)
+        {
+            result = oldValue;
+        }
+        else
+        {
+            val expectedModCount: int = this.modCount;
+            val newValue: Object = action CALL(mappingFunction, [key]);
+            _checkForComodification(expectedModCount);
+            if (newValue != null)
+                action MAP_SET(this.storage, key, newValue);
+            result = newValue;
+        }
+
     }
 
 
     fun *.computeIfPresent (@target self: HashMap, key: Object, remappingFunction: BiFunction): Object
     {
-        action TODO();
+        if (remappingFunction == null)
+            _throwNPE();
+
+        val oldValue: Object = action MAP_GET(this.storage, key);
+        if (oldValue == null)
+        {
+            result = oldValue;
+        }
+        else
+        {
+            val expectedModCount: int = this.modCount;
+            val newValue: Object = action CALL(remappingFunction, [key, oldValue]);
+            _checkForComodification(expectedModCount);
+            if (newValue == null)
+                action MAP_REMOVE(this.storage, key);
+            else
+                action MAP_SET(this.storage, key, newValue);
+            result = newValue;
+        }
     }
 
 
