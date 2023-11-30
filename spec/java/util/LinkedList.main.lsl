@@ -786,16 +786,31 @@ automaton LinkedListAutomaton
 
     fun *.lastIndexOf (@target self: LinkedList, o: Object): int
     {
-        result = action LIST_FIND(this.storage, o, 0, action LIST_SIZE(this.storage));
-        if (result != -1)
+        result = -1;
+
+        val size: int = action LIST_SIZE(this.storage);
+        if (size != 0)
         {
-            // there should be no elements to the right of the previously found position
-            val nextIndex: int = result + 1;
-            if (nextIndex < action LIST_SIZE(this.storage))
-            {
-                val rightIndex: int = action LIST_FIND(this.storage, o, nextIndex, action LIST_SIZE(this.storage));
-                action ASSUME(rightIndex == -1);
-            }
+            action ASSUME(size > 0);
+
+            val items: list<Object> = this.storage;
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, size - 1, -1, -1,
+                lastIndexOf_loop(i, items, o, result)
+            );
+        }
+    }
+
+    @Phantom proc lastIndexOf_loop (i: int, items: list<Object>, o: Object, result: int): void
+    {
+        val e: Object = action LIST_GET(items, i);
+
+        if (action OBJECT_EQUALS(o, e))
+        {
+            result = i;
+            action LOOP_BREAK();
         }
     }
 

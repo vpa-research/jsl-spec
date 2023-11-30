@@ -1047,8 +1047,8 @@ automaton StringBuilderAutomaton
     // within java.lang.AbstractStringBuilder
     fun *.codePoints (@target self: StringBuilder): IntStream
     {
-        var intStorage: array<int> = action ARRAY_NEW("int", this.length);
-        var storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
+        val intStorage: array<int> = action ARRAY_NEW("int", this.length);
+        val storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
 
         var i: int = 0;
         action LOOP_FOR(
@@ -1056,20 +1056,19 @@ automaton StringBuilderAutomaton
             _toIntArray_loop(i, intStorage, storageChars)
         );
 
-        val handlers: list<Runnable> = action LIST_NEW();
         result = new IntStreamAutomaton(state = Initialized,
-                                        storage = intStorage,
-                                        length = this.length,
-                                        closeHandlers = handlers
-                                       );
+            storage = intStorage,
+            length = this.length,
+            closeHandlers = action LIST_NEW()
+        );
     }
 
 
     // within java.lang.AbstractStringBuilder
     fun *.chars (@target self: StringBuilder): IntStream
     {
-        var intStorage: array<int> = action ARRAY_NEW("int", this.length);
-        var storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
+        val intStorage: array<int> = action ARRAY_NEW("int", this.length);
+        val storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
 
         var i: int = 0;
         action LOOP_FOR(
@@ -1077,12 +1076,11 @@ automaton StringBuilderAutomaton
             _toIntArray_loop(i, intStorage, storageChars)
         );
 
-        val handlers: list<Runnable> = action LIST_NEW();
         result = new IntStreamAutomaton(state = Initialized,
-                                        storage = intStorage,
-                                        length = this.length,
-                                        closeHandlers = handlers
-                                       );
+            storage = intStorage,
+            length = this.length,
+            closeHandlers = action LIST_NEW()
+        );
     }
 
 
