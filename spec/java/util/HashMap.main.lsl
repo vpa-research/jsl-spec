@@ -110,6 +110,7 @@ automaton HashMapAutomaton
         // #note: maybe it will be needed checking "val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);"
         action MAP_SET(this.storage, key, value);
         this.length += 1;
+        this.modCount += 1;
     }
 
 
@@ -117,6 +118,15 @@ automaton HashMapAutomaton
     {
         if (this.modCount != expectedModCount)
             action THROW_NEW("java.util.ConcurrentModificationException", []);
+    }
+
+
+    proc _getMappingOrDefault (key: Object, defaultValue: Object): Object
+    {
+        if (action MAP_HAS_KEY(this.storage, key))
+            result = action MAP_GET(this.storage, key);
+        else
+            result = defaultValue;
     }
 
 
@@ -371,19 +381,34 @@ automaton HashMapAutomaton
 
     fun *.put (@target self: HashMap, key: Object, value: Object): Object
     {
-        action TODO();
+        if (action MAP_HAS_KEY(this.storage, key))
+            result = action MAP_GET(this.storage, key);
+        else
+            result = null;
+        action MAP_SET(this.storage, key, value);
+        this.modCount += 1;
     }
 
 
     fun *.putAll (@target self: HashMap, m: Map): void
     {
-        action TODO();
+        if (m == null)
+            _throwNPE();
+
+        val mSize: int = action CALL_METHOD(m, "size", []);
+        if (mSize != 0)
+            _addAllElements(m);
     }
 
 
     fun *.putIfAbsent (@target self: HashMap, key: Object, value: Object): Object
     {
-        action TODO();
+        result = _getMappingOrDefault(key, null);
+        if (result == null)
+        {
+            action MAP_SET(this.storage, key, value);
+            this.modCount += 1;
+        }
     }
 
 
