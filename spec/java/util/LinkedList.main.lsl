@@ -112,7 +112,32 @@ automaton LinkedListAutomaton
     }
 
 
-    proc _unlinkAny (index: int): Object
+    // checks range [from, to) against [0, size)
+    @KeepVisible proc _subListRangeCheck (fromIndex: int, toIndex: int, size: int): void
+    {
+        if (fromIndex < 0)
+        {
+            //val message1: String = "fromIndex = " + action OBJECT_TO_STRING(fromIndex);
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
+        }
+
+        if (toIndex > size)
+        {
+            //val message2: String = "toIndex = " + action OBJECT_TO_STRING(toIndex);
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
+        }
+
+        if (fromIndex > toIndex)
+        {
+            //val from: String = action OBJECT_TO_STRING(fromIndex);
+            //val to: String = action OBJECT_TO_STRING(toIndex);
+            //val message3: String = "fromIndex(" + from + ") > toIndex(" + to + ")";
+            action THROW_NEW("java.lang.IllegalArgumentException", []);
+        }
+    }
+
+
+    @KeepVisible proc _unlinkAny (index: int): Object
     {
         result = action LIST_GET(this.storage, index);
         action LIST_REMOVE(this.storage, index);
@@ -120,26 +145,26 @@ automaton LinkedListAutomaton
     }
 
 
-    proc _linkAny (index: int, e: Object): void
+    @KeepVisible proc _linkAny (index: int, e: Object): void
     {
         action LIST_INSERT_AT(this.storage, index, e);
         this.modCount += 1;
     }
 
 
-    proc _checkElementIndex (index: int): void
+    @KeepVisible proc _checkElementIndex (index: int, size: int): void
     {
-        if (!_isValidIndex(index))
+        if (!_isValidIndex(index, size))
         {
             //val message: String =
             //    "Index: " + action OBJECT_TO_STRING(index) +
-            //    ", Size: " + action OBJECT_TO_STRING(action LIST_SIZE(this.storage));
+            //    ", Size: " + action OBJECT_TO_STRING(size);
             action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
         }
     }
 
 
-    proc _isValidIndex (index: int): boolean
+    proc _isValidIndex (index: int, size: int): boolean
     {
         result = 0 <= index && index < action LIST_SIZE(this.storage);
     }
@@ -151,7 +176,7 @@ automaton LinkedListAutomaton
     }
 
 
-    proc _checkPositionIndex (index: int): void
+    @KeepVisible proc _checkPositionIndex (index: int): void
     {
         if (!_isPositionIndex(index))
         {
@@ -184,8 +209,9 @@ automaton LinkedListAutomaton
     }
 
 
-    proc _addAllElements (index: int, @Parameterized(["E"]) c: Collection): boolean
+    @KeepVisible proc _addAllElements (index: int, @Parameterized(["E"]) c: Collection): boolean
     {
+        _checkPositionIndex(index);
         // #todo: add optimized version when 'C' is this automaton (HAS operator is required)
 
         val iter: Iterator = action CALL_METHOD(c, "iterator", []);
@@ -730,7 +756,7 @@ automaton LinkedListAutomaton
 
     fun *.get (@target self: LinkedList, index: int): Object
     {
-        _checkElementIndex(index);
+        _checkElementIndex(index, action LIST_SIZE(this.storage));
         result = action LIST_GET(this.storage, index);
     }
 
@@ -773,14 +799,11 @@ automaton LinkedListAutomaton
     // within java.util.AbstractSequentialList
     fun *.iterator (@target self: LinkedList): Iterator
     {
-        // #problem: not implemented
-        /*
-        result = new ListItr(state = Created,
-            expectedModCount = this.modCounter
+        result = new LinkedList_ListIteratorAutomaton(state = Initialized,
+            parent = self,
+            cursor = 0,
+            expectedModCount = this.modCount
         );
-        */
-        result = action SYMBOLIC("java.util.Iterator");
-        action ASSUME(result != null);
     }
 
 
@@ -818,14 +841,11 @@ automaton LinkedListAutomaton
     // within java.util.AbstractList
     fun *.listIterator (@target self: LinkedList): ListIterator
     {
-        // #problem: not implemented
-        /*
-        result = new ListItr(state = Created,
-            expectedModCount = this.modCounter
+        result = new LinkedList_ListIteratorAutomaton(state = Initialized,
+            parent = self,
+            cursor = 0,
+            expectedModCount = this.modCount
         );
-        */
-        result = action SYMBOLIC("java.util.ListIterator");
-        action ASSUME(result != null);
     }
 
 
@@ -833,14 +853,11 @@ automaton LinkedListAutomaton
     {
         _checkPositionIndex(index);
 
-        // #problem: not implemented
-        /*
-        result = new ListItr(state = Created,
-            expectedModCount = this.modCounter
+        result = new LinkedList_ListIteratorAutomaton(state = Initialized,
+            parent = self,
+            cursor = index,
+            expectedModCount = this.modCount
         );
-        */
-        result = action SYMBOLIC("java.util.ListIterator");
-        action ASSUME(result != null);
     }
 
 
@@ -952,7 +969,7 @@ automaton LinkedListAutomaton
 
     fun *.remove (@target self: LinkedList, index: int): Object
     {
-        _checkElementIndex(index);
+        _checkElementIndex(index, action LIST_SIZE(this.storage));
         result = _unlinkAny(index);
     }
 
@@ -1038,7 +1055,7 @@ automaton LinkedListAutomaton
 
     fun *.set (@target self: LinkedList, index: int, element: Object): Object
     {
-        _checkElementIndex(index);
+        _checkElementIndex(index, action LIST_SIZE(this.storage));
         result = action LIST_GET(this.storage, index);
         action LIST_SET(this.storage, index, element);
     }
@@ -1059,16 +1076,9 @@ automaton LinkedListAutomaton
 
     fun *.spliterator (@target self: LinkedList): Spliterator
     {
-        // #problem: not implemented
-        /*
-        result = new LLSpliterator(state=Initialized,
+        result = new LinkedList_SpliteratorAutomaton(state = Initialized,
             parent = self,
-            est = -1,
-            expectedModCount = 0
         );
-        */
-        result = action SYMBOLIC("java.util.Spliterator");
-        action ASSUME(result != null);
     }
 
 
@@ -1082,7 +1092,15 @@ automaton LinkedListAutomaton
     // within java.util.AbstractList
     fun *.subList (@target self: LinkedList, fromIndex: int, toIndex: int): List
     {
-        action TODO();
+        _subListRangeCheck(fromIndex, toIndex, action LIST_SIZE(this.storage));
+
+        result = new LinkedList_SubListAutomaton(state = Initialized,
+            root = self,
+            parentList = null,
+            offset = fromIndex,
+            length = toIndex - fromIndex,
+            modCount = this.modCount,
+        );
     }
 
 
