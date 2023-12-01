@@ -12,6 +12,7 @@ import java/io/Serializable;
 import java/lang/Cloneable;
 import java/util/AbstractMap;
 import java/util/Map;
+import java/util/AbstractCollection;
 
 
 // primary semantic types
@@ -29,3 +30,11 @@ import java/util/Map;
 
 
 // global aliases and type overrides
+
+@GenerateMe
+@extends("java.util.AbstractCollection")
+@public type HashMapValues
+    is java.util.HashMapValues
+    for AbstractCollection
+{
+}
