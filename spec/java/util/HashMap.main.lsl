@@ -274,7 +274,8 @@ automaton HashMapAutomaton
     fun *.containsValue (@target self: HashMap, value: Object): boolean
     {
         result = false;
-        if (this.length != 0)
+        val storageSize: int = action MAP_SIZE(this.storage);
+        if (storageSize != 0)
         {
             val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
             var i: int = 0;

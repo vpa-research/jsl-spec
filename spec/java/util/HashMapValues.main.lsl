@@ -16,14 +16,15 @@ import java/util/Set;
 import java/util/function/BiConsumer;
 import java/util/function/BiFunction;
 import java/util/function/Function;
+import java/util/HashMap;
 
 
 // automata
 
 automaton HashMapValuesAutomaton
 (
-    var storage: map<Object, Object> = null,
-    @transient var length: int = 0
+    var parent: HashMap,
+    var storage: map<Object, Object> = null
 )
 : HashMapValues
 {
@@ -105,20 +106,76 @@ automaton HashMapValuesAutomaton
 
     @final fun *.clear (@target self: HashMapValues): void
     {
-        action TODO();
+        HashMapAutomaton(this.parent).modCount += 1;
+        this.storage = action MAP_NEW();
     }
 
 
-    @final fun *.contains (@target self: HashMapValues, o: Object): boolean
+    @final fun *.contains (@target self: HashMapValues, value: Object): boolean
     {
-        action TODO();
+        result = false;
+        val storageSize: int = action MAP_SIZE(this.storage);
+        if (storageSize != 0)
+        {
+            val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+            var i: int = 0;
+            action LOOP_WHILE(
+                result != true,
+                _containsValue_loop(result, storageCopy, value)
+            );
+        }
     }
 
 
+    @Phantom proc _containsValue_loop (result: boolean, storageCopy: map<Object, Object>, value: Object): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val curValue: Object = action MAP_GET(storageCopy, curKey);
+        if (action OBJECT_EQUALS(curValue, value))
+            result = true;
+        else
+            action MAP_REMOVE(storageCopy, curKey);
+    }
+
+
+    // #note: double loop... Can we avoid this ? too comprehensive realization...
     // within java.util.AbstractCollection
     fun *.containsAll (@target self: HashMapValues, c: Collection): boolean
     {
-        action TODO();
+        result = true;
+        val storageSize: int = action MAP_SIZE(this.storage);
+        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+
+        action LOOP_WHILE(
+            action CALL_METHOD(iter, "hasNext", []) && result == true,
+            _containsAll_loop(result, iter, storageSize)
+        );
+    }
+
+
+    @Phantom proc _containsAll_loop (result: boolean, iter: Iterator, storageSize: int): void
+    {
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+        val item: Object = action CALL_METHOD(iter, "next", []);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, storageSize, +1,
+            _containsAll_inside_loop(result, storageCopy, item)
+        );
+    }
+
+
+    @Phantom proc _containsAll_inside_loop (result: boolean, storageCopy: map<Object, Object>, item: Object): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val curValue: Object = action MAP_GET(storageCopy, curKey);
+        if (!action OBJECT_EQUALS(curValue, item))
+        {
+            result = false;
+            action LOOP_BREAK();
+        }
+        action MAP_REMOVE(storageCopy, curKey);
     }
 
 
