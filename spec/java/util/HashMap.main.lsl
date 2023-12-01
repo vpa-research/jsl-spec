@@ -341,16 +341,14 @@ automaton HashMapAutomaton
         if (_action == null)
             _throwNPE();
 
-        val thisSize: int = action MAP_SIZE(this.storage);
-        if (thisSize > 0)
+        val storageSize: int = action MAP_SIZE(this.storage);
+        if (storageSize > 0)
         {
-            // #question: this is deepClone ? Or references are equal in both maps ?
-            // #note: this realization suggests that references are equal
             val storageClone: map<Object, Object> = action MAP_CLONE(this.storage);
             val expectedModCount: int = this.modCount;
             var i: int = 0;
             action LOOP_FOR(
-                i, 0, thisSize, +1,
+                i, 0, storageSize, +1,
                 forEach_loop(storageClone, _action)
             );
             _checkForComodification(expectedModCount);

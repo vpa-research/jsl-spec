@@ -82,7 +82,7 @@ automaton HashMapValuesAutomaton
 
     @private constructor *.HashMapValues (@target self: HashMapValues, _this: HashMap)
     {
-        action TODO();
+        // #note: default constructor without any body, like in the original class
     }
 
 
@@ -181,7 +181,30 @@ automaton HashMapValuesAutomaton
 
     @final fun *.forEach (@target self: HashMapValues, _action: Consumer): void
     {
-        action TODO();
+        if (_action == null)
+            _throwNPE();
+
+        val storageSize: int = action MAP_SIZE(this.storage);
+        if (storageSize > 0)
+        {
+            val storageClone: map<Object, Object> = action MAP_CLONE(this.storage);
+            val expectedModCount: int = HashMapAutomaton(this.parent).modCount;
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, storageSize, +1,
+                forEach_loop(storageClone, _action)
+            );
+            HashMapAutomaton(this.parent)._checkForComodification(expectedModCount);
+        }
+    }
+
+
+    @Phantom proc forEach_loop (storageClone: map<Object, Object>, _action: Consumer): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageClone);
+        val curValue: Object = action MAP_GET(storageClone, curKey);
+        action CALL(_action, [curValue]);
+        action MAP_REMOVE(storageClone, curKey);
     }
 
 
