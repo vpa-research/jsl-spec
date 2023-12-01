@@ -174,10 +174,7 @@ automaton HashMapValuesAutomaton
             action MAP_REMOVE(this.storage, curKey);
             result = true;
         }
-        else
-        {
-            action MAP_REMOVE(storageCopy, curKey);
-        }
+        action MAP_REMOVE(storageCopy, curKey);
     }
 
 
@@ -190,17 +187,35 @@ automaton HashMapValuesAutomaton
             action MAP_REMOVE(this.storage, curKey);
             result = true;
         }
-        else
-        {
-            action MAP_REMOVE(storageCopy, curKey);
-        }
+        action MAP_REMOVE(storageCopy, curKey);
     }
 
 
     // within java.util.AbstractCollection
     fun *.removeAll (@target self: HashMapValues, c: Collection): boolean
     {
-        action TODO();
+        result = false;
+        val startStorageSize: int = action MAP_SIZE(this.storage);
+
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, startStorageSize, +1,
+            _removeAll_loop(storageCopy, c)
+        );
+
+        val resultStorageSize: int = action MAP_SIZE(this.storage);
+        result = startStorageSize == resultStorageSize;
+    }
+
+
+    @Phantom proc _removeAll_loop (storageCopy: map<Object, Object>, c: Collection): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val curValue: Object = action MAP_GET(storageCopy, curKey);
+        if (action CALL_METHOD(c, "contains", [curValue]))
+            action MAP_REMOVE(this.storage, curKey);
+        action MAP_REMOVE(storageCopy, curKey);
     }
 
 
