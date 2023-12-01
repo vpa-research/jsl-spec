@@ -340,7 +340,30 @@ automaton HashMapValuesAutomaton
     // within java.util.AbstractCollection
     fun *.retainAll (@target self: HashMapValues, c: Collection): boolean
     {
-        action TODO();
+        if (c == null)
+            _throwNPE();
+
+        result = false;
+        val startStorageSize: int = action MAP_SIZE(this.storage);
+
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, startStorageSize, +1,
+            _retainAll_loop(storageCopy, c)
+        );
+
+        val resultStorageSize: int = action MAP_SIZE(this.storage);
+        result = startStorageSize == resultStorageSize;
+    }
+
+
+    @Phantom proc _retainAll_loop (storageCopy: map<Object, Object>, c: Collection): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val curValue: Object = action MAP_GET(storageCopy, curKey);
+        if (!action CALL(c, "contains", [curValue]))
+                action MAP_REMOVE(this.storage, curKey);
     }
 
 
