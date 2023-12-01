@@ -307,7 +307,25 @@ automaton HashMapValuesAutomaton
     // within java.util.AbstractCollection
     fun *.toString (@target self: HashMapValues): String
     {
-        action TODO();
+        val storageSize: int = action MAP_SIZE(this.storage);
+        val arrayValues: array<Object> = action ARRAY_NEW("java.lang.Object", storageSize);
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, storageSize, +1,
+            _toString_loop(i, storageCopy, arrayValues)
+        );
+
+        result = action OBJECT_TO_STRING(arrayValues);
+    }
+
+
+    @Phantom proc _toString_loop (i: int, storageCopy: map<Object, Object>, arrayValues: array<Object>): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val curValue: Object = action MAP_GET(storageCopy, curKey);
+        arrayValues[i] = curValue;
+        action MAP_REMOVE(storageCopy, curKey);
     }
 
 }
