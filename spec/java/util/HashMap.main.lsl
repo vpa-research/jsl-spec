@@ -22,8 +22,7 @@ import java/util/function/Function;
 
 automaton HashMapAutomaton
 (
-    var storage: map<Object, Object> = null,
-    @transient var length: int = 0
+    var storage: map<Object, Object> = null
 )
 : HashMap
 {
@@ -109,7 +108,6 @@ automaton HashMapAutomaton
         val value: Object = action CALL_METHOD(entry, "getValue", []);
         // #note: maybe it will be needed checking "val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);"
         action MAP_SET(this.storage, key, value);
-        this.length += 1;
         this.modCount += 1;
     }
 
@@ -180,7 +178,6 @@ automaton HashMapAutomaton
     fun *.clear (@target self: HashMap): void
     {
         this.modCount += 1;
-        this.length = 0;
         this.storage = action MAP_NEW();
     }
 
@@ -189,8 +186,7 @@ automaton HashMapAutomaton
     {
         val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
         result = new HashMapAutomaton(state = Initialized,
-            storage = storageCopy,
-            length = this.length
+            storage = storageCopy
         );
     }
 
@@ -264,7 +260,7 @@ automaton HashMapAutomaton
 
     fun *.containsKey (@target self: HashMap, key: Object): boolean
     {
-        if (this.length == 0)
+        if (action MAP_SIZE(this.storage) == 0)
             result = false;
         else
             result = action MAP_HAS_KEY(this.storage, key);
