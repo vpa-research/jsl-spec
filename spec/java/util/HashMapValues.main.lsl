@@ -65,6 +65,11 @@ automaton HashMapValuesAutomaton
 
     // utilities
 
+    @AutoInline @Phantom proc _throwUOE (): void
+    {
+        action THROW_NEW("java.lang.UnsupportedOperationException", []);
+    }
+
     // constructors
 
     @private constructor *.HashMapValues (@target self: HashMapValues, _this: HashMap)
@@ -80,14 +85,14 @@ automaton HashMapValuesAutomaton
     // within java.util.AbstractCollection
     fun *.add (@target self: HashMapValues, e: Object): boolean
     {
-        action TODO();
+        _throwUOE();
     }
 
 
     // within java.util.AbstractCollection
     fun *.addAll (@target self: HashMapValues, c: Collection): boolean
     {
-        action TODO();
+        _throwUOE();
     }
 
 
@@ -119,7 +124,7 @@ automaton HashMapValuesAutomaton
     // within java.util.AbstractCollection
     fun *.isEmpty (@target self: HashMapValues): boolean
     {
-        action TODO();
+        result = action MAP_SIZE(this.storage) == 0;
     }
 
 
@@ -166,7 +171,7 @@ automaton HashMapValuesAutomaton
 
     @final fun *.size (@target self: HashMapValues): int
     {
-        action TODO();
+        result = action MAP_SIZE(this.storage) == 0;
     }
 
 
