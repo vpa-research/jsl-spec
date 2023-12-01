@@ -70,6 +70,13 @@ automaton HashMapValuesAutomaton
         action THROW_NEW("java.lang.UnsupportedOperationException", []);
     }
 
+
+    @AutoInline @Phantom proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
     // constructors
 
     @private constructor *.HashMapValues (@target self: HashMapValues, _this: HashMap)
@@ -222,7 +229,31 @@ automaton HashMapValuesAutomaton
     // within java.util.Collection
     fun *.removeIf (@target self: HashMapValues, filter: Predicate): boolean
     {
-        action TODO();
+        if (filter == null)
+            _throwNPE();
+
+        result = false;
+        val startStorageSize: int = action MAP_SIZE(this.storage);
+
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, startStorageSize, +1,
+            _removeIf_loop(storageCopy, filter)
+        );
+
+        val resultStorageSize: int = action MAP_SIZE(this.storage);
+        result = startStorageSize == resultStorageSize;
+    }
+
+
+    @Phantom proc _removeIf_loop (storageCopy: map<Object, Object>, filter: Predicate): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val curValue: Object = action MAP_GET(storageCopy, curKey);
+        if (action CALL(filter, [curValue]))
+            action MAP_REMOVE(this.storage, curKey);
+        action MAP_REMOVE(storageCopy, curKey);
     }
 
 
