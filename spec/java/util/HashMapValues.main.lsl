@@ -142,9 +142,58 @@ automaton HashMapValuesAutomaton
 
 
     // within java.util.AbstractCollection
-    fun *.remove (@target self: HashMapValues, o: Object): boolean
+    fun *.remove (@target self: HashMapValues, value: Object): boolean
     {
-        action TODO();
+        result = false;
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+        var i: int = 0;
+
+        if (value == null)
+        {
+            action LOOP_WHILE(
+                result != true,
+                _removeNull_loop(result, storageCopy, value)
+            );
+        }
+        else
+        {
+            action LOOP_WHILE(
+                result != true,
+                _removeValue_loop(result, storageCopy, value)
+            );
+        }
+    }
+
+
+    @Phantom proc _removeNull_loop (result: boolean, storageCopy: map<Object, Object>, value: Object): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val curValue: Object = action MAP_GET(storageCopy, curKey);
+        if (curValue == null)
+        {
+            action MAP_REMOVE(this.storage, curKey);
+            result = true;
+        }
+        else
+        {
+            action MAP_REMOVE(storageCopy, curKey);
+        }
+    }
+
+
+    @Phantom proc _removeValue_loop (result: boolean, storageCopy: map<Object, Object>, value: Object): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val curValue: Object = action MAP_GET(storageCopy, curKey);
+        if (action OBJECT_EQUALS(value, curValue))
+        {
+            action MAP_REMOVE(this.storage, curKey);
+            result = true;
+        }
+        else
+        {
+            action MAP_REMOVE(storageCopy, curKey);
+        }
     }
 
 
