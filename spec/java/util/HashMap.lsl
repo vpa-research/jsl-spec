@@ -13,6 +13,7 @@ import java/lang/Cloneable;
 import java/util/AbstractMap;
 import java/util/Map;
 import java/util/AbstractCollection;
+import java/util/Iterator;
 
 
 // primary semantic types
@@ -38,3 +39,13 @@ import java/util/AbstractCollection;
     for AbstractCollection
 {
 }
+
+
+@GenerateMe
+@extends("java.util.AbstractCollection")
+@public type HashMapValueIterator
+    is java.util.HashMapValueIterator
+    for Iterator
+{
+}
+
