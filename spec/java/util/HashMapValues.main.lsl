@@ -217,7 +217,12 @@ automaton HashMapValuesAutomaton
 
     @final fun *.iterator (@target self: HashMapValues): Iterator
     {
-        action TODO();
+        // #question: this is right realization ?
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+        result = new HashMapValueIteratorAutomaton(state = Initialized,
+            parent = this.parent,
+            storageCopy = storageCopy
+        );
     }
 
 
@@ -369,7 +374,7 @@ automaton HashMapValuesAutomaton
 
     @final fun *.size (@target self: HashMapValues): int
     {
-        result = action MAP_SIZE(this.storage) == 0;
+        result = action MAP_SIZE(this.storage);
     }
 
 

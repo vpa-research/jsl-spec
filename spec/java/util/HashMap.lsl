@@ -42,7 +42,7 @@ import java/util/Iterator;
 
 
 @GenerateMe
-@extends("java.util.AbstractCollection")
+@implements("java.util.Iterator")
 @public type HashMapValueIterator
     is java.util.HashMapValueIterator
     for Iterator
