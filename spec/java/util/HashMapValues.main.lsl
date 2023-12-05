@@ -78,6 +78,27 @@ automaton HashMapValuesAutomaton
     }
 
 
+    proc _mapToValuesArray (): array<Object>
+    {
+        val storageSize: int = action MAP_SIZE(this.storage);
+        result = action ARRAY_NEW("java.lang.Object", storageSize);
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, storageSize, +1,
+            _mapToValuesArray_loop(i, result, storageCopy)
+        );
+    }
+
+
+    @Phantom proc _mapToValuesArray_loop (i: int, result: array<Object>, storageCopy: map<Object, Object>): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        result[i] = action MAP_GET(storageCopy, curKey);
+        action MAP_REMOVE(storageCopy, curKey);
+    }
+
+
     // constructors
 
     @private constructor *.HashMapValues (@target self: HashMapValues, _this: HashMap)
@@ -380,7 +401,15 @@ automaton HashMapValuesAutomaton
 
     @final fun *.spliterator (@target self: HashMapValues): Spliterator
     {
-        action TODO();
+        val valuesArray: array<Object, Object> = _mapToValuesArray();
+        result = new HashMapValueSpliteratorAutomaton(state=Initialized,
+            valuesStorage = valuesArray,
+            index = 0,
+            fence = -1,
+            est = 0,
+            expectedModCount = HashMapAutomaton(this.parent).modCount,
+            parent = this.parent
+        );
     }
 
 
