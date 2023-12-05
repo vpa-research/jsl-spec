@@ -59,3 +59,12 @@ import java/util/Spliterator;
 {
 }
 
+
+@GenerateMe
+@extends("java.util.AbstractSet")
+@public @private @final type HashMap_KeySet
+    is java.util.HashMap_KeySet
+    for AbstractMap
+{
+}
+
