@@ -14,6 +14,7 @@ import java/util/AbstractMap;
 import java/util/Map;
 import java/util/AbstractCollection;
 import java/util/Iterator;
+import java/util/Spliterator;
 
 
 // primary semantic types
@@ -46,6 +47,15 @@ import java/util/Iterator;
 @public type HashMapValueIterator
     is java.util.HashMapValueIterator
     for Iterator
+{
+}
+
+
+@GenerateMe
+@implements("java.util.Spliterator")
+@public @final type HashMapValueSpliterator
+    is java.util.HashMapValueSpliterator
+    for Spliterator
 {
 }
 
