@@ -85,7 +85,7 @@ automaton KeySetAutomaton
 
     @private constructor *.HashMap_KeySet (@target self: HashMap_KeySet, _this: HashMap)
     {
-        action TODO();
+        // #note: default constructor without any body, like in the original class
     }
 
 
@@ -126,7 +126,20 @@ automaton KeySetAutomaton
     // within java.util.AbstractCollection
     fun *.containsAll (@target self: HashMap_KeySet, c: Collection): boolean
     {
-        action TODO();
+        result = true;
+        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+
+        action LOOP_WHILE(
+            action CALL_METHOD(iter, "hasNext", []) && result == true,
+            _containsAll_loop(result, iter)
+        );
+    }
+
+
+    @Phantom proc _containsAll_loop (result: boolean, iter: Iterator): void
+    {
+        val item: Object = action CALL_METHOD(iter, "next", []);
+        result = action MAP_HAS_KEY(this.storage, item);
     }
 
 
