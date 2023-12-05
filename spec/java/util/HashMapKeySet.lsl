@@ -69,6 +69,18 @@ automaton KeySetAutomaton
 
     // utilities
 
+    @AutoInline @Phantom proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
+    @AutoInline @Phantom proc _throwUOE (): void
+    {
+        action THROW_NEW("java.lang.UnsupportedOperationException", []);
+    }
+
+
     // constructors
 
     @private constructor *.HashMap_KeySet (@target self: HashMap_KeySet, _this: HashMap)
@@ -84,14 +96,14 @@ automaton KeySetAutomaton
     // within java.util.AbstractCollection
     fun *.add (@target self: HashMap_KeySet, e: Object): boolean
     {
-        action TODO();
+        _throwUOE();
     }
 
 
     // within java.util.AbstractCollection
     fun *.addAll (@target self: HashMap_KeySet, c: Collection): boolean
     {
-        action TODO();
+        _throwUOE();
     }
 
 
@@ -102,9 +114,12 @@ automaton KeySetAutomaton
     }
 
 
-    @final fun *.contains (@target self: HashMap_KeySet, o: Object): boolean
+    @final fun *.contains (@target self: HashMap_KeySet, key: Object): boolean
     {
-        action TODO();
+        if (action MAP_SIZE(this.storage) == 0)
+            result = false;
+        else
+            result = action MAP_HAS_KEY(this.storage, key);
     }
 
 
@@ -124,7 +139,29 @@ automaton KeySetAutomaton
 
     @final fun *.forEach (@target self: HashMap_KeySet, _action: Consumer): void
     {
-        action TODO();
+        if (_action == null)
+            _throwNPE();
+
+        val storageSize: int = action MAP_SIZE(this.storage);
+        if (storageSize > 0)
+        {
+            val storageClone: map<Object, Object> = action MAP_CLONE(this.storage);
+            val expectedModCount: int = HashMapAutomaton(this.parent).modCount;
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, storageSize, +1,
+                forEach_loop(storageClone, _action)
+            );
+            HashMapAutomaton(this.parent)._checkForComodification(expectedModCount);
+        }
+    }
+
+
+    @Phantom proc forEach_loop (storageClone: map<Object, Object>, _action: Consumer): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageClone);
+        action CALL(_action, [curKey]);
+        action MAP_REMOVE(storageClone, curKey);
     }
 
 
@@ -157,7 +194,13 @@ automaton KeySetAutomaton
 
     @final fun *.remove (@target self: HashMap_KeySet, key: Object): boolean
     {
-        action TODO();
+        result = false;
+        if (action MAP_HAS_KEY(this.storage, key))
+        {
+            action MAP_REMOVE(this.storage, key);
+            HashMapAutomaton(this.parent).modCount += 1;
+            result = true;
+        }
     }
 
 
