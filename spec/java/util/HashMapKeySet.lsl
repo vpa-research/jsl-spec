@@ -131,9 +131,32 @@ automaton KeySetAutomaton
 
 
     // within java.util.AbstractSet
-    fun *.equals (@target self: HashMap_KeySet, o: Object): boolean
+    fun *.equals (@target self: HashMap_KeySet, other: Object): boolean
     {
-        action TODO();
+        if (other == self)
+        {
+            result = true;
+        }
+        else
+        {
+            val isSameType: boolean = action OBJECT_SAME_TYPE(self, other);
+            if (isSameType)
+            {
+                // #question: do wee need checking of modifications here ? Or not ? (As I can see - not)
+                val otherStorage: map<Object, Object> = KeySetAutomaton(other).storage;
+                val otherLength: int = action MAP_SIZE(otherStorage);
+                val thisLength: int = action MAP_SIZE(this.storage);
+
+                if (thisLength == otherLength)
+                    result = action OBJECT_EQUALS(this.storage, otherStorage);
+                else
+                    result = false;
+            }
+            else
+            {
+                result = false;
+            }
+        }
     }
 
 
@@ -168,7 +191,7 @@ automaton KeySetAutomaton
     // within java.util.AbstractSet
     fun *.hashCode (@target self: HashMap_KeySet): int
     {
-        action TODO();
+        result = action OBJECT_HASH_CODE(this.storage);
     }
 
 
@@ -268,7 +291,24 @@ automaton KeySetAutomaton
     // within java.util.AbstractCollection
     fun *.toString (@target self: HashMap_KeySet): String
     {
-        action TODO();
+        val storageSize: int = action MAP_SIZE(this.storage);
+        val arrayKeys: array<Object> = action ARRAY_NEW("java.lang.Object", storageSize);
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, storageSize, +1,
+            _toString_loop(i, storageCopy, arrayKeys)
+        );
+
+        result = action OBJECT_TO_STRING(arrayKeys);
+    }
+
+
+    @Phantom proc _toString_loop (i: int, storageCopy: map<Object, Object>, arrayKeys: array<Object>): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        arrayKeys[i] = curKey;
+        action MAP_REMOVE(storageCopy, curKey);
     }
 
 }
