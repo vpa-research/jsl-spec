@@ -23,8 +23,8 @@ import java/util/HashMap;
 
 automaton HashMapValuesAutomaton
 (
-    var parent: HashMap,
-    var storage: map<Object, Object> = null
+    var storage: map<Object, Object> = null,
+    var parent: HashMap
 )
 : HashMapValues
 {
