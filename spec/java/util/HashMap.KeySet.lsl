@@ -81,6 +81,27 @@ automaton KeySetAutomaton
     }
 
 
+    proc _mapToKeysArray (): array<Object>
+    {
+        val storageSize: int = action MAP_SIZE(this.storage);
+        result = action ARRAY_NEW("java.lang.Object", storageSize);
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, storageSize, +1,
+            _mapToKeysArray_loop(i, result, storageCopy)
+        );
+    }
+
+
+    @Phantom proc _mapToKeysArray_loop (i: int, result: array<Object>, storageCopy: map<Object, Object>): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        result[i] = curKey;
+        action MAP_REMOVE(storageCopy, curKey);
+    }
+
+
     // constructors
 
     @private constructor *.HashMap_KeySet (@target self: HashMap_KeySet, _this: HashMap)
@@ -339,7 +360,12 @@ automaton KeySetAutomaton
 
     @final fun *.spliterator (@target self: HashMap_KeySet): Spliterator
     {
-        action TODO();
+        // #question: This will be correct or not to create copy of references ? I suppose it can be incorrect for type Integer for example
+        val keysArray: array<Object, Object> = _mapToKeysArray();
+        result = new HashMap_KeySpliteratorAutomaton(state=Initialized,
+            keysStorage = keysArray,
+            parent = this.parent
+        );
     }
 
 
