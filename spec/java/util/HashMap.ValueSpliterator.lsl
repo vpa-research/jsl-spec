@@ -19,10 +19,6 @@ import java/util/function/Consumer;
 automaton HashMap_ValueSpliteratorAutomaton
 (
     var valuesStorage: array<Object>,
-    var index: int,
-    var fence: int,
-    var est: int,
-    var expectedModCount: int,
     var parent: HashMap
 )
 : HashMap_ValueSpliterator
@@ -55,6 +51,7 @@ automaton HashMap_ValueSpliteratorAutomaton
     var fence: int = -1;
     var est: int = 0;
     var expectedModCount: int = 0;
+
 
     // utilities
 
@@ -132,7 +129,7 @@ automaton HashMap_ValueSpliteratorAutomaton
 
         if(hi < 0)
         {
-            this.expectedModCount = HashSetAutomaton(this.parent).modCount;
+            this.expectedModCount = HashMapAutomaton(this.parent).modCount;
             mc = this.expectedModCount;
             this.fence = storageSize;
             hi = storageSize;
@@ -156,30 +153,30 @@ automaton HashMap_ValueSpliteratorAutomaton
 
     @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int): void
     {
-        val value: Object = this.valuesStorage[i];
+        var value: Object = this.valuesStorage[i];
         action CALL(userAction, [value]);
         i += 1;
     }
 
 
     // within java.util.Spliterator
-    fun *.getComparator (@target self: HashMap_ValueSpliterator): Comparator
+    @Phantom fun *.getComparator (@target self: HashMap_ValueSpliterator): Comparator
     {
-        action TODO();
+        // NOTE: using the original method
     }
 
 
     // within java.util.Spliterator
     fun *.getExactSizeIfKnown (@target self: HashMap_ValueSpliterator): long
     {
-        action TODO();
+        result = _getFence() - this.index;
     }
 
 
     // within java.util.Spliterator
-    fun *.hasCharacteristics (@target self: HashMap_ValueSpliterator, characteristics: int): boolean
+    @Phantom fun *.hasCharacteristics (@target self: HashMap_ValueSpliterator, characteristics: int): boolean
     {
-        action TODO();
+        // NOTE: using the original method
     }
 
 
@@ -193,7 +190,7 @@ automaton HashMap_ValueSpliteratorAutomaton
 
         if(i < hi)
         {
-            val value: Object = this.valuesStorage[i];
+            var value: Object = this.valuesStorage[i];
             action CALL(userAction, [value]);
             this.index += 1;
             _checkForComodification();

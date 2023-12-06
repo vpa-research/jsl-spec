@@ -404,10 +404,6 @@ automaton HashMap_ValuesAutomaton
         val valuesArray: array<Object, Object> = _mapToValuesArray();
         result = new HashMap_ValueSpliteratorAutomaton(state=Initialized,
             valuesStorage = valuesArray,
-            index = 0,
-            fence = -1,
-            est = 0,
-            expectedModCount = HashMapAutomaton(this.parent).modCount,
             parent = this.parent
         );
     }
