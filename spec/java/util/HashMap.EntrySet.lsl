@@ -69,6 +69,18 @@ automaton HashMap_EntrySetAutomaton
 
     // utilities
 
+    @AutoInline @Phantom proc _throwNPE (): void
+    {
+        action THROW_NEW("java.lang.NullPointerException", []);
+    }
+
+
+    @AutoInline @Phantom proc _throwUOE (): void
+    {
+        action THROW_NEW("java.lang.UnsupportedOperationException", []);
+    }
+
+
     // constructors
 
     @private constructor *.HashMap_EntrySet (@target self: HashMap_EntrySet, _this: HashMap)
@@ -84,20 +96,21 @@ automaton HashMap_EntrySetAutomaton
     // within java.util.AbstractCollection
     fun *.add (@target self: HashMap_EntrySet, e: Object): boolean
     {
-        action TODO();
+        _throwUOE();
     }
 
 
     // within java.util.AbstractCollection
     fun *.addAll (@target self: HashMap_EntrySet, c: Collection): boolean
     {
-        action TODO();
+        _throwUOE();
     }
 
 
     @final fun *.clear (@target self: HashMap_EntrySet): void
     {
-        action TODO();
+        HashMapAutomaton(this.parent).modCount += 1;
+        this.storage = action MAP_NEW();
     }
 
 
