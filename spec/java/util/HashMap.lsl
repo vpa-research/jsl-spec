@@ -76,3 +76,12 @@ import java/util/Spliterator;
     for Iterator
 {
 }
+
+
+@GenerateMe
+@implements("java.util.Spliterator")
+@public @final type HashMap_KeySpliterator
+    is java.util.HashMap_KeySpliterator
+    for Spliterator
+{
+}
