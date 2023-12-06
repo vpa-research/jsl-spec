@@ -15,6 +15,7 @@ import java/util/Map;
 import java/util/AbstractCollection;
 import java/util/Iterator;
 import java/util/Spliterator;
+import java/util/AbstractSet;
 
 
 // primary semantic types
@@ -83,5 +84,14 @@ import java/util/Spliterator;
 @public @final type HashMap_KeySpliterator
     is java.util.HashMap_KeySpliterator
     for Spliterator
+{
+}
+
+
+@GenerateMe
+@extends("java.util.AbstractSet")
+@public @private @final type HashMap_EntrySet
+    is java.util.HashMap_EntrySet
+    for AbstractSet
 {
 }
