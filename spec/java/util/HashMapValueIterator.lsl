@@ -19,7 +19,7 @@ import java/util/HashMap;
 automaton HashMapValueIteratorAutomaton
 (
     var parent: HashMap,
-    var storageCopy: map<Object, Object> = null
+    var storageCopy: map<Object, Object>
 )
 : HashMapValueIterator
 {
@@ -42,8 +42,10 @@ automaton HashMapValueIteratorAutomaton
     ];
 
     // internal variables
+
     var expectedModCount: int;
     var currentKey: Object = null;
+
 
     // utilities
 
@@ -138,9 +140,10 @@ automaton HashMapValueIteratorAutomaton
         action MAP_REMOVE(this.storageCopy, this.currentKey);
         val parentStorage: map<Object, Object> = HashMapAutomaton(this.parent).storage;
         action MAP_REMOVE(parentStorage, this.currentKey);
-        HashMapAutomaton(this.parent).modCount = HashMapAutomaton(this.parent).modCount + 1;
+        HashMapAutomaton(this.parent).modCount += 1;
 
         this.expectedModCount = HashMapAutomaton(this.parent).modCount;
+        this.currentKey = null;
     }
 
 }

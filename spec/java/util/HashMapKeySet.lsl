@@ -217,7 +217,12 @@ automaton KeySetAutomaton
 
     @final fun *.iterator (@target self: HashMap_KeySet): Iterator
     {
-        action TODO();
+        // #question: this is right realization ?
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+        result = new HashMapKeyIteratorAutomaton(state = Initialized,
+            parent = this.parent,
+            storageCopy = storageCopy
+        );
     }
 
 
