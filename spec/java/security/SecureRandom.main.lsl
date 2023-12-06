@@ -95,7 +95,7 @@ automaton SecureRandomAutomaton
 
     @AutoInline @Phantom proc _throwIE (): void
     {
-        action THROW_NEW("java.lang.InternalError", []);
+        action ERROR("java.lang.InternalError"); // action THROW_NEW("java.lang.InternalError", []);
     }
 
 
@@ -113,13 +113,17 @@ automaton SecureRandomAutomaton
 
     proc _getDefaultPRNG (): void
     {
+        /*
         this.provider = action SYMBOLIC("java.security.Provider");
-        this.algorithm = action SYMBOLIC("java.lang.String");
 
+        this.algorithm = action SYMBOLIC("java.lang.String");
         action ASSUME(action CALL_METHOD(this.algorithm, "length", []) > 0);
 
         if (this.provider == null || this.algorithm == null)
             _throwIE();
+        */
+        this.provider = null; // #problem: approximate the provider (symbolic is too dificult for the USVM)
+        this.algorithm = "SHA1PRNG"; // #todo: get from the provider
 
         this.defaultProvider = _isDefaultProvider(this.provider);
     }
@@ -127,8 +131,15 @@ automaton SecureRandomAutomaton
 
     @static proc _isDefaultProvider (curProvider: Provider): boolean
     {
-        val providerName: String = action CALL_METHOD(curProvider, "getName", []);
-        result = action MAP_HAS_KEY(this.defaultProvidersMap, providerName);
+        if (curProvider == null)
+        {
+            result = false; // no visible effect on anything
+        }
+        else
+        {
+            val providerName: String = action CALL_METHOD(curProvider, "getName", []);
+            result = action MAP_HAS_KEY(this.defaultProvidersMap, providerName);
+        }
     }
 
 
@@ -177,7 +188,7 @@ automaton SecureRandomAutomaton
 
     proc _generateRandomDoubleArrayWithBounds (size: int, randomNumberOrigin: double, randomNumberBound: double): array<double>
     {
-        result = action SYMBOLIC_ARRAY("double", size);
+        result = action ARRAY_NEW("double", size);
         var i: int = 0;
         action LOOP_FOR(
             i, 0, size, +1,
@@ -188,10 +199,11 @@ automaton SecureRandomAutomaton
 
     @Phantom proc checkDoubleBounds_loop (i: int, result: array<double>, randomNumberOrigin: double, randomNumberBound: double): void
     {
-        val item: double = result[i];
+        val item: double = action SYMBOLIC("double");
         action ASSUME(item == item);
         action ASSUME(item >= randomNumberOrigin);
         action ASSUME(item < randomNumberBound);
+        result[i] = item;
     }
 
 
