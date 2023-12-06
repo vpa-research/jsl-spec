@@ -570,7 +570,7 @@ automaton HashMapAutomaton
 
     fun *.values (@target self: HashMap): Collection
     {
-        result = new HashMapValuesAutomaton(state = Initialized,
+        result = new HashMap_ValuesAutomaton(state = Initialized,
             storage = action MAP_CLONE(this.storage),
             parent = self
         );

@@ -16,12 +16,12 @@ import java/util/HashMap;
 
 // automata
 
-automaton HashMapValueIteratorAutomaton
+automaton HashMap_ValueIteratorAutomaton
 (
     var parent: HashMap,
     var storageCopy: map<Object, Object>
 )
-: HashMapValueIterator
+: HashMap_ValueIterator
 {
     // states and shifts
 
@@ -30,7 +30,7 @@ automaton HashMapValueIteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        HashMapValueIterator,
+        HashMap_ValueIterator,
     ];
 
     shift Initialized -> self by [
@@ -65,7 +65,7 @@ automaton HashMapValueIteratorAutomaton
 
     // constructors
 
-    @private constructor *.HashMapValueIterator (@target self: HashMapValueIterator, _this: HashMap)
+    @private constructor *.HashMap_ValueIterator (@target self: HashMap_ValueIterator, _this: HashMap)
     {
         this.expectedModCount = HashMapAutomaton(this.parent).modCount;
     }
@@ -76,7 +76,7 @@ automaton HashMapValueIteratorAutomaton
     // methods
 
     // within java.util.Iterator
-    fun *.forEachRemaining (@target self: HashMapValueIterator, _action: Consumer): void
+    fun *.forEachRemaining (@target self: HashMap_ValueIterator, _action: Consumer): void
     {
         if (_action == null)
             action THROW_NEW("java.lang.NullPointerException", []);
@@ -108,13 +108,13 @@ automaton HashMapValueIteratorAutomaton
 
 
     // within java.util.HashMap.HashIterator
-    @final fun *.hasNext (@target self: HashMapValueIterator): boolean
+    @final fun *.hasNext (@target self: HashMap_ValueIterator): boolean
     {
         result = action MAP_SIZE(this.storageCopy) != 0;
     }
 
 
-    @final fun *.next (@target self: HashMapValueIterator): Object
+    @final fun *.next (@target self: HashMap_ValueIterator): Object
     {
         _checkForComodification();
 
@@ -127,7 +127,7 @@ automaton HashMapValueIteratorAutomaton
 
 
     // within java.util.HashMap.HashIterator
-    @final fun *.remove (@target self: HashMapValueIterator): void
+    @final fun *.remove (@target self: HashMap_ValueIterator): void
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);

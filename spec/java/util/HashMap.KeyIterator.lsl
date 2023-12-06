@@ -15,12 +15,12 @@ import java/util/function/Consumer;
 
 // automata
 
-automaton HashMapKeyIteratorAutomaton
+automaton HashMap_KeyIteratorAutomaton
 (
     var parent: HashMap,
     var storageCopy: map<Object, Object>
 )
-: HashMapKeyIterator
+: HashMap_KeyIterator
 {
     // states and shifts
 
@@ -29,7 +29,7 @@ automaton HashMapKeyIteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        HashMapKeyIterator,
+        HashMap_KeyIterator,
     ];
 
     shift Initialized -> self by [
@@ -64,7 +64,7 @@ automaton HashMapKeyIteratorAutomaton
 
     // constructors
 
-    @private constructor *.HashMapKeyIterator (@target self: HashMapKeyIterator, _this: HashMap)
+    @private constructor *.HashMap_KeyIterator (@target self: HashMap_KeyIterator, _this: HashMap)
     {
         this.expectedModCount = HashMapAutomaton(this.parent).modCount;
     }
@@ -75,7 +75,7 @@ automaton HashMapKeyIteratorAutomaton
     // methods
 
     // within java.util.Iterator
-    fun *.forEachRemaining (@target self: HashMapKeyIterator, _action: Consumer): void
+    fun *.forEachRemaining (@target self: HashMap_KeyIterator, _action: Consumer): void
     {
         if (_action == null)
             action THROW_NEW("java.lang.NullPointerException", []);
@@ -106,13 +106,13 @@ automaton HashMapKeyIteratorAutomaton
 
 
     // within java.util.HashMap.HashIterator
-    @final fun *.hasNext (@target self: HashMapKeyIterator): boolean
+    @final fun *.hasNext (@target self: HashMap_KeyIterator): boolean
     {
         result = action MAP_SIZE(this.storageCopy) != 0;
     }
 
 
-    @final fun *.next (@target self: HashMapKeyIterator): Object
+    @final fun *.next (@target self: HashMap_KeyIterator): Object
     {
         _checkForComodification();
 
@@ -124,7 +124,7 @@ automaton HashMapKeyIteratorAutomaton
 
 
     // within java.util.HashMap.HashIterator
-    @final fun *.remove (@target self: HashMapKeyIterator): void
+    @final fun *.remove (@target self: HashMap_KeyIterator): void
     {
         // relax state/error discovery process
         action ASSUME(this.parent != null);

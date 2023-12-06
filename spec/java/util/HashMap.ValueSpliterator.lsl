@@ -16,7 +16,7 @@ import java/util/function/Consumer;
 
 // automata
 
-automaton HashMapValueSpliteratorAutomaton
+automaton HashMap_ValueSpliteratorAutomaton
 (
     var valuesStorage: array<Object>,
     var index: int,
@@ -25,7 +25,7 @@ automaton HashMapValueSpliteratorAutomaton
     var expectedModCount: int,
     var parent: HashMap
 )
-: HashMapValueSpliterator
+: HashMap_ValueSpliterator
 {
     // states and shifts
 
@@ -34,7 +34,7 @@ automaton HashMapValueSpliteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        HashMapValueSpliterator,
+        HashMap_ValueSpliterator,
     ];
 
     shift Initialized -> self by [
@@ -90,7 +90,7 @@ automaton HashMapValueSpliteratorAutomaton
 
     // constructors
 
-    @private constructor *.HashMapValueSpliterator (@target self: HashMapValueSpliterator, m: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
+    @private constructor *.HashMap_ValueSpliterator (@target self: HashMap_ValueSpliterator, m: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
     {
         this.index = origin;
         this.fence = fence;
@@ -103,7 +103,7 @@ automaton HashMapValueSpliteratorAutomaton
 
     // methods
 
-    fun *.characteristics (@target self: HashMapValueSpliterator): int
+    fun *.characteristics (@target self: HashMap_ValueSpliterator): int
     {
         if (this.fence < 0 || this.est == action ARRAY_SIZE(this.valuesStorage))
             result = SPLITERATOR_SIZED;
@@ -113,14 +113,14 @@ automaton HashMapValueSpliteratorAutomaton
 
 
     // within java.util.HashMap.HashMapSpliterator
-    @final fun *.estimateSize (@target self: HashMapValueSpliterator): long
+    @final fun *.estimateSize (@target self: HashMap_ValueSpliterator): long
     {
         _getFence();
         result = this.est as long;
     }
 
 
-    fun *.forEachRemaining (@target self: HashMapValueSpliterator, userAction: Consumer): void
+    fun *.forEachRemaining (@target self: HashMap_ValueSpliterator, userAction: Consumer): void
     {
         if(userAction == null)
             _throwNPE();
@@ -163,27 +163,27 @@ automaton HashMapValueSpliteratorAutomaton
 
 
     // within java.util.Spliterator
-    fun *.getComparator (@target self: HashMapValueSpliterator): Comparator
+    fun *.getComparator (@target self: HashMap_ValueSpliterator): Comparator
     {
         action TODO();
     }
 
 
     // within java.util.Spliterator
-    fun *.getExactSizeIfKnown (@target self: HashMapValueSpliterator): long
+    fun *.getExactSizeIfKnown (@target self: HashMap_ValueSpliterator): long
     {
         action TODO();
     }
 
 
     // within java.util.Spliterator
-    fun *.hasCharacteristics (@target self: HashMapValueSpliterator, characteristics: int): boolean
+    fun *.hasCharacteristics (@target self: HashMap_ValueSpliterator, characteristics: int): boolean
     {
         action TODO();
     }
 
 
-    fun *.tryAdvance (@target self: HashMapValueSpliterator, userAction: Consumer): boolean
+    fun *.tryAdvance (@target self: HashMap_ValueSpliterator, userAction: Consumer): boolean
     {
         if(userAction == null)
             _throwNPE();
@@ -204,7 +204,7 @@ automaton HashMapValueSpliteratorAutomaton
     }
 
 
-    fun *.trySplit (@target self: HashMapValueSpliterator): HashMapValueSpliterator
+    fun *.trySplit (@target self: HashMap_ValueSpliterator): HashMap_ValueSpliterator
     {
         action ASSUME(this.parent != null);
 
@@ -221,7 +221,7 @@ automaton HashMapValueSpliteratorAutomaton
             this.est = this.est >>> 1;
             this.index = mid;
 
-            result = new HashMapValueSpliteratorAutomaton(state = Initialized,
+            result = new HashMap_ValueSpliteratorAutomaton(state = Initialized,
                 valuesStorage = this.valuesStorage,
                 index = lo,
                 fence = mid,

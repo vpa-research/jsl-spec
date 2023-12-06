@@ -35,8 +35,8 @@ import java/util/Spliterator;
 
 @GenerateMe
 @extends("java.util.AbstractCollection")
-@public type HashMapValues
-    is java.util.HashMapValues
+@public type HashMap_Values
+    is java.util.HashMap_Values
     for AbstractCollection
 {
 }
@@ -44,8 +44,8 @@ import java/util/Spliterator;
 
 @GenerateMe
 @implements("java.util.Iterator")
-@public type HashMapValueIterator
-    is java.util.HashMapValueIterator
+@public type HashMap_ValueIterator
+    is java.util.HashMap_ValueIterator
     for Iterator
 {
 }
@@ -53,7 +53,7 @@ import java/util/Spliterator;
 
 @GenerateMe
 @implements("java.util.Spliterator")
-@public @final type HashMapValueSpliterator
+@public @final type HashMap_ValueSpliterator
     is java.util.HashMapValueSpliterator
     for Spliterator
 {
@@ -71,8 +71,8 @@ import java/util/Spliterator;
 
 @GenerateMe
 @implements("java.util.Iterator")
-@public @final type HashMapKeyIterator
-    is java.util.HashMapKeyIterator
+@public @final type HashMap_KeyIterator
+    is java.util.HashMap_KeyIterator
     for Iterator
 {
 }
