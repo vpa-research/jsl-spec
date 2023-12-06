@@ -389,7 +389,10 @@ automaton HashMapAutomaton
 
     fun *.keySet (@target self: HashMap): Set
     {
-        action TODO();
+        result = new HashMap_KeySetAutomaton(state = Initialized,
+            storage = this.storage,
+            parent = self
+        );
     }
 
 
@@ -571,7 +574,7 @@ automaton HashMapAutomaton
     fun *.values (@target self: HashMap): Collection
     {
         result = new HashMap_ValuesAutomaton(state = Initialized,
-            storage = action MAP_CLONE(this.storage),
+            storage = this.storage,
             parent = self
         );
     }

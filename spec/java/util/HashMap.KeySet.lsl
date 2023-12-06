@@ -22,7 +22,7 @@ import java/util/stream/Stream;
 
 // automata
 
-automaton KeySetAutomaton
+automaton HashMap_KeySetAutomaton
 (
     var storage: map<Object, Object>,
     var parent: HashMap
@@ -177,7 +177,7 @@ automaton KeySetAutomaton
             if (isSameType)
             {
                 // #question: do wee need checking of modifications here ? Or not ? (As I can see - not)
-                val otherStorage: map<Object, Object> = KeySetAutomaton(other).storage;
+                val otherStorage: map<Object, Object> = HashMap_KeySetAutomaton(other).storage;
                 val otherLength: int = action MAP_SIZE(otherStorage);
                 val thisLength: int = action MAP_SIZE(this.storage);
 
