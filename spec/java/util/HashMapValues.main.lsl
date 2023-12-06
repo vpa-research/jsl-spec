@@ -389,7 +389,7 @@ automaton HashMapValuesAutomaton
         val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
         val curValue: Object = action MAP_GET(storageCopy, curKey);
         if (!action CALL_METHOD(c, "contains", [curValue]))
-                action MAP_REMOVE(this.storage, curKey);
+            action MAP_REMOVE(this.storage, curKey);
     }
 
 

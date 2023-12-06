@@ -300,7 +300,29 @@ automaton KeySetAutomaton
     // within java.util.AbstractCollection
     fun *.retainAll (@target self: HashMap_KeySet, c: Collection): boolean
     {
-        action TODO();
+        if (c == null)
+            _throwNPE();
+
+        result = false;
+        val startStorageSize: int = action MAP_SIZE(this.storage);
+
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, startStorageSize, +1,
+            _retainAll_loop(storageCopy, c)
+        );
+
+        val resultStorageSize: int = action MAP_SIZE(this.storage);
+        result = startStorageSize == resultStorageSize;
+    }
+
+
+    @Phantom proc _retainAll_loop (storageCopy: map<Object, Object>, c: Collection): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        if (!action CALL_METHOD(c, "contains", [curKey]))
+            action MAP_REMOVE(this.storage, curKey);
     }
 
 
@@ -326,21 +348,66 @@ automaton KeySetAutomaton
     // within java.util.AbstractCollection
     fun *.toArray (@target self: HashMap_KeySet): array<Object>
     {
-        action TODO();
+        val len: int = action MAP_SIZE(this.storage);
+        result = action ARRAY_NEW("java.lang.Object", len);
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, len, +1,
+            toArray_loop(i, result, storageCopy)
+        );
+    }
+
+
+    @Phantom proc toArray_loop (i: int, result: array<Object>, storageCopy: map<Object, Object>): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        result[i] = curKey;
+        action MAP_REMOVE(storageCopy, curKey);
     }
 
 
     // within java.util.Collection
     fun *.toArray (@target self: HashMap_KeySet, generator: IntFunction): array<Object>
     {
-        action TODO();
+        // acting just like the JDK: trigger NPE and class cast exceptions on invalid generator return value
+        val a: array<Object> = action CALL_METHOD(generator, "apply", [0]) as array<Object>;
+        val aLen: int = action ARRAY_SIZE(a);
+
+        val len: int = action MAP_SIZE(this.storage);
+        result = action ARRAY_NEW("java.lang.Object", len);
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, len, +1,
+            toArray_loop(i, result, storageCopy)
+        );
     }
 
 
     // within java.util.AbstractCollection
     fun *.toArray (@target self: HashMap_KeySet, a: array<Object>): array<Object>
     {
-        action TODO();
+        val aLen: int = action ARRAY_SIZE(a);
+        val len: int = action MAP_SIZE(this.storage);
+
+        if (aLen < len)
+            a = action ARRAY_NEW("java.lang.Object", len);
+
+        result = a;
+        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, len, +1,
+            toArray_loop(i, result, storageCopy)
+        );
+
+        // #question: this is correct ?
+        if (aLen > len)
+            result[len] = null;
     }
 
 
