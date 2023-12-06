@@ -24,6 +24,8 @@ import java/util/stream/Stream;
 
 automaton HashMap_EntrySetAutomaton
 (
+    var storage: map<Object, Object>,
+    var parent: HashMap
 )
 : HashMap_EntrySet
 {
@@ -71,7 +73,7 @@ automaton HashMap_EntrySetAutomaton
 
     @private constructor *.HashMap_EntrySet (@target self: HashMap_EntrySet, _this: HashMap)
     {
-        action TODO();
+        // #note: default constructor without any body, like in the original class
     }
 
 
@@ -135,7 +137,7 @@ automaton HashMap_EntrySetAutomaton
     // within java.util.AbstractCollection
     fun *.isEmpty (@target self: HashMap_EntrySet): boolean
     {
-        action TODO();
+        result = action MAP_SIZE(this.storage) == 0;
     }
 
 
@@ -181,7 +183,7 @@ automaton HashMap_EntrySetAutomaton
 
     @final fun *.size (@target self: HashMap_EntrySet): int
     {
-        action TODO();
+        result = action MAP_SIZE(this.storage);
     }
 
 
