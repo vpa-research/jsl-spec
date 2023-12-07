@@ -18,6 +18,7 @@ import java/util/function/Consumer;
 import java/util/function/IntFunction;
 import java/util/function/Predicate;
 import java/util/stream/Stream;
+import java/util/Map;
 
 
 // automata
@@ -169,7 +170,23 @@ automaton HashMap_EntrySetAutomaton
 
     @final fun *.remove (@target self: HashMap_EntrySet, o: Object): boolean
     {
-        action TODO();
+        result = false;
+        if (o is Map_Entry)
+        {
+            val entry: Map_Entry = o as Map_Entry;
+            val key: Object = action CALL_METHOD(entry, "getKey", []);
+            val value: Object = action CALL_METHOD(entry, "getValue", []);
+            if (action MAP_HAS_KEY(this.storage, key))
+            {
+                val actualValue: Object = action MAP_GET(this.storage, key);
+                // #question: What will be if value == null ? NPE in "OBJECT_EQUALS" ? Do we must check it ?
+                if (action OBJECT_EQUALS(value, actualValue))
+                {
+                    action MAP_REMOVE(this.storage, key);
+                    result = true;
+                }
+            }
+        }
     }
 
 
