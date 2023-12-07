@@ -145,9 +145,36 @@ automaton HashMap_EntrySetAutomaton
     }
 
 
-    @final fun *.forEach (@target self: HashMap_EntrySet, _action: Consumer): void
+    @final fun *.forEach (@target self: HashMap_EntrySet, userAction: Consumer): void
     {
-        action TODO();
+        if (userAction == null)
+            _throwNPE();
+
+        val storageSize: int = action MAP_SIZE(this.storage);
+        if (storageSize > 0)
+        {
+            val storageClone: map<Object, Object> = action MAP_CLONE(this.storage);
+            val expectedModCount: int = HashMapAutomaton(this.parent).modCount;
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, storageSize, +1,
+                forEach_loop(storageClone, userAction)
+            );
+            HashMapAutomaton(this.parent)._checkForComodification(expectedModCount);
+        }
+    }
+
+
+    @Phantom proc forEach_loop (storageClone: map<Object, Object>, userAction: Consumer): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageClone);
+        val curValue: Object = action MAP_GET(storageClone, curKey);
+
+        // # problem: how correctly create Node for Consumer ? this is right: Map.Entry entry = new AbstractMap.SimpleEntry(4, 5); ?
+        val entry: Map_Entry = action DEBUG_DO("new java.util.AbstractMap.SimpleEntry(curKey, curValue)");
+        action CALL(userAction, [entry]);
+
+        action MAP_REMOVE(storageClone, curKey);
     }
 
 

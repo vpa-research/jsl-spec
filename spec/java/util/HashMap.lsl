@@ -90,7 +90,7 @@ import java/util/AbstractSet;
 
 @GenerateMe
 @extends("java.util.AbstractSet")
-@public @private @final type HashMap_EntrySet
+@public @final type HashMap_EntrySet
     is java.util.HashMap_EntrySet
     for AbstractSet
 {
