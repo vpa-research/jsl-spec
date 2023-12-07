@@ -122,7 +122,19 @@ automaton DirectByteBufferAutomaton
         toString,
     ];
 
-    // internal variables
+    //internal variables
+    var att: Object = null;
+
+    //Buffer variables
+    var mark: int = -1;
+    var position: int = 0;
+    var limit: int = 0;
+    var capacity: int = 0;
+
+    //ByteBuffer variables
+     var hb: array<byte> = null;
+     var offset: int = 0;
+     var isReadOnly: boolean = false;
 
     // utilities
 
@@ -240,14 +252,14 @@ automaton DirectByteBufferAutomaton
 
     fun *.attachment (@target self: DirectByteBuffer): Object
     {
-        action TODO();
+        result = this.att;
     }
 
 
     // within java.nio.Buffer
     @final fun *.capacity (@target self: DirectByteBuffer): int
     {
-        action TODO();
+        result = this.capacity;
     }
 
 
@@ -260,7 +272,10 @@ automaton DirectByteBufferAutomaton
     // within java.nio.Buffer
     fun *.clear (@target self: DirectByteBuffer): Buffer
     {
-        action TODO();
+        this.position = 0;
+        this.limit = capacity;
+        this.mark = -1;
+        result = self;
     }
 
 
@@ -293,7 +308,10 @@ automaton DirectByteBufferAutomaton
     // within java.nio.Buffer
     fun *.flip (@target self: DirectByteBuffer): Buffer
     {
-        action TODO();
+        this.limit = position;
+        this.position = 0;
+        this.mark = -1;
+        result = self;
     }
 
 
@@ -411,7 +429,7 @@ automaton DirectByteBufferAutomaton
     // within java.nio.Buffer
     @final fun *.hasRemaining (@target self: DirectByteBuffer): boolean
     {
-        action TODO();
+        result = this.position < this.limit;
     }
 
 
@@ -444,14 +462,21 @@ automaton DirectByteBufferAutomaton
     // within java.nio.Buffer
     @final fun *.limit (@target self: DirectByteBuffer): int
     {
-        action TODO();
+        result = this.limit;
     }
 
 
     // within java.nio.Buffer
     fun *.limit (@target self: DirectByteBuffer, newLimit: int): Buffer
     {
-        action TODO();
+        if (newLimit > this.capacity | newLimit < 0)
+            action THROW_NEW("java.lang.IllegalArgumentException", []);
+        this.limit = newLimit;
+        if (this.position > this.limit)
+            this.position = this.limit;
+        if (this.mark > this.limit)
+            this.mark = -1;
+        result = self;
     }
 
 
@@ -465,7 +490,8 @@ automaton DirectByteBufferAutomaton
     // within java.nio.Buffer
     fun *.mark (@target self: DirectByteBuffer): Buffer
     {
-        action TODO();
+        this.mark = this.position;
+        result = self;
     }
 
 
@@ -493,14 +519,19 @@ automaton DirectByteBufferAutomaton
     // within java.nio.Buffer
     @final fun *.position (@target self: DirectByteBuffer): int
     {
-        action TODO();
+        result = this.position;
     }
 
 
     // within java.nio.Buffer
     fun *.position (@target self: DirectByteBuffer, newPosition: int): Buffer
     {
-        action TODO();
+        if (newPosition > this.limit | newPosition < 0)
+            action THROW_NEW("java.lang.IllegalArgumentException", []);
+        this.position = newPosition;
+        if (this.mark > this.position)
+            this.mark = -1;
+        result = self;
     }
 
 
@@ -610,21 +641,27 @@ automaton DirectByteBufferAutomaton
     // within java.nio.Buffer
     @final fun *.remaining (@target self: DirectByteBuffer): int
     {
-        action TODO();
+        result = this.limit - this.position;
     }
 
 
     // within java.nio.Buffer
     fun *.reset (@target self: DirectByteBuffer): Buffer
     {
-        action TODO();
+        var m: int = mark;
+        if (m < 0)
+            action THROW_NEW("java.nio.InvalidMarkException", []);
+        this.position = m;
+        result = self;
     }
 
 
     // within java.nio.Buffer
     fun *.rewind (@target self: DirectByteBuffer): Buffer
     {
-        action TODO();
+        this.position = 0;
+        this.mark = -1;
+        result = self;
     }
 
 
