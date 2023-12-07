@@ -123,9 +123,15 @@ automaton DirectByteBufferAutomaton
     ];
 
     //internal variables
+    var storage: array<byte> = action ARRAY_NEW("char", 0);
+
+    //DirectByteBuffer
     var att: Object = null;
 
+
     //Buffer variables
+    var address: long = 0L;
+
     var mark: int = -1;
     var position: int = 0;
     var limit: int = 0;
@@ -137,6 +143,51 @@ automaton DirectByteBufferAutomaton
      var isReadOnly: boolean = false;
 
     // utilities
+
+    proc _get(i: int): byte {
+        var ind: int = _nextIndex(i);
+        result = this.storage[ind];
+    }
+
+    proc _remaining(): int
+    {
+        result = this.limit - this.position;
+    }
+
+    proc _alignmentOffset(index: int, unitSize: int): int
+    {
+        if (index < 0 || unitSize < 1 || (unitSize & (unitSize - 1)) != 0)
+            action THROW_NEW("java.lang.IllegalArgumentException", []);
+
+        result = ((this.address + index) % unitSize) as int;
+    }
+
+    proc _slice(pos: int, lim: int): int
+    {
+        if (pos >= 0 || pos <= lim)
+            action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (pos >= 0)  and assert (pos <= lim) in original
+        var rem: int = lim - pos;
+
+        //#problem: create fields
+        result = new DirectByteBufferAutomaton(self, -1, 0, rem, rem, pos);
+    }
+
+    proc _nextIndex(): int
+    {
+        if (this.position >= this.limit)
+            action THROW_NEW("java.nio.BufferUnderflowException", []);
+        this.position += 1;
+        result = this.position;
+    }
+
+    proc _nextIndex(nb: int): int
+    {
+        if (this.limit - this.position < nb)
+            action THROW_NEW("java.nio.BufferUnderflowException", []);
+        var p: int = this.position;
+        this.position += nb;
+        result = p;
+    }
 
     // constructors
 
@@ -176,35 +227,62 @@ automaton DirectByteBufferAutomaton
 
     fun *.address (@target self: DirectByteBuffer): long
     {
-        action TODO();
+        result = this.address;
     }
 
 
     // within java.nio.ByteBuffer
     @final fun *.alignedSlice (@target self: DirectByteBuffer, unitSize: int): ByteBuffer
     {
-        action TODO();
+        var pos: int = this.position;
+        var lim: int = this.limit;
+
+        var pos_mod: int = _alignmentOffset(pos, unitSize);
+        var lim_mod: int = _alignmentOffset(lim, unitSize);
+
+        // Round up the position to align with unit size
+        var aligned_pos: int = pos;
+        if (pos_mod > 0)
+            aligment_pos += unitSize - pos_mod;
+
+        // Round down the limit to align with unit size
+        var aligned_lim: int = lim - lim_mod;
+
+        if (aligned_pos > lim || aligned_lim < pos) {
+            aligned_lim = pos;
+            aligned_pos = pos;
+        }
+
+        result = _slice(aligned_pos, aligned_lim);
     }
 
 
     // within java.nio.ByteBuffer
     @final fun *.alignmentOffset (@target self: DirectByteBuffer, index: int, unitSize: int): int
     {
-        action TODO();
+        result = _alignmentOffset(index, unitSize);
     }
 
 
     // within java.nio.ByteBuffer
     @final fun *.array (@target self: DirectByteBuffer): array<byte>
     {
-        action TODO();
+        if (this.hb == null)
+            action THROW_NEW("java.lang.UnsupportedOperationException", []);
+        if (this.isReadOnly == true)
+            action THROW_NEW("java.nio.ReadOnlyBufferException", []);
+        result = this.hb;
     }
 
 
     // within java.nio.ByteBuffer
     @final fun *.arrayOffset (@target self: DirectByteBuffer): int
     {
-        action TODO();
+        if (this.hb == null)
+            action THROW_NEW("java.lang.UnsupportedOperationException", []);
+        if (this.isReadOnly == true)
+            action THROW_NEW("java.nio.ReadOnlyBufferException", []);
+        result = this.offset;
     }
 
 
@@ -288,7 +366,41 @@ automaton DirectByteBufferAutomaton
     // within java.nio.ByteBuffer
     fun *.compareTo (@target self: DirectByteBuffer, that: ByteBuffer): int
     {
-        action TODO();
+        // #warning: optimization with vector operation when len>7  (in origin)
+        var that_pos: int = action CALL_METHOD(that, "position", []);
+        var that_rem: int = action CALL_METHOD(that, "remaining", []);
+
+        var len: int = _remaining();
+        if (that_rem < len)
+            len = that_rem;
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, len, +1,
+            _mismatch_loop(i, that, that_pos)
+        );
+
+        if (i >= 0)
+        {
+            var this_index: int = this.position + i;
+            var that_index: int = that_pos + i;
+            var this_got: byte = _get(this_index);
+            var that_got: byte = action CALL_METHOD(that, "get", [that_index]);
+            result = this_got - that_got;
+        }
+        else {
+            var rem: int = _remaining();
+            var that_rem: int = action CALL_METHOD(that, "remaining", []);
+            result = rem - that_rem;
+        }
+    }
+
+    @Phantom proc _mismatch_loop(i: int, that: ByteBuffer, that_pos: int): void
+    {
+        var that_got_loop: byte = action CALL_METHOD(that, "get", [that_pos + i]);
+        var this_got_loop: byte = _get(this.position + i);
+        if (that_got_loop != this_got_loop);
+            action LOOP_BREAK();
     }
 
 
@@ -324,7 +436,8 @@ automaton DirectByteBufferAutomaton
 
     fun *.get (@target self: DirectByteBuffer): byte
     {
-        action TODO();
+        var ind: int = _nextIndex();
+        result = this.storage[ind];
     }
 
 
@@ -343,7 +456,7 @@ automaton DirectByteBufferAutomaton
 
     fun *.get (@target self: DirectByteBuffer, i: int): byte
     {
-        action TODO();
+        result = _get(i);
     }
 
 
@@ -436,13 +549,28 @@ automaton DirectByteBufferAutomaton
     // within java.nio.ByteBuffer
     fun *.hashCode (@target self: DirectByteBuffer): int
     {
-        action TODO();
+        var h: int = 1;
+        var p: int = this.position;
+
+        var i: int = 0;
+        var endLoop: int = p - 1;
+        action LOOP_FOR(
+                    i, this.limit, endLoop, -1,
+                    _genHash_loop(h, i)
+                );
+
+        result = h;
+    }
+
+    @Phantom proc _genHash_loop(h: int, i: int): void
+    {
+        h = 31 * h + (_get(i) as int);
     }
 
 
     fun *.isDirect (@target self: DirectByteBuffer): boolean
     {
-        action TODO();
+        result = true;
     }
 
 
@@ -641,7 +769,7 @@ automaton DirectByteBufferAutomaton
     // within java.nio.Buffer
     @final fun *.remaining (@target self: DirectByteBuffer): int
     {
-        result = this.limit - this.position;
+        result = _remaining();
     }
 
 
@@ -673,7 +801,7 @@ automaton DirectByteBufferAutomaton
 
     fun *.slice (@target self: DirectByteBuffer, pos: int, lim: int): ByteBuffer
     {
-        action TODO();
+        result = _slice(pos, lim);
     }
 
 
