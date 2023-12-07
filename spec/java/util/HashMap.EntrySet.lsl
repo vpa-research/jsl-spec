@@ -117,7 +117,17 @@ automaton HashMap_EntrySetAutomaton
 
     @final fun *.contains (@target self: HashMap_EntrySet, o: Object): boolean
     {
-        action TODO();
+        result = false;
+        if (o is Map_Entry)
+        {
+            val entry: Map_Entry = o as Map_Entry;
+            val key: Object = action CALL_METHOD(entry, "getKey", []);
+            val value: Object = action CALL_METHOD(entry, "getValue", []);
+            val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);
+            // #question: this is right realization ?
+            val valuesEquals: boolean = action OBJECT_EQUALS(value, action MAP_GET(this.storage, o));
+            result = hasKey && valuesEquals;
+        }
     }
 
 
