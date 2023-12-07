@@ -182,7 +182,8 @@ automaton DirectByteBufferAutomaton
     {
         if (index < 0 || unitSize < 1 || (unitSize & (unitSize - 1)) != 0)
             action THROW_NEW("java.lang.IllegalArgumentException", []);
-
+        if (unitSize > 8 && !this.isDirect)
+            action THROW_NEW("java.lang.UnsupportedOperationException", []);
         result = ((this.address + index) % unitSize) as int;
     }
 
@@ -211,6 +212,32 @@ automaton DirectByteBufferAutomaton
         var p: int = this.position;
         this.position += nb;
         result = p;
+    }
+
+    proc _mismatch(that: ByteBuffer, that_pos: int, len: int): int
+    {
+        var i: int = 0;
+        var returned: boolean = false;
+        var this_pos = this.position;
+        action LOOP_FOR(
+            i, 0, len, +1,
+            _mismatch_loop(i, this_pos, that, that_pos, returned)
+        );
+        if (!returned)
+            i = -1;
+
+        result = i;
+    }
+
+    @Phantom proc _mismatch_loop(i: int, this_pos: int, that: ByteBuffer, that_pos: int, returned: boolean): void
+    {
+        var that_got_loop: byte = action CALL_METHOD(that, "get", [that_pos + i]);
+        var this_got_loop: byte = _get(this_pos + i);
+        if (that_got_loop != this_got_loop)
+        {
+            returned = true;
+            action LOOP_BREAK();
+        }
     }
 
     // constructors
@@ -424,11 +451,7 @@ automaton DirectByteBufferAutomaton
         if (that_rem < len)
             len = that_rem;
 
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, len, +1,
-            _mismatch_loop(i, that, that_pos)
-        );
+        var i: int = _mismatch(that, that_pos, len);
 
         if (i >= 0)
         {
@@ -445,14 +468,6 @@ automaton DirectByteBufferAutomaton
         }
     }
 
-    @Phantom proc _mismatch_loop(i: int, that: ByteBuffer, that_pos: int): void
-    {
-        var that_got_loop: byte = action CALL_METHOD(that, "get", [that_pos + i]);
-        var this_got_loop: byte = _get(this.position + i);
-        if (that_got_loop != this_got_loop);
-            action LOOP_BREAK();
-    }
-
 
     fun *.duplicate (@target self: DirectByteBuffer): ByteBuffer
     {
@@ -463,7 +478,31 @@ automaton DirectByteBufferAutomaton
     // within java.nio.ByteBuffer
     fun *.equals (@target self: DirectByteBuffer, ob: Object): boolean
     {
-        action TODO();
+        if (self == ob)
+        {
+            result = true;
+        } else
+        {
+            if (!(ob is ByteBuffer))
+            {
+                result = false;
+            } else
+            {
+                var that: ByteBuffer = ob as ByteBuffer;
+                var this_rem: int = _remaining();
+                var that_rem: int = action CALL_METHOD(that, "remaining", []);
+                if (this_rem != that_rem)
+                {
+                    result = false;
+                }
+                else
+                {
+                    var that_pos: int = action CALL_METHOD(that, "position", []);
+                    var i: int = _mismatch(that, that_pos, this_rem);
+                    result = i < 0;
+                }
+            }
+        }
     }
 
 
@@ -585,7 +624,7 @@ automaton DirectByteBufferAutomaton
     // within java.nio.ByteBuffer
     @final fun *.hasArray (@target self: DirectByteBuffer): boolean
     {
-        action TODO();
+        result = (this.hb != null) && !this.isReadOnly;
     }
 
 
@@ -633,7 +672,7 @@ automaton DirectByteBufferAutomaton
 
     fun *.isReadOnly (@target self: DirectByteBuffer): boolean
     {
-        action TODO();
+        result = false;
     }
 
 
