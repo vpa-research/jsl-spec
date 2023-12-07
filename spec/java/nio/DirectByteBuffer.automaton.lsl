@@ -123,10 +123,11 @@ automaton DirectByteBufferAutomaton
     ];
 
     //internal variables
-    var storage: array<byte> = action ARRAY_NEW("char", 0);
+    var storage: array<byte> = action ARRAY_NEW("byte", 0);
 
     //DirectByteBuffer
     var att: Object = null;
+    var cleaner: Cleaner = null;
 
 
     //Buffer variables
@@ -149,6 +150,29 @@ automaton DirectByteBufferAutomaton
         result = this.storage[ind];
     }
 
+
+    proc _limit(newLimit: int): void
+    {
+        if (newLimit > this.capacity | newLimit < 0)
+            action THROW_NEW("java.lang.IllegalArgumentException", []);
+        this.limit = newLimit;
+        if (this.position > this.limit)
+            this.position = this.limit;
+        if (this.mark > this.limit)
+            this.mark = -1;
+    }
+
+
+    proc _position(newPosition: int): void
+    {
+        if (newPosition > this.limit | newPosition < 0)
+            action THROW_NEW("java.lang.IllegalArgumentException", []);
+        this.position = newPosition;
+        if (this.mark > this.position)
+            this.mark = -1;
+    }
+
+
     proc _remaining(): int
     {
         result = this.limit - this.position;
@@ -164,7 +188,7 @@ automaton DirectByteBufferAutomaton
 
     proc _slice(pos: int, lim: int): int
     {
-        if (pos >= 0 || pos <= lim)
+        if (pos < 0 || pos > lim)
             action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (pos >= 0)  and assert (pos <= lim) in original
         var rem: int = lim - pos;
 
@@ -343,7 +367,7 @@ automaton DirectByteBufferAutomaton
 
     fun *.cleaner (@target self: DirectByteBuffer): Cleaner
     {
-        action TODO();
+        result = this.cleaner;
     }
 
 
@@ -351,15 +375,41 @@ automaton DirectByteBufferAutomaton
     fun *.clear (@target self: DirectByteBuffer): Buffer
     {
         this.position = 0;
-        this.limit = capacity;
+        this.limit = this.capacity;
         this.mark = -1;
         result = self;
     }
 
-
     fun *.compact (@target self: DirectByteBuffer): ByteBuffer
     {
-        action TODO();
+
+        var pos: int = this.position;
+        var lim: int = this.limit;
+        if (pos > lim)
+            action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (pos <= lim) in original
+
+        var rem: int = lim - pos;
+
+        var new_storage: array<byte> = action ARRAY_NEW("byte", 0);
+
+        var i: int = 0;
+        var cur_pos: int = 0;
+        action LOOP_FOR(
+            i, pos, lim - 1, +1,
+            _compact_loop(i, cur_pos)
+        );
+
+        _position(rem);
+        //_limit just for reset limit? or we changed array size? (I didn't find a proove for last statement)
+        _limit(this.capacity);
+        this.mark = -1;
+        result = self;
+    }
+
+    @Phantom proc _compact_loop(i: int, cur_pos: int): void
+    {
+        this.storage[cur_pos] = this.storage[i];
+        cur_pos += 1;
     }
 
 
@@ -555,9 +605,9 @@ automaton DirectByteBufferAutomaton
         var i: int = 0;
         var endLoop: int = p - 1;
         action LOOP_FOR(
-                    i, this.limit, endLoop, -1,
-                    _genHash_loop(h, i)
-                );
+            i, this.limit, endLoop, -1,
+            _genHash_loop(h, i)
+        );
 
         result = h;
     }
@@ -597,13 +647,7 @@ automaton DirectByteBufferAutomaton
     // within java.nio.Buffer
     fun *.limit (@target self: DirectByteBuffer, newLimit: int): Buffer
     {
-        if (newLimit > this.capacity | newLimit < 0)
-            action THROW_NEW("java.lang.IllegalArgumentException", []);
-        this.limit = newLimit;
-        if (this.position > this.limit)
-            this.position = this.limit;
-        if (this.mark > this.limit)
-            this.mark = -1;
+        _limit(newLimit);
         result = self;
     }
 
@@ -654,11 +698,7 @@ automaton DirectByteBufferAutomaton
     // within java.nio.Buffer
     fun *.position (@target self: DirectByteBuffer, newPosition: int): Buffer
     {
-        if (newPosition > this.limit | newPosition < 0)
-            action THROW_NEW("java.lang.IllegalArgumentException", []);
-        this.position = newPosition;
-        if (this.mark > this.position)
-            this.mark = -1;
+        _position(newPosition);
         result = self;
     }
 
