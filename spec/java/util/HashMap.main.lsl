@@ -315,7 +315,7 @@ automaton HashMapAutomaton
                 val expectedModCount: int = this.modCount;
                 val otherExpectedModCount: int = HashMapAutomaton(other).modCount;
 
-                val otherStorage: map<Object, Object> = HashSetAutomaton(other).storage;
+                val otherStorage: map<Object, Object> = HashMapAutomaton(other).storage;
                 val otherLength: int = action MAP_SIZE(otherStorage);
                 val thisLength: int = action MAP_SIZE(this.storage);
 

@@ -10,6 +10,7 @@ library std
 
 import java/lang/Object;
 import java/util/Set;
+import java/io/Serializable;
 
 
 // primary semantic types
@@ -55,3 +56,12 @@ import java/util/Set;
 
 // global aliases and type overrides
 
+
+@GenerateMe
+@implements("java.io.Serializable")
+@public type SimpleEntry
+    is java.util.SimpleEntry
+    for Map_Entry
+{
+    @private @static val serialVersionUID: long = -8499721149061103585L;
+}
