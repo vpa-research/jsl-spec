@@ -125,6 +125,9 @@ automaton DirectByteBufferAutomaton
     //internal variables
     var storage: array<byte> = action ARRAY_NEW("byte", 0);
 
+    //MappedByteBuffer
+    var fd: FileSescriptor = null;
+
     //DirectByteBuffer
     var att: Object = null;
     var cleaner: Cleaner = null;
@@ -145,8 +148,15 @@ automaton DirectByteBufferAutomaton
 
     // utilities
 
-    proc _get(i: int): byte {
-        var ind: int = _nextIndex(i);
+    proc _checkIndex(i: int): void
+    {
+        if ((i < 0) || (i >= limit))
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
+    }
+
+    proc _get(i: int): byte
+    {
+        var ind: int = _nextGetIndex(i);
         result = this.storage[ind];
     }
 
@@ -197,7 +207,7 @@ automaton DirectByteBufferAutomaton
         result = new DirectByteBufferAutomaton(self, -1, 0, rem, rem, pos);
     }
 
-    proc _nextIndex(): int
+    proc _nextGetIndex(): int
     {
         if (this.position >= this.limit)
             action THROW_NEW("java.nio.BufferUnderflowException", []);
@@ -205,10 +215,27 @@ automaton DirectByteBufferAutomaton
         result = this.position;
     }
 
-    proc _nextIndex(nb: int): int
+    proc _nextGetIndex(nb: int): int
     {
         if (this.limit - this.position < nb)
             action THROW_NEW("java.nio.BufferUnderflowException", []);
+        var p: int = this.position;
+        this.position += nb;
+        result = p;
+    }
+
+    proc _nextPutIndex(): int
+    {
+        if (this.position >= this.limit)
+            action THROW_NEW("java.nio.BufferOverflowException", []);
+        this.position += 1;
+        result = this.position;
+    }
+
+    proc _nextPutIndex(nb: int): int
+    {
+        if (this.limit - this.position < nb)
+            action THROW_NEW("java.nio.BufferOverflowException", []);
         var p: int = this.position;
         this.position += nb;
         result = p;
@@ -519,13 +546,14 @@ automaton DirectByteBufferAutomaton
     // within java.nio.MappedByteBuffer
     @final fun *.force (@target self: DirectByteBuffer): MappedByteBuffer
     {
-        action TODO();
+        // #warning: write in file operation? how approximate it?
+        result = self;
     }
 
 
     fun *.get (@target self: DirectByteBuffer): byte
     {
-        var ind: int = _nextIndex();
+        var ind: int = _nextGetIndex();
         result = this.storage[ind];
     }
 
@@ -666,7 +694,8 @@ automaton DirectByteBufferAutomaton
     // within java.nio.MappedByteBuffer
     @final fun *.isLoaded (@target self: DirectByteBuffer): boolean
     {
-        action TODO();
+        // #warning: operation with physical memory?
+        result = action SYMBOLIC("boolean");
     }
 
 
@@ -694,7 +723,8 @@ automaton DirectByteBufferAutomaton
     // within java.nio.MappedByteBuffer
     @final fun *.load (@target self: DirectByteBuffer): MappedByteBuffer
     {
-        action TODO();
+        // #warning: operation with physical memory?
+        result = self;
     }
 
 
@@ -744,13 +774,64 @@ automaton DirectByteBufferAutomaton
 
     fun *.put (@target self: DirectByteBuffer, src: ByteBuffer): ByteBuffer
     {
-        action TODO();
+        if (src is DirectByteBuffer) {
+            if (src == this)
+                action THROW_NEW("java.lang.IllegalArgumentException", []);
+            var sb: DirectByteBuffer = src as DirectByteBuffer;
+
+            var spos: int = action CALL_METHOD(sb, "position", []);
+            var slim: int = sb.limit();
+             if (spos > slim)
+                action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (spos <= slim) in original
+
+            var srem: int = slim - spos;
+
+            var pos: int = this.position;
+            var lim: int = this.limit;
+            if (pos > lim)
+                action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (pos <= lim) in original
+
+            var rem: int = lim - pos;
+            if (srem > rem)
+                action THROW_NEW("java.nio.BufferOverflowException", []);
+
+            var
+            action LOOP_FOR(
+                i, pos, slim - 1, +1,
+                _copy_loop(i)
+            );
+
+            UNSAFE.copyMemory(sb.ix(spos), ix(pos));
+
+            action CALL_METHOD(sb, "position", [spos + srem]);
+            _position(pos + srem);
+        } else if (src.hb != null) {
+
+            var spos: int = src.position();
+            var slim: int = src.limit();
+            assert (spos <= slim);
+            var srem: int = slim - spos;
+
+            put(src.hb, src.offset + spos, srem);
+            src.position(spos + srem);
+
+        } else {
+            super.put(src);
+        }
+        result = self;
     }
 
 
+    @Phantom proc _copy_loop(i: int): void
+    {
+        this.storage[i] = this.storage[i];
+    }
+
     fun *.put (@target self: DirectByteBuffer, x: byte): ByteBuffer
     {
-        action TODO();
+        var i = _nextPutIndex();
+        this.storage[i] = x;
+        result = this;
     }
 
 
@@ -769,7 +850,9 @@ automaton DirectByteBufferAutomaton
 
     fun *.put (@target self: DirectByteBuffer, i: int, x: byte): ByteBuffer
     {
-        action TODO();
+        _checkIndex(i);
+        this.storage[i] = x;
+        result = this;
     }
 
 
