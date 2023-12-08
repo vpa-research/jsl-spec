@@ -22,7 +22,7 @@ import java/util/function/Function;
 
 automaton HashMapAutomaton
 (
-    var storage: map<Object, Object> = null
+    var storage: map<Object, Map_Entry>
 )
 : HashMap
 {
@@ -104,10 +104,14 @@ automaton HashMapAutomaton
     @Phantom proc _addAllElements_loop (iter: Iterator): void
     {
         val entry: Map_Entry = action CALL_METHOD(iter, "next", []) as Map_Entry;
-        val key: Object = action CALL_METHOD(entry, "getKey", []);
-        val value: Object = action CALL_METHOD(entry, "getValue", []);
+        val curKey: Object = action CALL_METHOD(entry, "getKey", []);
+        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
         // #note: maybe it will be needed checking "val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);"
-        action MAP_SET(this.storage, key, value);
+        val mapEntry: Map_Entry = new SimpleEntryAutomaton(state = Initialized,
+            key = curKey,
+            value = curValue
+        );
+        action MAP_SET(this.storage, curKey, mapEntry);
         this.modCount += 1;
     }
 
@@ -122,9 +126,14 @@ automaton HashMapAutomaton
     proc _getMappingOrDefault (key: Object, defaultValue: Object): Object
     {
         if (action MAP_HAS_KEY(this.storage, key))
-            result = action MAP_GET(this.storage, key);
+        {
+            val entry: Map_Entry = action MAP_GET(this.storage, key);
+            result = action CALL_METHOD(entry, "getValue", []);
+        }
         else
+        {
             result = defaultValue;
+        }
     }
 
 
@@ -184,7 +193,7 @@ automaton HashMapAutomaton
 
     fun *.clone (@target self: HashMap): Object
     {
-        val storageCopy: map<Object, Object> = action MAP_CLONE(this.storage);
+        val storageCopy: map<Object, Map_Entry> = action MAP_CLONE(this.storage);
         result = new HashMapAutomaton(state = Initialized,
             storage = storageCopy
         );
@@ -196,16 +205,18 @@ automaton HashMapAutomaton
         if (remappingFunction == null)
             _throwNPE();
 
-        val oldValue: Object = action MAP_GET(this.storage, key);
+        val entry: Map_Entry = action MAP_GET(this.storage, key);
+        val oldValue: Object = action CALL_METHOD(entry, "getValue", []);
         val expectedModCount: int = this.modCount;
 
         val newValue: Object = action CALL(remappingFunction, [key, oldValue]);
+        action CALL_METHOD(entry, "setValue", [newValue]);
         _checkForComodification(expectedModCount);
 
         if (newValue == null)
             action MAP_REMOVE(this.storage, key);
         else
-            action MAP_SET(this.storage, key, newValue);
+            action MAP_SET(this.storage, key, entry);
 
         result = newValue;
     }
@@ -216,7 +227,8 @@ automaton HashMapAutomaton
         if (mappingFunction == null)
             _throwNPE();
 
-        val oldValue: Object = action MAP_GET(this.storage, key);
+        val entry: Map_Entry = action MAP_GET(this.storage, key);
+        val oldValue: Object = action CALL_METHOD(entry, "getValue", []);
         if (oldValue != null)
         {
             result = oldValue;
@@ -225,9 +237,10 @@ automaton HashMapAutomaton
         {
             val expectedModCount: int = this.modCount;
             val newValue: Object = action CALL(mappingFunction, [key]);
+            action CALL_METHOD(entry, "setValue", [newValue]);
             _checkForComodification(expectedModCount);
             if (newValue != null)
-                action MAP_SET(this.storage, key, newValue);
+                action MAP_SET(this.storage, key, entry);
             result = newValue;
         }
 
@@ -239,7 +252,8 @@ automaton HashMapAutomaton
         if (remappingFunction == null)
             _throwNPE();
 
-        val oldValue: Object = action MAP_GET(this.storage, key);
+        val entry: Map_Entry = action MAP_GET(this.storage, key);
+        val oldValue: Object = action CALL_METHOD(entry, "getValue", []);
         if (oldValue == null)
         {
             result = oldValue;
@@ -248,11 +262,12 @@ automaton HashMapAutomaton
         {
             val expectedModCount: int = this.modCount;
             val newValue: Object = action CALL(remappingFunction, [key, oldValue]);
+            action CALL_METHOD(entry, "setValue", [newValue]);
             _checkForComodification(expectedModCount);
             if (newValue == null)
                 action MAP_REMOVE(this.storage, key);
             else
-                action MAP_SET(this.storage, key, newValue);
+                action MAP_SET(this.storage, key, entry);
             result = newValue;
         }
     }
@@ -286,7 +301,8 @@ automaton HashMapAutomaton
     @Phantom proc _containsValue_loop (result: boolean, storageCopy: map<Object, Object>, value: Object): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
-        val curValue: Object = action MAP_GET(storageCopy, curKey);
+        val entry: Map_Entry = action MAP_GET(this.storage, curKey);
+        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
         if (action OBJECT_EQUALS(curValue, value))
             result = true;
         else
@@ -355,7 +371,8 @@ automaton HashMapAutomaton
     @Phantom proc forEach_loop (storageClone: map<Object, Object>, _action: BiConsumer): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(storageClone);
-        val curValue: Object = action MAP_GET(storageClone, curKey);
+        val entry: Map_Entry = action MAP_GET(this.storage, curKey);
+        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
         action CALL(_action, [curKey, curValue]);
         action MAP_REMOVE(storageClone, curKey);
     }
@@ -389,10 +406,13 @@ automaton HashMapAutomaton
 
     fun *.keySet (@target self: HashMap): Set
     {
+        /*
         result = new HashMap_KeySetAutomaton(state = Initialized,
             storage = this.storage,
             parent = self
         );
+        */
+        action TODO();
     }
 
 
@@ -406,6 +426,7 @@ automaton HashMapAutomaton
 
         val oldValue: Object = _getMappingOrDefault(key, null);
         var newValue: Object = value;
+        val entry: Map_Entry = action MAP_GET(this.storage, key);
         if (oldValue != null)
         {
             val expectedModCount: int = this.modCount;
@@ -418,7 +439,8 @@ automaton HashMapAutomaton
             }
             else
             {
-                action MAP_SET(this.storage, key, newValue);
+                action CALL_METHOD(entry, "setValue", [newValue]);
+                action MAP_SET(this.storage, key, entry);
             }
 
             this.modCount += 1;
@@ -426,7 +448,8 @@ automaton HashMapAutomaton
         }
         else
         {
-            action MAP_SET(this.storage, key, value);
+            action CALL_METHOD(entry, "setValue", [newValue]);
+            action MAP_SET(this.storage, key, entry);
             this.modCount += 1;
             result = value;
         }
@@ -435,11 +458,15 @@ automaton HashMapAutomaton
 
     fun *.put (@target self: HashMap, key: Object, value: Object): Object
     {
-        if (action MAP_HAS_KEY(this.storage, key))
-            result = action MAP_GET(this.storage, key);
+        var entry: Map_Entry = action MAP_GET(this.storage, key);
+        if (action CALL_METHOD(entry, "getValue", []) != null)
+            result = action CALL_METHOD(entry, "getValue", []);
         else
             result = null;
-        action MAP_SET(this.storage, key, value);
+
+        action CALL_METHOD(entry, "setValue", [value]);
+        // #question: do we need to call action MAP_SET ? As I understand - no; entry is reference type
+        action MAP_SET(this.storage, key, entry);
         this.modCount += 1;
     }
 
@@ -460,7 +487,10 @@ automaton HashMapAutomaton
         result = _getMappingOrDefault(key, null);
         if (result == null)
         {
-            action MAP_SET(this.storage, key, value);
+            val entry: Map_Entry = action MAP_GET(this.storage, key);
+            action CALL_METHOD(entry, "setValue", [value]);
+            // #question: do we need to call action MAP_SET ? As I understand - no; entry is reference type
+            action MAP_SET(this.storage, key, entry);
             this.modCount += 1;
         }
     }
@@ -470,7 +500,8 @@ automaton HashMapAutomaton
     {
         if (action MAP_HAS_KEY(this.storage, key))
         {
-            result = action MAP_GET(this.storage, key);
+            val entry: Map_Entry = action MAP_GET(this.storage, key);
+            result = action CALL_METHOD(entry, "getValue", [])
             action MAP_REMOVE(this.storage, key);
             this.modCount += 1;
         }
@@ -487,7 +518,8 @@ automaton HashMapAutomaton
 
         if (action MAP_HAS_KEY(this.storage, key))
         {
-            val curValue: Object = action MAP_GET(this.storage, key);
+            val entry: Map_Entry = action MAP_GET(this.storage, key);
+            val curValue: Object = action CALL_METHOD(entry, "getValue", []);
             // #question: It will throw NPE if curValue == null and value == null ? Or not ?
             if (action OBJECT_EQUALS(curValue, value))
             {
@@ -515,11 +547,13 @@ automaton HashMapAutomaton
         result = false;
         if (action MAP_HAS_KEY(this.storage, key))
         {
-            val curValue: Object = action MAP_GET(this.storage, key);
-            // #question: It will throw NPE if curValue == null and oldValue == null ? Or not ?
+            val entry: Map_Entry = action MAP_GET(this.storage, key);
+            val curValue: Object = action CALL_METHOD(entry, "getValue", []);
             if (action OBJECT_EQUALS(curValue, oldValue))
             {
-                action MAP_SET(this.storage, key, newValue);
+                action CALL_METHOD(entry, "setValue", [newValue]);
+                // #question: do we need to call action MAP_SET ? As I understand - no; entry is reference type
+                action MAP_SET(this.storage, key, entry);
                 result = true;
             }
         }
@@ -551,7 +585,8 @@ automaton HashMapAutomaton
     @Phantom proc replaceAll_loop (storageClone: map<Object, Object>, function: BiFunction): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(storageClone);
-        val curValue: Object = action MAP_GET(storageClone, curKey);
+        val entry: Map_Entry = action MAP_GET(this.storage, curKey);
+        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
         action CALL(function, [curKey, curValue]);
         action MAP_REMOVE(storageClone, curKey);
     }
@@ -573,10 +608,13 @@ automaton HashMapAutomaton
 
     fun *.values (@target self: HashMap): Collection
     {
+        /*
         result = new HashMap_ValuesAutomaton(state = Initialized,
             storage = this.storage,
             parent = self
         );
+        */
+        action TODO();
     }
 
 }

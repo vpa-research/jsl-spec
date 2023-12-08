@@ -59,6 +59,7 @@ import java/io/Serializable;
 
 @GenerateMe
 @implements("java.io.Serializable")
+@implements("java.util.Map.Entry")
 @public type SimpleEntry
     is java.util.SimpleEntry
     for Map_Entry

@@ -25,7 +25,7 @@ import java/util/Map;
 
 automaton HashMap_EntrySetAutomaton
 (
-    var storage: map<Object, Object>,
+    var storage: map<Object, Map_Entry>,
     var parent: HashMap
 )
 : HashMap_EntrySet
