@@ -40,12 +40,3 @@ import java/util/Spliterator;
     for PrimitiveIterator_OfInt
 {
 }
-
-
-@GenerateMe
-@implements("java.util.Spliterator.OfInt")
-@public type IntStreamLSLSpliterator
-    is java.util.stream.IntStreamLSLSpliterator
-    for Spliterator_OfInt
-{
-}

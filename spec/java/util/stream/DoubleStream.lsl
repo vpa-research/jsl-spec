@@ -44,12 +44,3 @@ import java/util/Spliterator;
     for PrimitiveIterator_OfDouble
 {
 }
-
-
-@GenerateMe
-@implements("java.util.Spliterator.OfDouble")
-@public type DoubleStreamLSLSpliterator
-    is java.util.stream.DoubleStreamLSLSpliterator
-    for Spliterator_OfDouble
-{
-}

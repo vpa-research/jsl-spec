@@ -907,12 +907,11 @@ automaton LongStreamAutomaton
     {
         _checkConsumed();
 
-        val default_characteristics: int = SPLITERATOR_ORDERED | SPLITERATOR_IMMUTABLE | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED;
-        result = new LongStreamSpliteratorAutomaton(state = Initialized,
-            parent = self,
+        result = new Spliterators_LongArraySpliteratorAutomaton(state = Initialized,
+            array = this.storage,
             index = 0,
             fence = this.length,
-            characteristics = default_characteristics,
+            characteristics = SPLITERATOR_ORDERED | SPLITERATOR_IMMUTABLE | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED,
         );
 
         _consume();

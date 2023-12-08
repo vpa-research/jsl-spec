@@ -7,7 +7,6 @@ library std
 
 // imports
 
-import java/util/stream/DoubleStream;
 import java/lang/Double;
 import java/util/function/DoubleFunction;
 import java/util/function/DoublePredicate;
@@ -19,6 +18,9 @@ import java/util/function/ObjDoubleConsumer;
 import java/util/DoubleSummaryStatistics;
 import java/util/PrimitiveIterator;
 import java/util/OptionalDouble;
+
+import java/util/stream/DoubleStream;
+import java/util/Spliterators;
 
 
 // automata
@@ -930,12 +932,11 @@ automaton DoubleStreamAutomaton
     {
         _checkConsumed();
 
-        val default_characteristics: int = SPLITERATOR_ORDERED | SPLITERATOR_IMMUTABLE | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED;
-        result = new DoubleStreamSpliteratorAutomaton(state = Initialized,
-            parent = self,
+        result = new Spliterators_DoubleArraySpliteratorAutomaton(state = Initialized,
+            array = this.storage,
             index = 0,
             fence = this.length,
-            characteristics = default_characteristics,
+            characteristics = SPLITERATOR_ORDERED | SPLITERATOR_IMMUTABLE | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED,
         );
 
         _consume();

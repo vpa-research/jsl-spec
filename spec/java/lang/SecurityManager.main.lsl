@@ -404,7 +404,8 @@ automaton SecurityManagerAutomaton
 
     @Phantom fun *.getThreadGroup (@target self: LSLSecurityManager): ThreadGroup
     {
-        // NOTE: using the original method
+        // NOTE: using the original method - Thread modelling is a separate task on its own
+        // #todo: return valid thread group object
     }
 
 }
