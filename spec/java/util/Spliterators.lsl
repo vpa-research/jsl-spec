@@ -20,6 +20,8 @@ import java/util/Spliterator;
     is java.util.Spliterators
     for Object
 {
+    // #todo: add automata implementations
+
     @static fun *.emptySpliterator(): Spliterator;
 
     @static fun *.emptyDoubleSpliterator(): Spliterator_OfDouble;
@@ -35,22 +37,12 @@ import java/util/Spliterator;
     @static fun *.iterator(spliterator: Spliterator_OfInt): PrimitiveIterator_OfInt;
 
     @static fun *.iterator(spliterator: Spliterator_OfLong): PrimitiveIterator_OfLong;
-
-    // #todo: add automata implementations
-
-    @static fun *.spliterator(arr: array<Object>, fromIndex: int, toIndex: int, additionalCharacteristics: int): Spliterator;
-
-    @static fun *.spliterator(arr: array<double>, fromIndex: int, toIndex: int, additionalCharacteristics: int): Spliterator_OfDouble;
-
-    @static fun *.spliterator(arr: array<int>, fromIndex: int, toIndex: int, additionalCharacteristics: int): Spliterator_OfInt;
-
-    @static fun *.spliterator(arr: array<long>, fromIndex: int, toIndex: int, additionalCharacteristics: int): Spliterator_OfLong;
 }
 
 
 // global aliases and type overrides
 
-//@GenerateMe
+@GenerateMe
 @implements("java.util.Spliterator")
 @final type Spliterators_ArraySpliterator
     is java.util.Spliterators_ArraySpliterator // #problem: private class

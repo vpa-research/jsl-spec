@@ -80,6 +80,8 @@ automaton Spliterators_IntArraySpliteratorAutomaton
     constructor *.init (@target self: Spliterators_IntArraySpliterator,
                         arr: array<int>, additionalCharacteristics: int)
     {
+        // WARNING: unused
+
         this.array = arr;
         this.index = 0;
         this.fence = action ARRAY_SIZE(arr);
@@ -90,6 +92,8 @@ automaton Spliterators_IntArraySpliteratorAutomaton
     constructor *.init (@target self: Spliterators_IntArraySpliterator,
                         arr: array<int>, origin: int, pFence: int, additionalCharacteristics: int)
     {
+        // WARNING: unused
+
         this.array = arr;
         this.index = origin;
         this.fence = pFence;

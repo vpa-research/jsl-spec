@@ -7,24 +7,24 @@ library std
 
 // imports
 
+import java/lang/Object;
 import java/util/Comparator;
 import java/util/Spliterator;
 import java/util/function/Consumer;
-import java/util/function/DoubleConsumer;
 
 import java/util/Spliterators;
 
 
 // automata
 
-automaton Spliterators_DoubleArraySpliteratorAutomaton
+automaton Spliterators_ArraySpliteratorAutomaton
 (
-    var array: array<double>,
+    var array: array<Object>,
     var index: int = 0,
     var fence: int = -1,
     var characteristics: int = 0,
 )
-: Spliterators_DoubleArraySpliterator
+: Spliterators_ArraySpliterator
 {
     // states and shifts
 
@@ -33,23 +33,21 @@ automaton Spliterators_DoubleArraySpliteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        init (Spliterators_DoubleArraySpliterator, array<double>, int),
-        init (Spliterators_DoubleArraySpliterator, array<double>, int, int, int),
+        init (Spliterators_ArraySpliterator, array<Object>, int),
+        init (Spliterators_ArraySpliterator, array<Object>, int, int, int),
     ];
 
     shift Initialized -> self by [
         // instance methods
         characteristics,
         estimateSize,
-        forEachRemaining (Spliterators_DoubleArraySpliterator, Consumer),
-        forEachRemaining (Spliterators_DoubleArraySpliterator, DoubleConsumer),
-        forEachRemaining (Spliterators_DoubleArraySpliterator, Object),
+        forEachRemaining (Spliterators_ArraySpliterator, Consumer),
+        forEachRemaining (Spliterators_ArraySpliterator, Object),
         getComparator,
         getExactSizeIfKnown,
         hasCharacteristics,
-        tryAdvance (Spliterators_DoubleArraySpliterator, Consumer),
-        tryAdvance (Spliterators_DoubleArraySpliterator, DoubleConsumer),
-        tryAdvance (Spliterators_DoubleArraySpliterator, Object),
+        tryAdvance (Spliterators_ArraySpliterator, Consumer),
+        tryAdvance (Spliterators_ArraySpliterator, Object),
         trySplit,
     ];
 
@@ -77,8 +75,8 @@ automaton Spliterators_DoubleArraySpliteratorAutomaton
 
     // constructors
 
-    constructor *.init (@target self: Spliterators_DoubleArraySpliterator,
-                        arr: array<double>, additionalCharacteristics: int)
+    constructor *.init (@target self: Spliterators_ArraySpliterator,
+                        arr: array<Object>, additionalCharacteristics: int)
     {
         // WARNING: unused
 
@@ -89,8 +87,8 @@ automaton Spliterators_DoubleArraySpliteratorAutomaton
     }
 
 
-    constructor *.init (@target self: Spliterators_DoubleArraySpliterator,
-                        arr: array<double>, origin: int, pFence: int, additionalCharacteristics: int)
+    constructor *.init (@target self: Spliterators_ArraySpliterator,
+                        arr: array<Object>, origin: int, pFence: int, additionalCharacteristics: int)
     {
         // WARNING: unused
 
@@ -105,13 +103,13 @@ automaton Spliterators_DoubleArraySpliteratorAutomaton
 
     // methods
 
-    fun *.characteristics (@target self: Spliterators_DoubleArraySpliterator): int
+    fun *.characteristics (@target self: Spliterators_ArraySpliterator): int
     {
         result = this.characteristics;
     }
 
 
-    fun *.estimateSize (@target self: Spliterators_DoubleArraySpliterator): long
+    fun *.estimateSize (@target self: Spliterators_ArraySpliterator): long
     {
         result = (this.fence - this.index) as long;
     }
@@ -122,7 +120,7 @@ automaton Spliterators_DoubleArraySpliteratorAutomaton
         if (_action == null)
             _throwNPE();
 
-        val a: array<double> = this.array;
+        val a: array<Object> = this.array;
 
         var hi: int = this.fence;
         var i: int = this.index;
@@ -134,35 +132,29 @@ automaton Spliterators_DoubleArraySpliteratorAutomaton
         );
     }
 
-    @Phantom proc _forEachRemaining_loop (i: int, a: array<double>, _action: Consumer): void
+    @Phantom proc _forEachRemaining_loop (i: int, a: array<Object>, _action: Consumer): void
     {
-        val item: double = a[i];
+        val item: Object = a[i];
         action CALL(_action, [item]);
     }
 
 
-    fun *.forEachRemaining (@target self: Spliterators_DoubleArraySpliterator, _action: DoubleConsumer): void
+    fun *.forEachRemaining (@target self: Spliterators_ArraySpliterator, _action: Consumer): void
     {
         _forEachRemaining(_action); // WARNING: inlined call!
     }
 
 
-    fun *.forEachRemaining (@target self: Spliterators_DoubleArraySpliterator, _action: Consumer): void
-    {
-        _forEachRemaining(_action); // WARNING: inlined call!
-    }
-
-
-    @Phantom fun *.forEachRemaining (@target self: Spliterators_DoubleArraySpliterator, userAction: Object): void
+    @Phantom fun *.forEachRemaining (@target self: Spliterators_ArraySpliterator, userAction: Object): void
     {
         // NOTE: using the original method due to Java Compiler error "name clash"
 
-        val _action: DoubleConsumer = userAction as DoubleConsumer;
+        val _action: Consumer = userAction as Consumer;
         _forEachRemaining(_action); // WARNING: inlined call!
     }
 
 
-    fun *.getComparator (@target self: Spliterators_DoubleArraySpliterator): Comparator
+    fun *.getComparator (@target self: Spliterators_ArraySpliterator): Comparator
     {
         if (_hasCharacteristics(SPLITERATOR_SORTED))
             result = null;
@@ -171,13 +163,13 @@ automaton Spliterators_DoubleArraySpliteratorAutomaton
     }
 
 
-    fun *.getExactSizeIfKnown (@target self: Spliterators_DoubleArraySpliterator): long
+    fun *.getExactSizeIfKnown (@target self: Spliterators_ArraySpliterator): long
     {
         result = (this.fence - this.index) as long;
     }
 
 
-    fun *.hasCharacteristics (@target self: Spliterators_DoubleArraySpliterator, _characteristics: int): boolean
+    fun *.hasCharacteristics (@target self: Spliterators_ArraySpliterator, _characteristics: int): boolean
     {
         result = _hasCharacteristics(_characteristics);
     }
@@ -195,7 +187,7 @@ automaton Spliterators_DoubleArraySpliteratorAutomaton
         {
             this.index = i + 1;
 
-            val item: double = this.array[i];
+            val item: Object = this.array[i];
             action CALL(_action, [item]);
 
             result = true;
@@ -207,28 +199,22 @@ automaton Spliterators_DoubleArraySpliteratorAutomaton
     }
 
 
-    fun *.tryAdvance (@target self: Spliterators_DoubleArraySpliterator, _action: DoubleConsumer): boolean
+    fun *.tryAdvance (@target self: Spliterators_ArraySpliterator, _action: Consumer): boolean
     {
         _tryAdvance(_action); // WARNING: inlined call!
     }
 
 
-    fun *.tryAdvance (@target self: Spliterators_DoubleArraySpliterator, _action: Consumer): boolean
-    {
-        _tryAdvance(_action); // WARNING: inlined call!
-    }
-
-
-    @Phantom fun *.tryAdvance (@target self: Spliterators_DoubleArraySpliterator, userAction: Object): boolean
+    @Phantom fun *.tryAdvance (@target self: Spliterators_ArraySpliterator, userAction: Object): boolean
     {
         // NOTE: using the original method due to Java Compiler error "name clash"
 
-        val _action: DoubleConsumer = userAction as DoubleConsumer;
+        val _action: Consumer = userAction as Consumer;
         _tryAdvance(_action); // WARNING: inlined call!
     }
 
 
-    fun *.trySplit (@target self: Spliterators_DoubleArraySpliterator): Spliterator_OfDouble
+    fun *.trySplit (@target self: Spliterators_ArraySpliterator): Spliterator
     {
         val hi: int = this.fence;
         val lo: int = this.index;
@@ -237,7 +223,7 @@ automaton Spliterators_DoubleArraySpliteratorAutomaton
         if (lo >= mid)
             result = null;
         else
-            result = new Spliterators_DoubleArraySpliteratorAutomaton(state = Initialized,
+            result = new Spliterators_ArraySpliteratorAutomaton(state = Initialized,
                 array = this.array,
                 index = lo,
                 fence = mid,
