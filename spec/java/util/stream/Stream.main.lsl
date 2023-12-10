@@ -29,7 +29,9 @@ import java/util/stream/Collector;
 import java/util/stream/DoubleStream;
 import java/util/stream/IntStream;
 import java/util/stream/LongStream;
+
 import java/util/stream/Stream;
+import java/util/Spliterators;
 
 
 // automata
@@ -1095,13 +1097,13 @@ automaton StreamAutomaton
     {
         _checkConsumed();
 
-        val default_characteristics: int = SPLITERATOR_ORDERED | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED;
-        result = new StreamSpliteratorAutomaton(state = Initialized,
-            parent = self,
+        result = new Spliterators_ArraySpliteratorAutomaton(state = Initialized,
+            array = this.storage,
             index = 0,
             fence = this.length,
-            characteristics = default_characteristics,
+            characteristics = SPLITERATOR_ORDERED | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED,
         );
+
         _consume();
     }
 
