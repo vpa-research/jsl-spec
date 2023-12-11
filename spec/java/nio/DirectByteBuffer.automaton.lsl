@@ -313,11 +313,7 @@ automaton DirectByteBufferAutomaton
 
     proc _getCharUnaligned(offset: long): char
     {
-        if ((offset & 1) == 0) {
-            result = this.storage[offset] as char;
-        } else {
-            result = _makeShort(this.storage[offset], this.storage[offset+1]) as char;
-        }
+        result = _makeShort(this.storage[offset], this.storage[offset+1]) as char;
     }
 
 
@@ -336,17 +332,6 @@ automaton DirectByteBufferAutomaton
         result = _longBitsToDouble(endian_x);
     }
 
-    proc _getLongUnaligned(offset: long): long
-    {
-        result = _makeLong(this.storage[offset],
-                         this.storage[offset + 1],
-                         this.storage[offset + 2],
-                         this.storage[offset + 3],
-                         this.storage[offset + 4],
-                         this.storage[offset + 5],
-                         this.storage[offset + 6],
-                         this.storage[offset + 7]);
-    }
 
     proc _longBitsToDouble(bits: long): double
     {
@@ -372,13 +357,6 @@ automaton DirectByteBufferAutomaton
             else m = (bits & 4503599627370495L) | 4503599627370496L;
             result = (s * m * 2 ^ (e - 1075)) as double;
         }
-    }
-
-
-    proc _convEndian(n: long): long
-    {
-        if (this.bigEndian == true) result = n;
-        else result = action CALL_METHOD(null as Long, "reverseBytes", [n]);
     }
 
 
@@ -441,7 +419,47 @@ automaton DirectByteBufferAutomaton
         else result = action CALL_METHOD(null as Integer, "reverseBytes", [n]);
     }
 
-    //utilities unsafe base
+
+    proc _makeInt(i0: byte, i1: byte, i2: byte, i3: byte): int
+    {
+        result = ((_toUnsignedInt(i0) << _pickPos(24, 0))
+              | (_toUnsignedInt(i1) << _pickPos(24, 8))
+              | (_toUnsignedInt(i2) << _pickPos(24, 16))
+              | (_toUnsignedInt(i3) << _pickPos(24, 24)));
+    }
+
+    proc _toUnsignedInt(n: byte): int
+    {
+        result = n & 255;
+    }
+
+    //utilities for getLong
+
+    proc _getLong(offset: long): long
+    {
+        var x: long = _getLongUnaligned(offset);
+        result = _convEndian(x);
+    }
+
+    proc _getLongUnaligned(offset: long): long
+    {
+        result = _makeLong(this.storage[offset],
+                         this.storage[offset + 1],
+                         this.storage[offset + 2],
+                         this.storage[offset + 3],
+                         this.storage[offset + 4],
+                         this.storage[offset + 5],
+                         this.storage[offset + 6],
+                         this.storage[offset + 7]);
+    }
+
+
+    proc _convEndian(n: long): long
+    {
+        if (this.bigEndian == true) result = n;
+        else result = action CALL_METHOD(null as Long, "reverseBytes", [n]);
+    }
+
 
     proc _makeLong(i0: byte, i1: byte, i2: byte, i3: byte, i4: byte, i5: byte, i6: byte, i7: byte): long
     {
@@ -456,14 +474,29 @@ automaton DirectByteBufferAutomaton
     }
 
 
-    proc _makeInt(i0: byte, i1: byte, i2: byte, i3: byte): int
+    proc _toUnsignedLon(n: byte): long
     {
-        result = ((_toUnsignedIn(i0) << _pickPos(24, 0))
-              | (_toUnsignedIn(i1) << _pickPos(24, 8))
-              | (_toUnsignedIn(i2) << _pickPos(24, 16))
-              | (_toUnsignedIn(i3) << _pickPos(24, 24)));
+        result = n & 255L;
     }
 
+    //utilities for getShort
+
+    proc _getShort(offset: long): short
+    {
+        var x: short = _getShortUnaligned(offset);
+        result = _convEndian(x);
+    }
+
+    proc _getShortUnaligned(offset: long): short
+    {
+        result = _makeShort(this.storage[offset], this.storage[offset+1]);
+    }
+
+    proc _convEndian(n: short): short
+    {
+        if (this.bigEndian == true) result = n;
+        else result = action CALL_METHOD(null as Short, "reverseBytes", [n]);
+    }
 
     proc _makeShort(i0: byte, i1: byte): short
     {
@@ -471,15 +504,12 @@ automaton DirectByteBufferAutomaton
             | (_toUnsignedInt(i1) << _pickPos(8, 8))) as short;
     }
 
+    //utilities unsafe base
+
     proc _pickPos(top: int, pos: int): int
     {
         if (this.bigEndian == true) result = top - pos;
         else result = pos;
-    }
-
-    proc _toUnsignedInt(n: byte): int
-    {
-        result = n & 255;
     }
 
     // constructors
@@ -798,80 +828,84 @@ automaton DirectByteBufferAutomaton
     fun *.getChar (@target self: DirectByteBuffer): char
     {
         var next_index = _nextGetIndex(2);
-        result = _getChar(next_index);
+        result = _getChar(next_index as long);
     }
 
 
     fun *.getChar (@target self: DirectByteBuffer, i: int): char
     {
         _checkIndex(i, 2);
-        result = _getChar(i);
+        result = _getChar(i as long);
     }
 
 
     fun *.getDouble (@target self: DirectByteBuffer): double
     {
         var next_index = _nextGetIndex(8);
-        result = _getDouble(next_index);
+        result = _getDouble(next_index as long);
     }
 
 
     fun *.getDouble (@target self: DirectByteBuffer, i: int): double
     {
         _checkIndex(i, 8);
-        result = _getDouble(i);
+        result = _getDouble(i as long);
     }
 
 
     fun *.getFloat (@target self: DirectByteBuffer): float
     {
         var next_index = _nextGetIndex(4);
-        result = _getFloat(next_index);
+        result = _getFloat(next_index as long);
     }
 
 
     fun *.getFloat (@target self: DirectByteBuffer, i: int): float
     {
         _checkIndex(i, 4);
-        result = _getFloat(i);
+        result = _getFloat(i as long);
     }
 
 
     fun *.getInt (@target self: DirectByteBuffer): int
     {
         var next_index = _nextGetIndex(4);
-        result = _getInt(next_index);
+        result = _getInt(next_index as long);
     }
 
 
     fun *.getInt (@target self: DirectByteBuffer, i: int): int
     {
         _checkIndex(i, 4);
-        result = _getInt(i);
+        result = _getInt(i as long);
     }
 
 
     fun *.getLong (@target self: DirectByteBuffer): long
     {
-        action TODO();
+        var next_index = _nextGetIndex(8);
+        result = _getLong(next_index as long);
     }
 
 
     fun *.getLong (@target self: DirectByteBuffer, i: int): long
     {
-        action TODO();
+        _checkIndex(i, 8);
+        result = _getLong(i as long);
     }
 
 
     fun *.getShort (@target self: DirectByteBuffer): short
     {
-        action TODO();
+        var next_index = _nextGetIndex(2);
+        result = _getShort(next_index as long);
     }
 
 
     fun *.getShort (@target self: DirectByteBuffer, i: int): short
     {
-        action TODO();
+        _checkIndex(i, 2);
+        result = _getShort(i as long);
     }
 
 

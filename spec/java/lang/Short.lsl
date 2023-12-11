@@ -19,6 +19,7 @@ import java/lang/Number;
     is java.lang.Short
     for Comparable, Number, short
 {
+    @static fun *.reverseBytes(i: short): short;
 }
 
 
