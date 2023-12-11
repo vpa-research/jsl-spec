@@ -116,14 +116,16 @@ automaton HashMap_ValuesAutomaton
     // within java.util.AbstractCollection
     fun *.add (@target self: HashMap_Values, e: Object): boolean
     {
-        _throwUOE();
+        if (true) // <- fooling Java compiler to not give "unreachable statement" error
+            _throwUOE();
     }
 
 
     // within java.util.AbstractCollection
     fun *.addAll (@target self: HashMap_Values, c: Collection): boolean
     {
-        _throwUOE();
+        if (true) // <- fooling Java compiler to not give "unreachable statement" error
+            _throwUOE();
     }
 
 
@@ -244,14 +246,11 @@ automaton HashMap_ValuesAutomaton
     @final fun *.iterator (@target self: HashMap_Values): Iterator
     {
         // #question: this is right realization ?
-        /*
         val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
         result = new HashMap_ValueIteratorAutomaton(state = Initialized,
             parent = this.parent,
             storageCopy = storageCopy
         );
-        */
-        action TODO();
     }
 
 
