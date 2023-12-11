@@ -306,7 +306,7 @@ automaton DirectByteBufferAutomaton
 
     proc _getChar(offset: long): char
     {
-        var character = _getCharUnaligned(offset);
+        var character: char = _getCharUnaligned(offset);
         result = _convEndian(character);
     }
 
@@ -319,6 +319,83 @@ automaton DirectByteBufferAutomaton
             result = _makeShort(this.storage[offset], this.storage[offset+1]) as char;
         }
     }
+
+
+    proc _convEndian(n: char): char
+    {
+        if (this.bigEndian == true) result = n;
+        else result = action CALL_METHOD(null as Character, "reverseBytes", [n]);
+    }
+
+    //utilities for getDouble
+
+    proc _getDouble(offset: long): char
+    {
+        var x: long = _getLongUnaligned(offset);
+        var endian_x: long = _convEndian(x);
+        result = _longBitsToDouble(endian_x);
+    }
+
+    proc _getLongUnaligned(offset: long): long
+    {
+        result = _makeLong(this.storage[offset],
+                         this.storage[offset + 1],
+                         this.storage[offset + 2],
+                         this.storage[offset + 3],
+                         this.storage[offset + 4],
+                         this.storage[offset + 5],
+                         this.storage[offset + 6],
+                         this.storage[offset + 7]);
+    }
+
+    proc _longBitsToDouble(bits: long): double
+    {
+        if (bits == 9218868437227405312L)
+        {
+            result = DOUBLE_POSITIVE_INFINITY;
+        } else if (bits == 18442240474082181120L)
+        {
+            result = DOUBLE_NEGATIVE_INFINITY;
+        } else if (bits >= 9218868437227405313L && bits =< 9223372036854775807L
+                        || bits >= 18442240474082181121 && bits =< 18446744073709551615L)
+        {
+            result = DOUBLE_NAN;
+        } else
+        {
+            var s: int = 0;
+            if ((bits >> 63) == 0) s = 1;
+            else s = -1;
+
+            var e: int = ((bits >> 52) & 2047L) as int;
+            var m: long = 0L;
+            if (e == 0) m = (bits & 4503599627370495L) << 1;
+            else m = (bits & 4503599627370495L) | 4503599627370496L;
+            result = s * m * 2 ^ (e - 1075);
+        }
+    }
+
+
+    proc _convEndian(n: long): long
+    {
+        if (this.bigEndian == true) result = n;
+        else result = action CALL_METHOD(null as Long, "reverseBytes", [n]);
+    }
+
+
+    proc _makeLong(i0: byte, i1: byte, i2: byte, i3: byte, i4: byte, i5: byte, i6: byte, i7: byte): long
+    {
+        result = ((_toUnsignedLong(i0) << _pickPos(56, 0))
+            | (_toUnsignedLong(i1) << _pickPos(56, 8))
+            | (_toUnsignedLong(i2) << _pickPos(56, 16))
+            | (_toUnsignedLong(i3) << _pickPos(56, 24))
+            | (_toUnsignedLong(i4) << _pickPos(56, 32))
+            | (_toUnsignedLong(i5) << _pickPos(56, 40))
+            | (_toUnsignedLong(i6) << _pickPos(56, 48))
+            | (_toUnsignedLong(i7) << _pickPos(56, 56)));
+    }
+
+
+    //utilities unsafe base
 
     proc _makeShort(i0: byte, i1: byte): short
     {
@@ -335,12 +412,6 @@ automaton DirectByteBufferAutomaton
     proc _toUnsignedInt(n: byte): int
     {
         result = n & 0xff;
-    }
-
-    proc _convEndian(n: char): char
-    {
-        if (this.bigEndian == true) result = n;
-        else result = action CALL_METHOD(null as Character, "reverseBytes", [n]);
     }
 
     // constructors
@@ -656,12 +727,6 @@ automaton DirectByteBufferAutomaton
     }
 
 
-    fun *.getChar (@target self: DirectByteBuffer, a: long): char
-    {
-        result = _getChar(a);
-    }
-
-
     fun *.getChar (@target self: DirectByteBuffer): char
     {
         var next_index = _nextGetIndex(2);
@@ -678,13 +743,15 @@ automaton DirectByteBufferAutomaton
 
     fun *.getDouble (@target self: DirectByteBuffer): double
     {
-        action TODO();
+        var next_index = _nextGetIndex(8);
+        result = _getDouble(next_index);
     }
 
 
     fun *.getDouble (@target self: DirectByteBuffer, i: int): double
     {
-        action TODO();
+        _checkIndex(i, 8);
+        result = _getDouble(i);
     }
 
 

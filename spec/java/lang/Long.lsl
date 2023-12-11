@@ -19,6 +19,8 @@ import java/lang/Number;
     is java.lang.Long
     for Comparable, Number, long
 {
+    @static fun *.reverseBytes(i: long): long;
+
 }
 
 
