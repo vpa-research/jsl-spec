@@ -19,6 +19,7 @@ import java/lang/Number;
     is java.lang.Integer
     for Comparable, Number, int
 {
+    @static fun *.reverseBytes(i: int): int;
 }
 
 

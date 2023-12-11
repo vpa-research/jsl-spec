@@ -329,7 +329,7 @@ automaton DirectByteBufferAutomaton
 
     //utilities for getDouble
 
-    proc _getDouble(offset: long): char
+    proc _getDouble(offset: long): double
     {
         var x: long = _getLongUnaligned(offset);
         var endian_x: long = _convEndian(x);
@@ -394,6 +394,65 @@ automaton DirectByteBufferAutomaton
             | (_toUnsignedLong(i7) << _pickPos(56, 56)));
     }
 
+    //utilities for getFloat
+
+    proc _getFloat(offset: long): float
+    {
+        var x: int = _getIntUnaligned(offset);
+        var endian_x: long = _convEndian(x);
+        result = _intBitsToFloat(endian_x);
+    }
+
+    proc _getIntUnaligned(offset: long): int
+    {
+        result = _makeInt(this.storage[offset],
+                       this.storage[offset + 1],
+                       this.storage[offset + 2],
+                       this.storage[offset + 3]);
+    }
+
+    proc _makeInt(i0: byte, i1: byte, i2: byte, i3: byte): int
+    {
+        result = ((_toUnsignedIn(i0) << _pickPos(24, 0))
+              | (_toUnsignedIn(i1) << _pickPos(24, 8))
+              | (_toUnsignedIn(i2) << _pickPos(24, 16))
+              | (_toUnsignedIn(i3) << _pickPos(24, 24)));
+    }
+
+
+    proc _intBitsToFloat(bits: int): float
+    {
+        if (bits == 2139095040)
+        {
+            result = FLOAT_POSITIVE_INFINITY;
+        } else if (bits == 4286578688)
+        {
+            result = FLOAT_NEGATIVE_INFINITY;
+        } else if (bits >= 2139095041 && bits =< 2147483647
+                        || bits >= 4286578689 && bits =< 4294967295)
+        {
+            result = FLOAT_NAN;
+        } else
+        {
+            var s: int = 0;
+            if ((bits >> 31) == 0) s = 1;
+            else s = -1;
+
+            var e: int = (bits >> 23) & 255;
+            var m: int = 0;
+            if (e == 0) m = (bits & 8388607) << 1;
+            else m = (bits & 8388607) | 8388608;
+            result = s * m * 2 ^ (e - 150);
+        }
+    }
+
+
+    proc _convEndian(n: int): int
+    {
+        if (this.bigEndian == true) result = n;
+        else result = action CALL_METHOD(null as Integer, "reverseBytes", [n]);
+    }
+
 
     //utilities unsafe base
 
@@ -411,7 +470,7 @@ automaton DirectByteBufferAutomaton
 
     proc _toUnsignedInt(n: byte): int
     {
-        result = n & 0xff;
+        result = n & 255;
     }
 
     // constructors
@@ -757,13 +816,15 @@ automaton DirectByteBufferAutomaton
 
     fun *.getFloat (@target self: DirectByteBuffer): float
     {
-        action TODO();
+        var next_index = _nextGetIndex(4);
+        result = _getFloat(next_index);
     }
 
 
     fun *.getFloat (@target self: DirectByteBuffer, i: int): float
     {
-        action TODO();
+        _checkIndex(i, 4);
+        result = _getFloat(i);
     }
 
 
