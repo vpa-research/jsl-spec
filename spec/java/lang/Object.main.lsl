@@ -62,9 +62,11 @@ automaton ObjectAutomaton
     }
 
 
-    @Phantom @protected fun *.clone (@target self: LSLObject): Object
+    @throws(["java.lang.CloneNotSupportedException"])
+    @protected fun *.clone (@target self: LSLObject): Object
     {
-        // NOTE: using the original method
+        if (true) // <- fooling Java compiler to not give "unreachable statement" error
+            action THROW_NEW("java.lang.CloneNotSupportedException", []);
     }
 
 
