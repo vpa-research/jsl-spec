@@ -370,7 +370,7 @@ automaton DirectByteBufferAutomaton
             var m: long = 0L;
             if (e == 0) m = (bits & 4503599627370495L) << 1;
             else m = (bits & 4503599627370495L) | 4503599627370496L;
-            result = s * m * 2 ^ (e - 1075);
+            result = (s * m * 2 ^ (e - 1075)) as double;
         }
     }
 
@@ -382,41 +382,13 @@ automaton DirectByteBufferAutomaton
     }
 
 
-    proc _makeLong(i0: byte, i1: byte, i2: byte, i3: byte, i4: byte, i5: byte, i6: byte, i7: byte): long
-    {
-        result = ((_toUnsignedLong(i0) << _pickPos(56, 0))
-            | (_toUnsignedLong(i1) << _pickPos(56, 8))
-            | (_toUnsignedLong(i2) << _pickPos(56, 16))
-            | (_toUnsignedLong(i3) << _pickPos(56, 24))
-            | (_toUnsignedLong(i4) << _pickPos(56, 32))
-            | (_toUnsignedLong(i5) << _pickPos(56, 40))
-            | (_toUnsignedLong(i6) << _pickPos(56, 48))
-            | (_toUnsignedLong(i7) << _pickPos(56, 56)));
-    }
-
     //utilities for getFloat
 
     proc _getFloat(offset: long): float
     {
         var x: int = _getIntUnaligned(offset);
-        var endian_x: long = _convEndian(x);
+        var endian_x: int = _convEndian(x);
         result = _intBitsToFloat(endian_x);
-    }
-
-    proc _getIntUnaligned(offset: long): int
-    {
-        result = _makeInt(this.storage[offset],
-                       this.storage[offset + 1],
-                       this.storage[offset + 2],
-                       this.storage[offset + 3]);
-    }
-
-    proc _makeInt(i0: byte, i1: byte, i2: byte, i3: byte): int
-    {
-        result = ((_toUnsignedIn(i0) << _pickPos(24, 0))
-              | (_toUnsignedIn(i1) << _pickPos(24, 8))
-              | (_toUnsignedIn(i2) << _pickPos(24, 16))
-              | (_toUnsignedIn(i3) << _pickPos(24, 24)));
     }
 
 
@@ -442,10 +414,26 @@ automaton DirectByteBufferAutomaton
             var m: int = 0;
             if (e == 0) m = (bits & 8388607) << 1;
             else m = (bits & 8388607) | 8388608;
-            result = s * m * 2 ^ (e - 150);
+            result = (s * m * 2 ^ (e - 150)) as float;
         }
     }
 
+
+    //utilities for getInt
+
+    proc _getInt(offset: long): int
+    {
+        var x: int = _getIntUnaligned(offset);
+        result = _convEndian(x);
+    }
+
+    proc _getIntUnaligned(offset: long): int
+    {
+        result = _makeInt(this.storage[offset],
+                       this.storage[offset + 1],
+                       this.storage[offset + 2],
+                       this.storage[offset + 3]);
+    }
 
     proc _convEndian(n: int): int
     {
@@ -453,8 +441,29 @@ automaton DirectByteBufferAutomaton
         else result = action CALL_METHOD(null as Integer, "reverseBytes", [n]);
     }
 
-
     //utilities unsafe base
+
+    proc _makeLong(i0: byte, i1: byte, i2: byte, i3: byte, i4: byte, i5: byte, i6: byte, i7: byte): long
+    {
+        result = ((_toUnsignedLong(i0) << _pickPos(56, 0))
+            | (_toUnsignedLong(i1) << _pickPos(56, 8))
+            | (_toUnsignedLong(i2) << _pickPos(56, 16))
+            | (_toUnsignedLong(i3) << _pickPos(56, 24))
+            | (_toUnsignedLong(i4) << _pickPos(56, 32))
+            | (_toUnsignedLong(i5) << _pickPos(56, 40))
+            | (_toUnsignedLong(i6) << _pickPos(56, 48))
+            | (_toUnsignedLong(i7) << _pickPos(56, 56)));
+    }
+
+
+    proc _makeInt(i0: byte, i1: byte, i2: byte, i3: byte): int
+    {
+        result = ((_toUnsignedIn(i0) << _pickPos(24, 0))
+              | (_toUnsignedIn(i1) << _pickPos(24, 8))
+              | (_toUnsignedIn(i2) << _pickPos(24, 16))
+              | (_toUnsignedIn(i3) << _pickPos(24, 24)));
+    }
+
 
     proc _makeShort(i0: byte, i1: byte): short
     {
@@ -830,13 +839,15 @@ automaton DirectByteBufferAutomaton
 
     fun *.getInt (@target self: DirectByteBuffer): int
     {
-        action TODO();
+        var next_index = _nextGetIndex(4);
+        result = _getInt(next_index);
     }
 
 
     fun *.getInt (@target self: DirectByteBuffer, i: int): int
     {
-        action TODO();
+        _checkIndex(i, 4);
+        result = _getInt(i);
     }
 
 
