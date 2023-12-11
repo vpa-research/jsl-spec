@@ -146,7 +146,15 @@ automaton DirectByteBufferAutomaton
      var offset: int = 0;
      var isReadOnly: boolean = false;
 
+     var bigEndian: boolean = true;
+
     // utilities
+
+    proc _checkBounds(off: int, len: int, size: int): void
+    {
+        if ((off | len | (off + len) | (size - (off + len))) < 0)
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
+    }
 
     proc _checkIndex(i: int): void
     {
@@ -154,10 +162,37 @@ automaton DirectByteBufferAutomaton
             action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
     }
 
+    proc _checkIndex(i: int, nb: int): void
+    {
+        if ((i < 0) || (nb > limit - i))
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
+    }
+
     proc _get(i: int): byte
     {
         var ind: int = _nextGetIndex(i);
         result = this.storage[ind];
+    }
+
+    proc _get(dst: array<byte>, offset: int, length: int): void
+    {
+        _checkBounds(offset, length, dst.length);
+        if (this.pos > this.limit)
+            action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (pos <= lim) in original
+        var rem: int = _remaining();
+        if (length > rem)
+            action THROW_NEW("java.nio.BufferUnderflowException", []);
+        var end: int = offset + length;
+        var i: int = 0;
+        action FOR_LOOP(
+            i, offset, end, +1,
+            _get_loop(dst, i)
+        );
+    }
+
+    @Phantom proc _get_loop(dst: array<byte>, i: int): void
+    {
+        dst[i] = _get(i);
     }
 
 
@@ -265,6 +300,47 @@ automaton DirectByteBufferAutomaton
             returned = true;
             action LOOP_BREAK();
         }
+    }
+
+    //utilities for getChar
+
+    proc _getChar(offset: long): char
+    {
+        var character = _getCharUnaligned(offset);
+        result = _convEndian(character);
+    }
+
+
+    proc _getCharUnaligned(offset: long): char
+    {
+        if ((offset & 1) == 0) {
+            result = this.storage[offset] as char;
+        } else {
+            result = _makeShort(this.storage[offset], this.storage[offset+1]) as char;
+        }
+    }
+
+    proc _makeShort(i0: byte, i1: byte): short
+    {
+        result = ((_toUnsignedInt(i0) << _pickPos(8, 0))
+            | (_toUnsignedInt(i1) << _pickPos(8, 8))) as short;
+    }
+
+    proc _pickPos(top: int, pos: int): int
+    {
+        if (this.bigEndian == true) result = top - pos;
+        else result = pos;
+    }
+
+    proc _toUnsignedInt(n: byte): int
+    {
+        result = n & 0xff;
+    }
+
+    proc _convEndian(n: char): char
+    {
+        if (this.bigEndian == true) result = n;
+        else result = action CALL_METHOD(null as Character, "reverseBytes", [n]);
     }
 
     // constructors
@@ -442,7 +518,7 @@ automaton DirectByteBufferAutomaton
         if (pos > lim)
             action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (pos <= lim) in original
 
-        var rem: int = lim - pos;
+        var rem: int = _remaining();
 
         var new_storage: array<byte> = action ARRAY_NEW("byte", 0);
 
@@ -561,13 +637,16 @@ automaton DirectByteBufferAutomaton
     // within java.nio.ByteBuffer
     fun *.get (@target self: DirectByteBuffer, dst: array<byte>): ByteBuffer
     {
-        action TODO();
+        var len_dst: int = action ARRAY_SIZE(dst);
+        _get(dst, 0, len_dst);
+        result = self;
     }
 
 
     fun *.get (@target self: DirectByteBuffer, dst: array<byte>, offset: int, length: int): ByteBuffer
     {
-        action TODO();
+        _get(dst, offset, length);
+        result = self;
     }
 
 
@@ -577,15 +656,23 @@ automaton DirectByteBufferAutomaton
     }
 
 
+    fun *.getChar (@target self: DirectByteBuffer, a: long): char
+    {
+        result = _getChar(a);
+    }
+
+
     fun *.getChar (@target self: DirectByteBuffer): char
     {
-        action TODO();
+        var next_index = _nextGetIndex(2);
+        result = _getChar(next_index);
     }
 
 
     fun *.getChar (@target self: DirectByteBuffer, i: int): char
     {
-        action TODO();
+        _checkIndex(i, 2);
+        result = _getChar(i);
     }
 
 
@@ -739,7 +826,14 @@ automaton DirectByteBufferAutomaton
     // within java.nio.ByteBuffer
     fun *.mismatch (@target self: DirectByteBuffer, that: ByteBuffer): int
     {
-        action TODO();
+        var that_rem: int = action CALL_METHOD(that, "remaining", []);
+        var len: int = _remaining();
+        if (that_rem < len)
+            len = that_rem;
+
+        var r: int = _mismaatch(this.position, that, len);
+        if (r == -1 && _remaining() != that.remaining()) result = len
+        else result = r;
     }
 
 
@@ -780,7 +874,7 @@ automaton DirectByteBufferAutomaton
             var sb: DirectByteBuffer = src as DirectByteBuffer;
 
             var spos: int = action CALL_METHOD(sb, "position", []);
-            var slim: int = sb.limit();
+            var slim: int = action CALL_METHOD(sb, "limit", []);
              if (spos > slim)
                 action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (spos <= slim) in original
 
@@ -791,7 +885,7 @@ automaton DirectByteBufferAutomaton
             if (pos > lim)
                 action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (pos <= lim) in original
 
-            var rem: int = lim - pos;
+            var rem: int = _remaining();
             if (srem > rem)
                 action THROW_NEW("java.nio.BufferOverflowException", []);
 
