@@ -35,10 +35,10 @@ automaton HashSetAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        HashSet(HashSet),
-        HashSet(HashSet, Collection),
-        HashSet(HashSet, int, float),
-        HashSet(HashSet, int, float, boolean)
+        `<init>` (HashSet),
+        `<init>` (HashSet, Collection),
+        `<init>` (HashSet, int, float),
+        `<init>` (HashSet, int, float, boolean)
     ];
 
     shift Initialized -> self by [
@@ -56,9 +56,9 @@ automaton HashSetAutomaton
         spliterator,
         stream,
         parallelStream,
-        toArray(HashSet),
-        toArray(HashSet, array<Object>),
-        toArray(HashSet, IntFunction),
+        toArray (HashSet),
+        toArray (HashSet, array<Object>),
+        toArray (HashSet, IntFunction),
         toString,
 
         // write operations
@@ -157,20 +157,20 @@ automaton HashSetAutomaton
 
     // constructors
 
-    constructor *.HashSet (@target self: HashSet)
+    constructor *.`<init>` (@target self: HashSet)
     {
         this.storage = action MAP_NEW();
     }
 
 
-    constructor *.HashSet (@target self: HashSet, c: Collection)
+    constructor *.`<init>` (@target self: HashSet, c: Collection)
     {
         this.storage = action MAP_NEW();
         _addAllElements(c);
     }
 
 
-    constructor *.HashSet (@target self: HashSet, initialCapacity: int)
+    constructor *.`<init>` (@target self: HashSet, initialCapacity: int)
     {
         if (initialCapacity < 0)
         {
@@ -182,7 +182,7 @@ automaton HashSetAutomaton
     }
 
 
-    constructor *.HashSet (@target self: HashSet, initialCapacity: int, loadFactor: float)
+    constructor *.`<init>` (@target self: HashSet, initialCapacity: int, loadFactor: float)
     {
         if (initialCapacity < 0)
         {
@@ -200,7 +200,7 @@ automaton HashSetAutomaton
     }
 
 
-    @private constructor *.HashSet (@target self: HashSet, initialCapacity: int, loadFactor: float, dummy: boolean)
+    @private constructor *.`<init>` (@target self: HashSet, initialCapacity: int, loadFactor: float, dummy: boolean)
     {
         action ERROR("Private constructor call");
     }

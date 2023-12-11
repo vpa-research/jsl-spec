@@ -37,7 +37,7 @@ automaton HashSet_KeyIteratorAutomaton
     shift Allocated -> Initialized by [
         // constructors
         // Problem: here mustn't be "HashMap"; What must be here ? What we must to do with constructor ?
-        HashSet_KeyIterator,
+        `<init>`,
     ];
 
     shift Initialized -> self by [
@@ -63,7 +63,7 @@ automaton HashSet_KeyIteratorAutomaton
 
     // constructors
 
-    @private constructor *.HashSet_KeyIterator (@target self: HashSet_KeyIterator, source: HashMap)
+    @private constructor *.`<init>` (@target self: HashSet_KeyIterator, source: HashMap)
     {
         action ERROR("Private constructor call");
     }

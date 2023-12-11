@@ -29,7 +29,7 @@ automaton SpliteratorsAutomaton
 
     shift Allocated -> self by [
         // constructors
-        init,
+        `<init>`,
 
         // static operations
         emptyDoubleSpliterator,
@@ -65,7 +65,7 @@ automaton SpliteratorsAutomaton
 
     // constructors
 
-    @private constructor *.init (@target self: Spliterators)
+    @private constructor *.`<init>` (@target self: Spliterators)
     {
         // nothing - this is a utility class
     }

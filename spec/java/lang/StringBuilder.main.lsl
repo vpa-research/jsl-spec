@@ -28,10 +28,10 @@ automaton StringBuilderAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        StringBuilder (StringBuilder),
-        StringBuilder (StringBuilder, CharSequence),
-        StringBuilder (StringBuilder, String),
-        StringBuilder (StringBuilder, int),
+        `<init>` (StringBuilder),
+        `<init>` (StringBuilder, CharSequence),
+        `<init>` (StringBuilder, String),
+        `<init>` (StringBuilder, int),
     ];
 
     shift Initialized -> self by [
@@ -299,14 +299,14 @@ automaton StringBuilderAutomaton
 
     // constructors
 
-    constructor *.StringBuilder (@target self: StringBuilder)
+    constructor *.`<init>` (@target self: StringBuilder)
     {
         // This constructor's body is empty, because in original class is used byte array and this initializes 16 size;
         // In this realization is used "String" instead of to array; And this string initializes in "internal variables";
     }
 
 
-    constructor *.StringBuilder (@target self: StringBuilder, seq: CharSequence)
+    constructor *.`<init>` (@target self: StringBuilder, seq: CharSequence)
     {
         if (seq == null)
             _throwNPE();
@@ -315,7 +315,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    constructor *.StringBuilder (@target self: StringBuilder, str: String)
+    constructor *.`<init>` (@target self: StringBuilder, str: String)
     {
         if (str == null)
             _throwNPE();
@@ -324,7 +324,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    constructor *.StringBuilder (@target self: StringBuilder, capacity: int)
+    constructor *.`<init>` (@target self: StringBuilder, capacity: int)
     {
         // This constructor's body is empty, because in original class is used byte array and this initializes 16 + capacity size;
         // In this realization is used "String" instead of to array; And this string initializes in "internal variables";

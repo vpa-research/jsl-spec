@@ -36,10 +36,10 @@ automaton SecureRandomAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        SecureRandom (SecureRandom),
-        SecureRandom (SecureRandom, SecureRandomSpi, Provider),
-        SecureRandom (SecureRandom, SecureRandomSpi, Provider, String),
-        SecureRandom (SecureRandom, array<byte>),
+        `<init>` (SecureRandom),
+        `<init>` (SecureRandom, SecureRandomSpi, Provider),
+        `<init>` (SecureRandom, SecureRandomSpi, Provider, String),
+        `<init>` (SecureRandom, array<byte>),
 
         // static operations
         getInstance (String),
@@ -214,27 +214,25 @@ automaton SecureRandomAutomaton
 
     // constructors
 
-    constructor *.SecureRandom (@target self: SecureRandom)
+    constructor *.`<init>` (@target self: SecureRandom)
     {
         _getDefaultPRNG();
     }
 
 
-    // #question: do we need such realization of constructor ? Or it must be empty because this is "protected" ?
-    @protected constructor *.SecureRandom (@target self: SecureRandom, secureRandomSpi: SecureRandomSpi, provider: Provider)
+    @protected constructor *.`<init>` (@target self: SecureRandom, secureRandomSpi: SecureRandomSpi, provider: Provider)
     {
         action ERROR("Protected constructor call");
     }
 
 
-    // #question: do we need such realization of constructor ? Or it must be empty because this is "private" ?
-    @private constructor *.SecureRandom (@target self: SecureRandom, secureRandomSpi: SecureRandomSpi, provider: Provider, algorithm: String)
+    @private constructor *.`<init>` (@target self: SecureRandom, secureRandomSpi: SecureRandomSpi, provider: Provider, algorithm: String)
     {
         action ERROR("Private constructor call");
     }
 
 
-    constructor *.SecureRandom (@target self: SecureRandom, seed: array<byte>)
+    constructor *.`<init>` (@target self: SecureRandom, seed: array<byte>)
     {
         _getDefaultPRNG();
     }
@@ -657,7 +655,7 @@ automaton SecureRandomAutomaton
 
     // special: static initialization
 
-    @Phantom @static fun *.__clinit__ (): void
+    @Phantom @static fun *.`<clinit>` (): void
     {
         // #note: list of default providers https://docs.oracle.com/javase/9/security/oracleproviders.htm#JSSEC-GUID-F41EE1C9-DD6A-4BAB-8979-EB7654094029
 

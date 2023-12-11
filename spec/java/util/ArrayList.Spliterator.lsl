@@ -25,7 +25,7 @@ automaton ArrayList_SpliteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        ArrayList_Spliterator,
+        `<init>`,
     ];
 
     shift Initialized -> self by [
@@ -77,7 +77,7 @@ automaton ArrayList_SpliteratorAutomaton
 
     // constructors
 
-    @private constructor *.ArrayList_Spliterator (
+    @private constructor *.`<init>` (
                 @target self: ArrayList_Spliterator,
                 _this: ArrayList,
                 origin: int, fence: int, expectedModCount: int)

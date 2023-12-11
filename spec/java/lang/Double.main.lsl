@@ -28,8 +28,8 @@ automaton DoubleAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        Double (LSLDouble, String),
-        Double (LSLDouble, double),
+        `<init>` (LSLDouble, String),
+        `<init>` (LSLDouble, double),
 
         // static operations
         compare,
@@ -115,13 +115,13 @@ automaton DoubleAutomaton
     // constructors
 
     @throws(["java.lang.NumberFormatException"])
-    @Phantom constructor *.Double (@target self: LSLDouble, s: String)
+    @Phantom constructor *.`<init>` (@target self: LSLDouble, s: String)
     {
         // NOTE: using original method
     }
 
 
-    constructor *.Double (@target self: LSLDouble, v: double)
+    constructor *.`<init>` (@target self: LSLDouble, v: double)
     {
         this.value = v;
     }

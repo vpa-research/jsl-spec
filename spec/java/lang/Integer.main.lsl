@@ -28,8 +28,8 @@ automaton IntegerAutomaton
 
     shift Initialized -> self by [
         // constructors
-        Integer (LSLInteger, String),
-        Integer (LSLInteger, int),
+        `<init>` (LSLInteger, String),
+        `<init>` (LSLInteger, int),
 
         // static operations
         bitCount,
@@ -103,14 +103,14 @@ automaton IntegerAutomaton
     // constructors
 
     @throws(["java.lang.NumberFormatException"])
-    @Phantom constructor *.Integer (@target self: LSLInteger, s: String)
+    @Phantom constructor *.`<init>` (@target self: LSLInteger, s: String)
     {
         // NOTE: using the original method
         this.value = _parse(s);
     }
 
 
-    constructor *.Integer (@target self: LSLInteger, v: int)
+    constructor *.`<init>` (@target self: LSLInteger, v: int)
     {
         this.value = v;
     }

@@ -29,8 +29,8 @@ automaton AtomicLongAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LSLAtomicLong (LSLAtomicLong),
-        LSLAtomicLong (LSLAtomicLong, long),
+        `<init>` (LSLAtomicLong),
+        `<init>` (LSLAtomicLong, long),
     ];
 
     shift Initialized -> self by [
@@ -79,13 +79,13 @@ automaton AtomicLongAutomaton
 
     // constructors
 
-    constructor *.LSLAtomicLong (@target self: LSLAtomicLong)
+    constructor *.`<init>` (@target self: LSLAtomicLong)
     {
         this.value = 0L;
     }
 
 
-    constructor *.LSLAtomicLong (@target self: LSLAtomicLong, initialValue: long)
+    constructor *.`<init>` (@target self: LSLAtomicLong, initialValue: long)
     {
         this.value = initialValue;
     }

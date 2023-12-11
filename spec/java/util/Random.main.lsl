@@ -30,8 +30,8 @@ automaton RandomAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        Random (Random),
-        Random (Random, long),
+        `<init>` (Random),
+        `<init>` (Random, long),
     ];
 
     shift Initialized -> self by [
@@ -134,13 +134,13 @@ automaton RandomAutomaton
 
     // constructors
 
-    constructor *.Random (@target self: Random)
+    constructor *.`<init>` (@target self: Random)
     {
         action DO_NOTHING();
     }
 
 
-    constructor *.Random (@target self: Random, seed: long)
+    constructor *.`<init>` (@target self: Random, seed: long)
     {
         action DO_NOTHING();
     }

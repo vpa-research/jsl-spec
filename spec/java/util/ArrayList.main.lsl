@@ -27,9 +27,9 @@ automaton ArrayListAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        ArrayList (ArrayList),
-        ArrayList (ArrayList, Collection),
-        ArrayList (ArrayList, int),
+        `<init>` (ArrayList),
+        `<init>` (ArrayList, Collection),
+        `<init>` (ArrayList, int),
     ];
 
     shift Initialized -> self by [
@@ -520,13 +520,13 @@ automaton ArrayListAutomaton
 
     // constructors
 
-    constructor *.ArrayList (@target self: ArrayList)
+    constructor *.`<init>` (@target self: ArrayList)
     {
         this.storage = action LIST_NEW();
     }
 
 
-    constructor *.ArrayList (@target self: ArrayList, c: Collection)
+    constructor *.`<init>` (@target self: ArrayList, c: Collection)
     {
         if (c == null)
             _throwNPE();
@@ -537,7 +537,7 @@ automaton ArrayListAutomaton
     }
 
 
-    constructor *.ArrayList (@target self: ArrayList, initialCapacity: int)
+    constructor *.`<init>` (@target self: ArrayList, initialCapacity: int)
     {
         if (initialCapacity < 0)
         {

@@ -25,7 +25,7 @@ automaton ObjectAutomaton
 
     shift Initialized -> self by [
         // constructors
-        LSLObject,
+        `<init>`,
 
         // instance methods
         equals,
@@ -46,7 +46,7 @@ automaton ObjectAutomaton
 
     // constructors
 
-    @Phantom constructor *.LSLObject (@target self: LSLObject)
+    @Phantom constructor *.`<init>` (@target self: LSLObject)
     {
         // WARNING: Using the original method here. Do not change! (infinite recursion otherwise)
     }
@@ -122,7 +122,7 @@ automaton ObjectAutomaton
 
     // special: static initialization
 
-    @Phantom @static fun *.__clinit__ (): void
+    @Phantom @static fun *.`<clinit>` (): void
     {
         action DO_NOTHING();
     }

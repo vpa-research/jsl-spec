@@ -26,8 +26,8 @@ automaton AtomicBooleanAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LSLAtomicBoolean (LSLAtomicBoolean),
-        LSLAtomicBoolean (LSLAtomicBoolean, boolean),
+        `<init>` (LSLAtomicBoolean),
+        `<init>` (LSLAtomicBoolean, boolean),
     ];
 
     shift Initialized -> self by [
@@ -60,13 +60,13 @@ automaton AtomicBooleanAutomaton
 
     // constructors
 
-    constructor *.LSLAtomicBoolean (@target self: LSLAtomicBoolean)
+    constructor *.`<init>` (@target self: LSLAtomicBoolean)
     {
         this.value = FALSE;
     }
 
 
-    constructor *.LSLAtomicBoolean (@target self: LSLAtomicBoolean, initialValue: boolean)
+    constructor *.`<init>` (@target self: LSLAtomicBoolean, initialValue: boolean)
     {
         if (initialValue)
             this.value = TRUE;

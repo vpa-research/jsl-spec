@@ -29,8 +29,8 @@ automaton LinkedList_SubListAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        SubList (LinkedList_SubList, LinkedList, int, int),
-        SubList (LinkedList_SubList, LinkedList_SubList, int, int),
+        `<init>` (LinkedList_SubList, LinkedList, int, int),
+        `<init>` (LinkedList_SubList, LinkedList_SubList, int, int),
     ];
 
     shift Initialized -> self by [
@@ -184,14 +184,14 @@ automaton LinkedList_SubListAutomaton
 
     // constructors
 
-    constructor *.SubList (@target self: LinkedList_SubList, root: LinkedList, fromIndex: int, toIndex: int)
+    constructor *.`<init>` (@target self: LinkedList_SubList, root: LinkedList, fromIndex: int, toIndex: int)
     {
         // #problem: this constructor is useless
         action NOT_IMPLEMENTED("inaccessible constructor");
     }
 
 
-    @private constructor *.SubList (@target self: LinkedList_SubList, parent: LinkedList_SubList, fromIndex: int, toIndex: int)
+    @private constructor *.`<init>` (@target self: LinkedList_SubList, parent: LinkedList_SubList, fromIndex: int, toIndex: int)
     {
         // #problem: this constructor is useless
         action NOT_IMPLEMENTED("inaccessible constructor");

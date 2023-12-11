@@ -34,7 +34,7 @@ automaton LinkedHashSet_KeySpliteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LinkedHashSet_KeySpliterator
+        `<init>`
     ];
 
     shift Initialized -> self by [
@@ -86,7 +86,7 @@ automaton LinkedHashSet_KeySpliteratorAutomaton
 
     // constructors
 
-    @private constructor *.LinkedHashSet_KeySpliterator (@target self: LinkedHashSet_KeySpliterator, source: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
+    @private constructor *.`<init>` (@target self: LinkedHashSet_KeySpliterator, source: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
     {
         this.index = origin;
         this.fence = fence;

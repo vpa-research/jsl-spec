@@ -34,10 +34,10 @@ automaton LinkedHashSetAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LinkedHashSet (LinkedHashSet),
-        LinkedHashSet (LinkedHashSet, Collection),
-        LinkedHashSet (LinkedHashSet, int),
-        LinkedHashSet (LinkedHashSet, int, float),
+        `<init>` (LinkedHashSet),
+        `<init>` (LinkedHashSet, Collection),
+        `<init>` (LinkedHashSet, int),
+        `<init>` (LinkedHashSet, int, float),
     ];
 
     shift Initialized -> self by [
@@ -156,20 +156,20 @@ automaton LinkedHashSetAutomaton
 
     // constructors
 
-    constructor *.LinkedHashSet (@target self: LinkedHashSet)
+    constructor *.`<init>` (@target self: LinkedHashSet)
     {
         this.storage = action MAP_NEW();
     }
 
 
-    constructor *.LinkedHashSet (@target self: LinkedHashSet, c: Collection)
+    constructor *.`<init>` (@target self: LinkedHashSet, c: Collection)
     {
         this.storage = action MAP_NEW();
         _addAllElements(c);
     }
 
 
-    constructor *.LinkedHashSet (@target self: LinkedHashSet, initialCapacity: int)
+    constructor *.`<init>` (@target self: LinkedHashSet, initialCapacity: int)
     {
         if (initialCapacity < 0)
         {
@@ -181,7 +181,7 @@ automaton LinkedHashSetAutomaton
     }
 
 
-    constructor *.LinkedHashSet (@target self: LinkedHashSet, initialCapacity: int, loadFactor: float)
+    constructor *.`<init>` (@target self: LinkedHashSet, initialCapacity: int, loadFactor: float)
     {
         if (initialCapacity < 0)
         {

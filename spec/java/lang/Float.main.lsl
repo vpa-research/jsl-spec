@@ -27,9 +27,9 @@ automaton FloatAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LSLFloat (LSLFloat, String),
-        LSLFloat (LSLFloat, double),
-        LSLFloat (LSLFloat, float),
+        `<init>` (LSLFloat, String),
+        `<init>` (LSLFloat, double),
+        `<init>` (LSLFloat, float),
 
         // static operations
         compare,
@@ -115,20 +115,20 @@ automaton FloatAutomaton
     // constructors
 
     @throws(["java.lang.NumberFormatException"])
-    @Phantom constructor *.LSLFloat (@target self: LSLFloat, s: String)
+    @Phantom constructor *.`<init>` (@target self: LSLFloat, s: String)
     {
         // NOTE: using the original method
         this.value = _parse(s);
     }
 
 
-    constructor *.LSLFloat (@target self: LSLFloat, v: double)
+    constructor *.`<init>` (@target self: LSLFloat, v: double)
     {
         this.value = v as float;
     }
 
 
-    constructor *.LSLFloat (@target self: LSLFloat, v: float)
+    constructor *.`<init>` (@target self: LSLFloat, v: float)
     {
         this.value = v;
     }

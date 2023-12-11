@@ -29,8 +29,8 @@ automaton ArrayList_SubListAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        SubList (ArrayList_SubList, ArrayList, int, int),
-        SubList (ArrayList_SubList, ArrayList_SubList, int, int),
+        `<init>` (ArrayList_SubList, ArrayList, int, int),
+        `<init>` (ArrayList_SubList, ArrayList_SubList, int, int),
     ];
 
     shift Initialized -> self by [
@@ -184,14 +184,14 @@ automaton ArrayList_SubListAutomaton
 
     // constructors
 
-    constructor *.SubList (@target self: ArrayList_SubList, root: ArrayList, fromIndex: int, toIndex: int)
+    constructor *.`<init>` (@target self: ArrayList_SubList, root: ArrayList, fromIndex: int, toIndex: int)
     {
         // #problem: this constructor is useless
         action NOT_IMPLEMENTED("inaccessible constructor");
     }
 
 
-    @private constructor *.SubList (@target self: ArrayList_SubList, parent: ArrayList_SubList, fromIndex: int, toIndex: int)
+    @private constructor *.`<init>` (@target self: ArrayList_SubList, parent: ArrayList_SubList, fromIndex: int, toIndex: int)
     {
         // #problem: this constructor is useless
         action NOT_IMPLEMENTED("inaccessible constructor");

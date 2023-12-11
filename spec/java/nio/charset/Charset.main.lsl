@@ -33,7 +33,7 @@ automaton CharsetAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LSLCharset,
+        `<init>`,
 
         // static operations
         availableCharsets,
@@ -65,7 +65,7 @@ automaton CharsetAutomaton
 
     // constructors
 
-    @protected constructor *.LSLCharset (@target self: LSLCharset, canonicalName: String, aliases: array<String>)
+    @protected constructor *.`<init>` (@target self: LSLCharset, canonicalName: String, aliases: array<String>)
     {
         action TODO();
     }

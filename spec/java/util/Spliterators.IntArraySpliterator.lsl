@@ -33,8 +33,8 @@ automaton Spliterators_IntArraySpliteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        init (Spliterators_IntArraySpliterator, array<int>, int),
-        init (Spliterators_IntArraySpliterator, array<int>, int, int, int),
+        `<init>` (Spliterators_IntArraySpliterator, array<int>, int),
+        `<init>` (Spliterators_IntArraySpliterator, array<int>, int, int, int),
     ];
 
     shift Initialized -> self by [
@@ -77,8 +77,8 @@ automaton Spliterators_IntArraySpliteratorAutomaton
 
     // constructors
 
-    constructor *.init (@target self: Spliterators_IntArraySpliterator,
-                        arr: array<int>, additionalCharacteristics: int)
+    constructor *.`<init>` (@target self: Spliterators_IntArraySpliterator,
+                            arr: array<int>, additionalCharacteristics: int)
     {
         // WARNING: unused
 
@@ -89,8 +89,8 @@ automaton Spliterators_IntArraySpliteratorAutomaton
     }
 
 
-    constructor *.init (@target self: Spliterators_IntArraySpliterator,
-                        arr: array<int>, origin: int, pFence: int, additionalCharacteristics: int)
+    constructor *.`<init>` (@target self: Spliterators_IntArraySpliterator,
+                            arr: array<int>, origin: int, pFence: int, additionalCharacteristics: int)
     {
         // WARNING: unused
 

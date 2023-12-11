@@ -25,7 +25,7 @@ automaton LinkedList_SpliteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LinkedList_Spliterator,
+        `<init>`,
     ];
 
     shift Initialized -> self by [
@@ -77,10 +77,9 @@ automaton LinkedList_SpliteratorAutomaton
 
     // constructors
 
-    @private constructor *.LinkedList_Spliterator (
-                @target self: LinkedList_Spliterator,
-                _this: LinkedList,
-                origin: int, fence: int, expectedModCount: int)
+    @private constructor *.`<init>` (@target self: LinkedList_Spliterator,
+                                     _this: LinkedList,
+                                     origin: int, fence: int, expectedModCount: int)
     {
         // #problem: translator cannot generate and refer to private and/or inner classes, so this is effectively useless
         action NOT_IMPLEMENTED("inaccessible constructor");

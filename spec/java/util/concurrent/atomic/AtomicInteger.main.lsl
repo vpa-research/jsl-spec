@@ -29,8 +29,8 @@ automaton AtomicIntegerAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LSLAtomicInteger (LSLAtomicInteger),
-        LSLAtomicInteger (LSLAtomicInteger, int),
+        `<init>` (LSLAtomicInteger),
+        `<init>` (LSLAtomicInteger, int),
     ];
 
     shift Initialized -> self by [
@@ -79,13 +79,13 @@ automaton AtomicIntegerAutomaton
 
     // constructors
 
-    constructor *.LSLAtomicInteger (@target self: LSLAtomicInteger)
+    constructor *.`<init>` (@target self: LSLAtomicInteger)
     {
         this.value = 0;
     }
 
 
-    constructor *.LSLAtomicInteger (@target self: LSLAtomicInteger, initialValue: int)
+    constructor *.`<init>` (@target self: LSLAtomicInteger, initialValue: int)
     {
         this.value = initialValue;
     }

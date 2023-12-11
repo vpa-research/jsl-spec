@@ -337,7 +337,7 @@ automaton System_PrintStreamAutomaton
 
     // special methods
 
-    @Phantom @static fun *.__super__ (): array<Object>
+    @Phantom @static fun *.`<super>` (): array<Object>
     {
         result = [
             null as OutputStream,

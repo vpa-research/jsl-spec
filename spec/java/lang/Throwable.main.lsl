@@ -29,11 +29,11 @@ automaton ThrowableAutomaton
 
     shift Initialized -> self by [
         // constructors
-        Throwable (LSLThrowable),
-        Throwable (LSLThrowable, String),
-        Throwable (LSLThrowable, String, Throwable),
-        Throwable (LSLThrowable, String, Throwable, boolean, boolean),
-        Throwable (LSLThrowable, Throwable),
+        `<init>` (LSLThrowable),
+        `<init>` (LSLThrowable, String),
+        `<init>` (LSLThrowable, String, Throwable),
+        `<init>` (LSLThrowable, String, Throwable, boolean, boolean),
+        `<init>` (LSLThrowable, Throwable),
 
         // instance methods
         addSuppressed,
@@ -57,36 +57,36 @@ automaton ThrowableAutomaton
 
     // constructors
 
-    @Phantom constructor *.Throwable (@target self: LSLThrowable)
+    @Phantom constructor *.`<init>` (@target self: LSLThrowable)
     {
         // Note: using the original method
         action TODO();
     }
 
 
-    @Phantom constructor *.Throwable (@target self: LSLThrowable, message: String)
+    @Phantom constructor *.`<init>` (@target self: LSLThrowable, message: String)
     {
         // Note: using the original method
         action TODO();
     }
 
 
-    @Phantom constructor *.Throwable (@target self: LSLThrowable, message: String, cause: Throwable)
+    @Phantom constructor *.`<init>` (@target self: LSLThrowable, message: String, cause: Throwable)
     {
         // Note: using the original method
         action TODO();
     }
 
 
-    @Phantom @protected constructor *.Throwable (@target self: LSLThrowable,
-            message: String, cause: Throwable, enableSuppression: boolean, writableStackTrace: boolean)
+    @Phantom @protected constructor *.`<init>` (@target self: LSLThrowable,
+                                                message: String, cause: Throwable, enableSuppression: boolean, writableStackTrace: boolean)
     {
         // Note: using the original method
         action TODO();
     }
 
 
-    @Phantom constructor *.Throwable (@target self: LSLThrowable, cause: Throwable)
+    @Phantom constructor *.`<init>` (@target self: LSLThrowable, cause: Throwable)
     {
         // Note: using the original method
         action TODO();

@@ -26,10 +26,10 @@ automaton StringBufferAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        StringBuffer (StringBuffer),
-        StringBuffer (StringBuffer, CharSequence),
-        StringBuffer (StringBuffer, String),
-        StringBuffer (StringBuffer, int),
+        `<init>` (StringBuffer),
+        `<init>` (StringBuffer, CharSequence),
+        `<init>` (StringBuffer, String),
+        `<init>` (StringBuffer, int),
     ];
 
     shift Initialized -> self by [
@@ -297,14 +297,14 @@ automaton StringBufferAutomaton
 
     // constructors
 
-    constructor *.StringBuffer (@target self: StringBuffer)
+    constructor *.`<init>` (@target self: StringBuffer)
     {
         // This constructor's body is empty, because in original class is used byte array and this initializes 16 size;
         // In this realization is used "String" instead of to array; And this string initializes in "internal variables";
     }
 
 
-    constructor *.StringBuffer (@target self: StringBuffer, seq: CharSequence)
+    constructor *.`<init>` (@target self: StringBuffer, seq: CharSequence)
     {
         if (seq == null)
             _throwNPE();
@@ -313,7 +313,7 @@ automaton StringBufferAutomaton
     }
 
 
-    constructor *.StringBuffer (@target self: StringBuffer, str: String)
+    constructor *.`<init>` (@target self: StringBuffer, str: String)
     {
         if (str == null)
             _throwNPE();
@@ -322,7 +322,7 @@ automaton StringBufferAutomaton
     }
 
 
-    constructor *.StringBuffer (@target self: StringBuffer, capacity: int)
+    constructor *.`<init>` (@target self: StringBuffer, capacity: int)
     {
         // This constructor's body is empty, because in original class is used byte array and this initializes 16 + capacity size;
         // In this realization is used "String" instead of to array; And this string initializes in "internal variables";

@@ -33,8 +33,8 @@ automaton Spliterators_LongArraySpliteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        init (Spliterators_LongArraySpliterator, array<long>, int),
-        init (Spliterators_LongArraySpliterator, array<long>, int, int, int),
+        `<init>` (Spliterators_LongArraySpliterator, array<long>, int),
+        `<init>` (Spliterators_LongArraySpliterator, array<long>, int, int, int),
     ];
 
     shift Initialized -> self by [
@@ -77,8 +77,8 @@ automaton Spliterators_LongArraySpliteratorAutomaton
 
     // constructors
 
-    constructor *.init (@target self: Spliterators_LongArraySpliterator,
-                        arr: array<long>, additionalCharacteristics: int)
+    constructor *.`<init>` (@target self: Spliterators_LongArraySpliterator,
+                            arr: array<long>, additionalCharacteristics: int)
     {
         // WARNING: unused
 
@@ -89,8 +89,8 @@ automaton Spliterators_LongArraySpliteratorAutomaton
     }
 
 
-    constructor *.init (@target self: Spliterators_LongArraySpliterator,
-                        arr: array<long>, origin: int, pFence: int, additionalCharacteristics: int)
+    constructor *.`<init>` (@target self: Spliterators_LongArraySpliterator,
+                            arr: array<long>, origin: int, pFence: int, additionalCharacteristics: int)
     {
         // WARNING: unused
 

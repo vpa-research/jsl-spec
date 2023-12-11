@@ -32,7 +32,7 @@ automaton SecurityManagerAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LSLSecurityManager,
+        `<init>`,
     ];
 
     shift Initialized -> self by [
@@ -96,7 +96,7 @@ automaton SecurityManagerAutomaton
 
     // constructors
 
-    constructor *.LSLSecurityManager (@target self: LSLSecurityManager)
+    constructor *.`<init>` (@target self: LSLSecurityManager)
     {
         _do_checkPermission(
             action DEBUG_DO("new RuntimePermission(\"createSecurityManager\")")

@@ -36,7 +36,7 @@ automaton LinkedHashSet_KeyIteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LinkedHashSet_KeyIterator,
+        `<init>`,
     ];
 
     shift Initialized -> self by [
@@ -62,7 +62,7 @@ automaton LinkedHashSet_KeyIteratorAutomaton
 
     // constructors
 
-    @private constructor *.LinkedHashSet_KeyIterator (@target self: LinkedHashSet_KeyIterator, source: HashMap)
+    @private constructor *.`<init>` (@target self: LinkedHashSet_KeyIterator, source: HashMap)
     {
         action ERROR("Private constructor call");
     }

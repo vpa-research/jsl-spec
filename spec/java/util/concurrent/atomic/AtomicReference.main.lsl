@@ -30,8 +30,8 @@ automaton AtomicReferenceAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LSLAtomicReference (LSLAtomicReference),
-        LSLAtomicReference (LSLAtomicReference, Object),
+        `<init>` (LSLAtomicReference),
+        `<init>` (LSLAtomicReference, Object),
     ];
 
     shift Initialized -> self by [
@@ -68,13 +68,13 @@ automaton AtomicReferenceAutomaton
 
     // constructors
 
-    constructor *.LSLAtomicReference (@target self: LSLAtomicReference)
+    constructor *.`<init>` (@target self: LSLAtomicReference)
     {
         this.value = null;
     }
 
 
-    constructor *.LSLAtomicReference (@target self: LSLAtomicReference, initialValue: Object)
+    constructor *.`<init>` (@target self: LSLAtomicReference, initialValue: Object)
     {
         this.value = initialValue;
     }

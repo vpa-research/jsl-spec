@@ -40,7 +40,7 @@ automaton SystemAutomaton
 
     shift Initialized -> self by [
         // constructors
-        LSLSystem,
+        `<init>`,
 
         // static operations
         arraycopy,
@@ -222,7 +222,7 @@ automaton SystemAutomaton
 
     // constructors
 
-    @private constructor *.LSLSystem (@target self: LSLSystem)
+    @private constructor *.`<init>` (@target self: LSLSystem)
     {
         // doing nothing - this is a (singleton) utility class
     }
@@ -635,7 +635,7 @@ automaton SystemAutomaton
 
     // special: static initialization
 
-    @Phantom @static fun *.__clinit__ (): void
+    @Phantom @static fun *.`<clinit>` (): void
     {
         // #problem: version-specific initialization
 
