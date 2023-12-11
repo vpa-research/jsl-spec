@@ -1064,25 +1064,28 @@ automaton DirectByteBufferAutomaton
             if (srem > rem)
                 action THROW_NEW("java.nio.BufferOverflowException", []);
 
+            var src_array: array<byte> = action ARRAY_NEW("byte", srem);
+            var src_i: int = 0;
+            action CALL_METHOD(sb, "get", [src_array, spos, srem]);
 
             action LOOP_FOR(
-                i, pos, slim - 1, +1,
-                _copy_loop(i)
+                i, pos, slim, +1,
+                _copy_loop(i, src_array, src_i)
             );
 
-            UNSAFE.copyMemory(sb.ix(spos), ix(pos));
-
-            action CALL_METHOD(sb, "position", [spos + srem]);
             _position(pos + srem);
         } else if (src.hb != null) {
 
-            var spos: int = src.position();
-            var slim: int = src.limit();
-            assert (spos <= slim);
+            var spos: int = action CALL_METHOD(src, "position", []);
+            var slim: int = action CALL_METHOD(src, "limit", []);
+            if (spos > slim)
+                action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (spos <= slim) in original
+
             var srem: int = slim - spos;
 
-            put(src.hb, src.offset + spos, srem);
-            src.position(spos + srem);
+            _put(src.hb, src.offset + spos, srem);
+            //action CALL_METHOD(src, "position", [spos + srem]);
+            //src.position(spos + srem);
 
         } else {
             super.put(src);
@@ -1091,9 +1094,10 @@ automaton DirectByteBufferAutomaton
     }
 
 
-    @Phantom proc _copy_loop(i: int): void
+    @Phantom proc _copy_loop(i: int, src_array: array<byte>, src_i: int): void
     {
-        this.storage[i] = this.storage[i];
+        this.storage[i] = src_array[src_i];
+        src_i += 1;
     }
 
     fun *.put (@target self: DirectByteBuffer, x: byte): ByteBuffer
