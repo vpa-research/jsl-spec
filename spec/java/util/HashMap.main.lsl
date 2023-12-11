@@ -619,13 +619,10 @@ automaton HashMapAutomaton
 
     fun *.values (@target self: HashMap): Collection
     {
-        /*
         result = new HashMap_ValuesAutomaton(state = Initialized,
             storage = this.storage,
             parent = self
         );
-        */
-        action TODO();
     }
 
 }
