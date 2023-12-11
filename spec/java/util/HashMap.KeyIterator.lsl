@@ -18,7 +18,7 @@ import java/util/function/Consumer;
 automaton HashMap_KeyIteratorAutomaton
 (
     var parent: HashMap,
-    var storageCopy: map<Object, Object>
+    var storageCopy: map<Object, Map_Entry<Object, Object>>
 )
 : HashMap_KeyIterator
 {
@@ -75,20 +75,20 @@ automaton HashMap_KeyIteratorAutomaton
     // methods
 
     // within java.util.Iterator
-    fun *.forEachRemaining (@target self: HashMap_KeyIterator, _action: Consumer): void
+    fun *.forEachRemaining (@target self: HashMap_KeyIterator, userAction: Consumer): void
     {
-        if (_action == null)
+        if (userAction == null)
             action THROW_NEW("java.lang.NullPointerException", []);
 
         var size: int = action MAP_SIZE(this.storageCopy);
 
         if (size != 0)
         {
-            val parentStorage: map<Object, Object> = HashMapAutomaton(this.parent).storage;
+            val parentStorage: map<Object, Map_Entry<Object, Object>> = HashMapAutomaton(this.parent).storage;
 
             action LOOP_WHILE(
                 size != 0 && HashMapAutomaton(this.parent).modCount == this.expectedModCount,
-                forEachRemaining_loop(_action, parentStorage, size)
+                forEachRemaining_loop(userAction, parentStorage, size)
             );
 
             _checkForComodification();
@@ -96,10 +96,10 @@ automaton HashMap_KeyIteratorAutomaton
     }
 
 
-    @Phantom proc forEachRemaining_loop (_action: Consumer, parentStorage: map<Object, Object>, size: int): void
+    @Phantom proc forEachRemaining_loop (userAction: Consumer, parentStorage: map<Object, Map_Entry<Object, Object>>, size: int): void
     {
         val key: Object = action MAP_GET_ANY_KEY(this.storageCopy);
-        action CALL(_action, [key]);
+        action CALL(userAction, [key]);
         action MAP_REMOVE(this.storageCopy, key);
         size -= 1;
     }
@@ -135,7 +135,7 @@ automaton HashMap_KeyIteratorAutomaton
         _checkForComodification();
 
         action MAP_REMOVE(this.storageCopy, this.currentKey);
-        val parentStorage: map<Object, Object> = HashMapAutomaton(this.parent).storage;
+        val parentStorage: map<Object, Map_Entry<Object, Object>> = HashMapAutomaton(this.parent).storage;
         action MAP_REMOVE(parentStorage, this.currentKey);
         HashMapAutomaton(this.parent).modCount += 1;
 

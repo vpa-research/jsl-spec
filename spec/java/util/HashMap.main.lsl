@@ -409,13 +409,10 @@ automaton HashMapAutomaton
 
     fun *.keySet (@target self: HashMap): Set
     {
-        /*
         result = new HashMap_KeySetAutomaton(state = Initialized,
             storage = this.storage,
             parent = self
         );
-        */
-        action TODO();
     }
 
 
