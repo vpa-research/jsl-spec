@@ -184,15 +184,17 @@ automaton DirectByteBufferAutomaton
             action THROW_NEW("java.nio.BufferUnderflowException", []);
         var end: int = offset + length;
         var i: int = 0;
+        var src_ind: int = 0;
         action FOR_LOOP(
             i, offset, end, +1,
-            _get_loop(dst, i)
+            _get_loop(dst, i, src_ind)
         );
     }
 
-    @Phantom proc _get_loop(dst: array<byte>, i: int): void
+    @Phantom proc _get_loop(dst: array<byte>, i: int, src_ind: int): void
     {
-        dst[i] = _get(i);
+        src_ind = _nextGetIndex();
+        dst[i] = this.storage[src_ind];
     }
 
 
@@ -1048,7 +1050,7 @@ automaton DirectByteBufferAutomaton
 
             var spos: int = action CALL_METHOD(sb, "position", []);
             var slim: int = action CALL_METHOD(sb, "limit", []);
-             if (spos > slim)
+            if (spos > slim)
                 action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (spos <= slim) in original
 
             var srem: int = slim - spos;
@@ -1062,7 +1064,7 @@ automaton DirectByteBufferAutomaton
             if (srem > rem)
                 action THROW_NEW("java.nio.BufferOverflowException", []);
 
-            var
+
             action LOOP_FOR(
                 i, pos, slim - 1, +1,
                 _copy_loop(i)
