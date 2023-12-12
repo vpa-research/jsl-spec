@@ -245,10 +245,9 @@ automaton HashMap_ValuesAutomaton
     @final fun *.iterator (@target self: HashMap_Values): Iterator
     {
         // #question: this is right realization ?
-        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
         result = new HashMap_ValueIteratorAutomaton(state = Initialized,
             parent = this.parent,
-            storageCopy = storageCopy
+            storageCopy = action MAP_CLONE(this.storage)
         );
     }
 
@@ -256,7 +255,13 @@ automaton HashMap_ValuesAutomaton
     // within java.util.Collection
     fun *.parallelStream (@target self: HashMap_Values): Stream
     {
-        action TODO();
+        // #note: temporary decision (we don't support multithreading now)
+        // #question: this is right realization ? Or it can be wrong to give such array like an argument to StreamAutomaton ?
+        result = new StreamAutomaton(state = Initialized,
+            storage = _mapToValuesArray(),
+            length = action MAP_SIZE(this.storage),
+            closeHandlers = action LIST_NEW()
+        );
     }
 
 
@@ -415,9 +420,8 @@ automaton HashMap_ValuesAutomaton
 
     @final fun *.spliterator (@target self: HashMap_Values): Spliterator
     {
-        val valuesArray: array<Object> = _mapToValuesArray();
         result = new HashMap_ValueSpliteratorAutomaton(state=Initialized,
-            valuesStorage = valuesArray,
+            valuesStorage = _mapToValuesArray(),
             parent = this.parent
         );
     }
@@ -426,7 +430,12 @@ automaton HashMap_ValuesAutomaton
     // within java.util.Collection
     fun *.stream (@target self: HashMap_Values): Stream
     {
-        action TODO();
+        // #question: this is right realization ? Or it can be wrong to give such array like an argument to StreamAutomaton ?
+        result = new StreamAutomaton(state = Initialized,
+            storage = _mapToValuesArray(),
+            length = action MAP_SIZE(this.storage),
+            closeHandlers = action LIST_NEW()
+        );
     }
 
 

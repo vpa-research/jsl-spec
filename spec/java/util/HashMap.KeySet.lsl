@@ -241,10 +241,9 @@ automaton HashMap_KeySetAutomaton
     @final fun *.iterator (@target self: HashMap_KeySet): Iterator
     {
         // #question: this is right realization ?
-        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
         result = new HashMap_KeyIteratorAutomaton(state = Initialized,
             parent = this.parent,
-            storageCopy = storageCopy
+            storageCopy = action MAP_CLONE(this.storage)
         );
     }
 
@@ -252,7 +251,13 @@ automaton HashMap_KeySetAutomaton
     // within java.util.Collection
     fun *.parallelStream (@target self: HashMap_KeySet): Stream
     {
-        action TODO();
+        // #note: temporary decision (we don't support multithreading now)
+        // #question: this is right realization ? Or it can be wrong to give such array like an argument to StreamAutomaton ?
+        result = new StreamAutomaton(state = Initialized,
+            storage = _mapToKeysArray(),
+            length = action MAP_SIZE(this.storage),
+            closeHandlers = action LIST_NEW()
+        );
     }
 
 
@@ -366,9 +371,8 @@ automaton HashMap_KeySetAutomaton
     @final fun *.spliterator (@target self: HashMap_KeySet): Spliterator
     {
         // #question: This will be correct or not to create copy of references ? I suppose it can be incorrect for type Integer for example
-        val keysArray: array<Object> = _mapToKeysArray();
         result = new HashMap_KeySpliteratorAutomaton(state=Initialized,
-            keysStorage = keysArray,
+            keysStorage = _mapToKeysArray(),
             parent = this.parent
         );
     }
@@ -377,7 +381,12 @@ automaton HashMap_KeySetAutomaton
     // within java.util.Collection
     fun *.stream (@target self: HashMap_KeySet): Stream
     {
-        action TODO();
+        // #question: this is right realization ? Or it can be wrong to give such array like an argument to StreamAutomaton ?
+        result = new StreamAutomaton(state = Initialized,
+            storage = _mapToKeysArray(),
+            length = action MAP_SIZE(this.storage),
+            closeHandlers = action LIST_NEW()
+        );
     }
 
 

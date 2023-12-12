@@ -290,7 +290,13 @@ automaton HashMap_EntrySetAutomaton
     // within java.util.Collection
     fun *.parallelStream (@target self: HashMap_EntrySet): Stream
     {
-        action TODO();
+        // #note: temporary decision (we don't support multithreading now)
+        // #question: this is right realization ? Or it can be wrong to give such array like an argument to StreamAutomaton ?
+        result = new StreamAutomaton(state = Initialized,
+            storage = _mapToEntryArray(),
+            length = action MAP_SIZE(this.storage),
+            closeHandlers = action LIST_NEW()
+        );
     }
 
 
@@ -441,10 +447,9 @@ automaton HashMap_EntrySetAutomaton
 
     @final fun *.spliterator (@target self: HashMap_EntrySet): Spliterator
     {
-        val entryArray: array<Map_Entry<Object, Object>> = _mapToEntryArray();
         result = new HashMap_EntrySpliteratorAutomaton(state = Initialized,
             parent = this.parent,
-            entryStorage = entryArray
+            entryStorage = _mapToEntryArray()
         );
     }
 
@@ -452,7 +457,12 @@ automaton HashMap_EntrySetAutomaton
     // within java.util.Collection
     fun *.stream (@target self: HashMap_EntrySet): Stream
     {
-        action TODO();
+        // #question: this is right realization ? Or it can be wrong to give such array like an argument to StreamAutomaton ?
+        result = new StreamAutomaton(state = Initialized,
+            storage = _mapToEntryArray(),
+            length = action MAP_SIZE(this.storage),
+            closeHandlers = action LIST_NEW()
+        );
     }
 
 

@@ -55,7 +55,7 @@ import java/util/AbstractSet;
 @GenerateMe
 @implements("java.util.Spliterator")
 @public @final type HashMap_ValueSpliterator
-    is java.util.HashMapValueSpliterator
+    is java.util.HashMap_ValueSpliterator
     for Spliterator
 {
 }
