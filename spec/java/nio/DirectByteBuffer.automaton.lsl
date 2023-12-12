@@ -168,6 +168,16 @@ automaton DirectByteBufferAutomaton
             action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
     }
 
+    @KeepVisible proc _hb(): array<byte>
+    {
+        result = this.hb;
+    }
+
+    @KeepVisible proc _offset(): int
+    {
+        result = this.offset;
+    }
+
     proc _get(i: int): byte
     {
         var ind: int = _nextGetIndex(i);
@@ -176,7 +186,8 @@ automaton DirectByteBufferAutomaton
 
     proc _get(dst: array<byte>, offset: int, length: int): void
     {
-        _checkBounds(offset, length, dst.length);
+        var dst_length: int = action ARRAY_SIZE(dst);
+        _checkBounds(offset, length, dst_length);
         if (this.pos > this.limit)
             action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (pos <= lim) in original
         var rem: int = _remaining();
@@ -195,6 +206,34 @@ automaton DirectByteBufferAutomaton
     {
         src_ind = _nextGetIndex();
         dst[i] = this.storage[src_ind];
+    }
+
+
+    proc _put(src: array<byte>, offset: int, length: int): void
+    {
+        var src_length: int = action ARRAY_SIZE(src);
+        _checkBounds(offset, length, src_length);
+        var rem: int = _remaining();
+        if (length > rem)
+            action THROW_NEW("java.nio.BufferOverflowException", []);
+        var end: int = offset + length;
+        action FOR_LOOP(
+            i, offset, end, +1,
+            _put_loop(src, i, src_ind)
+        );
+    }
+
+
+    @Phantom proc _put_loop(dst: array<byte>, i: int, src_ind: int): void
+    {
+        _put(src[i]);
+    }
+
+
+    proc _put(x: byte): void
+    {
+        var i = _nextPutIndex();
+        this.storage[i] = x;
     }
 
 
@@ -1043,8 +1082,9 @@ automaton DirectByteBufferAutomaton
 
     fun *.put (@target self: DirectByteBuffer, src: ByteBuffer): ByteBuffer
     {
+        var src_hb: array<byte> = action CALL_METHOD(src, "_hb", []);
         if (src is DirectByteBuffer) {
-            if (src == this)
+            if (src == self)
                 action THROW_NEW("java.lang.IllegalArgumentException", []);
             var sb: DirectByteBuffer = src as DirectByteBuffer;
 
@@ -1068,13 +1108,14 @@ automaton DirectByteBufferAutomaton
             var src_i: int = 0;
             action CALL_METHOD(sb, "get", [src_array, spos, srem]);
 
+            var i: int = 0;
             action LOOP_FOR(
                 i, pos, slim, +1,
                 _copy_loop(i, src_array, src_i)
             );
 
             _position(pos + srem);
-        } else if (src.hb != null) {
+        } else if (src_hb != null) {
 
             var spos: int = action CALL_METHOD(src, "position", []);
             var slim: int = action CALL_METHOD(src, "limit", []);
@@ -1082,15 +1123,40 @@ automaton DirectByteBufferAutomaton
                 action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (spos <= slim) in original
 
             var srem: int = slim - spos;
-
-            _put(src.hb, src.offset + spos, srem);
-            //action CALL_METHOD(src, "position", [spos + srem]);
-            //src.position(spos + srem);
-
+            var src_offset: int = action CALL_METHOD(src, "_offset", []);
+            _put(src_hb, src_offset + spos, srem);
+            action CALL_METHOD(src, "position", [spos + srem]);
         } else {
-            super.put(src);
+            _super_put(src);
         }
         result = self;
+    }
+
+
+    proc _super_put(src: ByteBuffer): ByteBuffer
+    {
+        if (src == self)
+            action THROW_NEW("java.lang.IllegalArgumentException", []);
+        // always false? but if isReadOnly will be override?
+        // if (isReadOnly())
+        //    action THROW_NEW("java.nio.ReadOnlyBufferException", []);
+        var n: int = action CALL_METHOD(src, "remaining", []);
+
+        if (n > _remaining())
+            action THROW_NEW("java.nio.BufferOverflowException", []);
+
+        var get_byte: byte = 0 as byte;
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, n, +1,
+            _super_put_loop(i, src, get_byte)
+        );
+    }
+
+    @Phantom proc _super_put_loop(i: int, src: ByteBuffer, get_byte: byte): void
+    {
+        get_byte = action CALL_METHOD(src, "get", []);
+        _put(get_byte);
     }
 
 
@@ -1102,22 +1168,24 @@ automaton DirectByteBufferAutomaton
 
     fun *.put (@target self: DirectByteBuffer, x: byte): ByteBuffer
     {
-        var i = _nextPutIndex();
-        this.storage[i] = x;
-        result = this;
+        _put(x);
+        result = self;
     }
 
 
     // within java.nio.ByteBuffer
     @final fun *.put (@target self: DirectByteBuffer, src: array<byte>): ByteBuffer
     {
-        action TODO();
+        var len: int = action ARRAY_SIZE(src);
+        _put(src, 0, len);
+        result = self;
     }
 
 
     fun *.put (@target self: DirectByteBuffer, src: array<byte>, offset: int, length: int): ByteBuffer
     {
-        action TODO();
+        _put(src, offset, length);
+        result = self;
     }
 
 
@@ -1125,7 +1193,7 @@ automaton DirectByteBufferAutomaton
     {
         _checkIndex(i);
         this.storage[i] = x;
-        result = this;
+        result = self;
     }
 
 
