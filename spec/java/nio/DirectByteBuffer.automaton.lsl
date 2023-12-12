@@ -553,6 +553,13 @@ automaton DirectByteBufferAutomaton
         else result = pos;
     }
 
+
+    proc _pick(le: byte, be: byte): byte
+    {
+        if (this.bigEndian == true) result = be;
+        else result = le;
+    }
+
     // constructors
 
     @private constructor *.DirectByteBuffer (@target self: DirectByteBuffer, db: DirectBuffer, mark: int, pos: int, lim: int, cap: int, off: int)
@@ -1212,7 +1219,7 @@ automaton DirectByteBufferAutomaton
         result = self;
     }
 
-    proc _putChar(offset: long, x: char): ByteBuffer
+    proc _putChar(offset: long, x: char): void
     {
         var conv_x: char = _convEndian(x);
         _putShortUnaligned(offset, conv_x as short);
@@ -1229,22 +1236,50 @@ automaton DirectByteBufferAutomaton
         this.storage[offset + 1] = _pick(i1, i0);
     }
 
-    proc _pick(le: byte, be: byte): byte
-    {
-        if (this.bigEndian == true) result = be;
-        else result = le;
-    }
+
 
 
     fun *.putDouble (@target self: DirectByteBuffer, x: double): ByteBuffer
     {
-        action TODO();
+        var next_index: int = _nextPutIndex(8);
+        _putDouble(next_index as long, x);
+        result = self;
     }
 
 
     fun *.putDouble (@target self: DirectByteBuffer, i: int, x: double): ByteBuffer
     {
-        action TODO();
+        _checkIndex(i, 8);
+        _putDouble(i as long, x);
+        result = self;
+    }
+
+    proc _putDouble(offset: long, x: double): void
+    {
+        var long_x: long = _doubleToRawLongBits(x);
+        _putLongUnaligned(offset, conv_x as short);
+    }
+
+
+    proc _doubleToRawLongBits(x: double): long
+    {
+        if (x == DOUBLE_POSITIVE_INFINITY)
+        {
+            result = 9218868437227405312L;
+        }
+        else if (x == DOUBLE_NEGATIVE_INFINITY)
+        {
+            result = 18442240474082181120L;
+        }
+        else if (x == DOUBLE_NAN)
+        {
+            result = 9221120237041090560;
+        }
+        else
+        {
+            var e: int = 0;
+            var s: long =
+        }
     }
 
 
