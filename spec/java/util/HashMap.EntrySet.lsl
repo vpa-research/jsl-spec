@@ -82,6 +82,28 @@ automaton HashMap_EntrySetAutomaton
     }
 
 
+    proc _mapToEntryArray (): array<Map_Entry<Object, Object>>
+    {
+        val storageSize: int = action MAP_SIZE(this.storage);
+        result = action ARRAY_NEW("java.util.Map.Entry", storageSize);
+        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, storageSize, +1,
+            _mapToEntryArray_loop(i, result, storageCopy)
+        );
+    }
+
+
+    @Phantom proc _mapToEntryArray_loop (i: int, result: array<Map_Entry<Object, Object>>, storageCopy: map<Object, Map_Entry<Object, Object>>): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        var entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
+        result[i] = entry;
+        action MAP_REMOVE(storageCopy, curKey);
+    }
+
+
     // constructors
 
     @private constructor *.HashMap_EntrySet (@target self: HashMap_EntrySet, _this: HashMap)
@@ -419,7 +441,11 @@ automaton HashMap_EntrySetAutomaton
 
     @final fun *.spliterator (@target self: HashMap_EntrySet): Spliterator
     {
-        action TODO();
+        val entryArray: array<Map_Entry<Object, Object>> = _mapToEntryArray();
+        result = new HashMap_EntrySpliteratorAutomaton(state = Initialized,
+            parent = this.parent,
+            entryStorage = entryArray
+        );
     }
 
 

@@ -55,7 +55,6 @@ automaton HashMap_KeySpliteratorAutomaton
 
     // utilities
 
-
     proc _getFence (): int
     {
         action ASSUME(this.parent != null);

@@ -366,7 +366,7 @@ automaton HashMap_KeySetAutomaton
     @final fun *.spliterator (@target self: HashMap_KeySet): Spliterator
     {
         // #question: This will be correct or not to create copy of references ? I suppose it can be incorrect for type Integer for example
-        val keysArray: array<Object, Object> = _mapToKeysArray();
+        val keysArray: array<Object> = _mapToKeysArray();
         result = new HashMap_KeySpliteratorAutomaton(state=Initialized,
             keysStorage = keysArray,
             parent = this.parent
