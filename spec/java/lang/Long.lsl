@@ -17,8 +17,10 @@ import java/lang/Number;
 @FunctionalInterface("longValue")
 @final type Long
     is java.lang.Long
-    for Comparable, Number, long
+    for Comparable, Number
 {
+    // WARNING: use 'longValue' to get primitive value
+
     @static fun *.reverseBytes(i: long): long;
 
 }

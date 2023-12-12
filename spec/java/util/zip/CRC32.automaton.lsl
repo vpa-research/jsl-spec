@@ -26,7 +26,7 @@ automaton CRC32Automaton
 
     shift Allocated -> Initialized by [
         // constructors
-        CRC32,
+        `<init>`,
     ];
 
     shift Initialized -> self by [
@@ -95,7 +95,7 @@ automaton CRC32Automaton
 
     // constructors
 
-    constructor *.CRC32 (@target self: CRC32)
+    constructor *.`<init>` (@target self: CRC32)
     {
         // original constructor is empty
     }

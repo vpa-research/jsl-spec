@@ -7,7 +7,6 @@ library std
 
 // imports
 
-import java/util/stream/DoubleStream;
 import java/lang/Double;
 import java/util/function/DoubleFunction;
 import java/util/function/DoublePredicate;
@@ -19,6 +18,9 @@ import java/util/function/ObjDoubleConsumer;
 import java/util/DoubleSummaryStatistics;
 import java/util/PrimitiveIterator;
 import java/util/OptionalDouble;
+
+import java/util/stream/DoubleStream;
+import java/util/Spliterators;
 
 
 // automata
@@ -134,12 +136,12 @@ automaton DoubleStreamAutomaton
     {
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalDouble.empty()");
+            result = action CALL_METHOD(null as OptionalDouble, "empty", []);
         }
         else
         {
             val first: double = this.storage[0];
-            result = action DEBUG_DO("OptionalDouble.of(first)");
+            result = action CALL_METHOD(null as OptionalDouble, "of", [first]);
         }
     }
 
@@ -178,7 +180,7 @@ automaton DoubleStreamAutomaton
         val element: double = this.storage[i];
         result += element;
 
-        if (action DEBUG_DO("Double.isNaN(element)"))
+        if (element != element /* NaN */)
             anyNaN = true;
 
         if (element == DOUBLE_POSITIVE_INFINITY)
@@ -684,7 +686,7 @@ automaton DoubleStreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalDouble.empty()");
+            result = action CALL_METHOD(null as OptionalDouble, "empty", []);
         }
         else if (this.length > 0)
         {
@@ -696,7 +698,7 @@ automaton DoubleStreamAutomaton
                 _accumulate_optional_loop(i, accumulator, value)
             );
 
-            result = action DEBUG_DO("OptionalDouble.of(value)");
+            result = action CALL_METHOD(null as OptionalDouble, "of", [value]);
         }
 
         _consume();
@@ -747,7 +749,7 @@ automaton DoubleStreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalDouble.empty()");
+            result = action CALL_METHOD(null as OptionalDouble, "empty", []);
         }
         else
         {
@@ -759,7 +761,7 @@ automaton DoubleStreamAutomaton
                 _find_min_loop(i, min)
             );
 
-            result = action DEBUG_DO("OptionalDouble.of(min)");
+            result = action CALL_METHOD(null as OptionalDouble, "of", [min]);
         }
 
         _consume();
@@ -779,7 +781,7 @@ automaton DoubleStreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalDouble.empty()");
+            result = action CALL_METHOD(null as OptionalDouble, "empty", []);
         }
         else
         {
@@ -791,7 +793,7 @@ automaton DoubleStreamAutomaton
                 _find_max_loop(i, max)
             );
 
-            result = action DEBUG_DO("OptionalDouble.of(max)");
+            result = action CALL_METHOD(null as OptionalDouble, "of", [max]);
         }
 
         _consume();
@@ -930,12 +932,11 @@ automaton DoubleStreamAutomaton
     {
         _checkConsumed();
 
-        val default_characteristics: int = SPLITERATOR_ORDERED | SPLITERATOR_IMMUTABLE | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED;
-        result = new DoubleStreamSpliteratorAutomaton(state = Initialized,
-            parent = self,
+        result = new Spliterators_DoubleArraySpliteratorAutomaton(state = Initialized,
+            array = this.storage,
             index = 0,
             fence = this.length,
-            characteristics = default_characteristics,
+            characteristics = SPLITERATOR_ORDERED | SPLITERATOR_IMMUTABLE | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED,
         );
 
         _consume();
@@ -1178,13 +1179,13 @@ automaton DoubleStreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalDouble.empty()");
+            result = action CALL_METHOD(null as OptionalDouble, "empty", []);
         }
         else
         {
             var curSum: double = _sum();
             var divisionResult: double = curSum / this.length;
-            result = action DEBUG_DO("OptionalDouble.of(divisionResult)");
+            result = action CALL_METHOD(null as OptionalDouble, "of", [divisionResult]);
         }
 
         _consume();

@@ -71,7 +71,6 @@ automaton ListAutomaton
 
         result = new ArrayListAutomaton(state = Initialized,
             storage = data,
-            length = size,
         );
     }
 
@@ -87,7 +86,6 @@ automaton ListAutomaton
     {
         result = new ArrayListAutomaton(state = Initialized,
             storage = action LIST_NEW(),
-            length = 0,
         );
     }
 
@@ -100,7 +98,6 @@ automaton ListAutomaton
 
         result = new ArrayListAutomaton(state = Initialized,
             storage = data,
-            length = 1,
         );
     }
 
@@ -114,7 +111,6 @@ automaton ListAutomaton
 
         result = new ArrayListAutomaton(state = Initialized,
             storage = data,
-            length = 2,
         );
     }
 
@@ -129,7 +125,6 @@ automaton ListAutomaton
 
         result = new ArrayListAutomaton(state = Initialized,
             storage = data,
-            length = 3,
         );
     }
 
@@ -145,7 +140,6 @@ automaton ListAutomaton
 
         result = new ArrayListAutomaton(state = Initialized,
             storage = data,
-            length = 4,
         );
     }
 
@@ -162,7 +156,6 @@ automaton ListAutomaton
 
         result = new ArrayListAutomaton(state = Initialized,
             storage = data,
-            length = 5,
         );
     }
 
@@ -180,7 +173,6 @@ automaton ListAutomaton
 
         result = new ArrayListAutomaton(state = Initialized,
             storage = data,
-            length = 6,
         );
     }
 
@@ -199,7 +191,6 @@ automaton ListAutomaton
 
         result = new ArrayListAutomaton(state = Initialized,
             storage = data,
-            length = 7,
         );
     }
 
@@ -219,7 +210,6 @@ automaton ListAutomaton
 
         result = new ArrayListAutomaton(state = Initialized,
             storage = data,
-            length = 8,
         );
     }
 
@@ -240,7 +230,6 @@ automaton ListAutomaton
 
         result = new ArrayListAutomaton(state = Initialized,
             storage = data,
-            length = 9,
         );
     }
 
@@ -262,7 +251,6 @@ automaton ListAutomaton
 
         result = new ArrayListAutomaton(state = Initialized,
             storage = data,
-            length = 10,
         );
     }
 
@@ -284,7 +272,6 @@ automaton ListAutomaton
 
         result = new ArrayListAutomaton(state = Initialized,
             storage = data,
-            length = size,
         );
     }
 

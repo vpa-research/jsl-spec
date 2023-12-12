@@ -9,6 +9,7 @@ library std
 // imports
 
 import java/io/Serializable;
+import java/lang/CharSequence;
 import java/lang/Comparable;
 
 
@@ -17,11 +18,14 @@ import java/lang/Comparable;
 @FunctionalInterface("charValue")
 @final type Character
     is java.lang.Character
-    for Comparable, Serializable, char
+    for Comparable, Serializable
 {
+    // WARNING: use 'charValue' to get primitive value
+
     fun *.charValue(): char;
 
-    @static fun offsetByCodePoints(seq: CharSequence, index: int, codePointOffset: int): int;
+    @static fun *.offsetByCodePoints(seq: CharSequence, index: int, codePointOffset: int): int;
+
     @static fun *.reverseBytes(ch: char): char;
 }
 

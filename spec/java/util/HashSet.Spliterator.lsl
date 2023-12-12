@@ -34,7 +34,7 @@ automaton HashSet_KeySpliteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        HashSet_KeySpliterator
+        `<init>`
     ];
 
     shift Initialized -> self by [
@@ -59,7 +59,7 @@ automaton HashSet_KeySpliteratorAutomaton
         if (hi < 0)
         {
             val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
-            this.est = HashSetAutomaton(this.parent).length;
+            this.est = action MAP_SIZE(parentStorage);
             this.expectedModCount = HashSetAutomaton(this.parent).modCount;
             this.fence = this.est;
             // That's right ?
@@ -86,7 +86,8 @@ automaton HashSet_KeySpliteratorAutomaton
 
     // constructors
 
-    @private constructor *.HashSet_KeySpliterator (@target self: HashSet_KeySpliterator, source: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
+    @private constructor *.`<init>` (@target self: HashSet_KeySpliterator,
+                                     source: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
     {
         this.index = origin;
         this.fence = fence;
@@ -108,12 +109,13 @@ automaton HashSet_KeySpliteratorAutomaton
     {
         action ASSUME(this.parent != null);
 
-        var mask: int = 0;
-        val length: int = HashSetAutomaton(this.parent).length;
+        result = 0;
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        val length: int = action MAP_SIZE(parentStorage);
         if (this.fence < 0 || this.est == length)
-            mask = SPLITERATOR_SIZED;
+            result = SPLITERATOR_SIZED;
 
-        result = mask | SPLITERATOR_DISTINCT;
+        result |= SPLITERATOR_DISTINCT;
     }
 
 
@@ -127,7 +129,8 @@ automaton HashSet_KeySpliteratorAutomaton
         var hi: int = this.fence;
         var mc: int = this.expectedModCount;
         var i: int = this.index;
-        val length: int = HashSetAutomaton(this.parent).length;
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        val length: int = action MAP_SIZE(parentStorage);
 
         if(hi < 0)
         {

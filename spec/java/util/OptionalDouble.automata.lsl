@@ -40,8 +40,8 @@ automaton OptionalDoubleAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LSLOptionalDouble (LSLOptionalDouble),
-        LSLOptionalDouble (LSLOptionalDouble, double),
+        `<init>` (LSLOptionalDouble),
+        `<init>` (LSLOptionalDouble, double),
 
         // static methods
         empty,
@@ -76,13 +76,13 @@ automaton OptionalDoubleAutomaton
 
     // constructors
 
-    @private constructor *.LSLOptionalDouble (@target self: LSLOptionalDouble)
+    @private constructor *.`<init>` (@target self: LSLOptionalDouble)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
 
 
-    @private constructor *.LSLOptionalDouble (@target self: LSLOptionalDouble, x: double)
+    @private constructor *.`<init>` (@target self: LSLOptionalDouble, x: double)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
