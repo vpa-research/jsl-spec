@@ -137,7 +137,29 @@ automaton HashMap_EntrySetAutomaton
     // within java.util.AbstractCollection
     fun *.containsAll (@target self: HashMap_EntrySet, c: Collection): boolean
     {
-        action TODO();
+        result = true;
+        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+
+        action LOOP_WHILE(
+            action CALL_METHOD(iter, "hasNext", []) && result == true,
+            _containsAll_loop(result, iter)
+        );
+    }
+
+
+    @Phantom proc _containsAll_loop (result: boolean, iter: Iterator): void
+    {
+        val cEntry: Map_Entry<Object, Object> = action CALL_METHOD(iter, "next", []) as Map_Entry<Object, Object>;
+        val cKey: Object = action CALL_METHOD(cEntry, "getKey", []);
+        if (!action MAP_HAS_KEY(this.storage, cKey))
+        {
+            result = false;
+        }
+        else
+        {
+            val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, cKey);
+            result = action OBJECT_EQUALS(cEntry, entry);
+        }
     }
 
 
