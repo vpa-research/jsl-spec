@@ -281,25 +281,47 @@ automaton HashMap_KeySetAutomaton
 
         result = false;
         val startStorageSize: int = action MAP_SIZE(this.storage);
+        val collectionSize: int = action CALL_METHOD(c, "size", []);
 
-        val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, startStorageSize, +1,
-            _removeAll_loop(unseen, c)
-        );
+        if (startStorageSize > collectionSize)
+        {
+            val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+            action LOOP_WHILE(
+                action CALL_METHOD(iter, "hasNext", []),
+                _removeAll_loop_regular(iter)
+            );
+        }
+        else
+        {
+            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, startStorageSize, +1,
+                _removeAll_loop_optimized(unseen, c)
+            );
+        }
 
         val resultStorageSize: int = action MAP_SIZE(this.storage);
         result = startStorageSize == resultStorageSize;
     }
 
 
-    @Phantom proc _removeAll_loop (unseen: map<Object, Map_Entry<Object, Object>>, c: Collection): void
+    @Phantom proc _removeAll_loop_optimized (unseen: map<Object, Map_Entry<Object, Object>>, c: Collection): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         if (action CALL_METHOD(c, "contains", [curKey]))
             action MAP_REMOVE(this.storage, curKey);
         action MAP_REMOVE(unseen, curKey);
+    }
+
+
+    @Phantom proc _removeAll_loop_regular (iter: Iterator): void
+    {
+        val oKey: Object = action CALL_METHOD(iter, "next", []);
+        if (action MAP_HAS_KEY(this.storage, oKey))
+        {
+            action MAP_REMOVE(this.storage, oKey);
+        }
     }
 
 
