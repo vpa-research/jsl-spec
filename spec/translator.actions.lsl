@@ -62,3 +62,10 @@ define action TODO (): void;
 
 // do nothing explicitly but detectable by the translator if needed
 define action DO_NOTHING (): void;
+
+
+// usage example: action TYPE_OF("int")
+// usage example: action TYPE_OF(obj)
+define action TYPE_OF (
+        valueOrName: any // string literal or a variable
+    ): any;

@@ -16,16 +16,12 @@ import java/util/Map;
 
 // primary semantic types
 
-@extends("java.util.Dictionary")
-@implements("java.util.Map")
-@implements("java.lang.Cloneable")
-@implements("java.io.Serializable")
-@public type Hashtable
+type Hashtable
     is java.util.Hashtable
     for Dictionary, Map, Cloneable, Serializable
 {
-    @private @static val serialVersionUID: long = 1421746759512286392L;
 }
 
 
 // global aliases and type overrides
+

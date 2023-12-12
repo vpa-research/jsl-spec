@@ -8,6 +8,7 @@ library std
 // imports
 
 import java/lang/Class;
+import java/lang/Cloneable;
 import java/lang/Object;
 import java/lang/String;
 
@@ -25,7 +26,7 @@ automaton ObjectAutomaton
 
     shift Initialized -> self by [
         // constructors
-        LSLObject,
+        `<init>`,
 
         // instance methods
         equals,
@@ -46,9 +47,9 @@ automaton ObjectAutomaton
 
     // constructors
 
-    @Phantom constructor *.LSLObject (@target self: LSLObject)
+    @Phantom constructor *.`<init>` (@target self: LSLObject)
     {
-        // NOTE: using the original method
+        // WARNING: Using the original method here. Do not change! (infinite recursion otherwise)
     }
 
 
@@ -62,9 +63,18 @@ automaton ObjectAutomaton
     }
 
 
-    @Phantom @protected fun *.clone (@target self: LSLObject): Object
+    @throws(["java.lang.CloneNotSupportedException"])
+    @protected fun *.clone (@target self: LSLObject): Object
     {
-        // NOTE: using the original method
+        if (self is Cloneable == false)
+            action THROW_NEW("java.lang.CloneNotSupportedException", []);
+
+        result = action SYMBOLIC("java.lang.Object");
+        action ASSUME(result != null);
+
+        val thisType: Class = action TYPE_OF(self);
+        val cloneType: Class = action TYPE_OF(result);
+        action ASSUME(thisType == cloneType);
     }
 
 
@@ -94,8 +104,8 @@ automaton ObjectAutomaton
 
     fun *.toString (@target self: LSLObject): String
     {
-        result = action SYMBOLIC("java.lang.String");
-        action ASSUME(result != null);
+        // #todo: use class name and a random hex string
+        result = "java.lang.Object@735b5592";
     }
 
 
@@ -122,7 +132,7 @@ automaton ObjectAutomaton
 
     // special: static initialization
 
-    @Phantom @static fun *.__clinit__ (): void
+    @Phantom @static fun *.`<clinit>` (): void
     {
         action DO_NOTHING();
     }

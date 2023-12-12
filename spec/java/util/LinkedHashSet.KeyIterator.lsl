@@ -36,7 +36,7 @@ automaton LinkedHashSet_KeyIteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LinkedHashSet_KeyIterator,
+        `<init>`,
     ];
 
     shift Initialized -> self by [
@@ -62,7 +62,7 @@ automaton LinkedHashSet_KeyIteratorAutomaton
 
     // constructors
 
-    @private constructor *.LinkedHashSet_KeyIterator (@target self: LinkedHashSet_KeyIterator, source: HashMap)
+    @private constructor *.`<init>` (@target self: LinkedHashSet_KeyIterator, source: HashMap)
     {
         action ERROR("Private constructor call");
     }
@@ -73,8 +73,10 @@ automaton LinkedHashSet_KeyIteratorAutomaton
     fun *.hasNext (@target self: LinkedHashSet_KeyIterator): boolean
     {
         action ASSUME(this.parent != null);
-        val length: int = LinkedHashSetAutomaton(this.parent).length;
-        result = this.index < length;
+
+        val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
+
+        result = this.index < action MAP_SIZE(parentStorage);
     }
 
 
@@ -83,8 +85,9 @@ automaton LinkedHashSet_KeyIteratorAutomaton
         action ASSUME(this.parent != null);
         _checkForComodification();
 
-        val length: int = LinkedHashSetAutomaton(this.parent).length;
-        val atValidPosition: boolean = this.index < length;
+        val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
+
+        val atValidPosition: boolean = this.index < action MAP_SIZE(parentStorage);
         if (!atValidPosition)
             action THROW_NEW("java.util.NoSuchElementException", []);
 
@@ -104,8 +107,9 @@ automaton LinkedHashSet_KeyIteratorAutomaton
     {
         action ASSUME(this.parent != null);
 
-        val length: int = LinkedHashSetAutomaton(this.parent).length;
-        val atValidPosition: boolean = this.index < length;
+        val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
+
+        val atValidPosition: boolean = this.index < action MAP_SIZE(parentStorage);
         if (!atValidPosition || !this.nextWasCalled)
             action THROW_NEW("java.lang.IllegalStateException", []);
 
@@ -113,7 +117,6 @@ automaton LinkedHashSet_KeyIteratorAutomaton
 
         _checkForComodification();
 
-        val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
         action MAP_REMOVE(parentStorage, this.currentKey);
 
         this.expectedModCount = LinkedHashSetAutomaton(this.parent).modCount;
@@ -127,7 +130,8 @@ automaton LinkedHashSet_KeyIteratorAutomaton
         if (userAction == null)
             action THROW_NEW("java.lang.NullPointerException", []);
 
-        val length: int = LinkedHashSetAutomaton(this.parent).length;
+        val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
+        val length: int = action MAP_SIZE(parentStorage);
         var i: int = this.index;
 
         action LOOP_WHILE(

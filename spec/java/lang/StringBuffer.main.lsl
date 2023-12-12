@@ -26,10 +26,10 @@ automaton StringBufferAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        StringBuffer (StringBuffer),
-        StringBuffer (StringBuffer, CharSequence),
-        StringBuffer (StringBuffer, String),
-        StringBuffer (StringBuffer, int),
+        `<init>` (StringBuffer),
+        `<init>` (StringBuffer, CharSequence),
+        `<init>` (StringBuffer, String),
+        `<init>` (StringBuffer, int),
     ];
 
     shift Initialized -> self by [
@@ -297,14 +297,14 @@ automaton StringBufferAutomaton
 
     // constructors
 
-    constructor *.StringBuffer (@target self: StringBuffer)
+    constructor *.`<init>` (@target self: StringBuffer)
     {
         // This constructor's body is empty, because in original class is used byte array and this initializes 16 size;
         // In this realization is used "String" instead of to array; And this string initializes in "internal variables";
     }
 
 
-    constructor *.StringBuffer (@target self: StringBuffer, seq: CharSequence)
+    constructor *.`<init>` (@target self: StringBuffer, seq: CharSequence)
     {
         if (seq == null)
             _throwNPE();
@@ -313,7 +313,7 @@ automaton StringBufferAutomaton
     }
 
 
-    constructor *.StringBuffer (@target self: StringBuffer, str: String)
+    constructor *.`<init>` (@target self: StringBuffer, str: String)
     {
         if (str == null)
             _throwNPE();
@@ -322,7 +322,7 @@ automaton StringBufferAutomaton
     }
 
 
-    constructor *.StringBuffer (@target self: StringBuffer, capacity: int)
+    constructor *.`<init>` (@target self: StringBuffer, capacity: int)
     {
         // This constructor's body is empty, because in original class is used byte array and this initializes 16 + capacity size;
         // In this realization is used "String" instead of to array; And this string initializes in "internal variables";
@@ -342,7 +342,7 @@ automaton StringBufferAutomaton
     @synchronized fun *.append (@target self: StringBuffer, s: CharSequence, start: int, end: int): StringBuffer
     {
         var seqLength: int = 4;
-        var seq: String = "null";
+        var seq: CharSequence = "null";
         if (s != null)
         {
             seq = s;
@@ -543,8 +543,8 @@ automaton StringBufferAutomaton
     // within java.lang.AbstractStringBuilder
     fun *.chars (@target self: StringBuffer): IntStream
     {
-        var intStorage: array<int> = action ARRAY_NEW("int", this.length);
-        var storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
+        val intStorage: array<int> = action ARRAY_NEW("int", this.length);
+        val storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
 
         var i: int = 0;
         action LOOP_FOR(
@@ -552,12 +552,11 @@ automaton StringBufferAutomaton
             _toIntArray_loop(i, intStorage, storageChars)
         );
 
-        val handlers: list<Runnable> = action LIST_NEW();
         result = new IntStreamAutomaton(state = Initialized,
-                                        storage = intStorage,
-                                        length = this.length,
-                                        closeHandlers = handlers
-                                       );
+            storage = intStorage,
+            length = this.length,
+            closeHandlers = action LIST_NEW()
+        );
     }
 
 
@@ -596,8 +595,8 @@ automaton StringBufferAutomaton
     // within java.lang.AbstractStringBuilder
     fun *.codePoints (@target self: StringBuffer): IntStream
     {
-        var intStorage: array<int> = action ARRAY_NEW("int", this.length);
-        var storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
+        val intStorage: array<int> = action ARRAY_NEW("int", this.length);
+        val storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
 
         var i: int = 0;
         action LOOP_FOR(
@@ -605,12 +604,11 @@ automaton StringBufferAutomaton
             _toIntArray_loop(i, intStorage, storageChars)
         );
 
-        val handlers: list<Runnable> = action LIST_NEW();
         result = new IntStreamAutomaton(state = Initialized,
-                                        storage = intStorage,
-                                        length = this.length,
-                                        closeHandlers = handlers
-                                       );
+            storage = intStorage,
+            length = this.length,
+            closeHandlers = action LIST_NEW()
+        );
     }
 
 
@@ -698,7 +696,7 @@ automaton StringBufferAutomaton
     {
         _checkOffset(dstOffset);
         var len: int = 4;
-        var new_s: String = "null";
+        var new_s: CharSequence = "null";
         if (s != null)
         {
             len = action CALL_METHOD(s, "length", []);
@@ -714,7 +712,7 @@ automaton StringBufferAutomaton
     {
         _checkOffset(dstOffset);
         var len: int = 4;
-        var new_s: String = "null";
+        var new_s: CharSequence = "null";
         if (s != null)
         {
             len = action CALL_METHOD(s, "length", []);
@@ -901,9 +899,7 @@ automaton StringBufferAutomaton
     {
         _checkIndex(index);
 
-        // result = action DEBUG_DO("Character.offsetByCodePoints(this.storage, index, codePointOffset)"); //current
-
-        result = action CALL_METHOD(null as Character, "offsetByCodePoints", [this.storage, index, codePointOffset]) //need
+        result = action CALL_METHOD(null as Character, "offsetByCodePoints", [this.storage, index, codePointOffset]);
     }
 
 

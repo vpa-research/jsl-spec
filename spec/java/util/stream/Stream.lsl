@@ -48,12 +48,3 @@ import java/util/Spliterator;
     for Iterator
 {
 }
-
-
-@GenerateMe
-@implements("java.util.Spliterator")
-@public type StreamLSLSpliterator
-    is java.util.StreamLSLSpliterator
-    for Spliterator
-{
-}

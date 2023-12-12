@@ -40,8 +40,8 @@ automaton OptionalAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LSLOptional (LSLOptional),
-        LSLOptional (LSLOptional, Object),
+        `<init>` (LSLOptional),
+        `<init>` (LSLOptional, Object),
 
         // static methods
         empty,
@@ -81,7 +81,7 @@ automaton OptionalAutomaton
 
     // constructors
 
-    @private constructor *.LSLOptional (@target @Parameterized(["T"]) self: LSLOptional)
+    @private constructor *.`<init>` (@target @Parameterized(["T"]) self: LSLOptional)
     {
         action ERROR("Private constructor call");
         /*assigns this.value;
@@ -91,7 +91,7 @@ automaton OptionalAutomaton
     }
 
 
-    @private constructor *.LSLOptional (@target @Parameterized(["T"]) self: LSLOptional, obj: Object)
+    @private constructor *.`<init>` (@target @Parameterized(["T"]) self: LSLOptional, obj: Object)
     {
         action ERROR("Private constructor call");
         /*requires obj != null;

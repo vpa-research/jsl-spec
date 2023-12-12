@@ -25,7 +25,7 @@ automaton ArrayList_SpliteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        ArrayList_Spliterator,
+        `<init>`,
     ];
 
     shift Initialized -> self by [
@@ -64,11 +64,11 @@ automaton ArrayList_SpliteratorAutomaton
     proc _getFence (): int
     {
         // JDK comment: initialize fence to size on first use
-        if (this.fence < 0)
+        if (this.fence == -1)
         {
             action ASSUME(this.parent != null);
             this.expectedModCount = ArrayListAutomaton(this.parent).modCount;
-            this.fence = ArrayListAutomaton(this.parent).length;
+            this.fence = action LIST_SIZE(ArrayListAutomaton(this.parent).storage);
         }
 
         result = this.fence;
@@ -77,7 +77,7 @@ automaton ArrayList_SpliteratorAutomaton
 
     // constructors
 
-    @private constructor *.ArrayList_Spliterator (
+    @private constructor *.`<init>` (
                 @target self: ArrayList_Spliterator,
                 _this: ArrayList,
                 origin: int, fence: int, expectedModCount: int)
@@ -115,15 +115,15 @@ automaton ArrayList_SpliteratorAutomaton
 
         var hi: int = this.fence;
         var mc: int = this.expectedModCount;
-        if (hi < 0)
+        if (hi == -1)
         {
-            hi = ArrayListAutomaton(this.parent).length;
+            hi = action LIST_SIZE(a);
             mc = ArrayListAutomaton(this.parent).modCount;
         }
 
         var i: int = this.index;
         this.index = hi;
-        if (i < 0 || hi > ArrayListAutomaton(this.parent).length)
+        if (i < 0 || hi > action LIST_SIZE(a))
             _throwCME();
 
         action LOOP_FOR(

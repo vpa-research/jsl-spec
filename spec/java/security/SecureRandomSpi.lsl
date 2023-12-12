@@ -13,13 +13,12 @@ import java/io/Serializable;
 
 // primary semantic types
 
-@implements("java.io.Serializable")
 @abstract type SecureRandomSpi
     is java.security.SecureRandomSpi
     for Serializable
 {
-    @private @static @final var serialVersionUID: long = -2991854161009191830L;
 }
 
 
 // global aliases and type overrides
+

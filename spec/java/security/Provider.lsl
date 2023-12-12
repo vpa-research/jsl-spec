@@ -8,28 +8,25 @@ library std
 
 // imports
 
-import java/util/Properties;
-import java/lang/String;
-import java/util/Set;
 import java/lang/Object;
+import java/lang/String;
+import java/util/Properties;
+import java/util/Set;
 
 
 // primary semantic types
 
-@extends("java.util.Properties")
 @abstract type Provider
     is java.security.Provider
     for Properties
 {
-    @private @static val serialVersionUID: long = -4298000515446427739L;
-
     fun *.getName(): String;
 
     fun *.getServices(): Set;
 }
 
 
-@static type Provider_Service
+type Provider_Service
     is java.security.Provider.Service
     for Object
 {
@@ -40,3 +37,4 @@ import java/lang/Object;
 
 
 // global aliases and type overrides
+

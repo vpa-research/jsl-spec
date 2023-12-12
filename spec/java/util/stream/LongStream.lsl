@@ -40,12 +40,3 @@ import java/util/Spliterator;
     for PrimitiveIterator_OfLong
 {
 }
-
-
-@GenerateMe
-@implements("java.util.Spliterator.OfLong")
-@public type LongStreamLSLSpliterator
-    is java.util.LongStreamLSLSpliterator
-    for Spliterator_OfLong
-{
-}

@@ -40,8 +40,8 @@ automaton OptionalLongAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LSLOptionalLong (LSLOptionalLong),
-        LSLOptionalLong (LSLOptionalLong, long),
+        `<init>` (LSLOptionalLong),
+        `<init>` (LSLOptionalLong, long),
 
         // static methods
         empty,
@@ -76,13 +76,13 @@ automaton OptionalLongAutomaton
 
     // constructors
 
-    @private constructor *.LSLOptionalLong (@target self: LSLOptionalLong)
+    @private constructor *.`<init>` (@target self: LSLOptionalLong)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
 
 
-    @private constructor *.LSLOptionalLong (@target self: LSLOptionalLong, x: long)
+    @private constructor *.`<init>` (@target self: LSLOptionalLong, x: long)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }

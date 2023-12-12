@@ -25,7 +25,7 @@ automaton SecureRandomAutomaton
 (
     var provider: Provider,
     var algorithm: String,
-    var defaultProvider: boolean
+    var defaultProvider: boolean,
 )
 : SecureRandomLSL
 {
@@ -36,10 +36,11 @@ automaton SecureRandomAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        SecureRandom (SecureRandom),
-        SecureRandom (SecureRandom, SecureRandomSpi, Provider),
-        SecureRandom (SecureRandom, SecureRandomSpi, Provider, String),
-        SecureRandom (SecureRandom, array<byte>),
+        `<init>` (SecureRandom),
+        `<init>` (SecureRandom, SecureRandomSpi, Provider),
+        `<init>` (SecureRandom, SecureRandomSpi, Provider, String),
+        `<init>` (SecureRandom, array<byte>),
+
         // static operations
         getInstance (String),
         getInstance (String, Provider),
@@ -94,7 +95,7 @@ automaton SecureRandomAutomaton
 
     @AutoInline @Phantom proc _throwIE (): void
     {
-        action THROW_NEW("java.lang.InternalError", []);
+        action ERROR("java.lang.InternalError"); // action THROW_NEW("java.lang.InternalError", []);
     }
 
 
@@ -112,13 +113,17 @@ automaton SecureRandomAutomaton
 
     proc _getDefaultPRNG (): void
     {
+        /*
         this.provider = action SYMBOLIC("java.security.Provider");
-        this.algorithm = action SYMBOLIC("java.lang.String");
 
+        this.algorithm = action SYMBOLIC("java.lang.String");
         action ASSUME(action CALL_METHOD(this.algorithm, "length", []) > 0);
 
         if (this.provider == null || this.algorithm == null)
             _throwIE();
+        */
+        this.provider = null; // #problem: approximate the provider (symbolic is too dificult for the USVM)
+        this.algorithm = "SHA1PRNG"; // #todo: get from the provider
 
         this.defaultProvider = _isDefaultProvider(this.provider);
     }
@@ -126,26 +131,30 @@ automaton SecureRandomAutomaton
 
     @static proc _isDefaultProvider (curProvider: Provider): boolean
     {
-        val providerName: String = action CALL_METHOD(curProvider, "getName", []);
-        result = action MAP_HAS_KEY(this.defaultProvidersMap, providerName);
-    }
-
-
-    @static proc _nextBytes (result: array<byte>, numBytes: int): void
-    {
-        val symbolicArray: array<byte> = action SYMBOLIC_ARRAY("byte", numBytes);
-        action ARRAY_COPY(symbolicArray, 0, result, 0, numBytes);
+        if (curProvider == null)
+        {
+            result = false; // no visible effect on anything
+        }
+        else
+        {
+            val providerName: String = action CALL_METHOD(curProvider, "getName", []);
+            result = action MAP_HAS_KEY(this.defaultProvidersMap, providerName);
+        }
     }
 
 
     proc _generateRandomIntegerArrayWithBounds (size: int, randomNumberOrigin: int, randomNumberBound: int): array<int>
     {
         result = action SYMBOLIC_ARRAY("int", size);
+
+        // #problem: too complex for symbolic execution
+        /*
         var i: int = 0;
         action LOOP_FOR(
             i, 0, size, +1,
             checkIntBounds_loop(i, result, randomNumberOrigin, randomNumberBound)
         );
+        */
     }
 
 
@@ -159,11 +168,15 @@ automaton SecureRandomAutomaton
     proc _generateRandomLongArrayWithBounds (size: int, randomNumberOrigin: long, randomNumberBound: long): array<long>
     {
         result = action SYMBOLIC_ARRAY("long", size);
+
+        // #problem: too complex for symbolic execution
+        /*
         var i: int = 0;
         action LOOP_FOR(
             i, 0, size, +1,
             checkLongBounds_loop(i, result, randomNumberOrigin, randomNumberBound)
         );
+        */
     }
 
 
@@ -177,11 +190,15 @@ automaton SecureRandomAutomaton
     proc _generateRandomDoubleArrayWithBounds (size: int, randomNumberOrigin: double, randomNumberBound: double): array<double>
     {
         result = action SYMBOLIC_ARRAY("double", size);
+
+        // #problem: too complex for symbolic execution
+        /*
         var i: int = 0;
         action LOOP_FOR(
             i, 0, size, +1,
             checkDoubleBounds_loop(i, result, randomNumberOrigin, randomNumberBound)
         );
+        */
     }
 
 
@@ -191,32 +208,31 @@ automaton SecureRandomAutomaton
         action ASSUME(item == item);
         action ASSUME(item >= randomNumberOrigin);
         action ASSUME(item < randomNumberBound);
+        result[i] = item;
     }
 
 
     // constructors
 
-    constructor *.SecureRandom (@target self: SecureRandom)
+    constructor *.`<init>` (@target self: SecureRandom)
     {
         _getDefaultPRNG();
     }
 
 
-    // #question: do we need such realization of constructor ? Or it must be empty because this is "protected" ?
-    @protected constructor *.SecureRandom (@target self: SecureRandom, secureRandomSpi: SecureRandomSpi, provider: Provider)
+    @protected constructor *.`<init>` (@target self: SecureRandom, secureRandomSpi: SecureRandomSpi, provider: Provider)
     {
         action ERROR("Protected constructor call");
     }
 
 
-    // #question: do we need such realization of constructor ? Or it must be empty because this is "private" ?
-    @private constructor *.SecureRandom (@target self: SecureRandom, secureRandomSpi: SecureRandomSpi, provider: Provider, algorithm: String)
+    @private constructor *.`<init>` (@target self: SecureRandom, secureRandomSpi: SecureRandomSpi, provider: Provider, algorithm: String)
     {
         action ERROR("Private constructor call");
     }
 
 
-    constructor *.SecureRandom (@target self: SecureRandom, seed: array<byte>)
+    constructor *.`<init>` (@target self: SecureRandom, seed: array<byte>)
     {
         _getDefaultPRNG();
     }
@@ -299,9 +315,7 @@ automaton SecureRandomAutomaton
         // #note this property can be disabled with SecurityManager. We assume that this situation is impossible,
         // because we can't check enable/disable property status. And we can't invoke "AccessController.doPrivileged" method like in source code;
 
-        val propertyName: String = "securerandom.strongAlgorithms";
-        val property: String = action CALL_METHOD(null as Security, "getProperty", [propertyName]);
-
+        val property: String = action CALL_METHOD(null as Security, "getProperty", ["securerandom.strongAlgorithms"]);
         if (property == null)
             _throwNSAE();
 
@@ -327,8 +341,8 @@ automaton SecureRandomAutomaton
     {
         if (numBytes < 0)
             _throwIAE();
-        result = action ARRAY_NEW("byte", numBytes);
-        _nextBytes(result, numBytes);
+
+        result = action SYMBOLIC_ARRAY("byte", numBytes);
     }
 
 
@@ -350,7 +364,9 @@ automaton SecureRandomAutomaton
     {
         if (randomNumberOrigin >= randomNumberBound)
             _throwIAE();
+
         result = new DoubleStreamAutomaton(state = Initialized,
+            // #problem: too complex for symbolic execution
             storage = _generateRandomDoubleArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound),
             length = MAX_RANDOM_STREAM_SIZE,
             closeHandlers = action LIST_NEW(),
@@ -364,6 +380,7 @@ automaton SecureRandomAutomaton
         var size: int = streamSize as int;
         if (size < 0)
             _throwIAE();
+
         // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
         if (size > MAX_RANDOM_STREAM_SIZE)
             size = MAX_RANDOM_STREAM_SIZE;
@@ -384,6 +401,7 @@ automaton SecureRandomAutomaton
             _throwIAE();
         if (randomNumberOrigin >= randomNumberBound)
             _throwIAE();
+
         // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
         if (size > MAX_RANDOM_STREAM_SIZE)
             size = MAX_RANDOM_STREAM_SIZE;
@@ -401,8 +419,7 @@ automaton SecureRandomAutomaton
         if (numBytes < 0)
             _throwIAE();
 
-        result = action ARRAY_NEW("byte", numBytes);
-        _nextBytes(result, numBytes);
+        result = action SYMBOLIC_ARRAY("byte", numBytes);
     }
 
 
@@ -434,6 +451,7 @@ automaton SecureRandomAutomaton
     {
         if (randomNumberOrigin >= randomNumberBound)
             _throwIAE();
+
         result = new IntStreamAutomaton(state = Initialized,
             storage = _generateRandomIntegerArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound),
             length = MAX_RANDOM_STREAM_SIZE,
@@ -448,6 +466,7 @@ automaton SecureRandomAutomaton
         var size: int = streamSize as int;
         if (size < 0)
             _throwIAE();
+
         // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
         if (size > MAX_RANDOM_STREAM_SIZE)
             size = MAX_RANDOM_STREAM_SIZE;
@@ -468,6 +487,7 @@ automaton SecureRandomAutomaton
             _throwIAE();
         if (randomNumberOrigin >= randomNumberBound)
             _throwIAE();
+
         // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
         if (size > MAX_RANDOM_STREAM_SIZE)
             size = MAX_RANDOM_STREAM_SIZE;
@@ -497,6 +517,7 @@ automaton SecureRandomAutomaton
         var size: int = streamSize as int;
         if (size < 0)
             _throwIAE();
+
         // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
         if (size > MAX_RANDOM_STREAM_SIZE)
             size = MAX_RANDOM_STREAM_SIZE;
@@ -514,6 +535,7 @@ automaton SecureRandomAutomaton
     {
         if (randomNumberOrigin >= randomNumberBound)
             _throwIAE();
+
         result = new LongStreamAutomaton(state = Initialized,
             storage = _generateRandomLongArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound),
             length = MAX_RANDOM_STREAM_SIZE,
@@ -530,6 +552,7 @@ automaton SecureRandomAutomaton
             _throwIAE();
         if (randomNumberOrigin >= randomNumberBound)
             _throwIAE();
+
         // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
         if (size > MAX_RANDOM_STREAM_SIZE)
             size = MAX_RANDOM_STREAM_SIZE;
@@ -551,13 +574,9 @@ automaton SecureRandomAutomaton
 
     fun *.nextBytes (@target self: SecureRandom, bytes: array<byte>): void
     {
-        _nextBytes(bytes, action ARRAY_SIZE(bytes));
-    }
-
-
-    @Phantom proc nextBytes_loop (i: int, bytes: array<byte>): void
-    {
-        bytes[i] = action SYMBOLIC("byte");
+        val len: int = action ARRAY_SIZE(bytes);
+        val src: array<byte> = action SYMBOLIC_ARRAY("byte", len);
+        action ARRAY_COPY(src, 0, bytes, 0, len);
     }
 
 
@@ -636,26 +655,30 @@ automaton SecureRandomAutomaton
 
     // special: static initialization
 
-    @Phantom @static fun *.__clinit__ (): void
+    @Phantom @static fun *.`<clinit>` (): void
     {
         // #note: list of default providers https://docs.oracle.com/javase/9/security/oracleproviders.htm#JSSEC-GUID-F41EE1C9-DD6A-4BAB-8979-EB7654094029
 
-        action MAP_SET(defaultProvidersMap, "SUN", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunRsaSign", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunJSSE", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunJCE", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "Apple", SOMETHING);
+        // limiting static field access
+        val dpMap: map<String, Object> = defaultProvidersMap;
+        val o: Object = SOMETHING;
 
-        action MAP_SET(defaultProvidersMap, "JdkLDAP", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunJGSS", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunSASL", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunPCSC", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "XMLDSig", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunPKCS11", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunEC", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "SunMSCAPI", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "OracleUcrypto", SOMETHING);
-        action MAP_SET(defaultProvidersMap, "JdkSASL", SOMETHING);
+        action MAP_SET(dpMap, "SUN", o);
+        action MAP_SET(dpMap, "SunRsaSign", o);
+        action MAP_SET(dpMap, "SunJSSE", o);
+        action MAP_SET(dpMap, "SunJCE", o);
+        action MAP_SET(dpMap, "Apple", o);
+
+        action MAP_SET(dpMap, "JdkLDAP", o);
+        action MAP_SET(dpMap, "SunJGSS", o);
+        action MAP_SET(dpMap, "SunSASL", o);
+        action MAP_SET(dpMap, "SunPCSC", o);
+        action MAP_SET(dpMap, "XMLDSig", o);
+        action MAP_SET(dpMap, "SunPKCS11", o);
+        action MAP_SET(dpMap, "SunEC", o);
+        action MAP_SET(dpMap, "SunMSCAPI", o);
+        action MAP_SET(dpMap, "OracleUcrypto", o);
+        action MAP_SET(dpMap, "JdkSASL", o);
     }
 
 }

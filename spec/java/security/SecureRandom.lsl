@@ -13,8 +13,7 @@ import java/util/Random;
 
 // primary semantic types
 
-@extends("java.util.Random")
-@public type SecureRandom
+type SecureRandom
     is java.security.SecureRandom
     for Random
 {
@@ -23,12 +22,12 @@ import java/util/Random;
 
 // global aliases and type overrides
 
-// a replacement type for automata construction
 @extends("java.util.Random")
-@public type SecureRandomLSL
+type SecureRandomLSL
     is java.security.SecureRandom
     for SecureRandom
 {
     @private @static val serialVersionUID: long = 4940670005562187L;
+
     @private @static val defaultProvidersMap: map<String, Object> = action MAP_NEW();
 }

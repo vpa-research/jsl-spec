@@ -18,10 +18,12 @@ import java/security/Provider;
     is java.security.Security
     for Object
 {
-    @static *.getProviders(): array<Provider>;
+    @static fun *.getProviders(): array<Provider>;
 
-    @static *.getProperty(key: String): String;
+    @static fun *.getProperty(key: String): String;
 }
 
 
 // global aliases and type overrides
+
+

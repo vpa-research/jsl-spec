@@ -28,10 +28,10 @@ automaton StringBuilderAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        StringBuilder (StringBuilder),
-        StringBuilder (StringBuilder, CharSequence),
-        StringBuilder (StringBuilder, String),
-        StringBuilder (StringBuilder, int),
+        `<init>` (StringBuilder),
+        `<init>` (StringBuilder, CharSequence),
+        `<init>` (StringBuilder, String),
+        `<init>` (StringBuilder, int),
     ];
 
     shift Initialized -> self by [
@@ -299,14 +299,14 @@ automaton StringBuilderAutomaton
 
     // constructors
 
-    constructor *.StringBuilder (@target self: StringBuilder)
+    constructor *.`<init>` (@target self: StringBuilder)
     {
         // This constructor's body is empty, because in original class is used byte array and this initializes 16 size;
         // In this realization is used "String" instead of to array; And this string initializes in "internal variables";
     }
 
 
-    constructor *.StringBuilder (@target self: StringBuilder, seq: CharSequence)
+    constructor *.`<init>` (@target self: StringBuilder, seq: CharSequence)
     {
         if (seq == null)
             _throwNPE();
@@ -315,7 +315,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    constructor *.StringBuilder (@target self: StringBuilder, str: String)
+    constructor *.`<init>` (@target self: StringBuilder, str: String)
     {
         if (str == null)
             _throwNPE();
@@ -324,7 +324,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    constructor *.StringBuilder (@target self: StringBuilder, capacity: int)
+    constructor *.`<init>` (@target self: StringBuilder, capacity: int)
     {
         // This constructor's body is empty, because in original class is used byte array and this initializes 16 + capacity size;
         // In this realization is used "String" instead of to array; And this string initializes in "internal variables";
@@ -1047,8 +1047,8 @@ automaton StringBuilderAutomaton
     // within java.lang.AbstractStringBuilder
     fun *.codePoints (@target self: StringBuilder): IntStream
     {
-        var intStorage: array<int> = action ARRAY_NEW("int", this.length);
-        var storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
+        val intStorage: array<int> = action ARRAY_NEW("int", this.length);
+        val storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
 
         var i: int = 0;
         action LOOP_FOR(
@@ -1056,20 +1056,19 @@ automaton StringBuilderAutomaton
             _toIntArray_loop(i, intStorage, storageChars)
         );
 
-        val handlers: list<Runnable> = action LIST_NEW();
         result = new IntStreamAutomaton(state = Initialized,
-                                        storage = intStorage,
-                                        length = this.length,
-                                        closeHandlers = handlers
-                                       );
+            storage = intStorage,
+            length = this.length,
+            closeHandlers = action LIST_NEW()
+        );
     }
 
 
     // within java.lang.AbstractStringBuilder
     fun *.chars (@target self: StringBuilder): IntStream
     {
-        var intStorage: array<int> = action ARRAY_NEW("int", this.length);
-        var storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
+        val intStorage: array<int> = action ARRAY_NEW("int", this.length);
+        val storageChars: array<char> = action CALL_METHOD(this.storage, "toCharArray", []);
 
         var i: int = 0;
         action LOOP_FOR(
@@ -1077,12 +1076,11 @@ automaton StringBuilderAutomaton
             _toIntArray_loop(i, intStorage, storageChars)
         );
 
-        val handlers: list<Runnable> = action LIST_NEW();
         result = new IntStreamAutomaton(state = Initialized,
-                                        storage = intStorage,
-                                        length = this.length,
-                                        closeHandlers = handlers
-                                       );
+            storage = intStorage,
+            length = this.length,
+            closeHandlers = action LIST_NEW()
+        );
     }
 
 

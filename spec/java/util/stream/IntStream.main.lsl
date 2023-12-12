@@ -86,8 +86,8 @@ automaton IntStreamAutomaton
     var isParallel: boolean = false;
     var linkedOrConsumed: boolean = false;
 
-    // utilities   
-    
+    // utilities
+
     @AutoInline @Phantom proc _checkConsumed (): void
     {
         if (this.linkedOrConsumed)
@@ -136,12 +136,12 @@ automaton IntStreamAutomaton
     {
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalInt.empty()");
+            result = action CALL_METHOD(null as OptionalInt, "empty", []);
         }
         else
         {
             val first: int = this.storage[0];
-            result = action DEBUG_DO("OptionalInt.of(first)");
+            result = action CALL_METHOD(null as OptionalInt, "of", [first]);
         }
     }
 
@@ -660,7 +660,7 @@ automaton IntStreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalInt.empty()");
+            result = action CALL_METHOD(null as OptionalInt, "empty", []);
         }
         else if (this.length > 0)
         {
@@ -672,7 +672,7 @@ automaton IntStreamAutomaton
                 _accumulate_optional_loop(i, accumulator, value)
             );
 
-            result = action DEBUG_DO("OptionalInt.of(value)");
+            result = action CALL_METHOD(null as OptionalInt, "of", [value]);
         }
 
         _consume();
@@ -723,7 +723,7 @@ automaton IntStreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalInt.empty()");
+            result = action CALL_METHOD(null as OptionalInt, "empty", []);
         }
         else
         {
@@ -735,7 +735,7 @@ automaton IntStreamAutomaton
                 _find_min_loop(i, min)
             );
 
-            result = action DEBUG_DO("OptionalInt.of(min)");
+            result = action CALL_METHOD(null as OptionalInt, "of", [min]);
         }
 
         _consume();
@@ -755,7 +755,7 @@ automaton IntStreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalInt.empty()");
+            result = action CALL_METHOD(null as OptionalInt, "empty", []);
         }
         else
         {
@@ -767,7 +767,7 @@ automaton IntStreamAutomaton
                 _find_max_loop(i, max)
             );
 
-            result = action DEBUG_DO("OptionalInt.of(max)");
+            result = action CALL_METHOD(null as OptionalInt, "of", [max]);
         }
 
         _consume();
@@ -906,12 +906,11 @@ automaton IntStreamAutomaton
     {
         _checkConsumed();
 
-        val default_characteristics: int = SPLITERATOR_ORDERED | SPLITERATOR_IMMUTABLE | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED;
-        result = new IntStreamSpliteratorAutomaton(state = Initialized,
-            parent = self,
+        result = new Spliterators_IntArraySpliteratorAutomaton(state = Initialized,
+            array = this.storage,
             index = 0,
             fence = this.length,
-            characteristics = default_characteristics,
+            characteristics = SPLITERATOR_ORDERED | SPLITERATOR_IMMUTABLE | SPLITERATOR_SIZED | SPLITERATOR_SUBSIZED,
         );
 
         _consume();
@@ -1238,13 +1237,13 @@ automaton IntStreamAutomaton
 
         if (this.length == 0)
         {
-            result = action DEBUG_DO("OptionalDouble.empty()");
+            result = action CALL_METHOD(null as OptionalDouble, "empty", []);
         }
         else
         {
             var curSum: double = _sum();
             var divisionResult: double = curSum / this.length;
-            result = action DEBUG_DO("OptionalDouble.of(divisionResult)");
+            result = action CALL_METHOD(null as OptionalDouble, "of", [divisionResult]);
         }
 
         _consume();

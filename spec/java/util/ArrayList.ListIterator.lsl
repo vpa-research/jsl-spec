@@ -84,7 +84,7 @@ automaton ArrayList_ListIteratorAutomaton
         // relax state/error discovery process
         action ASSUME(this.parent != null);
 
-        result = this.cursor != ArrayListAutomaton(this.parent).length;
+        result = this.cursor != action LIST_SIZE(ArrayListAutomaton(this.parent).storage);
     }
 
 
@@ -98,12 +98,8 @@ automaton ArrayList_ListIteratorAutomaton
         val parentStorage: list<Object> = ArrayListAutomaton(this.parent).storage;
 
         val i: int = this.cursor;
-        if (i >= ArrayListAutomaton(this.parent).length)
-            action THROW_NEW("java.util.NoSuchElementException", []);
-
-        // iterrator validity check
         if (i >= action LIST_SIZE(parentStorage))
-            _throwCME();
+            action THROW_NEW("java.util.NoSuchElementException", []);
 
         this.cursor = i + 1;
         this.lastRet = i;
@@ -156,8 +152,6 @@ automaton ArrayList_ListIteratorAutomaton
             ArrayListAutomaton(this.parent).modCount += 1;
 
             action LIST_REMOVE(pStorage, this.lastRet);
-
-            ArrayListAutomaton(this.parent).length -= 1;
         }
 
         this.cursor = this.lastRet;
@@ -203,8 +197,6 @@ automaton ArrayList_ListIteratorAutomaton
             ArrayListAutomaton(this.parent).modCount += 1;
 
             action LIST_INSERT_AT(pStorage, i, e);
-
-            ArrayListAutomaton(this.parent).length += 1;
         }
 
         this.cursor = i + 1;
@@ -222,15 +214,11 @@ automaton ArrayList_ListIteratorAutomaton
             action THROW_NEW("java.lang.NullPointerException", []);
 
         var i: int = this.cursor;
-        val size: int = ArrayListAutomaton(this.parent).length;
+        val es: list<Object> = ArrayListAutomaton(this.parent).storage;
+        val size: int = action LIST_SIZE(es);
 
         if (i < size)
         {
-            val es: list<Object> = ArrayListAutomaton(this.parent).storage;
-
-            if (i >= action LIST_SIZE(es))
-                _throwCME();
-
             // using this exact loop form here due to coplex termination expression
             action LOOP_WHILE(
                 i < size && ArrayListAutomaton(this.parent).modCount == this.expectedModCount,

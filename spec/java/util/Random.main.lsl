@@ -30,8 +30,8 @@ automaton RandomAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        Random (Random),
-        Random (Random, long),
+        `<init>` (Random),
+        `<init>` (Random, long),
     ];
 
     shift Initialized -> self by [
@@ -134,13 +134,13 @@ automaton RandomAutomaton
 
     // constructors
 
-    constructor *.Random (@target self: Random)
+    constructor *.`<init>` (@target self: Random)
     {
         action DO_NOTHING();
     }
 
 
-    constructor *.Random (@target self: Random, seed: long)
+    constructor *.`<init>` (@target self: Random, seed: long)
     {
         action DO_NOTHING();
     }
@@ -357,7 +357,7 @@ automaton RandomAutomaton
     @synchronized fun *.nextGaussian (@target self: Random): double
     {
         result = action SYMBOLIC("double");
-        val isNaN: boolean = action DEBUG_DO("Double.isNaN(result)");
+        val isNaN: boolean = result != result;
         action ASSUME(isNaN == false);
     }
 
