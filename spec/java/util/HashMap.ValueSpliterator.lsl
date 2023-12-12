@@ -153,8 +153,8 @@ automaton HashMap_ValueSpliteratorAutomaton
 
     @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int): void
     {
-        var value: Object = this.valuesStorage[i];
-        action CALL(userAction, [value]);
+        var curValue: Object = this.valuesStorage[i];
+        action CALL(userAction, [curValue]);
         i += 1;
     }
 
@@ -190,8 +190,8 @@ automaton HashMap_ValueSpliteratorAutomaton
 
         if(i < hi)
         {
-            var value: Object = this.valuesStorage[i];
-            action CALL(userAction, [value]);
+            var curValue: Object = this.valuesStorage[i];
+            action CALL(userAction, [curValue]);
             this.index += 1;
             _checkForComodification();
             result = true;

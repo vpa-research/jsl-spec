@@ -117,11 +117,11 @@ automaton HashMap_EntryIteratorAutomaton
     {
         _checkForComodification();
 
-        val key: Object = action MAP_GET_ANY_KEY(this.unseen);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(this.unseen, key);
-        action MAP_REMOVE(this.unseen, key);
+        val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(this.unseen, curKey);
+        action MAP_REMOVE(this.unseen, curKey);
         result = entry;
-        this.currentKey = key;
+        this.currentKey = curKey;
     }
 
 

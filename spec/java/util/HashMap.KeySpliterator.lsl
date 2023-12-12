@@ -152,8 +152,8 @@ automaton HashMap_KeySpliteratorAutomaton
 
     @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int): void
     {
-        var key: Object = this.keysStorage[i];
-        action CALL(userAction, [key]);
+        var curKey: Object = this.keysStorage[i];
+        action CALL(userAction, [curKey]);
         i += 1;
     }
 
@@ -189,8 +189,8 @@ automaton HashMap_KeySpliteratorAutomaton
 
         if(i < hi)
         {
-            var key: Object = this.keysStorage[i];
-            action CALL(userAction, [key]);
+            var curKey: Object = this.keysStorage[i];
+            action CALL(userAction, [curKey]);
             this.index += 1;
             _checkForComodification();
             result = true;

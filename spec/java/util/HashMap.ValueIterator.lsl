@@ -99,11 +99,11 @@ automaton HashMap_ValueIteratorAutomaton
 
     @Phantom proc forEachRemaining_loop (userAction: Consumer, parentStorage: map<Object, Object>, size: int): void
     {
-        val key: Object = action MAP_GET_ANY_KEY(this.unseen);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(parentStorage, key);
+        val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(parentStorage, curKey);
         val curValue: Object = action CALL_METHOD(entry, "getValue", []);
         action CALL(userAction, [curValue]);
-        action MAP_REMOVE(this.unseen, key);
+        action MAP_REMOVE(this.unseen, curKey);
         size -= 1;
     }
 
@@ -119,12 +119,12 @@ automaton HashMap_ValueIteratorAutomaton
     {
         _checkForComodification();
 
-        val key: Object = action MAP_GET_ANY_KEY(this.unseen);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(this.unseen, key);
-        val value: Object = action CALL_METHOD(entry, "getValue", []);
-        action MAP_REMOVE(this.unseen, key);
-        result = value;
-        this.currentKey = key;
+        val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(this.unseen, curKey);
+        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
+        action MAP_REMOVE(this.unseen, curKey);
+        result = curValue;
+        this.currentKey = curKey;
     }
 
 

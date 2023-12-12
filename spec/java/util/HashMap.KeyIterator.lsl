@@ -98,9 +98,9 @@ automaton HashMap_KeyIteratorAutomaton
 
     @Phantom proc forEachRemaining_loop (userAction: Consumer, parentStorage: map<Object, Map_Entry<Object, Object>>, size: int): void
     {
-        val key: Object = action MAP_GET_ANY_KEY(this.unseen);
-        action CALL(userAction, [key]);
-        action MAP_REMOVE(this.unseen, key);
+        val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
+        action CALL(userAction, [curKey]);
+        action MAP_REMOVE(this.unseen, curKey);
         size -= 1;
     }
 
@@ -116,10 +116,10 @@ automaton HashMap_KeyIteratorAutomaton
     {
         _checkForComodification();
 
-        val key: Object = action MAP_GET_ANY_KEY(this.unseen);
-        action MAP_REMOVE(this.unseen, key);
-        result = key;
-        this.currentKey = key;
+        val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
+        action MAP_REMOVE(this.unseen, curKey);
+        result = curKey;
+        this.currentKey = curKey;
     }
 
 
