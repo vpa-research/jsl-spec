@@ -141,10 +141,50 @@ automaton HashMap_EntrySetAutomaton
     }
 
 
+    // #question: this is right realization of this method ? (I'm comparing every pair of MAP_ENTRY)
     // within java.util.AbstractSet
-    fun *.equals (@target self: HashMap_EntrySet, o: Object): boolean
+    fun *.equals (@target self: HashMap_EntrySet, other: Object): boolean
     {
-        action TODO();
+        if (other == self)
+        {
+            result = true;
+        }
+        else
+        {
+            if (other has HashMap_EntrySetAutomaton)
+            {
+                val otherStorage: map<Object, Map_Entry<Object, Object>> = HashMap_EntrySetAutomaton(other).storage;
+                val otherLength: int = action MAP_SIZE(otherStorage);
+                val thisLength: int = action MAP_SIZE(this.storage);
+
+                if (thisLength == otherLength)
+                {
+                    val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+                    action LOOP_WHILE(
+                        result == true,
+                        _equals_loop(result, otherStorage, storageCopy)
+                    );
+                }
+                else
+                    result = false;
+            }
+            else
+            {
+                result = false;
+            }
+        }
+    }
+
+
+    @Phantom proc _equals_loop (result: boolean, otherStorage: map<Object, Map_Entry<Object, Object>>, storageCopy: map<Object, Map_Entry<Object, Object>>): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
+        if (!action MAP_HAS_KEY(otherStorage, curKey))
+            result = false;
+        else
+            result = action OBJECT_EQUALS(entry, action MAP_GET(otherStorage, curKey));
+        action MAP_REMOVE(storageCopy, curKey);
     }
 
 
@@ -182,7 +222,7 @@ automaton HashMap_EntrySetAutomaton
     // within java.util.AbstractSet
     fun *.hashCode (@target self: HashMap_EntrySet): int
     {
-        action TODO();
+        result = action OBJECT_HASH_CODE(this.storage);
     }
 
 
@@ -434,7 +474,25 @@ automaton HashMap_EntrySetAutomaton
     // within java.util.AbstractCollection
     fun *.toString (@target self: HashMap_EntrySet): String
     {
-        action TODO();
+        val storageSize: int = action MAP_SIZE(this.storage);
+        val arrayEntries: array<Object> = action ARRAY_NEW("java.lang.Object", storageSize);
+        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, storageSize, +1,
+            _toString_loop(i, storageCopy, arrayEntries)
+        );
+
+        result = action OBJECT_TO_STRING(arrayEntries);
+    }
+
+
+    @Phantom proc _toString_loop (i: int, storageCopy: map<Object, Map_Entry<Object, Object>>, arrayEntries: array<Object>): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(storageCopy, curKey);
+        arrayEntries[i] = entry;
+        action MAP_REMOVE(storageCopy, curKey);
     }
 
 }
