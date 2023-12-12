@@ -101,7 +101,10 @@ automaton HashMap_EntrySpliteratorAutomaton
 
     fun *.characteristics (@target self: HashMap_EntrySpliterator): int
     {
-        action TODO();
+        if (this.fence < 0 || this.est == action ARRAY_SIZE(this.entryStorage))
+            result = SPLITERATOR_SIZED | SPLITERATOR_DISTINCT;
+        else
+            result = SPLITERATOR_DISTINCT;
     }
 
 
