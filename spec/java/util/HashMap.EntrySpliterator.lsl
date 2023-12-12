@@ -200,7 +200,7 @@ automaton HashMap_EntrySpliteratorAutomaton
     }
 
 
-    fun *.trySplit (@target self: HashMap_EntrySpliterator): HashMap_EntrySpliterator
+    fun *.trySplit (@target self: HashMap_EntrySpliterator): Spliterator
     {
         action ASSUME(this.parent != null);
 

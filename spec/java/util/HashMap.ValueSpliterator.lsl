@@ -201,7 +201,7 @@ automaton HashMap_ValueSpliteratorAutomaton
     }
 
 
-    fun *.trySplit (@target self: HashMap_ValueSpliterator): HashMap_ValueSpliterator
+    fun *.trySplit (@target self: HashMap_ValueSpliterator): Spliterator
     {
         action ASSUME(this.parent != null);
 
