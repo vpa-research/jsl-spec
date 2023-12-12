@@ -17,7 +17,7 @@ import java/util/OptionalLong;
 
 // globals
 
-val EMPTY_OPTIONAL_LONG: LSLOptionalLong
+val EMPTY_OPTIONAL_LONG: OptionalLong
     = new OptionalLongAutomaton(state = Initialized,
         value = 0L,
         present = false
@@ -40,8 +40,8 @@ automaton OptionalLongAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LSLOptionalLong (LSLOptionalLong),
-        LSLOptionalLong (LSLOptionalLong, long),
+        `<init>` (LSLOptionalLong),
+        `<init>` (LSLOptionalLong, long),
 
         // static methods
         empty,
@@ -76,13 +76,13 @@ automaton OptionalLongAutomaton
 
     // constructors
 
-    @private constructor *.LSLOptionalLong (@target self: LSLOptionalLong)
+    @private constructor *.`<init>` (@target self: LSLOptionalLong)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
 
 
-    @private constructor *.LSLOptionalLong (@target self: LSLOptionalLong, x: long)
+    @private constructor *.`<init>` (@target self: LSLOptionalLong, x: long)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
@@ -90,13 +90,13 @@ automaton OptionalLongAutomaton
 
     // static methods
 
-    @static fun *.empty (): LSLOptionalLong
+    @static fun *.empty (): OptionalLong
     {
         result = EMPTY_OPTIONAL_LONG;
     }
 
 
-    @static fun *.of (x: long): LSLOptionalLong
+    @static fun *.of (x: long): OptionalLong
     {
         result = new OptionalLongAutomaton(state = Initialized,
             value = x,

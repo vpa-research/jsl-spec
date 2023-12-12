@@ -17,8 +17,9 @@ import java/lang/Number;
 @FunctionalInterface("byteValue")
 @final type Byte
     is java.lang.Byte
-    for Comparable, Number, byte
+    for Comparable, Number
 {
+    // WARNING: use 'byteValue' to get primitive value
 }
 
 

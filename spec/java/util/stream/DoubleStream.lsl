@@ -30,6 +30,10 @@ import java/util/Spliterator;
     is java.util.stream.DoubleStreamLSL
     for DoubleStream
 {
+    @private @static val DOUBLE_POSITIVE_INFINITY: double = 1.0 / 0.0;
+    @private @static val DOUBLE_NEGATIVE_INFINITY: double = -1.0 / 0.0;
+
+    @private @static val DOUBLE_NAN: double = 0.0 / 0.0;
 }
 
 
@@ -38,14 +42,5 @@ import java/util/Spliterator;
 @public type DoubleStreamLSLIterator
     is java.util.stream.DoubleStreamLSLIterator
     for PrimitiveIterator_OfDouble
-{
-}
-
-
-@GenerateMe
-@implements("java.util.Spliterator.OfDouble")
-@public type DoubleStreamLSLSpliterator
-    is java.util.DoubleStreamLSLSpliterator
-    for Spliterator_OfDouble
 {
 }

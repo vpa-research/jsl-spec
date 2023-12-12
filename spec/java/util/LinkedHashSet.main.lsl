@@ -8,20 +8,22 @@ library std
 // imports
 
 import java/lang/Object;
-import java/util/LinkedHashSet;
 import java/util/function/IntFunction;
 import java/util/function/Consumer;
 import java/util/function/Predicate;
 import java/util/Collection;
 import java/util/Iterator;
 import java/util/Spliterator;
+import java/util/stream/Stream;
+
+import java/util/LinkedHashSet;
+
 
 // automata
 
 automaton LinkedHashSetAutomaton
 (
-    var storage: map<Object, Object> = null,
-    @transient var length: int = 0
+    var storage: map<Object, Object>
 )
 : LinkedHashSet
 {
@@ -32,10 +34,10 @@ automaton LinkedHashSetAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LinkedHashSet (LinkedHashSet),
-        LinkedHashSet (LinkedHashSet, Collection),
-        LinkedHashSet (LinkedHashSet, int),
-        LinkedHashSet (LinkedHashSet, int, float),
+        `<init>` (LinkedHashSet),
+        `<init>` (LinkedHashSet, Collection),
+        `<init>` (LinkedHashSet, int),
+        `<init>` (LinkedHashSet, int, float),
     ];
 
     shift Initialized -> self by [
@@ -56,6 +58,7 @@ automaton LinkedHashSetAutomaton
         toArray(LinkedHashSet),
         toArray(LinkedHashSet, array<Object>),
         toArray(LinkedHashSet, IntFunction),
+        toString,
 
         // write operations
         add,
@@ -72,6 +75,7 @@ automaton LinkedHashSetAutomaton
 
     @transient var modCount: int = 0;
 
+
     // utilities
 
     @KeepVisible proc _checkForComodification (expectedModCount: int): void
@@ -83,7 +87,7 @@ automaton LinkedHashSetAutomaton
 
     proc _addAllElements (c: Collection): boolean
     {
-        val lengthBeforeAdd: int = this.length;
+        val lengthBeforeAdd: int = action MAP_SIZE(this.storage);
         val iter: Iterator = action CALL_METHOD(c, "iterator", []);
 
         action LOOP_WHILE(
@@ -91,7 +95,7 @@ automaton LinkedHashSetAutomaton
             _addAllElements_loop(iter)
         );
 
-        if (lengthBeforeAdd != this.length)
+        if (lengthBeforeAdd != action MAP_SIZE(this.storage))
         {
             this.modCount += 1;
             result = true;
@@ -106,13 +110,9 @@ automaton LinkedHashSetAutomaton
     @Phantom proc _addAllElements_loop(iter: Iterator): void
     {
         val key: Object = action CALL_METHOD(iter, "next", []);
-        val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);
 
-        if (!hasKey)
-        {
+        if (action MAP_HAS_KEY(this.storage, key) == false)
             action MAP_SET(this.storage, key, SOMETHING);
-            this.length += 1;
-        }
     }
 
 
@@ -122,34 +122,54 @@ automaton LinkedHashSetAutomaton
     }
 
 
-    proc _generateKey (visitedKeys: map<Object, Object>): Object
+    proc _makeStream (parallel: boolean): Stream
     {
-        result = action SYMBOLIC("java.lang.Object");
-        action ASSUME(result != null);
-        val isKeyExist: boolean = action MAP_HAS_KEY(this.storage, result);
-        action ASSUME(isKeyExist);
+        val unseen: map<Object, Object> = action MAP_CLONE(this.storage);
 
-        val isKeyWasVisited: boolean = action MAP_HAS_KEY(visitedKeys, result);
-        action ASSUME(!isKeyWasVisited);
+        val count: int = action MAP_SIZE(unseen);
+        val items: array<Object> = action ARRAY_NEW("java.lang.Object", count);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, count, +1,
+            _makeStream_loop(i, items, unseen)
+        );
+
+        // #problem: unable to catch concurrent modifications during stream processing
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = items,
+            length = count,
+            closeHandlers = action LIST_NEW(),
+            isParallel = parallel,
+        );
+    }
+
+    @Phantom proc _makeStream_loop (i: int, items: array<Object>, unseen: map<Object, Object>): void
+    {
+        val key: Object = action MAP_GET_ANY_KEY(unseen);
+        action MAP_REMOVE(unseen, key);
+
+        items[i] = key;
     }
 
 
     // constructors
 
-    constructor *.LinkedHashSet (@target self: LinkedHashSet)
+    constructor *.`<init>` (@target self: LinkedHashSet)
     {
         this.storage = action MAP_NEW();
     }
 
 
-    constructor *.LinkedHashSet (@target self: LinkedHashSet, c: Collection)
+    constructor *.`<init>` (@target self: LinkedHashSet, c: Collection)
     {
         this.storage = action MAP_NEW();
         _addAllElements(c);
     }
 
 
-    constructor *.LinkedHashSet (@target self: LinkedHashSet, initialCapacity: int)
+    constructor *.`<init>` (@target self: LinkedHashSet, initialCapacity: int)
     {
         if (initialCapacity < 0)
         {
@@ -161,7 +181,7 @@ automaton LinkedHashSetAutomaton
     }
 
 
-    constructor *.LinkedHashSet (@target self: LinkedHashSet, initialCapacity: int, loadFactor: float)
+    constructor *.`<init>` (@target self: LinkedHashSet, initialCapacity: int, loadFactor: float)
     {
         if (initialCapacity < 0)
         {
@@ -169,7 +189,7 @@ automaton LinkedHashSetAutomaton
             action THROW_NEW("java.lang.IllegalArgumentException", []);
         }
 
-        if (loadFactor <= 0 || action DEBUG_DO("Float.isNaN(loadFactor)"))
+        if (loadFactor <= 0 || loadFactor != loadFactor /* NaN */)
         {
             // val loadFactorStr: String = "Illegal load factor: " + action OBJECT_TO_STRING(loadFactor);
             action THROW_NEW("java.lang.IllegalArgumentException", []);
@@ -191,10 +211,7 @@ automaton LinkedHashSetAutomaton
         }
         else
         {
-            this.length += 1;
-
             action MAP_SET(this.storage, obj, SOMETHING);
-
             result = true;
         }
 
@@ -204,29 +221,22 @@ automaton LinkedHashSetAutomaton
 
     fun *.clear (@target self: LinkedHashSet): void
     {
-        this.length = 0;
         this.storage = action MAP_NEW();
-
         this.modCount +=1;
     }
 
 
     fun *.clone (@target self: LinkedHashSet): Object
     {
-        val storageCopy: map<Object, Object> = action MAP_NEW();
-
-        action MAP_UNITE_WITH(storageCopy, this.storage);
-
         result = new LinkedHashSetAutomaton(state = Initialized,
-            storage = storageCopy,
-            length = this.length
+            storage = action MAP_CLONE(this.storage)
         );
     }
 
 
     fun *.contains (@target self: LinkedHashSet, obj: Object): boolean
     {
-        if (this.length == 0)
+        if (action MAP_SIZE(this.storage) == 0)
             result = false;
         else
             result = action MAP_HAS_KEY(this.storage, obj);
@@ -235,16 +245,16 @@ automaton LinkedHashSetAutomaton
 
     fun *.isEmpty (@target self: LinkedHashSet): boolean
     {
-        result = this.length == 0;
+        result = action MAP_SIZE(this.storage) == 0;
     }
 
 
     fun *.iterator (@target self: LinkedHashSet): Iterator
     {
-        val visitedKeysMap: map<Object, Object> = action MAP_NEW();
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
         result = new LinkedHashSet_KeyIteratorAutomaton(state = Initialized,
             expectedModCount = this.modCount,
-            visitedKeys = visitedKeysMap,
+            unseenKeys = unseenKeys,
             parent = self
         );
     }
@@ -252,11 +262,9 @@ automaton LinkedHashSetAutomaton
 
     fun *.remove (@target self: LinkedHashSet, obj: Object): boolean
     {
-        val hasKey: boolean = action MAP_HAS_KEY(this.storage, obj);
-        if (hasKey)
+        if (action MAP_HAS_KEY(this.storage, obj))
         {
             action MAP_REMOVE(this.storage, obj);
-            this.length -= 1;
             this.modCount += 1;
             result = true;
         }
@@ -269,18 +277,19 @@ automaton LinkedHashSetAutomaton
 
     fun *.size (@target self: LinkedHashSet): int
     {
-        result = this.length;
+        result = action MAP_SIZE(this.storage);
     }
 
 
     fun *.spliterator (@target self: LinkedHashSet): Spliterator
     {
-        val keysStorageArray: array<Object> = action ARRAY_NEW("java.lang.Object", this.length);
-        val visitedKeys: map<Object, Object> = action MAP_NEW();
+        val keysStorageArray: array<Object> = action ARRAY_NEW("java.lang.Object", action MAP_SIZE(this.storage));
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
+
         var i: int = 0;
         action LOOP_FOR(
-            i, 0, this.length, +1,
-            fromMapToArray_loop(i, keysStorageArray, visitedKeys)
+            i, 0, action MAP_SIZE(this.storage), +1,
+            fromMapToArray_loop(i, keysStorageArray, unseenKeys)
         );
 
         result = new LinkedHashSet_KeySpliteratorAutomaton(state = Initialized,
@@ -294,12 +303,12 @@ automaton LinkedHashSetAutomaton
     }
 
 
-    @Phantom proc fromMapToArray_loop (i: int, keysStorageArray: array<Object>, visitedKeys: map<Object, Object>): void
+    @Phantom proc fromMapToArray_loop (i: int, keysStorageArray: array<Object>, unseenKeys: map<Object, Object>): void
     {
-        val key: Object = _generateKey(visitedKeys);
+        val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
+        action MAP_REMOVE(unseenKeys, key);
 
         keysStorageArray[i] = key;
-        action MAP_SET(visitedKeys, key, SOMETHING);
     }
 
 
@@ -311,16 +320,14 @@ automaton LinkedHashSetAutomaton
         }
         else
         {
-            val isSameType: boolean = action OBJECT_SAME_TYPE(self, other);
-            if (isSameType)
+            if (other has LinkedHashSetAutomaton)
             {
                 val expectedModCount: int = this.modCount;
                 val otherExpectedModCount: int = LinkedHashSetAutomaton(other).modCount;
 
                 val otherStorage: map<Object, Object> = LinkedHashSetAutomaton(other).storage;
-                val otherLength: int = LinkedHashSetAutomaton(other).length;
 
-                if (this.length == otherLength)
+                if (action MAP_SIZE(this.storage) == action MAP_SIZE(otherStorage))
                     result = action OBJECT_EQUALS(this.storage, otherStorage);
                 else
                     result = false;
@@ -350,10 +357,10 @@ automaton LinkedHashSetAutomaton
         val expectedModCount: int = this.modCount;
         val otherSize: int = action CALL_METHOD(c, "size", []);
         val iter: Iterator = action CALL_METHOD(c, "iterator", []);
-        val lengthBeforeRemoving: int = this.length;
+        val lengthBeforeRemoving: int = action MAP_SIZE(this.storage);
         var i: int = 0;
 
-        if (this.length > otherSize)
+        if (action MAP_SIZE(this.storage) > otherSize)
         {
             action LOOP_WHILE(
                 action CALL_METHOD(iter, "hasNext", []),
@@ -362,74 +369,64 @@ automaton LinkedHashSetAutomaton
         }
         else
         {
-            val visitedKeys: map<Object, Object> = action MAP_NEW();
+            val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
             action LOOP_WHILE(
-                i < this.length,
-                _removeAllElements_loop_indirect(i, c, visitedKeys)
+                i < action MAP_SIZE(this.storage),
+                _removeAllElements_loop_indirect(i, c, unseenKeys)
             );
         }
 
         _checkForComodification(expectedModCount);
         this.modCount += 1;
         // If length changed, it means that at least one element was deleted
-        result = lengthBeforeRemoving != this.length;
+        result = lengthBeforeRemoving != action MAP_SIZE(this.storage);
     }
 
 
     @Phantom proc removeAllElements_loop_direct (iter: Iterator): void
     {
         val key: Object = action CALL_METHOD(iter, "next", []);
-        val isKeyExist: boolean = action MAP_HAS_KEY(this.storage, key);
 
-        if (isKeyExist)
-        {
+        if (action MAP_HAS_KEY(this.storage, key))
             action MAP_REMOVE(this.storage, key);
-            this.length -= 1;
-        }
     }
 
 
-    @Phantom proc _removeAllElements_loop_indirect (i: int, c: Collection, visitedKeys: map<Object, Object>): void
+    @Phantom proc _removeAllElements_loop_indirect (i: int, c: Collection, unseenKeys: map<Object, Object>): void
     {
-        val key: Object = _generateKey(visitedKeys);
+        val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
+        action MAP_REMOVE(unseenKeys, key);
 
-        val isCollectionContainsKey: boolean = action CALL_METHOD(c, "contains", [key]);
-
-        if (isCollectionContainsKey)
-        {
+        if (action CALL_METHOD(c, "contains", [key]))
             action MAP_REMOVE(this.storage, key);
-            this.length -= 1;
-        }
 
-        action MAP_SET(visitedKeys, key, SOMETHING);
         i += 1;
     }
 
 
     fun *.toArray (@target self: LinkedHashSet): array<Object>
     {
-        val len: int = this.length;
+        val len: int = action MAP_SIZE(this.storage);
         result = action ARRAY_NEW("java.lang.Object", len);
         val expectedModCount: int = this.modCount;
-        val visitedKeys: map<Object, Object> = action MAP_NEW();
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
         var i: int = 0;
 
         action LOOP_FOR(
             i, 0, len, +1,
-            toArray_loop(i, visitedKeys, result)
+            toArray_loop(i, unseenKeys, result)
         );
 
         _checkForComodification(expectedModCount);
     }
 
 
-    @Phantom proc toArray_loop(i: int, visitedKeys: map<Object, Object>, result: array<Object>): void
+    @Phantom proc toArray_loop(i: int, unseenKeys: map<Object, Object>, result: array<Object>): void
     {
-        val key: Object = _generateKey(visitedKeys);
+        val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
+        action MAP_REMOVE(unseenKeys, key);
 
         result[i] = key;
-
-        action MAP_SET(visitedKeys, key, SOMETHING);
     }
 
 
@@ -437,8 +434,8 @@ automaton LinkedHashSetAutomaton
     {
         val expectedModCount: int = this.modCount;
         val aLen: int = action ARRAY_SIZE(a);
-        val len: int = this.length;
-        val visitedKeys: map<Object, Object> = action MAP_NEW();
+        val len: int = action MAP_SIZE(this.storage);
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
         var i: int = 0;
 
         if (aLen < len)
@@ -448,11 +445,11 @@ automaton LinkedHashSetAutomaton
 
         action LOOP_FOR(
             i, 0, len, +1,
-            toArray_loop(i, visitedKeys, result)
+            toArray_loop(i, unseenKeys, result)
         );
 
-        if (aLen > this.length)
-            result[this.length] = null;
+        if (aLen > len)
+            result[len] = null;
 
         _checkForComodification(expectedModCount);
     }
@@ -463,15 +460,15 @@ automaton LinkedHashSetAutomaton
         if (generator == null)
             _throwNPE();
 
-        val len: int = this.length;
+        val len: int = action MAP_SIZE(this.storage);
         result = action CALL(generator, [0]) as array<Object>;
         val expectedModCount: int = this.modCount;
-        val visitedKeys: map<Object, Object> = action MAP_NEW();
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
         var i: int = 0;
 
         action LOOP_FOR(
             i, 0, len, +1,
-            toArray_loop(i, visitedKeys, result)
+            toArray_loop(i, unseenKeys, result)
         );
 
         _checkForComodification(expectedModCount);
@@ -517,7 +514,7 @@ automaton LinkedHashSetAutomaton
         if (c == null)
             _throwNPE();
 
-        val lengthBeforeAdd: int = this.length;
+        val lengthBeforeAdd: int = action MAP_SIZE(this.storage);
         val iter: Iterator = action CALL_METHOD(c, "iterator", []);
 
         action LOOP_WHILE(
@@ -525,7 +522,7 @@ automaton LinkedHashSetAutomaton
             _retainAllElements_loop(iter)
         );
 
-        if (lengthBeforeAdd != this.length)
+        if (lengthBeforeAdd != action MAP_SIZE(this.storage))
         {
             this.modCount += 1;
             result = true;
@@ -540,13 +537,9 @@ automaton LinkedHashSetAutomaton
     @Phantom proc _retainAllElements_loop(iter: Iterator): void
     {
         val key: Object = action CALL_METHOD(iter, "next", []);
-        val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);
 
-        if (!hasKey)
-        {
+        if (action MAP_HAS_KEY(this.storage, key) == false)
             action MAP_REMOVE(this.storage, key);
-            this.length -= 1;
-        }
     }
 
 
@@ -555,18 +548,18 @@ automaton LinkedHashSetAutomaton
         if (filter == null)
             _throwNPE();
 
-        val lengthBeforeAdd: int = this.length;
+        val lengthBeforeAdd: int = action MAP_SIZE(this.storage);
         val expectedModCount: int = this.modCount;
         var i: int = 0;
-        val visitedKeys: map<Object, Object> = action MAP_NEW();
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
 
         action LOOP_WHILE(
             i < lengthBeforeAdd,
-            _removeIf_loop(i, visitedKeys, filter)
+            _removeIf_loop(i, unseenKeys, filter)
         );
 
         _checkForComodification(expectedModCount);
-        if (lengthBeforeAdd != this.length)
+        if (lengthBeforeAdd != action MAP_SIZE(this.storage))
         {
             this.modCount += 1;
             result = true;
@@ -578,20 +571,15 @@ automaton LinkedHashSetAutomaton
     }
 
 
-    @Phantom proc _removeIf_loop (i: int, visitedKeys: map<Object, Object>, filter: Predicate): void
+    @Phantom proc _removeIf_loop (i: int, unseenKeys: map<Object, Object>, filter: Predicate): void
     {
-        val key: Object = _generateKey(visitedKeys);
+        val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
+        action MAP_REMOVE(unseenKeys, key);
 
-        var isDelete: boolean = action CALL(filter, [key]);
-
-        if(isDelete)
-        {
+        if(action CALL(filter, [key]))
             action MAP_REMOVE(this.storage, key);
-            this.length -= 1;
-        }
 
         i += 1;
-        action MAP_SET(visitedKeys, key, SOMETHING);
     }
 
 
@@ -602,43 +590,39 @@ automaton LinkedHashSetAutomaton
 
         var i: int = 0;
         val expectedModCount: int = this.modCount;
-        val visitedKeys: map<Object, Object> = action MAP_NEW();
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
 
         action LOOP_WHILE(
-            i < this.length,
-            forEach_loop(i, visitedKeys, userAction)
+            i < action MAP_SIZE(this.storage),
+            forEach_loop(i, unseenKeys, userAction)
         );
 
         _checkForComodification(expectedModCount);
     }
 
 
-    @Phantom proc forEach_loop (i: int, visitedKeys: map<Object, Object>, userAction: Consumer): void
+    @Phantom proc forEach_loop (i: int, unseenKeys: map<Object, Object>, userAction: Consumer): void
     {
-        val key: Object = _generateKey(visitedKeys);
+        val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
+        action MAP_REMOVE(unseenKeys, key);
 
         action CALL(userAction, [key]);
 
         i += 1;
-        action MAP_SET(visitedKeys, key, SOMETHING);
     }
 
 
     // within java.util.Collection
     fun *.stream (@target self: LinkedHashSet): Stream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
+        result = _makeStream(/* parallel = */ false);
     }
 
 
     // within java.util.Collection
     fun *.parallelStream (@target self: LinkedHashSet): Stream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
+        result = _makeStream(/* parallel = */ true);
     }
 
 
@@ -657,4 +641,42 @@ automaton LinkedHashSetAutomaton
         action NOT_IMPLEMENTED("no serialization support yet");
     }
 
+
+    // within java.util.AbstractCollection
+    fun *.toString (@target self: LinkedHashSet): String
+    {
+        val items: map<Object, Object> = this.storage;
+        var count: int = action MAP_SIZE(items);
+
+        if (count == 0)
+        {
+            result = "[]";
+        }
+        else
+        {
+            action ASSUME(count > 0);
+
+            result = "[";
+
+            val unseen: map<Object, Object> = action MAP_CLONE(items);
+            action LOOP_WHILE(
+                count != 0,
+                toString_loop(unseen, count, result)
+            );
+
+            result += "]";
+        }
+    }
+
+    @Phantom proc toString_loop (unseen: map<Object, Object>, count: int, result: String): void
+    {
+        val key: Object = action MAP_GET_ANY_KEY(unseen);
+        action MAP_REMOVE(unseen, key);
+
+        result += action OBJECT_TO_STRING(key);
+
+        if (count > 1)
+            result += ", ";
+        count -= 1;
+    }
 }

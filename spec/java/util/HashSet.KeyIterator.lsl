@@ -19,7 +19,7 @@ import java/util/function/Consumer;
 automaton HashSet_KeyIteratorAutomaton
 (
     var expectedModCount: int,
-    var visitedKeys: map<Object, Object>,
+    var unseenKeys: map<Object, Object>,
     var parent: HashSet
 )
 : HashSet_KeyIterator
@@ -37,7 +37,7 @@ automaton HashSet_KeyIteratorAutomaton
     shift Allocated -> Initialized by [
         // constructors
         // Problem: here mustn't be "HashMap"; What must be here ? What we must to do with constructor ?
-        HashSet_KeyIterator,
+        `<init>`,
     ];
 
     shift Initialized -> self by [
@@ -63,7 +63,7 @@ automaton HashSet_KeyIteratorAutomaton
 
     // constructors
 
-    @private constructor *.HashSet_KeyIterator (@target self: HashSet_KeyIterator, source: HashMap)
+    @private constructor *.`<init>` (@target self: HashSet_KeyIterator, source: HashMap)
     {
         action ERROR("Private constructor call");
     }
@@ -74,7 +74,9 @@ automaton HashSet_KeyIteratorAutomaton
     fun *.hasNext (@target self: HashSet_KeyIterator): boolean
     {
         action ASSUME(this.parent != null);
-        val length: int = HashSetAutomaton(this.parent).length;
+
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        val length: int = action MAP_SIZE(parentStorage);
         result = this.index < length;
     }
 
@@ -84,24 +86,19 @@ automaton HashSet_KeyIteratorAutomaton
         action ASSUME(this.parent != null);
         _checkForComodification();
 
-        val length: int = HashSetAutomaton(this.parent).length;
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        val length: int = action MAP_SIZE(parentStorage);
         val atValidPosition: boolean = this.index < length;
         if (!atValidPosition)
             action THROW_NEW("java.util.NoSuchElementException", []);
 
-        val key: Object = action SYMBOLIC("java.lang.Object");
-        action ASSUME(key != null);
+        val key: Object = action MAP_GET_ANY_KEY(this.unseenKeys);
+        action MAP_REMOVE(this.unseenKeys, key);
         action ASSUME(key != this.currentKey);
-        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
-        val sourceStorageHasKey: boolean = action MAP_HAS_KEY(parentStorage, key);
-        action ASSUME(sourceStorageHasKey);
-        val dstStorageHasKey: boolean = action MAP_HAS_KEY(this.visitedKeys, key);
-        action ASSUME(!dstStorageHasKey);
 
         this.currentKey = key;
         result = key;
 
-        action MAP_SET(this.visitedKeys, this.currentKey, SOMETHING);
         this.index += 1;
         this.nextWasCalled = true;
     }
@@ -111,7 +108,8 @@ automaton HashSet_KeyIteratorAutomaton
     {
         action ASSUME(this.parent != null);
 
-        val length: int = HashSetAutomaton(this.parent).length;
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        val length: int = action MAP_SIZE(parentStorage);
         val atValidPosition: boolean = this.index < length;
         if (!atValidPosition || !this.nextWasCalled)
             action THROW_NEW("java.lang.IllegalStateException", []);
@@ -120,7 +118,6 @@ automaton HashSet_KeyIteratorAutomaton
 
         _checkForComodification();
 
-        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
         action MAP_REMOVE(parentStorage, this.currentKey);
 
         this.expectedModCount = HashSetAutomaton(this.parent).modCount;
@@ -134,7 +131,8 @@ automaton HashSet_KeyIteratorAutomaton
         if (userAction == null)
             action THROW_NEW("java.lang.NullPointerException", []);
 
-        val length: int = HashSetAutomaton(this.parent).length;
+        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
+        val length: int = action MAP_SIZE(parentStorage);
         var i: int = this.index;
 
         action LOOP_WHILE(
@@ -151,17 +149,11 @@ automaton HashSet_KeyIteratorAutomaton
     {
         _checkForComodification();
 
-        val key: Object = action SYMBOLIC("java.lang.Object");
-        action ASSUME(key != null);
+        val key: Object = action MAP_GET_ANY_KEY(this.unseenKeys);
+        action MAP_REMOVE(this.unseenKeys, key);
         action ASSUME(key != this.currentKey);
-        val parentStorage: map<Object, Object> = HashSetAutomaton(this.parent).storage;
-        val sourceStorageHasKey: boolean = action MAP_HAS_KEY(parentStorage, key);
-        action ASSUME(sourceStorageHasKey);
-        val destStorageHasKey: boolean = action MAP_HAS_KEY(this.visitedKeys, key);
-        action ASSUME(!destStorageHasKey);
 
         this.currentKey = key;
-        action MAP_SET(this.visitedKeys, this.currentKey, SOMETHING);
 
         action CALL(userAction, [key]);
         i += 1;

@@ -19,7 +19,7 @@ import java/util/function/Consumer;
 automaton LinkedHashSet_KeyIteratorAutomaton
 (
     var expectedModCount: int,
-    var visitedKeys: map<Object, Object>,
+    var unseenKeys: map<Object, Object>,
     var parent: LinkedHashSet
 )
 : LinkedHashSet_KeyIterator
@@ -36,7 +36,7 @@ automaton LinkedHashSet_KeyIteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LinkedHashSet_KeyIterator,
+        `<init>`,
     ];
 
     shift Initialized -> self by [
@@ -62,7 +62,7 @@ automaton LinkedHashSet_KeyIteratorAutomaton
 
     // constructors
 
-    @private constructor *.LinkedHashSet_KeyIterator (@target self: LinkedHashSet_KeyIterator, source: HashMap)
+    @private constructor *.`<init>` (@target self: LinkedHashSet_KeyIterator, source: HashMap)
     {
         action ERROR("Private constructor call");
     }
@@ -73,8 +73,10 @@ automaton LinkedHashSet_KeyIteratorAutomaton
     fun *.hasNext (@target self: LinkedHashSet_KeyIterator): boolean
     {
         action ASSUME(this.parent != null);
-        val length: int = LinkedHashSetAutomaton(this.parent).length;
-        result = this.index < length;
+
+        val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
+
+        result = this.index < action MAP_SIZE(parentStorage);
     }
 
 
@@ -83,24 +85,19 @@ automaton LinkedHashSet_KeyIteratorAutomaton
         action ASSUME(this.parent != null);
         _checkForComodification();
 
-        val length: int = LinkedHashSetAutomaton(this.parent).length;
-        val atValidPosition: boolean = this.index < length;
+        val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
+
+        val atValidPosition: boolean = this.index < action MAP_SIZE(parentStorage);
         if (!atValidPosition)
             action THROW_NEW("java.util.NoSuchElementException", []);
 
-        val key: Object = action SYMBOLIC("java.lang.Object");
-        action ASSUME(key != null);
+        val key: Object = action MAP_GET_ANY_KEY(this.unseenKeys);
+        action MAP_REMOVE(this.unseenKeys, key);
         action ASSUME(key != this.currentKey);
-        val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
-        val sourceStorageHasKey: boolean = action MAP_HAS_KEY(parentStorage, key);
-        action ASSUME(sourceStorageHasKey);
-        val dstStorageHasKey: boolean = action MAP_HAS_KEY(this.visitedKeys, key);
-        action ASSUME(!dstStorageHasKey);
 
         this.currentKey = key;
         result = key;
 
-        action MAP_SET(this.visitedKeys, this.currentKey, SOMETHING);
         this.index += 1;
         this.nextWasCalled = true;
     }
@@ -110,8 +107,9 @@ automaton LinkedHashSet_KeyIteratorAutomaton
     {
         action ASSUME(this.parent != null);
 
-        val length: int = LinkedHashSetAutomaton(this.parent).length;
-        val atValidPosition: boolean = this.index < length;
+        val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
+
+        val atValidPosition: boolean = this.index < action MAP_SIZE(parentStorage);
         if (!atValidPosition || !this.nextWasCalled)
             action THROW_NEW("java.lang.IllegalStateException", []);
 
@@ -119,7 +117,6 @@ automaton LinkedHashSet_KeyIteratorAutomaton
 
         _checkForComodification();
 
-        val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
         action MAP_REMOVE(parentStorage, this.currentKey);
 
         this.expectedModCount = LinkedHashSetAutomaton(this.parent).modCount;
@@ -133,7 +130,8 @@ automaton LinkedHashSet_KeyIteratorAutomaton
         if (userAction == null)
             action THROW_NEW("java.lang.NullPointerException", []);
 
-        val length: int = LinkedHashSetAutomaton(this.parent).length;
+        val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
+        val length: int = action MAP_SIZE(parentStorage);
         var i: int = this.index;
 
         action LOOP_WHILE(
@@ -150,17 +148,11 @@ automaton LinkedHashSet_KeyIteratorAutomaton
     {
         _checkForComodification();
 
-        val key: Object = action SYMBOLIC("java.lang.Object");
-        action ASSUME(key != null);
+        val key: Object = action MAP_GET_ANY_KEY(this.unseenKeys);
+        action MAP_REMOVE(this.unseenKeys, key);
         action ASSUME(key != this.currentKey);
-        val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
-        val sourceStorageHasKey: boolean = action MAP_HAS_KEY(parentStorage, key);
-        action ASSUME(sourceStorageHasKey);
-        val destStorageHasKey: boolean = action MAP_HAS_KEY(this.visitedKeys, key);
-        action ASSUME(!destStorageHasKey);
 
         this.currentKey = key;
-        action MAP_SET(this.visitedKeys, this.currentKey, SOMETHING);
 
         action CALL(userAction, [key]);
         i += 1;

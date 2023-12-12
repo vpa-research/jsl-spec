@@ -17,7 +17,7 @@ import java/util/OptionalDouble;
 
 // globals
 
-val EMPTY_OPTIONAL_DOUBLE: LSLOptionalDouble
+val EMPTY_OPTIONAL_DOUBLE: OptionalDouble
     = new OptionalDoubleAutomaton(state = Initialized,
         value = 0.0,
         present = false
@@ -40,8 +40,8 @@ automaton OptionalDoubleAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LSLOptionalDouble (LSLOptionalDouble),
-        LSLOptionalDouble (LSLOptionalDouble, double),
+        `<init>` (LSLOptionalDouble),
+        `<init>` (LSLOptionalDouble, double),
 
         // static methods
         empty,
@@ -76,13 +76,13 @@ automaton OptionalDoubleAutomaton
 
     // constructors
 
-    @private constructor *.LSLOptionalDouble (@target self: LSLOptionalDouble)
+    @private constructor *.`<init>` (@target self: LSLOptionalDouble)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
 
 
-    @private constructor *.LSLOptionalDouble (@target self: LSLOptionalDouble, x: double)
+    @private constructor *.`<init>` (@target self: LSLOptionalDouble, x: double)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
@@ -90,13 +90,13 @@ automaton OptionalDoubleAutomaton
 
     // static methods
 
-    @static fun *.empty (): LSLOptionalDouble
+    @static fun *.empty (): OptionalDouble
     {
         result = EMPTY_OPTIONAL_DOUBLE;
     }
 
 
-    @static fun *.of (x: double): LSLOptionalDouble
+    @static fun *.of (x: double): OptionalDouble
     {
         result = new OptionalDoubleAutomaton(state = Initialized,
             value = x,

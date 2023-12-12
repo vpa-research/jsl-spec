@@ -19,9 +19,9 @@ type Permission
     is java.security.Permission
     for Guard, Serializable
 {
-    fun getName(): String;
+    fun *.getName(): String;
 
-    fun getActions(): String;
+    fun *.getActions(): String;
 
     // #problem: cyclic reference
     //fun newPermissionCollection(): PermissionCollection;

@@ -17,7 +17,7 @@ import java/util/OptionalInt;
 
 // globals
 
-val EMPTY_OPTIONAL_INT: LSLOptionalInt
+val EMPTY_OPTIONAL_INT: OptionalInt
     = new OptionalIntAutomaton(state = Initialized,
         value = 0,
         present = false
@@ -40,8 +40,8 @@ automaton OptionalIntAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LSLOptionalInt (LSLOptionalInt),
-        LSLOptionalInt (LSLOptionalInt, int),
+        `<init>` (LSLOptionalInt),
+        `<init>` (LSLOptionalInt, int),
 
         // static methods
         empty,
@@ -76,13 +76,13 @@ automaton OptionalIntAutomaton
 
     // constructors
 
-    @private constructor *.LSLOptionalInt (@target self: LSLOptionalInt)
+    @private constructor *.`<init>` (@target self: LSLOptionalInt)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
 
 
-    @private constructor *.LSLOptionalInt (@target self: LSLOptionalInt, x: int)
+    @private constructor *.`<init>` (@target self: LSLOptionalInt, x: int)
     {
         action NOT_IMPLEMENTED("this method can be called using reflection only");
     }
@@ -90,13 +90,13 @@ automaton OptionalIntAutomaton
 
     // static methods
 
-    @static fun *.empty (): LSLOptionalInt
+    @static fun *.empty (): OptionalInt
     {
         result = EMPTY_OPTIONAL_INT;
     }
 
 
-    @static fun *.of (x: int): LSLOptionalInt
+    @static fun *.of (x: int): OptionalInt
     {
         result = new OptionalIntAutomaton(state = Initialized,
             value = x,

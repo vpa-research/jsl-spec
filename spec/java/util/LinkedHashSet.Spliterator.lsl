@@ -34,7 +34,7 @@ automaton LinkedHashSet_KeySpliteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        LinkedHashSet_KeySpliterator
+        `<init>`
     ];
 
     shift Initialized -> self by [
@@ -59,7 +59,7 @@ automaton LinkedHashSet_KeySpliteratorAutomaton
         if (hi < 0)
         {
             val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
-            this.est = LinkedHashSetAutomaton(this.parent).length;
+            this.est = action MAP_SIZE(parentStorage);
             this.expectedModCount = LinkedHashSetAutomaton(this.parent).modCount;
             this.fence = this.est;
             // That's right ?
@@ -86,7 +86,7 @@ automaton LinkedHashSet_KeySpliteratorAutomaton
 
     // constructors
 
-    @private constructor *.LinkedHashSet_KeySpliterator (@target self: LinkedHashSet_KeySpliterator, source: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
+    @private constructor *.`<init>` (@target self: LinkedHashSet_KeySpliterator, source: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
     {
         this.index = origin;
         this.fence = fence;
@@ -108,12 +108,13 @@ automaton LinkedHashSet_KeySpliteratorAutomaton
     {
         action ASSUME(this.parent != null);
 
-        var mask: int = 0;
-        val length: int = LinkedHashSetAutomaton(this.parent).length;
-        if (this.fence < 0 || this.est == length)
-            mask = SPLITERATOR_SIZED;
+        val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
 
-        result = mask | SPLITERATOR_DISTINCT;
+        result = 0;
+        if (this.fence < 0 || this.est == action MAP_SIZE(parentStorage))
+            result = SPLITERATOR_SIZED;
+
+        result |= SPLITERATOR_DISTINCT;
     }
 
 
@@ -127,7 +128,9 @@ automaton LinkedHashSet_KeySpliteratorAutomaton
         var hi: int = this.fence;
         var mc: int = this.expectedModCount;
         var i: int = this.index;
-        val length: int = LinkedHashSetAutomaton(this.parent).length;
+
+        val parentStorage: map<Object, Object> = LinkedHashSetAutomaton(this.parent).storage;
+        val length: int = action MAP_SIZE(parentStorage);
 
         if(hi < 0)
         {
@@ -186,7 +189,7 @@ automaton LinkedHashSet_KeySpliteratorAutomaton
     }
 
 
-    fun *.trySplit (@target self: LinkedHashSet_KeySpliterator): LinkedHashSet_KeySpliterator
+    fun *.trySplit (@target self: LinkedHashSet_KeySpliterator): Spliterator
     {
         action ASSUME(this.parent != null);
 
