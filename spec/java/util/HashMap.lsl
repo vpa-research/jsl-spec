@@ -95,3 +95,11 @@ import java/util/AbstractSet;
     for AbstractSet
 {
 }
+
+
+@implements("java.util.Iterator")
+@public @private @final type HashMap_EntryIterator
+    is java.util.HashMap_EntryIterator
+    for Iterator
+{
+}
