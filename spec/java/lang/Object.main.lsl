@@ -8,6 +8,7 @@ library std
 // imports
 
 import java/lang/Class;
+import java/lang/Cloneable;
 import java/lang/Object;
 import java/lang/String;
 
@@ -65,8 +66,15 @@ automaton ObjectAutomaton
     @throws(["java.lang.CloneNotSupportedException"])
     @protected fun *.clone (@target self: LSLObject): Object
     {
-        if (true) // <- fooling Java compiler to not give "unreachable statement" error
+        if (self is Cloneable == false)
             action THROW_NEW("java.lang.CloneNotSupportedException", []);
+
+        result = action SYMBOLIC("java.lang.Object");
+        action ASSUME(result != null);
+
+        val thisType: Class = action TYPE_OF(self);
+        val cloneType: Class = action TYPE_OF(result);
+        action ASSUME(thisType == cloneType);
     }
 
 
