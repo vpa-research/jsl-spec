@@ -910,7 +910,7 @@ automaton DirectByteBufferAutomaton
 
     fun *.getInt (@target self: DirectByteBuffer): int
     {
-        var next_index = _nextGetIndex(4);
+        var next_index: int = _nextGetIndex(4);
         result = _getInt(next_index as long);
     }
 
@@ -924,7 +924,7 @@ automaton DirectByteBufferAutomaton
 
     fun *.getLong (@target self: DirectByteBuffer): long
     {
-        var next_index = _nextGetIndex(8);
+        var next_index: int = _nextGetIndex(8);
         result = _getLong(next_index as long);
     }
 
@@ -938,7 +938,7 @@ automaton DirectByteBufferAutomaton
 
     fun *.getShort (@target self: DirectByteBuffer): short
     {
-        var next_index = _nextGetIndex(2);
+        var next_index: int = _nextGetIndex(2);
         result = _getShort(next_index as long);
     }
 
@@ -1199,13 +1199,40 @@ automaton DirectByteBufferAutomaton
 
     fun *.putChar (@target self: DirectByteBuffer, x: char): ByteBuffer
     {
-        action TODO();
+        var next_index: int = _nextPutIndex(2);
+        _putChar(next_index as long, x);
+        result = self;
     }
 
 
     fun *.putChar (@target self: DirectByteBuffer, i: int, x: char): ByteBuffer
     {
-        action TODO();
+        _checkIndex(i, 2);
+        _putChar(i as long, x);
+        result = self;
+    }
+
+    proc _putChar(offset: long, x: char): ByteBuffer
+    {
+        var conv_x: char = _convEndian(x);
+        _putShortUnaligned(offset, conv_x as short);
+    }
+
+    proc _putShortUnaligned(offset: long, x: short): void
+    {
+        _putShortParts(offset, (x >>> 0) as byte, (x >>> 8) as byte);
+    }
+
+    proc _putShortParts(offset: long, i0: byte, i1: byte): void
+    {
+        this.storage[offset] = _pick(i0, i1);
+        this.storage[offset + 1] = _pick(i1, i0);
+    }
+
+    proc _pick(le: byte, be: byte): byte
+    {
+        if (this.bigEndian == true) result = be;
+        else result = le;
     }
 
 
