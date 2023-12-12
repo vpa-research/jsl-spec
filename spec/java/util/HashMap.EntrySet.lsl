@@ -231,7 +231,56 @@ automaton HashMap_EntrySetAutomaton
     // within java.util.AbstractCollection
     fun *.removeAll (@target self: HashMap_EntrySet, c: Collection): boolean
     {
-        action TODO();
+        if (c == null)
+            _throwNPE();
+
+        result = false;
+        val startStorageSize: int = action MAP_SIZE(this.storage);
+        val collectionSize: int = action CALL_METHOD(c, "size", []);
+
+        if (startStorageSize > collectionSize)
+        {
+            val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+            action LOOP_WHILE(
+                action CALL_METHOD(iter, "hasNext", []),
+                _removeAll_loop_regular(iter)
+            );
+        }
+        else
+        {
+            val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, startStorageSize, +1,
+                _removeAll_loop_optimized(storageCopy, c)
+            );
+        }
+
+        val resultStorageSize: int = action MAP_SIZE(this.storage);
+        result = startStorageSize == resultStorageSize;
+    }
+
+
+    @Phantom proc _removeAll_loop_optimized (storageCopy: map<Object, Map_Entry<Object, Object>>, c: Collection): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
+        // #question: that's right realization ?
+        if (action CALL_METHOD(c, "contains", [entry]))
+            action MAP_REMOVE(this.storage, curKey);
+        action MAP_REMOVE(storageCopy, curKey);
+    }
+
+
+    @Phantom proc _removeAll_loop_regular (iter: Iterator): void
+    {
+        val o: Map_Entry<Object, Object> = action CALL_METHOD(iter, "next", []) as Map_Entry<Object, Object>;
+        val oKey: Object = action CALL_METHOD(o, "getKey", []);
+        if (action MAP_HAS_KEY(this.storage, oKey))
+        {
+            if (action OBJECT_EQUALS(o, action MAP_GET(this.storage, oKey)))
+                action MAP_REMOVE(this.storage, oKey);
+        }
     }
 
 

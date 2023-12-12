@@ -315,6 +315,9 @@ automaton HashMap_ValuesAutomaton
     // within java.util.AbstractCollection
     fun *.removeAll (@target self: HashMap_Values, c: Collection): boolean
     {
+        if (c == null)
+            _throwNPE();
+
         result = false;
         val startStorageSize: int = action MAP_SIZE(this.storage);
 
