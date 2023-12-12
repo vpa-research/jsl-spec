@@ -104,3 +104,12 @@ import java/util/AbstractSet;
     for Iterator
 {
 }
+
+
+@GenerateMe
+@implements("java.util.Spliterator")
+@public @final type HashMap_EntrySpliterator
+    is java.util.HashMap_EntrySpliterator
+    for Spliterator
+{
+}
