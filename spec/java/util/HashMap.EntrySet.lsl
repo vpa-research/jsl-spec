@@ -367,21 +367,67 @@ automaton HashMap_EntrySetAutomaton
     // within java.util.AbstractCollection
     fun *.toArray (@target self: HashMap_EntrySet): array<Object>
     {
-        action TODO();
+        val len: int = action MAP_SIZE(this.storage);
+        result = action ARRAY_NEW("java.lang.Object", len);
+        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, len, +1,
+            toArray_loop(i, result, storageCopy)
+        );
+    }
+
+
+    @Phantom proc toArray_loop (i: int, result: array<Object>, storageCopy: map<Object, Map_Entry<Object, Object>>): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(storageCopy, curKey);
+        result[i] = entry;
+        action MAP_REMOVE(storageCopy, curKey);
     }
 
 
     // within java.util.Collection
     fun *.toArray (@target self: HashMap_EntrySet, generator: IntFunction): array<Object>
     {
-        action TODO();
+        // acting just like the JDK: trigger NPE and class cast exceptions on invalid generator return value
+        val a: array<Object> = action CALL_METHOD(generator, "apply", [0]) as array<Object>;
+        val aLen: int = action ARRAY_SIZE(a);
+
+        val len: int = action MAP_SIZE(this.storage);
+        result = action ARRAY_NEW("java.lang.Object", len);
+        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, len, +1,
+            toArray_loop(i, result, storageCopy)
+        );
     }
 
 
     // within java.util.AbstractCollection
     fun *.toArray (@target self: HashMap_EntrySet, a: array<Object>): array<Object>
     {
-        action TODO();
+        val aLen: int = action ARRAY_SIZE(a);
+        val len: int = action MAP_SIZE(this.storage);
+
+        if (aLen < len)
+            a = action ARRAY_NEW("java.lang.Object", len);
+
+        result = a;
+        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, len, +1,
+            toArray_loop(i, result, storageCopy)
+        );
+
+        // #question: this is correct ?
+        if (aLen > len)
+            result[len] = null;
     }
 
 
