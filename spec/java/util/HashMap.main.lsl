@@ -316,7 +316,10 @@ automaton HashMapAutomaton
 
     fun *.entrySet (@target self: HashMap): Set
     {
-        action TODO();
+        result = new HashMap_EntrySetAutomaton(state = Initialized,
+            storage = this.storage,
+            parent = self
+        );
     }
 
 

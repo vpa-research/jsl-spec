@@ -25,7 +25,7 @@ import java/util/Map;
 
 automaton HashMap_EntrySetAutomaton
 (
-    var storage: map<Object, Map_Entry>,
+    var storage: map<Object, Map_Entry<Object, Object>>,
     var parent: HashMap
 )
 : HashMap_EntrySet
@@ -97,14 +97,16 @@ automaton HashMap_EntrySetAutomaton
     // within java.util.AbstractCollection
     fun *.add (@target self: HashMap_EntrySet, e: Object): boolean
     {
-        _throwUOE();
+        if (true)
+            _throwUOE();
     }
 
 
     // within java.util.AbstractCollection
     fun *.addAll (@target self: HashMap_EntrySet, c: Collection): boolean
     {
-        _throwUOE();
+        if (true)
+            _throwUOE();
     }
 
 
@@ -120,12 +122,13 @@ automaton HashMap_EntrySetAutomaton
         result = false;
         if (o is Map_Entry)
         {
-            val entry: Map_Entry = o as Map_Entry;
-            val key: Object = action CALL_METHOD(entry, "getKey", []);
-            val value: Object = action CALL_METHOD(entry, "getValue", []);
+            val entryParam: Map_Entry<Object, Object> = o as Map_Entry<Object, Object>;
+            val key: Object = action CALL_METHOD(entryParam, "getKey", []);
+            val value: Object = action CALL_METHOD(entryParam, "getValue", []);
             val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);
-            // #question: this is right realization ?
-            val valuesEquals: boolean = action OBJECT_EQUALS(value, action MAP_GET(this.storage, o));
+            var entryStorage: Map_Entry<Object, Object> = action MAP_GET(this.storage, key);
+            // #question: this is right realization ? Or better to make entries equals ?
+            val valuesEquals: boolean = action OBJECT_EQUALS(value, action CALL_METHOD(entryStorage, "getValue", []));
             result = hasKey && valuesEquals;
         }
     }
@@ -153,28 +156,26 @@ automaton HashMap_EntrySetAutomaton
         val storageSize: int = action MAP_SIZE(this.storage);
         if (storageSize > 0)
         {
-            val storageClone: map<Object, Object> = action MAP_CLONE(this.storage);
+            val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
             val expectedModCount: int = HashMapAutomaton(this.parent).modCount;
             var i: int = 0;
             action LOOP_FOR(
                 i, 0, storageSize, +1,
-                forEach_loop(storageClone, userAction)
+                forEach_loop(storageCopy, userAction)
             );
             HashMapAutomaton(this.parent)._checkForComodification(expectedModCount);
         }
     }
 
 
-    @Phantom proc forEach_loop (storageClone: map<Object, Object>, userAction: Consumer): void
+    @Phantom proc forEach_loop (storageCopy: map<Object, Map_Entry<Object, Object>>, userAction: Consumer): void
     {
-        val curKey: Object = action MAP_GET_ANY_KEY(storageClone);
-        val curValue: Object = action MAP_GET(storageClone, curKey);
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
 
-        // # problem: how correctly create Node for Consumer ? this is right: Map.Entry entry = new AbstractMap.SimpleEntry(4, 5); ?
-        val entry: Map_Entry = action DEBUG_DO("new java.util.AbstractMap.SimpleEntry(curKey, curValue)");
         action CALL(userAction, [entry]);
 
-        action MAP_REMOVE(storageClone, curKey);
+        action MAP_REMOVE(storageCopy, curKey);
     }
 
 
@@ -210,13 +211,13 @@ automaton HashMap_EntrySetAutomaton
         result = false;
         if (o is Map_Entry)
         {
-            val entry: Map_Entry = o as Map_Entry;
-            val key: Object = action CALL_METHOD(entry, "getKey", []);
-            val value: Object = action CALL_METHOD(entry, "getValue", []);
+            val entryParam: Map_Entry = o as Map_Entry;
+            val key: Object = action CALL_METHOD(entryParam, "getKey", []);
+            val value: Object = action CALL_METHOD(entryParam, "getValue", []);
             if (action MAP_HAS_KEY(this.storage, key))
             {
-                val actualValue: Object = action MAP_GET(this.storage, key);
-                // #question: What will be if value == null ? NPE in "OBJECT_EQUALS" ? Do we must check it ?
+                val entryStorage: Map_Entry<Object, Object> = action MAP_GET(this.storage, key);
+                val actualValue: Object = action CALL_METHOD(entryStorage, "getValue", []);
                 if (action OBJECT_EQUALS(value, actualValue))
                 {
                     action MAP_REMOVE(this.storage, key);
