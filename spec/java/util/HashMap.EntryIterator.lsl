@@ -17,6 +17,8 @@ import java/util/function/Consumer;
 
 automaton HashMap_EntryIteratorAutomaton
 (
+    var parent: HashMap,
+    var storageCopy: map<Object, Map_Entry<Object, Object>>
 )
 : HashMap_EntryIterator
 {
@@ -40,13 +42,31 @@ automaton HashMap_EntryIteratorAutomaton
 
     // internal variables
 
+    var expectedModCount: int;
+    var currentKey: Object = null;
+
+
     // utilities
+
+    @AutoInline @Phantom proc _throwCME (): void
+    {
+        action THROW_NEW("java.util.ConcurrentModificationException", []);
+    }
+
+
+    proc _checkForComodification (): void
+    {
+        val modCount: int = HashMapAutomaton(this.parent).modCount;
+        if (modCount != this.expectedModCount)
+            _throwCME();
+    }
+
 
     // constructors
 
     @private constructor *.HashMap_EntryIterator (@target self: HashMap_EntryIterator, _this: HashMap)
     {
-        action TODO();
+        this.expectedModCount = HashMapAutomaton(this.parent).modCount;
     }
 
 
@@ -55,29 +75,75 @@ automaton HashMap_EntryIteratorAutomaton
     // methods
 
     // within java.util.Iterator
-    fun *.forEachRemaining (@target self: HashMap_EntryIterator, _action: Consumer): void
+    fun *.forEachRemaining (@target self: HashMap_EntryIterator, userAction: Consumer): void
     {
-        action TODO();
+        if (userAction == null)
+            action THROW_NEW("java.lang.NullPointerException", []);
+
+        var size: int = action MAP_SIZE(this.storageCopy);
+
+        if (size != 0)
+        {
+            val parentStorage: map<Object, Map_Entry<Object, Object>> = HashMapAutomaton(this.parent).storage;
+
+            action LOOP_WHILE(
+                size != 0 && HashMapAutomaton(this.parent).modCount == this.expectedModCount,
+                forEachRemaining_loop(userAction, parentStorage, size)
+            );
+
+            _checkForComodification();
+        }
+    }
+
+
+    @Phantom proc forEachRemaining_loop (userAction: Consumer, parentStorage: map<Object, Map_Entry<Object, Object>>, size: int): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(this.storageCopy);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(parentStorage, curKey);
+        action CALL(userAction, [entry]);
+        action MAP_REMOVE(this.storageCopy, curKey);
+        size -= 1;
     }
 
 
     // within java.util.HashMap.HashIterator
     @final fun *.hasNext (@target self: HashMap_EntryIterator): boolean
     {
-        action TODO();
+        result = action MAP_SIZE(this.storageCopy) != 0;
     }
 
 
     @final fun *.next (@target self: HashMap_EntryIterator): Map_Entry
     {
-        action TODO();
+        _checkForComodification();
+
+        val key: Object = action MAP_GET_ANY_KEY(this.storageCopy);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(this.storageCopy, key);
+        action MAP_REMOVE(this.storageCopy, key);
+        result = entry;
+        this.currentKey = key;
     }
 
 
     // within java.util.HashMap.HashIterator
     @final fun *.remove (@target self: HashMap_EntryIterator): void
     {
-        action TODO();
+        // relax state/error discovery process
+        action ASSUME(this.parent != null);
+
+        if (this.currentKey == null)
+            action THROW_NEW("java.lang.IllegalStateException", []);
+
+        _checkForComodification();
+
+        // #question: this is right ? Or not ?
+        action MAP_REMOVE(this.storageCopy, this.currentKey);
+        val parentStorage: map<Object, Map_Entry<Object, Object>> = HashMapAutomaton(this.parent).storage;
+        action MAP_REMOVE(parentStorage, this.currentKey);
+        HashMapAutomaton(this.parent).modCount += 1;
+
+        this.expectedModCount = HashMapAutomaton(this.parent).modCount;
+        this.currentKey = null;
     }
 
 }

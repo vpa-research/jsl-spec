@@ -97,8 +97,9 @@ import java/util/AbstractSet;
 }
 
 
+@GenerateMe
 @implements("java.util.Iterator")
-@public @private @final type HashMap_EntryIterator
+@public @final type HashMap_EntryIterator
     is java.util.HashMap_EntryIterator
     for Iterator
 {

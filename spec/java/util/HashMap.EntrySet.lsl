@@ -257,7 +257,11 @@ automaton HashMap_EntrySetAutomaton
 
     @final fun *.iterator (@target self: HashMap_EntrySet): Iterator
     {
-        action TODO();
+        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+        result = new HashMap_KeyIteratorAutomaton(state = Initialized,
+            parent = this.parent,
+            storageCopy = storageCopy
+        );
     }
 
 
