@@ -287,7 +287,31 @@ automaton HashMap_EntrySetAutomaton
     // within java.util.Collection
     fun *.removeIf (@target self: HashMap_EntrySet, filter: Predicate): boolean
     {
-        action TODO();
+        if (filter == null)
+            _throwNPE();
+
+        result = false;
+        val startStorageSize: int = action MAP_SIZE(this.storage);
+
+        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, startStorageSize, +1,
+            _removeIf_loop(storageCopy, filter)
+        );
+
+        val resultStorageSize: int = action MAP_SIZE(this.storage);
+        result = startStorageSize == resultStorageSize;
+    }
+
+
+    @Phantom proc _removeIf_loop (storageCopy: map<Object, Map_Entry<Object, Object>>, filter: Predicate): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(storageCopy, curKey);
+        if (action CALL(filter, [entry]))
+            action MAP_REMOVE(this.storage, curKey);
+        action MAP_REMOVE(storageCopy, curKey);
     }
 
 
