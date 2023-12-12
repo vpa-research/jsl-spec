@@ -36,7 +36,7 @@ automaton HashMap_KeySetAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        HashMap_KeySet,
+        `<init>`,
     ];
 
     shift Initialized -> self by [
@@ -104,7 +104,7 @@ automaton HashMap_KeySetAutomaton
 
     // constructors
 
-    @private constructor *.HashMap_KeySet (@target self: HashMap_KeySet, _this: HashMap)
+    @private constructor *.`<init>` (@target self: HashMap_KeySet, _this: HashMap)
     {
         // #note: default constructor without any body, like in the original class
     }

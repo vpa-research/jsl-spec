@@ -28,8 +28,8 @@ automaton SimpleEntryAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        SimpleEntry (SimpleEntry, Map_Entry),
-        SimpleEntry (SimpleEntry, Object, Object),
+        `<init>` (SimpleEntry, Map_Entry),
+        `<init>` (SimpleEntry, Object, Object),
     ];
 
     shift Initialized -> self by [
@@ -48,14 +48,14 @@ automaton SimpleEntryAutomaton
 
     // constructors
 
-    constructor *.SimpleEntry (@target self: SimpleEntry, entry: Map_Entry)
+    constructor *.`<init>` (@target self: SimpleEntry, entry: Map_Entry)
     {
         this.key = action CALL_METHOD(entry, "getKey", []);
         this.value = action CALL_METHOD(entry, "getValue", []);
     }
 
 
-    constructor *.SimpleEntry (@target self: SimpleEntry, key: Object, value: Object)
+    constructor *.`<init>` (@target self: SimpleEntry, key: Object, value: Object)
     {
         this.key = key;
         this.value = value;

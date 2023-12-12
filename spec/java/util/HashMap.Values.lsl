@@ -35,7 +35,7 @@ automaton HashMap_ValuesAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        HashMap_Values,
+        `<init>`,
     ];
 
     shift Initialized -> self by [
@@ -102,7 +102,7 @@ automaton HashMap_ValuesAutomaton
 
     // constructors
 
-    @private constructor *.HashMap_Values (@target self: HashMap_Values, _this: HashMap)
+    @private constructor *.`<init>` (@target self: HashMap_Values, _this: HashMap)
     {
         // #note: default constructor without any body, like in the original class
     }

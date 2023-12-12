@@ -30,7 +30,7 @@ automaton HashMap_ValueSpliteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        HashMap_ValueSpliterator,
+        `<init>`,
     ];
 
     shift Initialized -> self by [
@@ -87,7 +87,7 @@ automaton HashMap_ValueSpliteratorAutomaton
 
     // constructors
 
-    @private constructor *.HashMap_ValueSpliterator (@target self: HashMap_ValueSpliterator, m: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
+    @private constructor *.`<init>` (@target self: HashMap_ValueSpliterator, m: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
     {
         this.index = origin;
         this.fence = fence;

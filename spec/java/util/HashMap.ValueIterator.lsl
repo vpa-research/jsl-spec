@@ -30,7 +30,7 @@ automaton HashMap_ValueIteratorAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        HashMap_ValueIterator,
+        `<init>`,
     ];
 
     shift Initialized -> self by [
@@ -65,7 +65,7 @@ automaton HashMap_ValueIteratorAutomaton
 
     // constructors
 
-    @private constructor *.HashMap_ValueIterator (@target self: HashMap_ValueIterator, _this: HashMap)
+    @private constructor *.`<init>` (@target self: HashMap_ValueIterator, _this: HashMap)
     {
         this.expectedModCount = HashMapAutomaton(this.parent).modCount;
     }

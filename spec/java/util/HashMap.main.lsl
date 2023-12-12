@@ -33,10 +33,10 @@ automaton HashMapAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        HashMap (HashMap),
-        HashMap (HashMap, Map),
-        HashMap (HashMap, int),
-        HashMap (HashMap, int, float),
+        `<init>` (HashMap),
+        `<init>` (HashMap, Map),
+        `<init>` (HashMap, int),
+        `<init>` (HashMap, int, float),
     ];
 
     shift Initialized -> self by [
@@ -143,20 +143,20 @@ automaton HashMapAutomaton
 
     // constructors
 
-    constructor *.HashMap (@target self: HashMap)
+    constructor *.`<init>` (@target self: HashMap)
     {
         this.storage = action MAP_NEW();
     }
 
 
-    constructor *.HashMap (@target self: HashMap, m: Map)
+    constructor *.`<init>` (@target self: HashMap, m: Map)
     {
         this.storage = action MAP_NEW();
         _addAllElements(m);
     }
 
 
-    constructor *.HashMap (@target self: HashMap, initialCapacity: int)
+    constructor *.`<init>` (@target self: HashMap, initialCapacity: int)
     {
         if (initialCapacity < 0)
         {
@@ -168,7 +168,7 @@ automaton HashMapAutomaton
     }
 
 
-    constructor *.HashMap (@target self: HashMap, initialCapacity: int, loadFactor: float)
+    constructor *.`<init>` (@target self: HashMap, initialCapacity: int, loadFactor: float)
     {
         if (initialCapacity < 0)
         {
