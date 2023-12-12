@@ -359,6 +359,7 @@ automaton HashMap_KeySetAutomaton
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         if (!action CALL_METHOD(c, "contains", [curKey]))
             action MAP_REMOVE(this.storage, curKey);
+        action MAP_REMOVE(unseen, curKey);
     }
 
 

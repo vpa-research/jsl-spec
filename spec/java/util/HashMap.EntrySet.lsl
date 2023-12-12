@@ -148,10 +148,16 @@ automaton HashMap_EntrySetAutomaton
             val key: Object = action CALL_METHOD(entryParam, "getKey", []);
             val value: Object = action CALL_METHOD(entryParam, "getValue", []);
             val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);
-            var entryStorage: Map_Entry<Object, Object> = action MAP_GET(this.storage, key);
-            // #question: this is right realization ? Or better to make entries equals ?
-            val valuesEquals: boolean = action OBJECT_EQUALS(value, action CALL_METHOD(entryStorage, "getValue", []));
-            result = hasKey && valuesEquals;
+            if (!action MAP_HAS_KEY(this.storage, key))
+            {
+                result = false;
+            }
+            else
+            {
+                var entryStorage: Map_Entry<Object, Object> = action MAP_GET(this.storage, key);
+                // #question: this is right realization ? Or better to make entries equals ?
+                result = action OBJECT_EQUALS(value, action CALL_METHOD(entryStorage, "getValue", []));
+            }
         }
     }
 

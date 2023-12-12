@@ -209,18 +209,24 @@ automaton HashMapAutomaton
         if (remappingFunction == null)
             _throwNPE();
 
-        val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, key);
-        val oldValue: Object = action CALL_METHOD(entry, "getValue", []);
+        var oldValue: Object = null;
+        var entry: Map_Entry<Object, Object> = null;
+
+        if (action MAP_HAS_KEY(this.storage, key))
+        {
+            entry = action MAP_GET(this.storage, key);
+            oldValue = action CALL_METHOD(entry, "getValue", []);
+        }
+
         val expectedModCount: int = this.modCount;
 
         val newValue: Object = action CALL(remappingFunction, [key, oldValue]);
-        action CALL_METHOD(entry, "setValue", [newValue]);
         _checkForComodification(expectedModCount);
 
         if (newValue == null)
             action MAP_REMOVE(this.storage, key);
         else
-            action MAP_SET(this.storage, key, entry);
+            action CALL_METHOD(entry, "setValue", [newValue]);
 
         result = newValue;
     }
@@ -231,8 +237,15 @@ automaton HashMapAutomaton
         if (mappingFunction == null)
             _throwNPE();
 
-        val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, key);
-        val oldValue: Object = action CALL_METHOD(entry, "getValue", []);
+        var oldValue: Object = null;
+        var entry: Map_Entry<Object, Object> = null;
+
+        if (action MAP_HAS_KEY(this.storage, key))
+        {
+            entry = action MAP_GET(this.storage, key);
+            oldValue = action CALL_METHOD(entry, "getValue", []);
+        }
+
         if (oldValue != null)
         {
             result = oldValue;
@@ -241,10 +254,9 @@ automaton HashMapAutomaton
         {
             val expectedModCount: int = this.modCount;
             val newValue: Object = action CALL(mappingFunction, [key]);
-            action CALL_METHOD(entry, "setValue", [newValue]);
             _checkForComodification(expectedModCount);
             if (newValue != null)
-                action MAP_SET(this.storage, key, entry);
+                action CALL_METHOD(entry, "setValue", [newValue]);
             result = newValue;
         }
 
@@ -256,8 +268,15 @@ automaton HashMapAutomaton
         if (remappingFunction == null)
             _throwNPE();
 
-        val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, key);
-        val oldValue: Object = action CALL_METHOD(entry, "getValue", []);
+        var oldValue: Object = null;
+        var entry: Map_Entry<Object, Object> = null;
+
+        if (action MAP_HAS_KEY(this.storage, key))
+        {
+            entry = action MAP_GET(this.storage, key);
+            oldValue = action CALL_METHOD(entry, "getValue", []);
+        }
+
         if (oldValue == null)
         {
             result = oldValue;
@@ -266,12 +285,11 @@ automaton HashMapAutomaton
         {
             val expectedModCount: int = this.modCount;
             val newValue: Object = action CALL(remappingFunction, [key, oldValue]);
-            action CALL_METHOD(entry, "setValue", [newValue]);
             _checkForComodification(expectedModCount);
             if (newValue == null)
                 action MAP_REMOVE(this.storage, key);
             else
-                action MAP_SET(this.storage, key, entry);
+                action CALL_METHOD(entry, "setValue", [newValue]);
             result = newValue;
         }
     }
@@ -449,7 +467,6 @@ automaton HashMapAutomaton
             else
             {
                 action CALL_METHOD(entry, "setValue", [newValue]);
-                action MAP_SET(this.storage, key, entry);
             }
 
             this.modCount += 1;
@@ -458,7 +475,6 @@ automaton HashMapAutomaton
         else
         {
             action CALL_METHOD(entry, "setValue", [newValue]);
-            action MAP_SET(this.storage, key, entry);
             this.modCount += 1;
             result = value;
         }
@@ -500,7 +516,7 @@ automaton HashMapAutomaton
     fun *.putIfAbsent (@target self: HashMap, key: Object, value: Object): Object
     {
         result = _getMappingOrDefault(key, null);
-        if (result == null)
+        if (result == null && action MAP_HAS_KEY(this.storage, key))
         {
             val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, key);
             action CALL_METHOD(entry, "setValue", [value]);
