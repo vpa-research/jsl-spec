@@ -18,7 +18,7 @@ import java/util/function/Consumer;
 automaton HashMap_KeyIteratorAutomaton
 (
     var parent: HashMap,
-    var storageCopy: map<Object, Map_Entry<Object, Object>>
+    var unseen: map<Object, Map_Entry<Object, Object>>
 )
 : HashMap_KeyIterator
 {
@@ -80,7 +80,7 @@ automaton HashMap_KeyIteratorAutomaton
         if (userAction == null)
             action THROW_NEW("java.lang.NullPointerException", []);
 
-        var size: int = action MAP_SIZE(this.storageCopy);
+        var size: int = action MAP_SIZE(this.unseen);
 
         if (size != 0)
         {
@@ -98,9 +98,9 @@ automaton HashMap_KeyIteratorAutomaton
 
     @Phantom proc forEachRemaining_loop (userAction: Consumer, parentStorage: map<Object, Map_Entry<Object, Object>>, size: int): void
     {
-        val key: Object = action MAP_GET_ANY_KEY(this.storageCopy);
+        val key: Object = action MAP_GET_ANY_KEY(this.unseen);
         action CALL(userAction, [key]);
-        action MAP_REMOVE(this.storageCopy, key);
+        action MAP_REMOVE(this.unseen, key);
         size -= 1;
     }
 
@@ -108,7 +108,7 @@ automaton HashMap_KeyIteratorAutomaton
     // within java.util.HashMap.HashIterator
     @final fun *.hasNext (@target self: HashMap_KeyIterator): boolean
     {
-        result = action MAP_SIZE(this.storageCopy) != 0;
+        result = action MAP_SIZE(this.unseen) != 0;
     }
 
 
@@ -116,8 +116,8 @@ automaton HashMap_KeyIteratorAutomaton
     {
         _checkForComodification();
 
-        val key: Object = action MAP_GET_ANY_KEY(this.storageCopy);
-        action MAP_REMOVE(this.storageCopy, key);
+        val key: Object = action MAP_GET_ANY_KEY(this.unseen);
+        action MAP_REMOVE(this.unseen, key);
         result = key;
         this.currentKey = key;
     }
@@ -134,7 +134,7 @@ automaton HashMap_KeyIteratorAutomaton
 
         _checkForComodification();
 
-        action MAP_REMOVE(this.storageCopy, this.currentKey);
+        action MAP_REMOVE(this.unseen, this.currentKey);
         val parentStorage: map<Object, Map_Entry<Object, Object>> = HashMapAutomaton(this.parent).storage;
         action MAP_REMOVE(parentStorage, this.currentKey);
         HashMapAutomaton(this.parent).modCount += 1;

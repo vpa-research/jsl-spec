@@ -86,21 +86,21 @@ automaton HashMap_EntrySetAutomaton
     {
         val storageSize: int = action MAP_SIZE(this.storage);
         result = action ARRAY_NEW("java.util.Map.Entry", storageSize);
-        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+        val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
         var i: int = 0;
         action LOOP_FOR(
             i, 0, storageSize, +1,
-            _mapToEntryArray_loop(i, result, storageCopy)
+            _mapToEntryArray_loop(i, result, unseen)
         );
     }
 
 
-    @Phantom proc _mapToEntryArray_loop (i: int, result: array<Map_Entry<Object, Object>>, storageCopy: map<Object, Map_Entry<Object, Object>>): void
+    @Phantom proc _mapToEntryArray_loop (i: int, result: array<Map_Entry<Object, Object>>, unseen: map<Object, Map_Entry<Object, Object>>): void
     {
-        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         var entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
         result[i] = entry;
-        action MAP_REMOVE(storageCopy, curKey);
+        action MAP_REMOVE(unseen, curKey);
     }
 
 
@@ -203,10 +203,10 @@ automaton HashMap_EntrySetAutomaton
 
                 if (thisLength == otherLength)
                 {
-                    val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+                    val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
                     action LOOP_WHILE(
                         result == true,
-                        _equals_loop(result, otherStorage, storageCopy)
+                        _equals_loop(result, otherStorage, unseen)
                     );
                 }
                 else
@@ -220,15 +220,15 @@ automaton HashMap_EntrySetAutomaton
     }
 
 
-    @Phantom proc _equals_loop (result: boolean, otherStorage: map<Object, Map_Entry<Object, Object>>, storageCopy: map<Object, Map_Entry<Object, Object>>): void
+    @Phantom proc _equals_loop (result: boolean, otherStorage: map<Object, Map_Entry<Object, Object>>, unseen: map<Object, Map_Entry<Object, Object>>): void
     {
-        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
         if (!action MAP_HAS_KEY(otherStorage, curKey))
             result = false;
         else
             result = action OBJECT_EQUALS(entry, action MAP_GET(otherStorage, curKey));
-        action MAP_REMOVE(storageCopy, curKey);
+        action MAP_REMOVE(unseen, curKey);
     }
 
 
@@ -240,26 +240,26 @@ automaton HashMap_EntrySetAutomaton
         val storageSize: int = action MAP_SIZE(this.storage);
         if (storageSize > 0)
         {
-            val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
             val expectedModCount: int = HashMapAutomaton(this.parent).modCount;
             var i: int = 0;
             action LOOP_FOR(
                 i, 0, storageSize, +1,
-                forEach_loop(storageCopy, userAction)
+                forEach_loop(unseen, userAction)
             );
             HashMapAutomaton(this.parent)._checkForComodification(expectedModCount);
         }
     }
 
 
-    @Phantom proc forEach_loop (storageCopy: map<Object, Map_Entry<Object, Object>>, userAction: Consumer): void
+    @Phantom proc forEach_loop (unseen: map<Object, Map_Entry<Object, Object>>, userAction: Consumer): void
     {
-        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
 
         action CALL(userAction, [entry]);
 
-        action MAP_REMOVE(storageCopy, curKey);
+        action MAP_REMOVE(unseen, curKey);
     }
 
 
@@ -279,10 +279,9 @@ automaton HashMap_EntrySetAutomaton
 
     @final fun *.iterator (@target self: HashMap_EntrySet): Iterator
     {
-        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
         result = new HashMap_KeyIteratorAutomaton(state = Initialized,
             parent = this.parent,
-            storageCopy = storageCopy
+            unseen = action MAP_CLONE(this.storage)
         );
     }
 
@@ -342,11 +341,11 @@ automaton HashMap_EntrySetAutomaton
         }
         else
         {
-            val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
             var i: int = 0;
             action LOOP_FOR(
                 i, 0, startStorageSize, +1,
-                _removeAll_loop_optimized(storageCopy, c)
+                _removeAll_loop_optimized(unseen, c)
             );
         }
 
@@ -355,14 +354,14 @@ automaton HashMap_EntrySetAutomaton
     }
 
 
-    @Phantom proc _removeAll_loop_optimized (storageCopy: map<Object, Map_Entry<Object, Object>>, c: Collection): void
+    @Phantom proc _removeAll_loop_optimized (unseen: map<Object, Map_Entry<Object, Object>>, c: Collection): void
     {
-        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
         // #question: that's right realization ?
         if (action CALL_METHOD(c, "contains", [entry]))
             action MAP_REMOVE(this.storage, curKey);
-        action MAP_REMOVE(storageCopy, curKey);
+        action MAP_REMOVE(unseen, curKey);
     }
 
 
@@ -387,11 +386,11 @@ automaton HashMap_EntrySetAutomaton
         result = false;
         val startStorageSize: int = action MAP_SIZE(this.storage);
 
-        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+        val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
         var i: int = 0;
         action LOOP_FOR(
             i, 0, startStorageSize, +1,
-            _removeIf_loop(storageCopy, filter)
+            _removeIf_loop(unseen, filter)
         );
 
         val resultStorageSize: int = action MAP_SIZE(this.storage);
@@ -399,13 +398,13 @@ automaton HashMap_EntrySetAutomaton
     }
 
 
-    @Phantom proc _removeIf_loop (storageCopy: map<Object, Map_Entry<Object, Object>>, filter: Predicate): void
+    @Phantom proc _removeIf_loop (unseen: map<Object, Map_Entry<Object, Object>>, filter: Predicate): void
     {
-        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(storageCopy, curKey);
+        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
         if (action CALL(filter, [entry]))
             action MAP_REMOVE(this.storage, curKey);
-        action MAP_REMOVE(storageCopy, curKey);
+        action MAP_REMOVE(unseen, curKey);
     }
 
 
@@ -418,11 +417,11 @@ automaton HashMap_EntrySetAutomaton
         result = false;
         val startStorageSize: int = action MAP_SIZE(this.storage);
 
-        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+        val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
         var i: int = 0;
         action LOOP_FOR(
             i, 0, startStorageSize, +1,
-            _retainAll_loop(storageCopy, c)
+            _retainAll_loop(unseen, c)
         );
 
         val resultStorageSize: int = action MAP_SIZE(this.storage);
@@ -430,10 +429,10 @@ automaton HashMap_EntrySetAutomaton
     }
 
 
-    @Phantom proc _retainAll_loop (storageCopy: map<Object, Map_Entry<Object, Object>>, c: Collection): void
+    @Phantom proc _retainAll_loop (unseen: map<Object, Map_Entry<Object, Object>>, c: Collection): void
     {
-        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(storageCopy, curKey);
+        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
         if (!action CALL_METHOD(c, "contains", [entry]))
             action MAP_REMOVE(this.storage, curKey);
     }
@@ -471,22 +470,22 @@ automaton HashMap_EntrySetAutomaton
     {
         val len: int = action MAP_SIZE(this.storage);
         result = action ARRAY_NEW("java.lang.Object", len);
-        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+        val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
 
         var i: int = 0;
         action LOOP_FOR(
             i, 0, len, +1,
-            toArray_loop(i, result, storageCopy)
+            toArray_loop(i, result, unseen)
         );
     }
 
 
-    @Phantom proc toArray_loop (i: int, result: array<Object>, storageCopy: map<Object, Map_Entry<Object, Object>>): void
+    @Phantom proc toArray_loop (i: int, result: array<Object>, unseen: map<Object, Map_Entry<Object, Object>>): void
     {
-        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(storageCopy, curKey);
+        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
         result[i] = entry;
-        action MAP_REMOVE(storageCopy, curKey);
+        action MAP_REMOVE(unseen, curKey);
     }
 
 
@@ -499,12 +498,12 @@ automaton HashMap_EntrySetAutomaton
 
         val len: int = action MAP_SIZE(this.storage);
         result = action ARRAY_NEW("java.lang.Object", len);
-        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+        val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
 
         var i: int = 0;
         action LOOP_FOR(
             i, 0, len, +1,
-            toArray_loop(i, result, storageCopy)
+            toArray_loop(i, result, unseen)
         );
     }
 
@@ -519,12 +518,12 @@ automaton HashMap_EntrySetAutomaton
             a = action ARRAY_NEW("java.lang.Object", len);
 
         result = a;
-        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+        val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
 
         var i: int = 0;
         action LOOP_FOR(
             i, 0, len, +1,
-            toArray_loop(i, result, storageCopy)
+            toArray_loop(i, result, unseen)
         );
 
         // #question: this is correct ?
@@ -538,23 +537,23 @@ automaton HashMap_EntrySetAutomaton
     {
         val storageSize: int = action MAP_SIZE(this.storage);
         val arrayEntries: array<Object> = action ARRAY_NEW("java.lang.Object", storageSize);
-        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+        val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
         var i: int = 0;
         action LOOP_FOR(
             i, 0, storageSize, +1,
-            _toString_loop(i, storageCopy, arrayEntries)
+            _toString_loop(i, unseen, arrayEntries)
         );
 
         result = action OBJECT_TO_STRING(arrayEntries);
     }
 
 
-    @Phantom proc _toString_loop (i: int, storageCopy: map<Object, Map_Entry<Object, Object>>, arrayEntries: array<Object>): void
+    @Phantom proc _toString_loop (i: int, unseen: map<Object, Map_Entry<Object, Object>>, arrayEntries: array<Object>): void
     {
-        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(storageCopy, curKey);
+        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
         arrayEntries[i] = entry;
-        action MAP_REMOVE(storageCopy, curKey);
+        action MAP_REMOVE(unseen, curKey);
     }
 
 }

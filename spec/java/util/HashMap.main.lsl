@@ -292,25 +292,25 @@ automaton HashMapAutomaton
         val storageSize: int = action MAP_SIZE(this.storage);
         if (storageSize != 0)
         {
-            val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
             var i: int = 0;
             action LOOP_WHILE(
                 result != true,
-                _containsValue_loop(result, storageCopy, value)
+                _containsValue_loop(result, unseen, value)
             );
         }
     }
 
 
-    @Phantom proc _containsValue_loop (result: boolean, storageCopy: map<Object, Map_Entry<Object, Object>>, value: Object): void
+    @Phantom proc _containsValue_loop (result: boolean, unseen: map<Object, Map_Entry<Object, Object>>, value: Object): void
     {
-        val curKey: Object = action MAP_GET_ANY_KEY(storageCopy);
+        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
         val curValue: Object = action CALL_METHOD(entry, "getValue", []);
         if (action OBJECT_EQUALS(curValue, value))
             result = true;
         else
-            action MAP_REMOVE(storageCopy, curKey);
+            action MAP_REMOVE(unseen, curKey);
     }
 
 
@@ -579,27 +579,25 @@ automaton HashMapAutomaton
         val thisSize: int = action MAP_SIZE(this.storage);
         if (thisSize > 0)
         {
-            // #question: this is deepClone ? Or references are equal in both maps ?
-            // #note: this realization suggests that references are equal
-            val storageClone: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
             val expectedModCount: int = this.modCount;
             var i: int = 0;
             action LOOP_FOR(
                 i, 0, thisSize, +1,
-                replaceAll_loop(storageClone, function)
+                replaceAll_loop(unseen, function)
             );
             _checkForComodification(expectedModCount);
         }
     }
 
 
-    @Phantom proc replaceAll_loop (storageClone: map<Object, Map_Entry<Object, Object>>, function: BiFunction): void
+    @Phantom proc replaceAll_loop (unseen: map<Object, Map_Entry<Object, Object>>, function: BiFunction): void
     {
-        val curKey: Object = action MAP_GET_ANY_KEY(storageClone);
+        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
         val curValue: Object = action CALL_METHOD(entry, "getValue", []);
         action CALL(function, [curKey, curValue]);
-        action MAP_REMOVE(storageClone, curKey);
+        action MAP_REMOVE(unseen, curKey);
     }
 
 

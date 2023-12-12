@@ -19,7 +19,7 @@ import java/util/HashMap;
 automaton HashMap_ValueIteratorAutomaton
 (
     var parent: HashMap,
-    var storageCopy: map<Object, Map_Entry<Object, Object>>
+    var unseen: map<Object, Map_Entry<Object, Object>>
 )
 : HashMap_ValueIterator
 {
@@ -81,7 +81,7 @@ automaton HashMap_ValueIteratorAutomaton
         if (userAction == null)
             action THROW_NEW("java.lang.NullPointerException", []);
 
-        var size: int = action MAP_SIZE(this.storageCopy);
+        var size: int = action MAP_SIZE(this.unseen);
 
         if (size != 0)
         {
@@ -99,11 +99,11 @@ automaton HashMap_ValueIteratorAutomaton
 
     @Phantom proc forEachRemaining_loop (userAction: Consumer, parentStorage: map<Object, Object>, size: int): void
     {
-        val key: Object = action MAP_GET_ANY_KEY(this.storageCopy);
+        val key: Object = action MAP_GET_ANY_KEY(this.unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(parentStorage, key);
         val curValue: Object = action CALL_METHOD(entry, "getValue", []);
         action CALL(userAction, [curValue]);
-        action MAP_REMOVE(this.storageCopy, key);
+        action MAP_REMOVE(this.unseen, key);
         size -= 1;
     }
 
@@ -111,7 +111,7 @@ automaton HashMap_ValueIteratorAutomaton
     // within java.util.HashMap.HashIterator
     @final fun *.hasNext (@target self: HashMap_ValueIterator): boolean
     {
-        result = action MAP_SIZE(this.storageCopy) != 0;
+        result = action MAP_SIZE(this.unseen) != 0;
     }
 
 
@@ -119,10 +119,10 @@ automaton HashMap_ValueIteratorAutomaton
     {
         _checkForComodification();
 
-        val key: Object = action MAP_GET_ANY_KEY(this.storageCopy);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(this.storageCopy, key);
+        val key: Object = action MAP_GET_ANY_KEY(this.unseen);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(this.unseen, key);
         val value: Object = action CALL_METHOD(entry, "getValue", []);
-        action MAP_REMOVE(this.storageCopy, key);
+        action MAP_REMOVE(this.unseen, key);
         result = value;
         this.currentKey = key;
     }
@@ -140,7 +140,7 @@ automaton HashMap_ValueIteratorAutomaton
         _checkForComodification();
 
         // #question: this is right ? Or not ?
-        action MAP_REMOVE(this.storageCopy, this.currentKey);
+        action MAP_REMOVE(this.unseen, this.currentKey);
         val parentStorage: map<Object, Map_Entry<Object, Object>> = HashMapAutomaton(this.parent).storage;
         action MAP_REMOVE(parentStorage, this.currentKey);
         HashMapAutomaton(this.parent).modCount += 1;
