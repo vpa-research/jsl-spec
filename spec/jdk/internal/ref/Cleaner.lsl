@@ -9,7 +9,7 @@ library std
 // imports
 
 import java/lang/ref/PhantomReference;
-
+import java/lang/Runnable;
 
 // primary semantic types
 
@@ -18,6 +18,8 @@ type Cleaner
     for PhantomReference
 {
     fun *.clean(): void;
+
+    @static fun *.create(Object ob, Runnable thunk): PhantomReference;  // #problem: self-reference
 }
 
 

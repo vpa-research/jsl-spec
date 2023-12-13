@@ -35,11 +35,11 @@ automaton DirectByteBufferAutomaton
 
     shift Allocated -> Initialized by [
         // constructors
-        DirectByteBuffer (DirectByteBuffer, DirectBuffer, int, int, int, int, int),
-        DirectByteBuffer (DirectByteBuffer, int),
-        DirectByteBuffer (DirectByteBuffer, int, long, FileDescriptor, Runnable),
-        DirectByteBuffer (DirectByteBuffer, long, int),
-        DirectByteBuffer (DirectByteBuffer, long, int, Object),
+        `<init>` (DirectByteBuffer, DirectBuffer, int, int, int, int, int),
+        `<init>` (DirectByteBuffer, int),
+        `<init>` (DirectByteBuffer, int, long, FileDescriptor, Runnable),
+        `<init>` (DirectByteBuffer, long, int),
+        `<init>` (DirectByteBuffer, long, int, Object),
     ];
 
     shift Initialized -> self by [
@@ -602,19 +602,7 @@ automaton DirectByteBufferAutomaton
         else result = le;
     }
 
-    // constructors
-
-    @private constructor *.`<init>` (@target self: DirectByteBuffer, db: DirectBuffer, mark: int, pos: int, lim: int, cap: int, off: int)
-    {
-        action TODO();
-    }
-
-
-    @private constructor *.`<init>` (@target self: DirectByteBuffer, cap: int)
-    {
-        _mappedByteBuffer_constructor(-1, 0, cap, cap, null);
-
-    }
+    // constructors proc
 
     proc _mappedByteBuffer_constructor(mark: int, pos: int, lim: int, cap: int, fd: FileDescriptor): void
     {
@@ -634,6 +622,7 @@ automaton DirectByteBufferAutomaton
         if (cap < 0)
             action THROW_NEW("java.lang.IllegalArgumentException", [])
         this.capacity = cap;
+        this.storage = action ARRAY_NEW("byte", cap);
         _limit(lim);
         _position(pos);
         if (mark >= 0)
@@ -644,22 +633,48 @@ automaton DirectByteBufferAutomaton
         }
     }
 
+    // constructors
+
+    @private constructor *.`<init>` (@target self: DirectByteBuffer, db: DirectBuffer, mark: int, pos: int, lim: int, cap: int, off: int)
+    {
+        _mappedByteBuffer_constructor(mark, pos, lim, cap);
+        this.address = action CALL_METHOD(db, "address", []) + off;
+        this.cleaner = null;
+        this.att = db;
+    }
+
+
+    @private constructor *.`<init>` (@target self: DirectByteBuffer, cap: int)
+    {
+        _mappedByteBuffer_constructor(-1, 0, cap, cap, null);
+        this.cleaner = null;
+    }
+
 
     @protected constructor *.`<init>` (@target self: DirectByteBuffer, cap: int, addr: long, fd: FileDescriptor, unmapper: Runnable)
     {
-        action TODO();
+        _mappedByteBuffer_constructor(-1, 0, cap, cap, fd);
+        this.address = addr;
+        this.cleaner = action CALL_METHOD(null as Cleaner, "create", [self, unmapper]);
+        this.att = null;
     }
 
 
     @private constructor *.`<init>` (@target self: DirectByteBuffer, addr: long, cap: int)
     {
-        action TODO();
+        _mappedByteBuffer_constructor(-1, 0, cap, cap, null);
+        this.address = addr;
+        this.cleaner = null;
+        this.att = null;
     }
 
 
     @private constructor *.`<init>` (@target self: DirectByteBuffer, addr: long, cap: int, ob: Object)
     {
-        action TODO();
+        _mappedByteBuffer_constructor(-1, 0, cap, cap, null);
+        this.address = addr;
+        this.cleaner = null;
+        this.att = ob;
     }
 
 
@@ -807,8 +822,6 @@ automaton DirectByteBufferAutomaton
             action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (pos <= lim) in original
 
         var rem: int = _remaining();
-
-        var new_storage: array<byte> = action ARRAY_NEW("byte", 0);
 
         var i: int = 0;
         var cur_pos: int = 0;
@@ -1400,7 +1413,13 @@ automaton DirectByteBufferAutomaton
 
     fun *.slice (@target self: DirectByteBuffer): ByteBuffer
     {
-        action TODO();
+        if (this.position > this.limit)
+            action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (pos <= lim) in original
+        var rem: int = _remaining();
+        var off: int = this.position;
+        if (off < 0)
+            action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (off >= 0) in original
+        result = new DirectByteBufferAutomaton(self, this.address, -1, 0, rem, rem, off);
     }
 
 
