@@ -364,42 +364,38 @@ automaton DirectByteBufferAutomaton
         else result = action CALL_METHOD(null as Character, "reverseBytes", [n]);
     }
 
+    //for putChar
+
+    proc _putChar(offset: long, x: char): void
+    {
+        var y: short = _convEndian(x) as short;
+        _putShortUnaligned(offset, (y >>> 0) as byte, (y >>> 8) as byte);
+    }
+
     //utilities for getDouble
 
     proc _getDouble(offset: long): double
     {
         var x: long = _getLongUnaligned(offset);
         var endian_x: long = _convEndian(x);
-        result = _longBitsToDouble(endian_x);
+        result = action CALL_METHOD(null as Double, "longBitsToDouble", [endian_x]);
     }
 
+    // for put Double
 
-    proc _longBitsToDouble(bits: long): double
+    proc _putDouble(offset: long, x: double): void
     {
-        if (bits == 9218868437227405312L)
-        {
-            result = DOUBLE_POSITIVE_INFINITY;
-        } else if (bits == 18442240474082181120L)
-        {
-            result = DOUBLE_NEGATIVE_INFINITY;
-        } else if (bits >= 9218868437227405313L && bits =< 9223372036854775807L
-                        || bits >= 18442240474082181121 && bits =< 18446744073709551615L)
-        {
-            result = DOUBLE_NAN;
-        } else
-        {
-            var s: int = 0;
-            if ((bits >> 63) == 0) s = 1;
-            else s = -1;
-
-            var e: int = ((bits >> 52) & 2047L) as int;
-            var m: long = 0L;
-            if (e == 0) m = (bits & 4503599627370495L) << 1;
-            else m = (bits & 4503599627370495L) | 4503599627370496L;
-            result = (s * m * 2 ^ (e - 1075)) as double;
-        }
+        var conv_x: long = action CALL_METHOD(null as Double, "doubleToRawLongBits", [x]);
+        var y: long = _convEndian(conv_x);
+        _putLongUnaligned(offset, (y >>> 0) as byte,
+                                  (y >>> 8) as byte,
+                                  (y >>> 16) as byte,
+                                  (y >>> 24) as byte,
+                                  (y >>> 32) as byte,
+                                  (y >>> 40) as byte,
+                                  (y >>> 48) as byte,
+                                  (y >>> 56) as byte);
     }
-
 
     //utilities for getFloat
 
@@ -407,36 +403,20 @@ automaton DirectByteBufferAutomaton
     {
         var x: int = _getIntUnaligned(offset);
         var endian_x: int = _convEndian(x);
-        result = _intBitsToFloat(endian_x);
+        result = action CALL_METHOD(null as Float, "intBitsToFloat", [endian_x]);
     }
 
+    //for putFloat
 
-    proc _intBitsToFloat(bits: int): float
+    proc _putFloat(offset: long, x: float): void
     {
-        if (bits == 2139095040)
-        {
-            result = FLOAT_POSITIVE_INFINITY;
-        } else if (bits == 4286578688)
-        {
-            result = FLOAT_NEGATIVE_INFINITY;
-        } else if (bits >= 2139095041 && bits =< 2147483647
-                        || bits >= 4286578689 && bits =< 4294967295)
-        {
-            result = FLOAT_NAN;
-        } else
-        {
-            var s: int = 0;
-            if ((bits >> 31) == 0) s = 1;
-            else s = -1;
-
-            var e: int = (bits >> 23) & 255;
-            var m: int = 0;
-            if (e == 0) m = (bits & 8388607) << 1;
-            else m = (bits & 8388607) | 8388608;
-            result = (s * m * 2 ^ (e - 150)) as float;
-        }
+        var conv_x: int = action CALL_METHOD(null as Float, "floatToRawIntBits", [x]);
+        var y: int = _convEndian(conv_x);
+        _putIntUnaligned(offset, (y >>> 0) as byte,
+                                 (y >>> 8) as byte,
+                                 (y >>> 16) as byte,
+                                 (y >>> 24) as byte);
     }
-
 
     //utilities for getInt
 
@@ -449,9 +429,9 @@ automaton DirectByteBufferAutomaton
     proc _getIntUnaligned(offset: long): int
     {
         result = _makeInt(this.storage[offset],
-                       this.storage[offset + 1],
-                       this.storage[offset + 2],
-                       this.storage[offset + 3]);
+                          this.storage[offset + 1],
+                          this.storage[offset + 2],
+                          this.storage[offset + 3]);
     }
 
     proc _convEndian(n: int): int
@@ -472,6 +452,26 @@ automaton DirectByteBufferAutomaton
     proc _toUnsignedInt(n: byte): int
     {
         result = n & 255;
+    }
+
+    // for putInt
+
+    proc _putInt(offset: long, x: int): void
+    {
+        var y: int = _convEndian(x);
+        _putIntUnaligned(offset, (y >>> 0) as byte,
+                                 (y >>> 8) as byte,
+                                 (y >>> 16) as byte,
+                                 (y >>> 24) as byte);
+    }
+
+
+    proc _putIntUnaligned(offset: long, i0: byte, i1: byte, i2: byte, i3: byte): void
+    {
+        this.storage[offset] = _pick(i0, i3);
+        this.storage[offset + 1] = _pick(i1, i2);
+        this.storage[offset + 2] = _pick(i2, i1);
+        this.storage[offset + 3] = _pick(i3, i0);
     }
 
     //utilities for getLong
@@ -515,9 +515,37 @@ automaton DirectByteBufferAutomaton
     }
 
 
-    proc _toUnsignedLon(n: byte): long
+    proc _toUnsignedLong(n: byte): long
     {
         result = n & 255L;
+    }
+
+    // for putLong
+
+    proc _putLong(offset: long, x: long): void
+    {
+        var y: long = _convEndian(x);
+        _putLongUnaligned(offset, (y >>> 0) as byte,
+                                  (y >>> 8) as byte,
+                                  (y >>> 16) as byte,
+                                  (y >>> 24) as byte,
+                                  (y >>> 32) as byte,
+                                  (y >>> 40) as byte,
+                                  (y >>> 48) as byte,
+                                  (y >>> 56) as byte);
+    }
+
+
+    proc _putLongUnaligned(offset: long, i0: byte, i1: byte, i2: byte, i3: byte, i4: byte, i5: byte, i6: byte, i7: byte): void
+    {
+        this.storage[offset] = _pick(i0, i7);
+        this.storage[offset + 1] = _pick(i1, i6);
+        this.storage[offset + 2] = _pick(i2, i5);
+        this.storage[offset + 3] = _pick(i3, i4);
+        this.storage[offset + 4] = _pick(i4, i3);
+        this.storage[offset + 5] = _pick(i5, i2);
+        this.storage[offset + 6] = _pick(i6, i1);
+        this.storage[offset + 7] = _pick(i7, i0);
     }
 
     //utilities for getShort
@@ -544,6 +572,20 @@ automaton DirectByteBufferAutomaton
         result = ((_toUnsignedInt(i0) << _pickPos(8, 0))
             | (_toUnsignedInt(i1) << _pickPos(8, 8))) as short;
     }
+
+    //for putShort
+    proc _putShort(offset: long, x: short): void
+    {
+        var y: short = _convEndian(x);
+        _putShortUnaligned(offset, (y >>> 0) as byte, (y >>> 8) as byte);
+    }
+
+    proc _putShortUnaligned(offset: long, i0: byte, i1: byte): void
+    {
+        this.storage[offset] = _pick(i0, i1);
+        this.storage[offset + 1] = _pick(i1, i0);
+    }
+
 
     //utilities unsafe base
 
@@ -1219,25 +1261,6 @@ automaton DirectByteBufferAutomaton
         result = self;
     }
 
-    proc _putChar(offset: long, x: char): void
-    {
-        var conv_x: char = _convEndian(x);
-        _putShortUnaligned(offset, conv_x as short);
-    }
-
-    proc _putShortUnaligned(offset: long, x: short): void
-    {
-        _putShortParts(offset, (x >>> 0) as byte, (x >>> 8) as byte);
-    }
-
-    proc _putShortParts(offset: long, i0: byte, i1: byte): void
-    {
-        this.storage[offset] = _pick(i0, i1);
-        this.storage[offset + 1] = _pick(i1, i0);
-    }
-
-
-
 
     fun *.putDouble (@target self: DirectByteBuffer, x: double): ByteBuffer
     {
@@ -1254,80 +1277,68 @@ automaton DirectByteBufferAutomaton
         result = self;
     }
 
-    proc _putDouble(offset: long, x: double): void
-    {
-        var long_x: long = _doubleToRawLongBits(x);
-        _putLongUnaligned(offset, conv_x as short);
-    }
-
-
-    proc _doubleToRawLongBits(x: double): long
-    {
-        if (x == DOUBLE_POSITIVE_INFINITY)
-        {
-            result = 9218868437227405312L;
-        }
-        else if (x == DOUBLE_NEGATIVE_INFINITY)
-        {
-            result = 18442240474082181120L;
-        }
-        else if (x == DOUBLE_NAN)
-        {
-            result = 9221120237041090560;
-        }
-        else
-        {
-            var e: int = 0;
-            var s: long =
-        }
-    }
-
 
     fun *.putFloat (@target self: DirectByteBuffer, x: float): ByteBuffer
     {
-        action TODO();
+        var next_index: int = _nextPutIndex(4);
+        _putFloat(next_index as long, x);
+        result = self;
     }
 
 
     fun *.putFloat (@target self: DirectByteBuffer, i: int, x: float): ByteBuffer
     {
-        action TODO();
+        _checkIndex(i, 4);
+        _putFloat(i as long, x);
+        result = self;
     }
 
 
     fun *.putInt (@target self: DirectByteBuffer, x: int): ByteBuffer
     {
-        action TODO();
+        var next_index: int = _nextPutIndex(4);
+        _putInt(next_index as long, x);
+        result = self;
     }
 
 
     fun *.putInt (@target self: DirectByteBuffer, i: int, x: int): ByteBuffer
     {
-        action TODO();
+        _checkIndex(i, 4);
+        _putInt(i as long, x);
+        result = self;
     }
 
 
     fun *.putLong (@target self: DirectByteBuffer, i: int, x: long): ByteBuffer
     {
-        action TODO();
+        _checkIndex(i, 8);
+        _putLong(i as long, x);
+        result = self;
     }
 
 
     fun *.putLong (@target self: DirectByteBuffer, x: long): ByteBuffer
     {
-        action TODO();
+        var next_index: int = _nextPutIndex(8);
+        _putLong(next_index as long, x);
+        result = self;
     }
 
 
     fun *.putShort (@target self: DirectByteBuffer, i: int, x: short): ByteBuffer
     {
-        action TODO();
+        _checkIndex(i, 2);
+        _putShort(i as long, x);
+        result = self;
     }
 
 
     fun *.putShort (@target self: DirectByteBuffer, x: short): ByteBuffer
     {
-        action TODO();
+        var next_index: int = _nextPutIndex(2);
+        _putShort(next_index as long, x);
+        result = self;
     }
 
 
