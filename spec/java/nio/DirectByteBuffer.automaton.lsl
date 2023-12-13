@@ -604,31 +604,60 @@ automaton DirectByteBufferAutomaton
 
     // constructors
 
-    @private constructor *.DirectByteBuffer (@target self: DirectByteBuffer, db: DirectBuffer, mark: int, pos: int, lim: int, cap: int, off: int)
+    @private constructor *.`<init>` (@target self: DirectByteBuffer, db: DirectBuffer, mark: int, pos: int, lim: int, cap: int, off: int)
     {
         action TODO();
     }
 
 
-    @private constructor *.DirectByteBuffer (@target self: DirectByteBuffer, cap: int)
+    @private constructor *.`<init>` (@target self: DirectByteBuffer, cap: int)
+    {
+        _mappedByteBuffer_constructor(-1, 0, cap, cap, null);
+
+    }
+
+    proc _mappedByteBuffer_constructor(mark: int, pos: int, lim: int, cap: int, fd: FileDescriptor): void
+    {
+        _byteBuffer_constructor(mark, pos, lim, cap, null, 0);
+        this.fd = fd;
+    }
+
+    proc _byteBuffer_constructor(mark: int, pos: int, lim: int, cap: int, hb: array<byte>, offset: int): void
+    {
+        _buffer_constructor(mark, pos, lim, cap);
+        this.hb = hb;
+        this.offset = offset;
+    }
+
+    proc _buffer_constructor(mark: int, pos: int, lim: int, cap: int): void
+    {
+        if (cap < 0)
+            action THROW_NEW("java.lang.IllegalArgumentException", [])
+        this.capacity = cap;
+        _limit(lim);
+        _position(pos);
+        if (mark >= 0)
+        {
+            if (mark > pos)
+                action THROW_NEW("java.lang.IllegalArgumentException", [])
+            this.mark = mark;
+        }
+    }
+
+
+    @protected constructor *.`<init>` (@target self: DirectByteBuffer, cap: int, addr: long, fd: FileDescriptor, unmapper: Runnable)
     {
         action TODO();
     }
 
 
-    @protected constructor *.DirectByteBuffer (@target self: DirectByteBuffer, cap: int, addr: long, fd: FileDescriptor, unmapper: Runnable)
+    @private constructor *.`<init>` (@target self: DirectByteBuffer, addr: long, cap: int)
     {
         action TODO();
     }
 
 
-    @private constructor *.DirectByteBuffer (@target self: DirectByteBuffer, addr: long, cap: int)
-    {
-        action TODO();
-    }
-
-
-    @private constructor *.DirectByteBuffer (@target self: DirectByteBuffer, addr: long, cap: int, ob: Object)
+    @private constructor *.`<init>` (@target self: DirectByteBuffer, addr: long, cap: int, ob: Object)
     {
         action TODO();
     }
