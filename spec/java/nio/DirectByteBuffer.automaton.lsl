@@ -25,6 +25,12 @@ import jdk/internal/ref/Cleaner;
 
 automaton DirectByteBufferAutomaton
 (
+    var att: Object = null;
+    var mark: int = -1;
+    var position: int = 0;
+    var limit: int = 0;
+    var capacity: int = 0;
+    var offset: int = 0;
 )
 : LSLDirectByteBuffer
 {
@@ -129,21 +135,16 @@ automaton DirectByteBufferAutomaton
     var fd: FileSescriptor = null;
 
     //DirectByteBuffer
-    var att: Object = null;
     var cleaner: Cleaner = null;
 
 
     //Buffer variables
     var address: long = 0L;
 
-    var mark: int = -1;
-    var position: int = 0;
-    var limit: int = 0;
-    var capacity: int = 0;
+
 
     //ByteBuffer variables
      var hb: array<byte> = null;
-     var offset: int = 0;
      var isReadOnly: boolean = false;
 
      var bigEndian: boolean = true;
@@ -273,14 +274,13 @@ automaton DirectByteBufferAutomaton
         result = ((this.address + index) % unitSize) as int;
     }
 
-    proc _slice(pos: int, lim: int): int
+    proc _slice(pos: int, lim: int): DirectByteBuffer
     {
         if (pos < 0 || pos > lim)
             action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (pos >= 0)  and assert (pos <= lim) in original
         var rem: int = lim - pos;
 
-        //#problem: create fields
-        result = new DirectByteBufferAutomaton(self, -1, 0, rem, rem, pos);
+        result = new DirectByteBufferAutomaton(att = self, mark = -1, position = 0, limit = rem, capacity = rem, offset = pos);
     }
 
     proc _nextGetIndex(): int
@@ -875,7 +875,7 @@ automaton DirectByteBufferAutomaton
 
     fun *.duplicate (@target self: DirectByteBuffer): ByteBuffer
     {
-        action TODO();
+        result = new DirectByteBufferAutomaton(att = self, mark = this.mark, position = this.position, limit = this.limit, capacity = this.capacity, offset = 0);
     }
 
 
@@ -1413,13 +1413,7 @@ automaton DirectByteBufferAutomaton
 
     fun *.slice (@target self: DirectByteBuffer): ByteBuffer
     {
-        if (this.position > this.limit)
-            action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (pos <= lim) in original
-        var rem: int = _remaining();
-        var off: int = this.position;
-        if (off < 0)
-            action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (off >= 0) in original
-        result = new DirectByteBufferAutomaton(self, this.address, -1, 0, rem, rem, off);
+        result = _slice(this.position, this.limit);
     }
 
 
