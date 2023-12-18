@@ -136,11 +136,10 @@ automaton DirectByteBufferAutomaton
 
     //DirectByteBuffer
     var cleaner: Cleaner = null;
-
+    @static @final var UNALIGNED: boolean = true;
 
     //Buffer variables
     var address: long = 0L;
-
 
 
     //ByteBuffer variables
@@ -148,6 +147,7 @@ automaton DirectByteBufferAutomaton
      var isReadOnly: boolean = false;
 
      var bigEndian: boolean = true;
+     var nativeByteOrder: boolean = bigEndian == (action CALL_METHOD(null as ByteOrder, "nativeOrder", []) == BIG_ENDIAN);
 
     // utilities
 
@@ -280,7 +280,7 @@ automaton DirectByteBufferAutomaton
             action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (pos >= 0)  and assert (pos <= lim) in original
         var rem: int = lim - pos;
 
-        result = new DirectByteBufferAutomaton(att = self, mark = -1, position = 0, limit = rem, capacity = rem, offset = pos);
+        result = new DirectByteBufferAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = rem, capacity = rem, offset = pos);
     }
 
     proc _nextGetIndex(): int
@@ -633,6 +633,35 @@ automaton DirectByteBufferAutomaton
         }
     }
 
+    // put
+
+
+    proc _super_put(src: ByteBuffer): ByteBuffer
+    {
+        if (src == self)
+            action THROW_NEW("java.lang.IllegalArgumentException", []);
+        // always false? but if isReadOnly will be override?
+        // if (isReadOnly())
+        //    action THROW_NEW("java.nio.ReadOnlyBufferException", []);
+        var n: int = action CALL_METHOD(src, "remaining", []);
+
+        if (n > _remaining())
+            action THROW_NEW("java.nio.BufferOverflowException", []);
+
+        var get_byte: byte = 0 as byte;
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, n, +1,
+            _super_put_loop(i, src, get_byte)
+        );
+    }
+
+    @Phantom proc _super_put_loop(i: int, src: ByteBuffer, get_byte: byte): void
+    {
+        get_byte = action CALL_METHOD(src, "get", []);
+        _put(get_byte);
+    }
+
     // constructors
 
     @private constructor *.`<init>` (@target self: DirectByteBuffer, db: DirectBuffer, mark: int, pos: int, lim: int, cap: int, off: int)
@@ -745,43 +774,133 @@ automaton DirectByteBufferAutomaton
 
     fun *.asCharBuffer (@target self: DirectByteBuffer): CharBuffer
     {
-        action TODO();
+        var off: int = this.position;
+        var lim: int = this.limit;
+        if (pos > lim)
+            action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (off <= lim) in original
+        var rem: int = _remaining();
+        var size: int = rem >> 1;
+
+        if (UNALIGNED == false && ((this.address + off) % (1 << 1) != 0))
+        {
+           if (this.bigEndian == true) result = (new ByteBufferAsCharBufferB(state = Initialize, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as CharBuffer;
+           else result = (new ByteBufferAsCharBufferL(state = Initialize, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as CharBuffer;
+        } else
+        {
+            if (this.nativeByteOrder == true) result = (new DirectCharBufferU(self, -1, 0, size, size, off)) as CharBuffer;
+            else result = (new DirectCharBufferS(self, -1, 0, size, size, off)) as CharBuffer;
+        }
     }
 
 
     fun *.asDoubleBuffer (@target self: DirectByteBuffer): DoubleBuffer
     {
-        action TODO();
+        var off: int = this.position;
+        var lim: int = this.limit;
+        if (pos > lim)
+            action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (off <= lim) in original
+        var rem: int = _remaining();
+        var size: int = rem >> 3;
+
+        if (UNALIGNED == false && ((this.address + off) % (1 << 3) != 0))
+        {
+           if (this.bigEndian == true) result = (new ByteBufferAsDoubleBufferB(state = Initialize, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as DoubleBuffer;
+           else result = (new ByteBufferAsDoubleBufferL(state = Initialize, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as DoubleBuffer;
+        } else
+        {
+            if (this.nativeByteOrder == true) result = (new DirectDoubleBufferU(self, -1, 0, size, size, off)) as DoubleBuffer;
+            else result = (new DirectDoubleBufferS(self, -1, 0, size, size, off)) as DoubleBuffer;
+        }
     }
 
 
     fun *.asFloatBuffer (@target self: DirectByteBuffer): FloatBuffer
     {
-        action TODO();
+        var off: int = this.position;
+        var lim: int = this.limit;
+        if (pos > lim)
+            action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (off <= lim) in original
+        var rem: int = _remaining();
+        var size: int = rem >> 2;
+
+        if (UNALIGNED == false && ((this.address + off) % (1 << 2) != 0))
+        {
+           if (this.bigEndian == true) result = (new ByteBufferAsFloatBufferB(state = Initialize, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as FloatBuffer;
+           else result = (new ByteBufferAsFloatBufferL(state = Initialize, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as FloatBuffer;
+        } else
+        {
+            if (this.nativeByteOrder == true) result = (new DirectFloatBufferU(self, -1, 0, size, size, off)) as FloatBuffer;
+            else result = (new DirectFloatBufferS(self, -1, 0, size, size, off)) as FloatBuffer;
+        }
     }
 
 
     fun *.asIntBuffer (@target self: DirectByteBuffer): IntBuffer
     {
-        action TODO();
+        var off: int = this.position;
+        var lim: int = this.limit;
+        if (pos > lim)
+            action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (off <= lim) in original
+        var rem: int = _remaining();
+        var size: int = rem >> 2;
+
+        if (UNALIGNED == false && ((this.address + off) % (1 << 2) != 0))
+        {
+           if (this.bigEndian == true) result = (new ByteBufferAsIntBufferB(state = Initialize, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as IntBuffer;
+           else result = (new ByteBufferAsIntBufferL(state = Initialize, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as IntBuffer;
+        } else
+        {
+            if (this.nativeByteOrder == true) result = (new DirectIntBufferU(self, -1, 0, size, size, off)) as IntBuffer;
+            else result = (new DirectIntBufferS(self, -1, 0, size, size, off)) as IntBuffer;
+        }
     }
 
 
     fun *.asLongBuffer (@target self: DirectByteBuffer): LongBuffer
     {
-        action TODO();
+        var off: int = this.position;
+        var lim: int = this.limit;
+        if (pos > lim)
+            action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (off <= lim) in original
+        var rem: int = _remaining();
+        var size: int = rem >> 3;
+
+        if (UNALIGNED == false && ((this.address + off) % (1 << 3) != 0))
+        {
+           if (this.bigEndian == true) result = (new ByteBufferAsLongBufferB(state = Initialize, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as LongBuffer;
+           else result = (new ByteBufferAsLongBufferL(state = Initialize, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as LongBuffer;
+        } else
+        {
+            if (this.nativeByteOrder == true) result = (new DirectLongBufferU(self, -1, 0, size, size, off)) as LongBuffer;
+            else result = (new DirectLongBufferS(self, -1, 0, size, size, off)) as LongBuffer;
+        }
     }
 
 
     fun *.asReadOnlyBuffer (@target self: DirectByteBuffer): ByteBuffer
     {
-        action TODO();
+        result = new DirectByteBufferR(self, this.mark, this.position, this.limit, this.capacity, 0);
     }
 
 
     fun *.asShortBuffer (@target self: DirectByteBuffer): ShortBuffer
     {
-        action TODO();
+        var off: int = this.position;
+        var lim: int = this.limit;
+        if (pos > lim)
+            action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (off <= lim) in original
+        var rem: int = _remaining();
+        var size: int = rem >> 1;
+
+        if (UNALIGNED == false && ((this.address + off) % (1 << 1) != 0))
+        {
+           if (this.bigEndian == true) result = (new ByteBufferAsShortBufferB(state = Initialize, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as ShortBuffer;
+           else result = (new ByteBufferAsLongBufferL(state = Initialize, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as ShortBuffer;
+        } else
+        {
+            if (this.nativeByteOrder == true) result = (new DirectShortBufferU(self, -1, 0, size, size, off)) as ShortBuffer;
+            else result = (new DirectShortBufferS(self, -1, 0, size, size, off)) as ShortBuffer;
+        }
     }
 
 
@@ -875,7 +994,7 @@ automaton DirectByteBufferAutomaton
 
     fun *.duplicate (@target self: DirectByteBuffer): ByteBuffer
     {
-        result = new DirectByteBufferAutomaton(att = self, mark = this.mark, position = this.position, limit = this.limit, capacity = this.capacity, offset = 0);
+        result = new DirectByteBufferAutomaton(state = Initialized, att = self, mark = this.mark, position = this.position, limit = this.limit, capacity = this.capacity, offset = 0);
     }
 
 
@@ -1145,14 +1264,17 @@ automaton DirectByteBufferAutomaton
     // within java.nio.ByteBuffer
     @final fun *.order (@target self: DirectByteBuffer): ByteOrder
     {
-        action TODO();
+        if (this.bigEndian) result = BIG_ENDIAN;
+        else result = LITTLE_ENDIAN;
     }
 
 
     // within java.nio.ByteBuffer
     @final fun *.order (@target self: DirectByteBuffer, bo: ByteOrder): ByteBuffer
     {
-        action TODO();
+        this.bigEndian = (bo == BIG_ENDIAN);
+        this.nativeByteOrder = bigEndian == (action CALL_METHOD(null as ByteOrder, "nativeOrder", []) == BIG_ENDIAN);
+        result = self;
     }
 
 
@@ -1221,33 +1343,6 @@ automaton DirectByteBufferAutomaton
             _super_put(src);
         }
         result = self;
-    }
-
-
-    proc _super_put(src: ByteBuffer): ByteBuffer
-    {
-        if (src == self)
-            action THROW_NEW("java.lang.IllegalArgumentException", []);
-        // always false? but if isReadOnly will be override?
-        // if (isReadOnly())
-        //    action THROW_NEW("java.nio.ReadOnlyBufferException", []);
-        var n: int = action CALL_METHOD(src, "remaining", []);
-
-        if (n > _remaining())
-            action THROW_NEW("java.nio.BufferOverflowException", []);
-
-        var get_byte: byte = 0 as byte;
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, n, +1,
-            _super_put_loop(i, src, get_byte)
-        );
-    }
-
-    @Phantom proc _super_put_loop(i: int, src: ByteBuffer, get_byte: byte): void
-    {
-        get_byte = action CALL_METHOD(src, "get", []);
-        _put(get_byte);
     }
 
 
@@ -1426,7 +1521,13 @@ automaton DirectByteBufferAutomaton
     // within java.nio.ByteBuffer
     fun *.toString (@target self: DirectByteBuffer): String
     {
-        action TODO();
+        result = "DirectByteBuffer[pos="
+        result += action OBJECT_TO_STRING(this.position);
+        result += action OBJECT_TO_STRING(" lim=");
+        result += action OBJECT_TO_STRING(this.limit);
+        result += action OBJECT_TO_STRING(" cap=");
+        result += action OBJECT_TO_STRING(this.capacity);
+        result += action OBJECT_TO_STRING("]");
     }
 
 }
