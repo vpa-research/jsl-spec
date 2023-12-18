@@ -25,12 +25,12 @@ import jdk/internal/ref/Cleaner;
 
 automaton DirectByteBufferAutomaton
 (
-    var att: Object = null;
-    var mark: int = -1;
-    var position: int = 0;
-    var limit: int = 0;
-    var capacity: int = 0;
-    var offset: int = 0;
+    var att: Object,
+    var mark: int,
+    var position: int,
+    var limit: int,
+    var capacity: int,
+    var offset: int
 )
 : LSLDirectByteBuffer
 {
@@ -1521,7 +1521,7 @@ automaton DirectByteBufferAutomaton
     // within java.nio.ByteBuffer
     fun *.toString (@target self: DirectByteBuffer): String
     {
-        result = "DirectByteBuffer[pos="
+        result = "DirectByteBuffer[pos=";
         result += action OBJECT_TO_STRING(this.position);
         result += action OBJECT_TO_STRING(" lim=");
         result += action OBJECT_TO_STRING(this.limit);

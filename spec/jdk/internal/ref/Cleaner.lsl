@@ -19,7 +19,7 @@ type Cleaner
 {
     fun *.clean(): void;
 
-    @static fun *.create(Object ob, Runnable thunk): PhantomReference;  // #problem: self-reference
+    @static fun *.create(ob: Object, thunk: Runnable): PhantomReference;  // #problem: self-reference
 }
 
 
