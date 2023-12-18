@@ -649,7 +649,7 @@ automaton DirectByteBufferAutomaton
     proc _buffer_constructor(mark: int, pos: int, lim: int, cap: int): void
     {
         if (cap < 0)
-            action THROW_NEW("java.lang.IllegalArgumentException", [])
+            action THROW_NEW("java.lang.IllegalArgumentException", []);
         this.capacity = cap;
         this.storage = action ARRAY_NEW("byte", cap);
         _limit(lim);
@@ -657,7 +657,7 @@ automaton DirectByteBufferAutomaton
         if (mark >= 0)
         {
             if (mark > pos)
-                action THROW_NEW("java.lang.IllegalArgumentException", [])
+                action THROW_NEW("java.lang.IllegalArgumentException", []);
             this.mark = mark;
         }
     }
@@ -1108,7 +1108,7 @@ automaton DirectByteBufferAutomaton
 
     fun *.getChar (@target self: DirectByteBuffer): char
     {
-        var next_index = _nextGetIndex(2);
+        var next_index: int = _nextGetIndex(2);
         result = _getChar(next_index as long);
     }
 
@@ -1122,7 +1122,7 @@ automaton DirectByteBufferAutomaton
 
     fun *.getDouble (@target self: DirectByteBuffer): double
     {
-        var next_index = _nextGetIndex(8);
+        var next_index: int = _nextGetIndex(8);
         result = _getDouble(next_index as long);
     }
 
@@ -1136,7 +1136,7 @@ automaton DirectByteBufferAutomaton
 
     fun *.getFloat (@target self: DirectByteBuffer): float
     {
-        var next_index = _nextGetIndex(4);
+        var next_index: int = _nextGetIndex(4);
         result = _getFloat(next_index as long);
     }
 
