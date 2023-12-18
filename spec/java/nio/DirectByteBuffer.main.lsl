@@ -473,10 +473,14 @@ automaton DirectByteBufferAutomaton
 
     proc _putIntUnaligned(offset: long, i0: byte, i1: byte, i2: byte, i3: byte): void
     {
+        var nextIndex1: long = offset + 1;
+        var nextIndex2: long = offset + 2;
+        var nextIndex3: long = offset + 3;
+
         this.storage[offset] = _pick(i0, i3);
-        this.storage[offset + 1] = _pick(i1, i2);
-        this.storage[offset + 2] = _pick(i2, i1);
-        this.storage[offset + 3] = _pick(i3, i0);
+        this.storage[nextIndex1] = _pick(i1, i2);
+        this.storage[nextIndex2] = _pick(i2, i1);
+        this.storage[nextIndex3] = _pick(i3, i0);
     }
 
     //utilities for getLong
