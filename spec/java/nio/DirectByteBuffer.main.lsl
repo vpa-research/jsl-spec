@@ -1286,7 +1286,7 @@ automaton DirectByteBufferAutomaton
             len = that_rem;
 
         var r: int = _mismaatch(this.position, that, len);
-        if (r == -1 && _remaining() != that.remaining()) result = len
+        if (r == -1 && _remaining() != that.remaining()) result = len;
         else result = r;
     }
 
