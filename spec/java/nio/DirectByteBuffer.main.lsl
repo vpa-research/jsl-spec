@@ -354,7 +354,8 @@ automaton DirectByteBufferAutomaton
 
     proc _getCharUnaligned(offset: long): char
     {
-        result = _makeShort(this.storage[offset], this.storage[offset+1]) as char;
+        var nextIndex1: long = offset + 1;
+        result = _makeShort(this.storage[offset], this.storage[nextIndex1]) as char;
     }
 
 
@@ -428,10 +429,14 @@ automaton DirectByteBufferAutomaton
 
     proc _getIntUnaligned(offset: long): int
     {
+        var nextIndex1: long = offset + 1;
+        var nextIndex2: long = offset + 2;
+        var nextIndex3: long = offset + 3;
+
         result = _makeInt(this.storage[offset],
-                          this.storage[offset + 1],
-                          this.storage[offset + 2],
-                          this.storage[offset + 3]);
+                          this.storage[nextIndex1],
+                          this.storage[nextIndex2],
+                          this.storage[nextIndex3]);
     }
 
     proc _convEndian(n: int): int
@@ -484,14 +489,22 @@ automaton DirectByteBufferAutomaton
 
     proc _getLongUnaligned(offset: long): long
     {
+        var nextIndex1: long = offset + 1;
+        var nextIndex2: long = offset + 2;
+        var nextIndex3: long = offset + 3;
+        var nextIndex4: long = offset + 4;
+        var nextIndex5: long = offset + 5;
+        var nextIndex6: long = offset + 6;
+        var nextIndex7: long = offset + 7;
+
         result = _makeLong(this.storage[offset],
-                         this.storage[offset + 1],
-                         this.storage[offset + 2],
-                         this.storage[offset + 3],
-                         this.storage[offset + 4],
-                         this.storage[offset + 5],
-                         this.storage[offset + 6],
-                         this.storage[offset + 7]);
+                         this.storage[nextIndex1],
+                         this.storage[nextIndex2],
+                         this.storage[nextIndex3],
+                         this.storage[nextIndex4],
+                         this.storage[nextIndex5],
+                         this.storage[nextIndex6],
+                         this.storage[nextIndex7]);
     }
 
 
@@ -538,14 +551,22 @@ automaton DirectByteBufferAutomaton
 
     proc _putLongUnaligned(offset: long, i0: byte, i1: byte, i2: byte, i3: byte, i4: byte, i5: byte, i6: byte, i7: byte): void
     {
+        var nextIndex1: long = offset + 1;
+        var nextIndex2: long = offset + 2;
+        var nextIndex3: long = offset + 3;
+        var nextIndex4: long = offset + 4;
+        var nextIndex5: long = offset + 5;
+        var nextIndex6: long = offset + 6;
+        var nextIndex7: long = offset + 7;
+
         this.storage[offset] = _pick(i0, i7);
-        this.storage[offset + 1] = _pick(i1, i6);
-        this.storage[offset + 2] = _pick(i2, i5);
-        this.storage[offset + 3] = _pick(i3, i4);
-        this.storage[offset + 4] = _pick(i4, i3);
-        this.storage[offset + 5] = _pick(i5, i2);
-        this.storage[offset + 6] = _pick(i6, i1);
-        this.storage[offset + 7] = _pick(i7, i0);
+        this.storage[nextIndex1] = _pick(i1, i6);
+        this.storage[nextIndex2] = _pick(i2, i5);
+        this.storage[nextIndex3] = _pick(i3, i4);
+        this.storage[nextIndex4] = _pick(i4, i3);
+        this.storage[nextIndex5] = _pick(i5, i2);
+        this.storage[nextIndex6] = _pick(i6, i1);
+        this.storage[nextIndex7] = _pick(i7, i0);
     }
 
     //utilities for getShort
@@ -558,7 +579,9 @@ automaton DirectByteBufferAutomaton
 
     proc _getShortUnaligned(offset: long): short
     {
-        result = _makeShort(this.storage[offset], this.storage[offset+1]);
+        var nextIndex1: long = offset + 1;
+
+        result = _makeShort(this.storage[offset], this.storage[nextIndex1]);
     }
 
     proc _convEndian(n: short): short
@@ -582,8 +605,10 @@ automaton DirectByteBufferAutomaton
 
     proc _putShortUnaligned(offset: long, i0: byte, i1: byte): void
     {
+        var nextIndex1: long = offset + 1;
+
         this.storage[offset] = _pick(i0, i1);
-        this.storage[offset + 1] = _pick(i1, i0);
+        this.storage[nextIndex1] = _pick(i1, i0);
     }
 
 
@@ -661,6 +686,7 @@ automaton DirectByteBufferAutomaton
         get_byte = action CALL_METHOD(src, "get", []);
         _put(get_byte);
     }
+
 
     // constructors
 
