@@ -233,7 +233,7 @@ automaton DirectByteBufferAutomaton
 
     proc _put(x: byte): void
     {
-        var i = _nextPutIndex();
+        var i: int = _nextPutIndex();
         this.storage[i] = x;
     }
 
@@ -321,7 +321,7 @@ automaton DirectByteBufferAutomaton
     {
         var i: int = 0;
         var returned: boolean = false;
-        var this_pos = this.position;
+        var this_pos: int = this.position;
         action LOOP_FOR(
             i, 0, len, +1,
             _mismatch_loop(i, this_pos, that, that_pos, returned)
