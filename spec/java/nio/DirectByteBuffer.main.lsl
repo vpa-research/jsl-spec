@@ -136,7 +136,6 @@ automaton DirectByteBufferAutomaton
 
     //DirectByteBuffer
     var cleaner: Cleaner = null;
-    @static @final var UNALIGNED: boolean = true;
 
     //Buffer variables
     var address: long = 0L;

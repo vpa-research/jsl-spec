@@ -16,15 +16,14 @@ import java/lang/String;
     is java.nio.ByteOrder
     for Object
 {
-    @static @final @public var BIG_ENDIAN: Object = new ByteOrderAutomaton(state = Initialized, name = "BIG_ENDIAN");
-    @static @final @public var LITTLE_ENDIAN: Object = new ByteOrderAutomaton(state = Initialized, name = "LITTLE_ENDIAN");
-
-    @static fun *.nativeOrder (): ByteOrder;
+    @static fun *.nativeOrder (): Object; // #problem: self-reference
 }
 
 
 @final type LSLByteOrder
     is java.nio.ByteOrder
-    for Object
+    for ByteOrder
 {
+    @static @final @public var BIG_ENDIAN: Object = new ByteOrderAutomaton(state = Initialized, name = "BIG_ENDIAN");
+    @static @final @public var LITTLE_ENDIAN: Object = new ByteOrderAutomaton(state = Initialized, name = "LITTLE_ENDIAN");
 }

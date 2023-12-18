@@ -26,4 +26,6 @@ import sun/nio/ch/DirectBuffer;
     is java.nio.DirectByteBuffer
     for DirectByteBuffer
 {
+    @static var UNALIGNED: boolean = true;
+
 }
