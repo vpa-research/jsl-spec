@@ -204,7 +204,7 @@ automaton DirectCharBufferSAutomaton
 
 
     // within java.lang.CharSequence
-    @default fun *.codePoints (@target self: DirectCharBufferS): IntStream
+    fun *.codePoints (@target self: DirectCharBufferS): IntStream
     {
         action TODO();
     }

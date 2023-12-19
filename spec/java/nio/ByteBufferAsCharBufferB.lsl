@@ -188,7 +188,7 @@ automaton ByteBufferAsCharBufferBAutomaton
 
 
     // within java.lang.CharSequence
-    @default fun *.codePoints (@target self: ByteBufferAsCharBufferB): IntStream
+    fun *.codePoints (@target self: ByteBufferAsCharBufferB): IntStream
     {
         action TODO();
     }
