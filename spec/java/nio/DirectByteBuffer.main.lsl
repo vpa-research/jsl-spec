@@ -132,7 +132,7 @@ automaton DirectByteBufferAutomaton
     var storage: array<byte> = action ARRAY_NEW("byte", 0);
 
     //MappedByteBuffer
-    var fd: FileSescriptor = null;
+    var fd: FileDescriptor = null;
 
     //DirectByteBuffer
     var cleaner: Cleaner = null;
@@ -1552,11 +1552,11 @@ automaton DirectByteBufferAutomaton
     {
         result = "DirectByteBuffer[pos=";
         result += action OBJECT_TO_STRING(this.position);
-        result += action OBJECT_TO_STRING(" lim=");
+        result += " lim=";
         result += action OBJECT_TO_STRING(this.limit);
-        result += action OBJECT_TO_STRING(" cap=");
+        result += " cap=";
         result += action OBJECT_TO_STRING(this.capacity);
-        result += action OBJECT_TO_STRING("]");
+        result += "]";
     }
 
 }

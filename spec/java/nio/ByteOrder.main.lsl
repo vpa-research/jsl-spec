@@ -62,4 +62,10 @@ automaton ByteOrderAutomaton
         result = this.name;
     }
 
+    @Phantom @static fun *.`<clinit>` (): void
+    {
+        BIG_ENDIAN = new ByteOrderAutomaton(state = Initialized, name = "BIG_ENDIAN");
+        LITTLE_ENDIAN = new ByteOrderAutomaton(state = Initialized, name = "LITTLE_ENDIAN");
+    }
+
 }
