@@ -129,7 +129,7 @@ automaton DirectByteBufferAutomaton
     ];
 
     //internal variables
-    var storage: array<byte> = action ARRAY_NEW("byte", 0);
+    var storage: array<byte> = null;
 
     //MappedByteBuffer
     var fd: FileDescriptor = null;
@@ -146,7 +146,7 @@ automaton DirectByteBufferAutomaton
      var isReadOnly: boolean = false;
 
      var bigEndian: boolean = true;
-     var nativeByteOrder: boolean = bigEndian == (action CALL_METHOD(null as ByteOrder, "nativeOrder", []) == BIG_ENDIAN);
+     var nativeByteOrder: boolean = false;
 
     // utilities
 
@@ -158,13 +158,13 @@ automaton DirectByteBufferAutomaton
 
     proc _checkIndex(i: int): void
     {
-        if ((i < 0) || (i >= limit))
+        if ((i < 0) || (i >= this.limit))
             action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
     }
 
     proc _checkIndex(i: int, nb: int): void
     {
-        if ((i < 0) || (nb > limit - i))
+        if ((i < 0) || (nb > this.limit - i))
             action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
     }
 
@@ -188,7 +188,7 @@ automaton DirectByteBufferAutomaton
     {
         var dst_length: int = action ARRAY_SIZE(dst);
         _checkBounds(offset, length, dst_length);
-        if (this.pos > this.limit)
+        if (this.position > this.limit)
             action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (pos <= lim) in original
         var rem: int = _remaining();
         if (length > rem)
@@ -196,7 +196,7 @@ automaton DirectByteBufferAutomaton
         var end: int = offset + length;
         var i: int = 0;
         var src_ind: int = 0;
-        action FOR_LOOP(
+        action LOOP_FOR(
             i, offset, end, +1,
             _get_loop(dst, i, src_ind)
         );
@@ -217,14 +217,15 @@ automaton DirectByteBufferAutomaton
         if (length > rem)
             action THROW_NEW("java.nio.BufferOverflowException", []);
         var end: int = offset + length;
-        action FOR_LOOP(
+        var i: int = 0;
+        action LOOP_FOR(
             i, offset, end, +1,
-            _put_loop(src, i, src_ind)
+            _put_loop(src, i)
         );
     }
 
 
-    @Phantom proc _put_loop(dst: array<byte>, i: int, src_ind: int): void
+    @Phantom proc _put_loop(src: array<byte>, i: int): void
     {
         _put(src[i]);
     }
@@ -268,12 +269,12 @@ automaton DirectByteBufferAutomaton
     {
         if (index < 0 || unitSize < 1 || (unitSize & (unitSize - 1)) != 0)
             action THROW_NEW("java.lang.IllegalArgumentException", []);
-        if (unitSize > 8 && !this.isDirect)
-            action THROW_NEW("java.lang.UnsupportedOperationException", []);
+        //if (unitSize > 8 && !this.isDirect())   //is direct always return True, comment for oher buffers
+        //    action THROW_NEW("java.lang.UnsupportedOperationException", []);
         result = ((this.address + index) % unitSize) as int;
     }
 
-    proc _slice(pos: int, lim: int): DirectByteBuffer
+    proc _slice(self: DirectByteBuffer, pos: int, lim: int): DirectByteBuffer
     {
         if (pos < 0 || pos > lim)
             action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (pos >= 0)  and assert (pos <= lim) in original
@@ -651,6 +652,7 @@ automaton DirectByteBufferAutomaton
             action THROW_NEW("java.lang.IllegalArgumentException", []);
         this.capacity = cap;
         this.storage = action ARRAY_NEW("byte", cap);
+        this.nativeByteOrder = this.bigEndian == (action CALL_METHOD(null as ByteOrder, "nativeOrder", []) == BIG_ENDIAN);
         _limit(lim);
         _position(pos);
         if (mark >= 0)
@@ -695,7 +697,7 @@ automaton DirectByteBufferAutomaton
 
     @private constructor *.`<init>` (@target self: DirectByteBuffer, db: DirectBuffer, mark: int, pos: int, lim: int, cap: int, off: int)
     {
-        _mappedByteBuffer_constructor(mark, pos, lim, cap);
+        _mappedByteBuffer_constructor(mark, pos, lim, cap, null);
         this.address = action CALL_METHOD(db, "address", []) + off;
         this.cleaner = null;
         this.att = db;
@@ -768,7 +770,7 @@ automaton DirectByteBufferAutomaton
             aligned_pos = pos;
         }
 
-        result = _slice(aligned_pos, aligned_lim);
+        result = _slice(self, aligned_pos, aligned_lim);
     }
 
 
@@ -1537,13 +1539,13 @@ automaton DirectByteBufferAutomaton
 
     fun *.slice (@target self: DirectByteBuffer): ByteBuffer
     {
-        result = _slice(this.position, this.limit);
+        result = _slice(self, this.position, this.limit);
     }
 
 
     fun *.slice (@target self: DirectByteBuffer, pos: int, lim: int): ByteBuffer
     {
-        result = _slice(pos, lim);
+        result = _slice(self, pos, lim);
     }
 
 
