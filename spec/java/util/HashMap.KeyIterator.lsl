@@ -66,7 +66,7 @@ automaton HashMap_KeyIteratorAutomaton
 
     @private constructor *.`<init>` (@target self: HashMap_KeyIterator, _this: HashMap)
     {
-        this.expectedModCount = HashMapAutomaton(this.parent).modCount;
+        action ERROR("Private constructor call");
     }
 
 
@@ -115,6 +115,9 @@ automaton HashMap_KeyIteratorAutomaton
     @final fun *.next (@target self: HashMap_KeyIterator): Object
     {
         _checkForComodification();
+
+        if (action MAP_SIZE(this.unseen) == 0)
+            action THROW_NEW("java.util.NoSuchElementException", []);
 
         val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
         action MAP_REMOVE(this.unseen, curKey);
