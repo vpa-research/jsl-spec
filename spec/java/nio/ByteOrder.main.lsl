@@ -51,7 +51,7 @@ automaton ByteOrderAutomaton
 
     @static fun *.nativeOrder (): ByteOrder
     {
-        result = BIG_ENDIAN;
+        result = BYTEORDER_BIG_ENDIAN;
     }
 
 
@@ -64,8 +64,8 @@ automaton ByteOrderAutomaton
 
     @Phantom @static fun *.`<clinit>` (): void
     {
-        BIG_ENDIAN = new ByteOrderAutomaton(state = Initialized, name = "BIG_ENDIAN");
-        LITTLE_ENDIAN = new ByteOrderAutomaton(state = Initialized, name = "LITTLE_ENDIAN");
+        BYTEORDER_BIG_ENDIAN = new ByteOrderAutomaton(state = Initialized, name = "BIG_ENDIAN");
+        BYTEORDER_LITTLE_ENDIAN = new ByteOrderAutomaton(state = Initialized, name = "LITTLE_ENDIAN");
     }
 
 }

@@ -10,6 +10,7 @@ import java/io/FileDescriptor;
 import java/lang/Object;
 import java/lang/Runnable;
 import java/lang/String;
+import java/lang/Short;
 import java/nio/ByteBuffer;
 import java/nio/ByteOrder;
 import java/nio/CharBuffer;
@@ -652,7 +653,7 @@ automaton DirectByteBufferAutomaton
             action THROW_NEW("java.lang.IllegalArgumentException", []);
         this.capacity = cap;
         this.storage = action ARRAY_NEW("byte", cap);
-        this.nativeByteOrder = this.bigEndian == (action CALL_METHOD(null as ByteOrder, "nativeOrder", []) == BIG_ENDIAN);
+        this.nativeByteOrder = this.bigEndian == (action CALL_METHOD(null as ByteOrder, "nativeOrder", []) == BYTEORDER_BIG_ENDIAN);
         _limit(lim);
         _position(pos);
         if (mark >= 0)
@@ -666,7 +667,7 @@ automaton DirectByteBufferAutomaton
     // put
 
 
-    proc _super_put(src: ByteBuffer): ByteBuffer
+    proc _super_put(self: ByteBuffer, src: ByteBuffer): ByteBuffer
     {
         if (src == self)
             action THROW_NEW("java.lang.IllegalArgumentException", []);
@@ -760,7 +761,7 @@ automaton DirectByteBufferAutomaton
         // Round up the position to align with unit size
         var aligned_pos: int = pos;
         if (pos_mod > 0)
-            aligment_pos += unitSize - pos_mod;
+            aligned_pos += unitSize - pos_mod;
 
         // Round down the limit to align with unit size
         var aligned_lim: int = lim - lim_mod;
@@ -807,7 +808,7 @@ automaton DirectByteBufferAutomaton
     {
         var off: int = this.position;
         var lim: int = this.limit;
-        if (pos > lim)
+        if (off > lim)
             action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (off <= lim) in original
         var rem: int = _remaining();
         var size: int = rem >> 1;
@@ -1295,16 +1296,16 @@ automaton DirectByteBufferAutomaton
     // within java.nio.ByteBuffer
     @final fun *.order (@target self: DirectByteBuffer): ByteOrder
     {
-        if (this.bigEndian) result = BIG_ENDIAN;
-        else result = LITTLE_ENDIAN;
+        if (this.bigEndian) result = BYTEORDER_BIG_ENDIAN;
+        else result = BYTEORDER_LITTLE_ENDIAN;
     }
 
 
     // within java.nio.ByteBuffer
     @final fun *.order (@target self: DirectByteBuffer, bo: ByteOrder): ByteBuffer
     {
-        this.bigEndian = (bo == BIG_ENDIAN);
-        this.nativeByteOrder = bigEndian == (action CALL_METHOD(null as ByteOrder, "nativeOrder", []) == BIG_ENDIAN);
+        this.bigEndian = (bo == BYTEORDER_BIG_ENDIAN);
+        this.nativeByteOrder = bigEndian == (action CALL_METHOD(null as ByteOrder, "nativeOrder", []) == BYTEORDER_BIG_ENDIAN);
         result = self;
     }
 
@@ -1371,7 +1372,7 @@ automaton DirectByteBufferAutomaton
             _put(src_hb, src_offset + spos, srem);
             action CALL_METHOD(src, "position", [spos + srem]);
         } else {
-            _super_put(src);
+            _super_put(self, src);
         }
         result = self;
     }

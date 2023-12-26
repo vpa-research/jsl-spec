@@ -24,6 +24,7 @@ import java/lang/String;
     is java.nio.ByteOrder
     for ByteOrder
 {
-    @static @public var BIG_ENDIAN: Object = null;
-    @static @public var LITTLE_ENDIAN: Object = null;
 }
+
+var BYTEORDER_BIG_ENDIAN: Object = null;
+var BYTEORDER_LITTLE_ENDIAN: Object = null;
