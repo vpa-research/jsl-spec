@@ -285,7 +285,7 @@ automaton HashMap_EntrySetAutomaton
 
     @final fun *.iterator (@target self: HashMap_EntrySet): Iterator
     {
-        result = new HashMap_KeyIteratorAutomaton(state = Initialized,
+        result = new HashMap_EntryIteratorAutomaton(state = Initialized,
             parent = this.parent,
             unseen = action MAP_CLONE(this.storage)
         );

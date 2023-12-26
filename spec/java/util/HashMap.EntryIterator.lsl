@@ -66,7 +66,7 @@ automaton HashMap_EntryIteratorAutomaton
 
     @private constructor *.`<init>` (@target self: HashMap_EntryIterator, _this: HashMap)
     {
-        this.expectedModCount = HashMapAutomaton(this.parent).modCount;
+        action ERROR("Private constructor call");
     }
 
 
@@ -99,7 +99,7 @@ automaton HashMap_EntryIteratorAutomaton
     @Phantom proc forEachRemaining_loop (userAction: Consumer, parentStorage: map<Object, Map_Entry<Object, Object>>, size: int): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(parentStorage, curKey);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(this.unseen, curKey);
         action CALL(userAction, [entry]);
         action MAP_REMOVE(this.unseen, curKey);
         size -= 1;
