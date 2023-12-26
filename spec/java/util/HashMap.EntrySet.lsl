@@ -98,8 +98,7 @@ automaton HashMap_EntrySetAutomaton
     @Phantom proc _mapToEntryArray_loop (i: int, result: array<Map_Entry<Object, Object>>, unseen: map<Object, Map_Entry<Object, Object>>): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
-        var entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
-        result[i] = entry;
+        result[i] = action MAP_GET(this.storage, curKey);
         action MAP_REMOVE(unseen, curKey);
     }
 
@@ -136,6 +135,7 @@ automaton HashMap_EntrySetAutomaton
     {
         HashMapAutomaton(this.parent).modCount += 1;
         this.storage = action MAP_NEW();
+        HashMapAutomaton(this.parent).storage = action MAP_NEW();
     }
 
 
@@ -147,7 +147,6 @@ automaton HashMap_EntrySetAutomaton
             val entryParam: Map_Entry<Object, Object> = o as Map_Entry<Object, Object>;
             val key: Object = action CALL_METHOD(entryParam, "getKey", []);
             val value: Object = action CALL_METHOD(entryParam, "getValue", []);
-            val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);
             if (!action MAP_HAS_KEY(this.storage, key))
             {
                 result = false;
@@ -166,7 +165,7 @@ automaton HashMap_EntrySetAutomaton
     fun *.containsAll (@target self: HashMap_EntrySet, c: Collection): boolean
     {
         result = true;
-        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+        val iter: Iterator<Map_Entry<Object, Object>> = action CALL_METHOD(c, "iterator", []) as Iterator<Map_Entry<Object, Object>>;
 
         action LOOP_WHILE(
             action CALL_METHOD(iter, "hasNext", []) && result == true,
@@ -179,7 +178,7 @@ automaton HashMap_EntrySetAutomaton
     {
         val cEntry: Map_Entry<Object, Object> = action CALL_METHOD(iter, "next", []) as Map_Entry<Object, Object>;
         val cKey: Object = action CALL_METHOD(cEntry, "getKey", []);
-        if (!action MAP_HAS_KEY(this.storage, cKey))
+        if (action MAP_HAS_KEY(this.storage, cKey) == false)
         {
             result = false;
         }
@@ -210,6 +209,7 @@ automaton HashMap_EntrySetAutomaton
                 if (thisLength == otherLength)
                 {
                     val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+                    result = true;
                     action LOOP_WHILE(
                         result == true,
                         _equals_loop(result, otherStorage, unseen)
@@ -295,11 +295,11 @@ automaton HashMap_EntrySetAutomaton
     // within java.util.Collection
     fun *.parallelStream (@target self: HashMap_EntrySet): Stream
     {
-        // #note: temporary decision (we don't support multithreading now)
-        // #question: this is right realization ? Or it can be wrong to give such array like an argument to StreamAutomaton ?
+        // #note: temporary decision (we don't support multithreading yet)
+        val storageEntry: array<Object> = _mapToEntryArray();
         result = new StreamAutomaton(state = Initialized,
-            storage = _mapToEntryArray(),
-            length = action MAP_SIZE(this.storage),
+            storage = storageEntry,
+            length = action ARRAY_SIZE(storageEntry),
             closeHandlers = action LIST_NEW()
         );
     }
@@ -320,6 +320,7 @@ automaton HashMap_EntrySetAutomaton
                 if (action OBJECT_EQUALS(value, actualValue))
                 {
                     action MAP_REMOVE(this.storage, key);
+                    HashMapAutomaton(this.parent).modCount += 1;
                     result = true;
                 }
             }
@@ -356,6 +357,7 @@ automaton HashMap_EntrySetAutomaton
         }
 
         val resultStorageSize: int = action MAP_SIZE(this.storage);
+        HashMapAutomaton(this.parent).modCount += 1;
         result = startStorageSize == resultStorageSize;
     }
 
@@ -364,7 +366,6 @@ automaton HashMap_EntrySetAutomaton
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
-        // #question: that's right realization ?
         if (action CALL_METHOD(c, "contains", [entry]))
             action MAP_REMOVE(this.storage, curKey);
         action MAP_REMOVE(unseen, curKey);
@@ -462,10 +463,10 @@ automaton HashMap_EntrySetAutomaton
     // within java.util.Collection
     fun *.stream (@target self: HashMap_EntrySet): Stream
     {
-        // #question: this is right realization ? Or it can be wrong to give such array like an argument to StreamAutomaton ?
+        val storageEntry: array<Object> = _mapToEntryArray();
         result = new StreamAutomaton(state = Initialized,
-            storage = _mapToEntryArray(),
-            length = action MAP_SIZE(this.storage),
+            storage = storageEntry,
+            length = action ARRAY_SIZE(storageEntry),
             closeHandlers = action LIST_NEW()
         );
     }
@@ -532,7 +533,6 @@ automaton HashMap_EntrySetAutomaton
             toArray_loop(i, result, unseen)
         );
 
-        // #question: this is correct ?
         if (aLen > len)
             result[len] = null;
     }
