@@ -88,10 +88,7 @@ automaton HashMap_KeySpliteratorAutomaton
 
     @private constructor *.`<init>` (@target self: HashMap_KeySpliterator, m: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
     {
-        this.index = origin;
-        this.fence = fence;
-        this.est = est;
-        this.expectedModCount = expectedModCount;
+        action ERROR("Private constructor call");
     }
 
 

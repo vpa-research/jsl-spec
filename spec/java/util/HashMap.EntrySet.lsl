@@ -107,7 +107,7 @@ automaton HashMap_EntrySetAutomaton
 
     @private constructor *.`<init>` (@target self: HashMap_EntrySet, _this: HashMap)
     {
-        // #note: default constructor without any body, like in the original class
+        action ERROR("Private constructor call");
     }
 
 

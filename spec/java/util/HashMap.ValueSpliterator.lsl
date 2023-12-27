@@ -89,10 +89,7 @@ automaton HashMap_ValueSpliteratorAutomaton
 
     @private constructor *.`<init>` (@target self: HashMap_ValueSpliterator, m: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
     {
-        this.index = origin;
-        this.fence = fence;
-        this.est = est;
-        this.expectedModCount = expectedModCount;
+        action ERROR("Private constructor call");
     }
 
 
