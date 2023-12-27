@@ -55,14 +55,3 @@ import java/io/Serializable;
 
 
 // global aliases and type overrides
-
-
-@GenerateMe
-@implements("java.io.Serializable")
-@implements("java.util.Map.Entry")
-@public type SimpleEntry
-    is java.util.SimpleEntry
-    for Map_Entry
-{
-    @private @static val serialVersionUID: long = -8499721149061103585L;
-}
