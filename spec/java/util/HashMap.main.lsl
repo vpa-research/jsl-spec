@@ -332,7 +332,7 @@ automaton HashMapAutomaton
     fun *.entrySet (@target self: HashMap): Set
     {
         result = new HashMap_EntrySetAutomaton(state = Initialized,
-            storage = this.storage,
+            storageRef = this.storage,
             parent = self
         );
     }
@@ -428,7 +428,7 @@ automaton HashMapAutomaton
     fun *.keySet (@target self: HashMap): Set
     {
         result = new HashMap_KeySetAutomaton(state = Initialized,
-            storage = this.storage,
+            storageRef = this.storage,
             parent = self
         );
     }
@@ -628,7 +628,7 @@ automaton HashMapAutomaton
     fun *.values (@target self: HashMap): Collection
     {
         result = new HashMap_ValuesAutomaton(state = Initialized,
-            storage = this.storage,
+            storageRef = this.storage,
             parent = self
         );
     }
