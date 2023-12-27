@@ -230,7 +230,7 @@ automaton HashMap_ValuesAutomaton
     }
 
 
-    @Phantom proc _containsAll_loop (result: boolean, iter: Iterator, storageSize: int): void
+    @Phantom proc containsAll_loop (result: boolean, iter: Iterator, storageSize: int): void
     {
         val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
         val item: Object = action CALL_METHOD(iter, "next", []);
@@ -238,12 +238,12 @@ automaton HashMap_ValuesAutomaton
         var i: int = 0;
         action LOOP_FOR(
             i, 0, storageSize, +1,
-            _containsAll_inside_loop(result, unseen, item)
+            containsAll_inside_loop(result, unseen, item)
         );
     }
 
 
-    @Phantom proc _containsAll_inside_loop (result: boolean, unseen: map<Object, Map_Entry<Object, Object>>, item: Object): void
+    @Phantom proc containsAll_inside_loop (result: boolean, unseen: map<Object, Map_Entry<Object, Object>>, item: Object): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);

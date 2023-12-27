@@ -89,12 +89,12 @@ automaton HashMap_KeySetAutomaton
         var i: int = 0;
         action LOOP_FOR(
             i, 0, storageSize, +1,
-            _mapToKeysArray_loop(i, result, unseen)
+            mapToKeysArray_loop(i, result, unseen)
         );
     }
 
 
-    @Phantom proc _mapToKeysArray_loop (i: int, result: array<Object>, unseen: map<Object, Map_Entry<Object, Object>>): void
+    @Phantom proc mapToKeysArray_loop (i: int, result: array<Object>, unseen: map<Object, Map_Entry<Object, Object>>): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         result[i] = curKey;
@@ -109,12 +109,12 @@ automaton HashMap_KeySetAutomaton
 
         action LOOP_WHILE(
             result && action CALL_METHOD(iter, "hasNext", []),
-            _containsAll_loop(result, iter)
+            containsAll_loop(result, iter)
         );
     }
 
 
-    @Phantom proc _containsAll_loop (result: boolean, iter: Iterator): void
+    @Phantom proc containsAll_loop (result: boolean, iter: Iterator): void
     {
         val item: Object = action CALL_METHOD(iter, "next", []);
         result = action MAP_HAS_KEY(this.storageRef, item);
@@ -182,7 +182,7 @@ automaton HashMap_KeySetAutomaton
 
         action LOOP_WHILE(
             action CALL_METHOD(iter, "hasNext", []) && result == true,
-            _containsAll_loop(result, iter)
+            containsAll_loop(result, iter)
         );
     }
 
@@ -317,7 +317,7 @@ automaton HashMap_KeySetAutomaton
             val iter: Iterator = action CALL_METHOD(c, "iterator", []);
             action LOOP_WHILE(
                 action CALL_METHOD(iter, "hasNext", []),
-                _removeAll_loop_less(iter)
+                removeAll_loop_less(iter)
             );
         }
         else
@@ -326,7 +326,7 @@ automaton HashMap_KeySetAutomaton
             var i: int = 0;
             action LOOP_FOR(
                 i, 0, startStorageSize, +1,
-                _removeAll_loop_greater(unseen, c)
+                removeAll_loop_greater(unseen, c)
             );
         }
 
@@ -335,7 +335,7 @@ automaton HashMap_KeySetAutomaton
     }
 
 
-    @Phantom proc _removeAll_loop_greater (unseen: map<Object, Map_Entry<Object, Object>>, c: Collection): void
+    @Phantom proc removeAll_loop_greater (unseen: map<Object, Map_Entry<Object, Object>>, c: Collection): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         if (action CALL_METHOD(c, "contains", [curKey]))
@@ -344,7 +344,7 @@ automaton HashMap_KeySetAutomaton
     }
 
 
-    @Phantom proc _removeAll_loop_less (iter: Iterator): void
+    @Phantom proc removeAll_loop_less (iter: Iterator): void
     {
         val oKey: Object = action CALL_METHOD(iter, "next", []);
         if (action MAP_HAS_KEY(this.storageRef, oKey))
@@ -367,7 +367,7 @@ automaton HashMap_KeySetAutomaton
         var i: int = 0;
         action LOOP_FOR(
             i, 0, startStorageSize, +1,
-            _removeIf_loop(unseen, filter)
+            removeIf_loop(unseen, filter)
         );
 
         val resultStorageSize: int = action MAP_SIZE(this.storageRef);
@@ -375,7 +375,7 @@ automaton HashMap_KeySetAutomaton
     }
 
 
-    @Phantom proc _removeIf_loop (unseen: map<Object, Map_Entry<Object, Object>>, filter: Predicate): void
+    @Phantom proc removeIf_loop (unseen: map<Object, Map_Entry<Object, Object>>, filter: Predicate): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         if (action CALL(filter, [curKey]))
@@ -397,7 +397,7 @@ automaton HashMap_KeySetAutomaton
         var i: int = 0;
         action LOOP_FOR(
             i, 0, startStorageSize, +1,
-            _retainAll_loop(unseen, c)
+            retainAll_loop(unseen, c)
         );
 
         val resultStorageSize: int = action MAP_SIZE(this.storageRef);
@@ -405,7 +405,7 @@ automaton HashMap_KeySetAutomaton
     }
 
 
-    @Phantom proc _retainAll_loop (unseen: map<Object, Map_Entry<Object, Object>>, c: Collection): void
+    @Phantom proc retainAll_loop (unseen: map<Object, Map_Entry<Object, Object>>, c: Collection): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         if (!action CALL_METHOD(c, "contains", [curKey]))
@@ -516,14 +516,14 @@ automaton HashMap_KeySetAutomaton
         var i: int = 0;
         action LOOP_FOR(
             i, 0, storageSize, +1,
-            _toString_loop(i, unseen, arrayKeys)
+            toString_loop(i, unseen, arrayKeys)
         );
 
         result = action OBJECT_TO_STRING(arrayKeys);
     }
 
 
-    @Phantom proc _toString_loop (i: int, unseen: map<Object, Map_Entry<Object, Object>>, arrayKeys: array<Object>): void
+    @Phantom proc toString_loop (i: int, unseen: map<Object, Map_Entry<Object, Object>>, arrayKeys: array<Object>): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         arrayKeys[i] = curKey;
