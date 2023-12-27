@@ -101,7 +101,7 @@ automaton HashMap_ValueIteratorAutomaton
 
         val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(parentStorage, curKey);
-        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
+        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
         action CALL(userAction, [curValue]);
         action MAP_REMOVE(this.unseen, curKey);
         size -= 1;
@@ -124,7 +124,7 @@ automaton HashMap_ValueIteratorAutomaton
 
         val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(this.unseen, curKey);
-        result = action CALL_METHOD(entry, "getValue", []);
+        result = AbstractMap_SimpleEntryAutomaton(entry).value;
         action MAP_REMOVE(this.unseen, curKey);
         this.currentKey = curKey;
     }

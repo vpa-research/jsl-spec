@@ -90,14 +90,14 @@ automaton HashMap_EntryIteratorAutomaton
                 size != 0 && HashMapAutomaton(this.parent).modCount == this.expectedModCount,
                 forEachRemaining_loop(userAction, parentStorage, size)
             );
-
-            _checkForComodification();
         }
     }
 
 
     @Phantom proc forEachRemaining_loop (userAction: Consumer, parentStorage: map<Object, Map_Entry<Object, Object>>, size: int): void
     {
+        _checkForComodification();
+
         val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(this.unseen, curKey);
         action CALL(userAction, [entry]);
@@ -121,9 +121,8 @@ automaton HashMap_EntryIteratorAutomaton
             action THROW_NEW("java.util.NoSuchElementException", []);
 
         val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(this.unseen, curKey);
+        result = action MAP_GET(this.unseen, curKey);
         action MAP_REMOVE(this.unseen, curKey);
-        result = entry;
         this.currentKey = curKey;
     }
 

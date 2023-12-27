@@ -161,8 +161,7 @@ automaton HashMap_ValuesAutomaton
         val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
         if (action OBJECT_EQUALS(curValue, value))
             result = true;
-        else
-            action MAP_REMOVE(unseen, curKey);
+        action MAP_REMOVE(unseen, curKey);
         storageSize -= 1;
     }
 

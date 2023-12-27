@@ -90,14 +90,14 @@ automaton HashMap_KeyIteratorAutomaton
                 size != 0 && HashMapAutomaton(this.parent).modCount == this.expectedModCount,
                 forEachRemaining_loop(userAction, parentStorage, size)
             );
-
-            _checkForComodification();
         }
     }
 
 
     @Phantom proc forEachRemaining_loop (userAction: Consumer, parentStorage: map<Object, Map_Entry<Object, Object>>, size: int): void
     {
+        _checkForComodification();
+
         val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
         action CALL(userAction, [curKey]);
         action MAP_REMOVE(this.unseen, curKey);

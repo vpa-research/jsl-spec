@@ -104,7 +104,7 @@ automaton HashMapAutomaton
     @Phantom proc addAllElements_loop (iter: Iterator): void
     {
         val entry: Map_Entry<Object, Object> = action CALL_METHOD(iter, "next", []) as Map_Entry<Object, Object>;
-        val curKey: Object = action CALL_METHOD(entry, "getKey", []);
+        val curKey: Object = AbstractMap_SimpleEntryAutomaton(entry).key;
         val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
         // #note: maybe it will be needed checking "val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);"
         val mapEntry: Map_Entry<Object, Object> = new AbstractMap_SimpleEntryAutomaton(state = Initialized,
@@ -633,7 +633,7 @@ automaton HashMapAutomaton
         if (action MAP_HAS_KEY(this.storage, key))
         {
             val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, key);
-            result = action CALL_METHOD(entry, "getValue", [])
+            result = AbstractMap_SimpleEntryAutomaton(entry).value;
             action MAP_REMOVE(this.storage, key);
             this.modCount += 1;
         }

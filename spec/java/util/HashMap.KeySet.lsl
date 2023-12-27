@@ -310,28 +310,31 @@ automaton HashMap_KeySetAutomaton
 
         result = false;
         val startStorageSize: int = action MAP_SIZE(this.storageRef);
-        val collectionSize: int = action CALL_METHOD(c, "size", []);
+        val cSize: int = action CALL_METHOD(c, "size", []);
 
-        if (startStorageSize > collectionSize)
+        if (startStorageSize != 0 && cSize != 0)
         {
-            val iter: Iterator = action CALL_METHOD(c, "iterator", []);
-            action LOOP_WHILE(
-                action CALL_METHOD(iter, "hasNext", []),
-                removeAll_loop_less(iter)
-            );
-        }
-        else
-        {
-            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
-            var i: int = 0;
-            action LOOP_FOR(
-                i, 0, startStorageSize, +1,
-                removeAll_loop_greater(unseen, c)
-            );
-        }
+            if (startStorageSize > cSize)
+            {
+                val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+                action LOOP_WHILE(
+                    action CALL_METHOD(iter, "hasNext", []),
+                    removeAll_loop_less(iter)
+                );
+            }
+            else
+            {
+                val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
+                var i: int = 0;
+                action LOOP_FOR(
+                    i, 0, startStorageSize, +1,
+                    removeAll_loop_greater(unseen, c)
+                );
+            }
 
-        val resultStorageSize: int = action MAP_SIZE(this.storageRef);
-        result = startStorageSize != resultStorageSize;
+            val resultStorageSize: int = action MAP_SIZE(this.storageRef);
+            result = startStorageSize != resultStorageSize;
+        }
     }
 
 
@@ -367,15 +370,18 @@ automaton HashMap_KeySetAutomaton
         result = false;
         val startStorageSize: int = action MAP_SIZE(this.storageRef);
 
-        val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, startStorageSize, +1,
-            removeIf_loop(unseen, filter)
-        );
+        if (startStorageSize != 0)
+        {
+            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, startStorageSize, +1,
+                removeIf_loop(unseen, filter)
+            );
 
-        val resultStorageSize: int = action MAP_SIZE(this.storageRef);
-        result = startStorageSize != resultStorageSize;
+            val resultStorageSize: int = action MAP_SIZE(this.storageRef);
+            result = startStorageSize != resultStorageSize;
+        }
     }
 
 
@@ -399,16 +405,20 @@ automaton HashMap_KeySetAutomaton
 
         result = false;
         val startStorageSize: int = action MAP_SIZE(this.storageRef);
+        val cSize: int = action CALL_METHOD(c, "size", []);
 
-        val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, startStorageSize, +1,
-            retainAll_loop(unseen, c)
-        );
+        if (startStorageSize != 0 && cSize != 0)
+        {
+            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, startStorageSize, +1,
+                retainAll_loop(unseen, c)
+            );
 
-        val resultStorageSize: int = action MAP_SIZE(this.storageRef);
-        result = startStorageSize != resultStorageSize;
+            val resultStorageSize: int = action MAP_SIZE(this.storageRef);
+            result = startStorageSize != resultStorageSize;
+        }
     }
 
 
@@ -457,13 +467,16 @@ automaton HashMap_KeySetAutomaton
     {
         val len: int = action MAP_SIZE(this.storageRef);
         result = action ARRAY_NEW("java.lang.Object", len);
-        val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
+        if (len != 0)
+        {
+            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
 
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, len, +1,
-            toArray_loop(i, result, unseen)
-        );
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, len, +1,
+                toArray_loop(i, result, unseen)
+            );
+        }
     }
 
 
@@ -484,13 +497,16 @@ automaton HashMap_KeySetAutomaton
 
         val len: int = action MAP_SIZE(this.storageRef);
         result = action ARRAY_NEW("java.lang.Object", len);
-        val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
+        if (len != 0)
+        {
+            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
 
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, len, +1,
-            toArray_loop(i, result, unseen)
-        );
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, len, +1,
+                toArray_loop(i, result, unseen)
+            );
+        }
     }
 
 
@@ -504,16 +520,19 @@ automaton HashMap_KeySetAutomaton
             a = action ARRAY_NEW("java.lang.Object", len);
 
         result = a;
-        val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
+        if (len != 0)
+        {
+            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
 
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, len, +1,
-            toArray_loop(i, result, unseen)
-        );
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, len, +1,
+                toArray_loop(i, result, unseen)
+            );
 
-        if (aLen > len)
-            result[len] = null;
+            if (aLen > len)
+                result[len] = null;
+        }
     }
 
 
