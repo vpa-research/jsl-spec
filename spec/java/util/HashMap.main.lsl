@@ -107,7 +107,10 @@ automaton HashMapAutomaton
         val curKey: Object = action CALL_METHOD(entry, "getKey", []);
         val curValue: Object = action CALL_METHOD(entry, "getValue", []);
         // #note: maybe it will be needed checking "val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);"
-        val mapEntry: Map_Entry<Object, Object> = action DEBUG_DO("new java.util.AbstractMap.SimpleEntry(curKey, curValue)");
+        val mapEntry: Map_Entry<Object, Object> = new AbstractMap_SimpleEntryAutomaton(state = Initialized,
+            key = curKey,
+            value = curValue
+        );
         action MAP_SET(this.storage, curKey, mapEntry);
         this.modCount += 1;
     }
@@ -489,7 +492,10 @@ automaton HashMapAutomaton
         }
         else
         {
-            val newEntry: Map_Entry<Object, Object> = action DEBUG_DO("new java.util.AbstractMap.SimpleEntry(key, value)");
+            val newEntry: Map_Entry<Object, Object> = new AbstractMap_SimpleEntryAutomaton(state = Initialized,
+                key = key,
+                value = value
+            );
             action MAP_SET(this.storage, key, newEntry);
         }
         this.modCount += 1;
