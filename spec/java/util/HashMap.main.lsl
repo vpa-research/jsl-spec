@@ -96,16 +96,16 @@ automaton HashMapAutomaton
 
         action LOOP_WHILE(
             action CALL_METHOD(iter, "hasNext", []),
-            _addAllElements_loop(iter)
+            addAllElements_loop(iter)
         );
     }
 
 
-    @Phantom proc _addAllElements_loop (iter: Iterator): void
+    @Phantom proc addAllElements_loop (iter: Iterator): void
     {
         val entry: Map_Entry<Object, Object> = action CALL_METHOD(iter, "next", []) as Map_Entry<Object, Object>;
         val curKey: Object = action CALL_METHOD(entry, "getKey", []);
-        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
+        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
         // #note: maybe it will be needed checking "val hasKey: boolean = action MAP_HAS_KEY(this.storage, key);"
         val mapEntry: Map_Entry<Object, Object> = new AbstractMap_SimpleEntryAutomaton(state = Initialized,
             key = curKey,
@@ -128,7 +128,7 @@ automaton HashMapAutomaton
         if (action MAP_HAS_KEY(this.storage, key))
         {
             val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, key);
-            val curValue: Object = action CALL_METHOD(entry, "getValue", []);
+            val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
             if (curValue == null)
                 result = defaultValue;
             else
@@ -197,9 +197,8 @@ automaton HashMapAutomaton
 
     fun *.clone (@target self: HashMap): Object
     {
-        val storageCopy: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
         result = new HashMapAutomaton(state = Initialized,
-            storage = storageCopy
+            storage = action MAP_CLONE(this.storage)
         );
     }
 
@@ -215,7 +214,7 @@ automaton HashMapAutomaton
         if (action MAP_HAS_KEY(this.storage, key))
         {
             entry = action MAP_GET(this.storage, key);
-            oldValue = action CALL_METHOD(entry, "getValue", []);
+            oldValue = AbstractMap_SimpleEntryAutomaton(entry).value;
         }
 
         val expectedModCount: int = this.modCount;
@@ -224,9 +223,21 @@ automaton HashMapAutomaton
         _checkForComodification(expectedModCount);
 
         if (newValue == null)
+        {
             action MAP_REMOVE(this.storage, key);
+        }
+        else if (entry != null)
+        {
+            AbstractMap_SimpleEntryAutomaton(entry).value = newValue;
+        }
         else
-            action CALL_METHOD(entry, "setValue", [newValue]);
+        {
+            val newEntry: Map_Entry<Object, Object> = new AbstractMap_SimpleEntryAutomaton(state = Initialized,
+                key = key,
+                value = newValue
+            );
+            action MAP_SET(this.storage, key, newEntry);
+        }
 
         result = newValue;
     }
@@ -243,7 +254,7 @@ automaton HashMapAutomaton
         if (action MAP_HAS_KEY(this.storage, key))
         {
             entry = action MAP_GET(this.storage, key);
-            oldValue = action CALL_METHOD(entry, "getValue", []);
+            oldValue = AbstractMap_SimpleEntryAutomaton(entry).value;
         }
 
         if (oldValue != null)
@@ -256,7 +267,20 @@ automaton HashMapAutomaton
             val newValue: Object = action CALL(mappingFunction, [key]);
             _checkForComodification(expectedModCount);
             if (newValue != null)
-                action CALL_METHOD(entry, "setValue", [newValue]);
+            {
+                if (entry != null)
+                {
+                    AbstractMap_SimpleEntryAutomaton(entry).value = newValue;
+                }
+                else
+                {
+                    val newEntry: Map_Entry<Object, Object> = new AbstractMap_SimpleEntryAutomaton(state = Initialized,
+                        key = key,
+                        value = newValue
+                    );
+                    action MAP_SET(this.storage, key, newEntry);
+                }
+            }
             result = newValue;
         }
 
@@ -274,7 +298,7 @@ automaton HashMapAutomaton
         if (action MAP_HAS_KEY(this.storage, key))
         {
             entry = action MAP_GET(this.storage, key);
-            oldValue = action CALL_METHOD(entry, "getValue", []);
+            oldValue = AbstractMap_SimpleEntryAutomaton(entry).value;
         }
 
         if (oldValue == null)
@@ -287,9 +311,24 @@ automaton HashMapAutomaton
             val newValue: Object = action CALL(remappingFunction, [key, oldValue]);
             _checkForComodification(expectedModCount);
             if (newValue == null)
+            {
                 action MAP_REMOVE(this.storage, key);
+            }
             else
-                action CALL_METHOD(entry, "setValue", [newValue]);
+            {
+                if (entry != null)
+                {
+                    AbstractMap_SimpleEntryAutomaton(entry).value = newValue;
+                }
+                else
+                {
+                    val newEntry: Map_Entry<Object, Object> = new AbstractMap_SimpleEntryAutomaton(state = Initialized,
+                        key = key,
+                        value = newValue
+                    );
+                    action MAP_SET(this.storage, key, newEntry);
+                }
+            }
             result = newValue;
         }
     }
@@ -307,28 +346,27 @@ automaton HashMapAutomaton
     fun *.containsValue (@target self: HashMap, value: Object): boolean
     {
         result = false;
-        val storageSize: int = action MAP_SIZE(this.storage);
+        var storageSize: int = action MAP_SIZE(this.storage);
         if (storageSize != 0)
         {
             val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
-            var i: int = 0;
             action LOOP_WHILE(
-                result != true,
-                _contains_loop(result, unseen, value)
+                result != true && storageSize != 0,
+                contains_loop(result, unseen, value, storageSize)
             );
         }
     }
 
 
-    @Phantom proc _contains_loop (result: boolean, unseen: map<Object, Map_Entry<Object, Object>>, value: Object): void
+    @Phantom proc contains_loop (result: boolean, unseen: map<Object, Map_Entry<Object, Object>>, value: Object, storageSize: int): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
-        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
+        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
         if (action OBJECT_EQUALS(curValue, value))
             result = true;
-        else
-            action MAP_REMOVE(unseen, curKey);
+        action MAP_REMOVE(unseen, curKey);
+        storageSize -= 1;
     }
 
 
@@ -350,25 +388,53 @@ automaton HashMapAutomaton
         }
         else
         {
-            if (other has HashMapAutomaton)
+            if (other is Map)
             {
-                val expectedModCount: int = this.modCount;
-                val otherExpectedModCount: int = HashMapAutomaton(other).modCount;
-
-                val otherStorage: map<Object, Map_Entry<Object, Object>> = HashMapAutomaton(other).storage;
-                val otherLength: int = action MAP_SIZE(otherStorage);
-                val thisLength: int = action MAP_SIZE(this.storage);
+                val m: Map = other as Map;
+                val otherLength: int = action CALL_METHOD(m, "size", []);
+                var thisLength: int = action MAP_SIZE(this.storage);
 
                 if (thisLength == otherLength)
-                    result = action OBJECT_EQUALS(this.storage, otherStorage);
+                {
+                    result = true;
+                    val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+                    action LOOP_WHILE(
+                        thisLength != 0 && result == true,
+                        equals_loop(result, unseen, m, thisLength)
+                    );
+                }
                 else
+                {
                     result = false;
+                }
             }
             else
             {
                 result = false;
             }
         }
+    }
+
+
+    @Phantom proc equals_loop (result: boolean, unseen: map<Object, Map_Entry<Object, Object>>, m: Map, thisLength: int): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
+        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
+        if (curValue == null)
+        {
+            if (action CALL_METHOD(m, "get", [curKey]) != null)
+                result = false;
+            else if (action CALL_METHOD(m, "containsKey", [curKey]) == false)
+                result = false;
+        }
+        else
+        {
+            val mValue: Object = action CALL_METHOD(m, "get", [curKey]);
+            result = action OBJECT_EQUALS(curValue, mValue);
+        }
+        action MAP_REMOVE(unseen, curKey);
+        thisLength -= 1;
     }
 
 
@@ -396,7 +462,7 @@ automaton HashMapAutomaton
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
-        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
+        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
         action CALL(_action, [curKey, curValue]);
         action MAP_REMOVE(unseen, curKey);
     }
@@ -417,7 +483,6 @@ automaton HashMapAutomaton
     // within java.util.AbstractMap
     fun *.hashCode (@target self: HashMap): int
     {
-        // #question: Can we make such realization ? Or we need such realization: "result = hKey ^ hValue;" ?
         result = action OBJECT_HASH_CODE(this.storage);
     }
 
@@ -450,7 +515,7 @@ automaton HashMapAutomaton
         if (action MAP_HAS_KEY(this.storage, key))
         {
             entry = action MAP_GET(this.storage, key);
-            oldValue = action CALL_METHOD(entry, "getValue", []);
+            oldValue = AbstractMap_SimpleEntryAutomaton(entry).value;
         }
 
         var newValue: Object = value;
@@ -466,7 +531,18 @@ automaton HashMapAutomaton
             }
             else
             {
-                action CALL_METHOD(entry, "setValue", [newValue]);
+                if (entry != null)
+                {
+                    AbstractMap_SimpleEntryAutomaton(entry).value = newValue;
+                }
+                else
+                {
+                    val newEntry: Map_Entry<Object, Object> = new AbstractMap_SimpleEntryAutomaton(state = Initialized,
+                        key = key,
+                        value = newValue
+                    );
+                    action MAP_SET(this.storage, key, newEntry);
+                }
             }
 
             this.modCount += 1;
@@ -474,7 +550,7 @@ automaton HashMapAutomaton
         }
         else
         {
-            action CALL_METHOD(entry, "setValue", [newValue]);
+            AbstractMap_SimpleEntryAutomaton(entry).value = newValue;
             this.modCount += 1;
             result = value;
         }
@@ -487,8 +563,8 @@ automaton HashMapAutomaton
         if (action MAP_HAS_KEY(this.storage, key))
         {
             var entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, key);
-            result = action CALL_METHOD(entry, "getValue", []);
-            action CALL_METHOD(entry, "setValue", [value]);
+            result = AbstractMap_SimpleEntryAutomaton(entry).value;
+            AbstractMap_SimpleEntryAutomaton(entry).value = value;
         }
         else
         {
@@ -507,19 +583,28 @@ automaton HashMapAutomaton
         if (m == null)
             _throwNPE();
 
-        val mSize: int = action CALL_METHOD(m, "size", []);
-        if (mSize != 0)
+        if (action CALL_METHOD(m, "size", []) != 0)
             _addAllElements(m);
     }
 
 
     fun *.putIfAbsent (@target self: HashMap, key: Object, value: Object): Object
     {
-        result = _getMappingOrDefault(key, null);
-        if (result == null && action MAP_HAS_KEY(this.storage, key))
+        var entry: Map_Entry<Object, Object> = null;
+
+        if (action MAP_HAS_KEY(this.storage, key))
         {
-            val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, key);
-            action CALL_METHOD(entry, "setValue", [value]);
+            entry = action MAP_GET(this.storage, key);
+            result = AbstractMap_SimpleEntryAutomaton(entry).value;
+        }
+        else
+        {
+            result = null;
+            entry = new AbstractMap_SimpleEntryAutomaton(state = Initialized,
+                key = key,
+                value = value
+            );
+            action MAP_SET(this.storage, key, entry);
             this.modCount += 1;
         }
     }
@@ -548,8 +633,7 @@ automaton HashMapAutomaton
         if (action MAP_HAS_KEY(this.storage, key))
         {
             val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, key);
-            val curValue: Object = action CALL_METHOD(entry, "getValue", []);
-            // #question: It will throw NPE if curValue == null and value == null ? Or not ?
+            val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
             if (action OBJECT_EQUALS(curValue, value))
             {
                 action MAP_REMOVE(this.storage, key);
@@ -566,7 +650,7 @@ automaton HashMapAutomaton
         if (action MAP_HAS_KEY(this.storage, key))
         {
             val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, key);
-            action CALL_METHOD(entry, "setValue", [value]);
+            AbstractMap_SimpleEntryAutomaton(entry).value = value;
         }
     }
 
@@ -577,10 +661,10 @@ automaton HashMapAutomaton
         if (action MAP_HAS_KEY(this.storage, key))
         {
             val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, key);
-            val curValue: Object = action CALL_METHOD(entry, "getValue", []);
+            val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
             if (action OBJECT_EQUALS(curValue, oldValue))
             {
-                action CALL_METHOD(entry, "setValue", [newValue]);
+                AbstractMap_SimpleEntryAutomaton(entry).value = newValue;
                 result = true;
             }
         }
@@ -611,8 +695,8 @@ automaton HashMapAutomaton
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
-        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
-        action CALL(function, [curKey, curValue]);
+        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
+        AbstractMap_SimpleEntryAutomaton(entry).value = action CALL(function, [curKey, curValue]);
         action MAP_REMOVE(unseen, curKey);
     }
 
