@@ -311,13 +311,13 @@ automaton HashMapAutomaton
             var i: int = 0;
             action LOOP_WHILE(
                 result != true,
-                _containsValue_loop(result, unseen, value)
+                _contains_loop(result, unseen, value)
             );
         }
     }
 
 
-    @Phantom proc _containsValue_loop (result: boolean, unseen: map<Object, Map_Entry<Object, Object>>, value: Object): void
+    @Phantom proc _contains_loop (result: boolean, unseen: map<Object, Map_Entry<Object, Object>>, value: Object): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);

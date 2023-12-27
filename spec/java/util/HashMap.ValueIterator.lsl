@@ -19,7 +19,8 @@ import java/util/HashMap;
 automaton HashMap_ValueIteratorAutomaton
 (
     var parent: HashMap,
-    var unseen: map<Object, Map_Entry<Object, Object>>
+    var unseen: map<Object, Map_Entry<Object, Object>>,
+    var expectedModCount: int
 )
 : HashMap_ValueIterator
 {
@@ -43,7 +44,6 @@ automaton HashMap_ValueIteratorAutomaton
 
     // internal variables
 
-    var expectedModCount: int;
     var currentKey: Object = null;
 
 
@@ -67,7 +67,7 @@ automaton HashMap_ValueIteratorAutomaton
 
     @private constructor *.`<init>` (@target self: HashMap_ValueIterator, _this: HashMap)
     {
-        this.expectedModCount = HashMapAutomaton(this.parent).modCount;
+        action ERROR("Private constructor call");
     }
 
 

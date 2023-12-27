@@ -18,7 +18,8 @@ import java/util/function/Consumer;
 automaton HashMap_EntryIteratorAutomaton
 (
     var parent: HashMap,
-    var unseen: map<Object, Map_Entry<Object, Object>>
+    var unseen: map<Object, Map_Entry<Object, Object>>,
+    var expectedModCount: int
 )
 : HashMap_EntryIterator
 {
@@ -42,7 +43,6 @@ automaton HashMap_EntryIteratorAutomaton
 
     // internal variables
 
-    var expectedModCount: int;
     var currentKey: Object = null;
 
 

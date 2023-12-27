@@ -18,7 +18,8 @@ import java/util/function/Consumer;
 automaton HashMap_KeyIteratorAutomaton
 (
     var parent: HashMap,
-    var unseen: map<Object, Map_Entry<Object, Object>>
+    var unseen: map<Object, Map_Entry<Object, Object>>,
+    var expectedModCount: int
 )
 : HashMap_KeyIterator
 {
@@ -42,7 +43,6 @@ automaton HashMap_KeyIteratorAutomaton
 
     // internal variables
 
-    var expectedModCount: int;
     var currentKey: Object = null;
 
 

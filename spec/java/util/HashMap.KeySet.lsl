@@ -158,8 +158,10 @@ automaton HashMap_KeySetAutomaton
     @final fun *.clear (@target self: HashMap_KeySet): void
     {
         HashMapAutomaton(this.parent).modCount += 1;
-        this.storageRef = action MAP_NEW();
-        HashMapAutomaton(this.parent).storage = action MAP_NEW();
+
+        val newStorage: map<Object, Map_Entry<Object, Object>> = action MAP_NEW();
+        this.storageRef = newStorage;
+        HashMapAutomaton(this.parent).storage = newStorage;
     }
 
 
@@ -269,7 +271,8 @@ automaton HashMap_KeySetAutomaton
     {
         result = new HashMap_KeyIteratorAutomaton(state = Initialized,
             parent = this.parent,
-            unseen = action MAP_CLONE(this.storageRef)
+            unseen = action MAP_CLONE(this.storageRef),
+            expectedModCount = HashMapAutomaton(this.parent).modCount
         );
     }
 
