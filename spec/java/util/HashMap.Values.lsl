@@ -95,7 +95,7 @@ automaton HashMap_ValuesAutomaton
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
-        result[i] = action CALL_METHOD(entry, "getValue", []);
+        result[i] = AbstractMap_SimpleEntryAutomaton(entry).value;
         action MAP_REMOVE(unseen, curKey);
     }
 
@@ -158,7 +158,7 @@ automaton HashMap_ValuesAutomaton
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
-        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
+        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
         if (action OBJECT_EQUALS(curValue, value))
             result = true;
         else
@@ -208,7 +208,7 @@ automaton HashMap_ValuesAutomaton
         val key: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, key);
 
-        thisValues[i] = action CALL_METHOD(entry, "getValue", []);
+        thisValues[i] = AbstractMap_SimpleEntryAutomaton(entry).value;
 
         action MAP_REMOVE(unseen, key);
     }
@@ -247,7 +247,7 @@ automaton HashMap_ValuesAutomaton
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
-        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
+        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
         if (!action OBJECT_EQUALS(curValue, item))
         {
             result = false;
@@ -281,7 +281,7 @@ automaton HashMap_ValuesAutomaton
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
-        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
+        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
         action CALL(userAction, [curValue]);
         action MAP_REMOVE(unseen, curKey);
     }
@@ -346,7 +346,7 @@ automaton HashMap_ValuesAutomaton
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
-        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
+        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
         if (curValue == null)
         {
             action MAP_REMOVE(this.storageRef, curKey);
@@ -361,7 +361,7 @@ automaton HashMap_ValuesAutomaton
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
-        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
+        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
         if (action OBJECT_EQUALS(value, curValue))
         {
             action MAP_REMOVE(this.storageRef, curKey);
@@ -401,7 +401,7 @@ automaton HashMap_ValuesAutomaton
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
-        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
+        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
         if (action CALL_METHOD(c, "contains", [curValue]))
         {
             action MAP_REMOVE(this.storageRef, curKey);
@@ -439,7 +439,7 @@ automaton HashMap_ValuesAutomaton
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
-        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
+        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
         if (action CALL(filter, [curValue]))
         {
             action MAP_REMOVE(this.storageRef, curKey);
@@ -478,7 +478,7 @@ automaton HashMap_ValuesAutomaton
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
-        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
+        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
         if (!action CALL_METHOD(c, "contains", [curValue]))
             action MAP_REMOVE(this.storageRef, curKey);
         action MAP_REMOVE(unseen, curKey);
@@ -534,8 +534,7 @@ automaton HashMap_ValuesAutomaton
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
-        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
-        result[i] = curValue;
+        result[i] = AbstractMap_SimpleEntryAutomaton(entry).value;
         action MAP_REMOVE(unseen, curKey);
     }
 
@@ -615,8 +614,7 @@ automaton HashMap_ValuesAutomaton
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
-        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
-        arrayValues[i] = curValue;
+        arrayValues[i] = AbstractMap_SimpleEntryAutomaton(entry).value;
         action MAP_REMOVE(unseen, curKey);
     }
 
