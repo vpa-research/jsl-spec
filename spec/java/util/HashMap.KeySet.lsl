@@ -102,11 +102,36 @@ automaton HashMap_KeySetAutomaton
     }
 
 
+    @Phantom proc _equals (result: boolean, c: Collection): void
+    {
+        result = true;
+        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+
+        action LOOP_WHILE(
+            result && action CALL_METHOD(iter, "hasNext", []),
+            _containsAll_loop(result, iter)
+        );
+    }
+
+
+    @Phantom proc _containsAll_loop (result: boolean, iter: Iterator): void
+    {
+        val item: Object = action CALL_METHOD(iter, "next", []);
+        result = action MAP_HAS_KEY(this.storage, item);
+    }
+
+
+    @Phantom proc _catch_proc_equals (result: boolean): void
+    {
+        result = false;
+    }
+
+
     // constructors
 
     @private constructor *.`<init>` (@target self: HashMap_KeySet, _this: HashMap)
     {
-        // #note: default constructor without any body, like in the original class
+        action ERROR("Private constructor call");
     }
 
 
@@ -134,6 +159,7 @@ automaton HashMap_KeySetAutomaton
     {
         HashMapAutomaton(this.parent).modCount += 1;
         this.storage = action MAP_NEW();
+        HashMapAutomaton(this.parent).storage = action MAP_NEW();
     }
 
 
@@ -159,13 +185,6 @@ automaton HashMap_KeySetAutomaton
     }
 
 
-    @Phantom proc _containsAll_loop (result: boolean, iter: Iterator): void
-    {
-        val item: Object = action CALL_METHOD(iter, "next", []);
-        result = action MAP_HAS_KEY(this.storage, item);
-    }
-
-
     // within java.util.AbstractSet
     fun *.equals (@target self: HashMap_KeySet, other: Object): boolean
     {
@@ -175,18 +194,26 @@ automaton HashMap_KeySetAutomaton
         }
         else
         {
-            val isSameType: boolean = action OBJECT_SAME_TYPE(self, other);
-            if (isSameType)
+            if (other is Set)
             {
-                // #question: do wee need checking of modifications here ? Or not ? (As I can see - not)
-                val otherStorage: map<Object, Map_Entry<Object, Object>> = HashMap_KeySetAutomaton(other).storage;
-                val otherLength: int = action MAP_SIZE(otherStorage);
+                val c: Collection = other as Collection;
+                val cLength: int = action CALL_METHOD(c, "size", []);
                 val thisLength: int = action MAP_SIZE(this.storage);
 
-                if (thisLength == otherLength)
-                    result = action OBJECT_EQUALS(this.storage, otherStorage);
+                if (thisLength == cLength)
+                {
+                    action TRY_CATCH(
+                        _equals(result, c),
+                        [
+                            ["java.lang.ClassCastException", _catch_proc_equals(result)],
+                            ["java.lang.NullPointerException", _catch_proc_equals(result)],
+                        ]
+                    );
+                }
                 else
+                {
                     result = false;
+                }
             }
             else
             {
@@ -240,7 +267,6 @@ automaton HashMap_KeySetAutomaton
 
     @final fun *.iterator (@target self: HashMap_KeySet): Iterator
     {
-        // #question: this is right realization ?
         result = new HashMap_KeyIteratorAutomaton(state = Initialized,
             parent = this.parent,
             unseen = action MAP_CLONE(this.storage)
@@ -251,11 +277,11 @@ automaton HashMap_KeySetAutomaton
     // within java.util.Collection
     fun *.parallelStream (@target self: HashMap_KeySet): Stream
     {
-        // #note: temporary decision (we don't support multithreading now)
-        // #question: this is right realization ? Or it can be wrong to give such array like an argument to StreamAutomaton ?
+        // #note: temporary decision (we don't support multithreading yet)
+        val items: array<Object> = _mapToKeysArray();
         result = new StreamAutomaton(state = Initialized,
             storage = _mapToKeysArray(),
-            length = action MAP_SIZE(this.storage),
+            length = action ARRAY_SIZE(items),
             closeHandlers = action LIST_NEW()
         );
     }
@@ -288,7 +314,7 @@ automaton HashMap_KeySetAutomaton
             val iter: Iterator = action CALL_METHOD(c, "iterator", []);
             action LOOP_WHILE(
                 action CALL_METHOD(iter, "hasNext", []),
-                _removeAll_loop_regular(iter)
+                _removeAll_loop_less(iter)
             );
         }
         else
@@ -297,7 +323,7 @@ automaton HashMap_KeySetAutomaton
             var i: int = 0;
             action LOOP_FOR(
                 i, 0, startStorageSize, +1,
-                _removeAll_loop_optimized(unseen, c)
+                _removeAll_loop_greater(unseen, c)
             );
         }
 
@@ -306,7 +332,7 @@ automaton HashMap_KeySetAutomaton
     }
 
 
-    @Phantom proc _removeAll_loop_optimized (unseen: map<Object, Map_Entry<Object, Object>>, c: Collection): void
+    @Phantom proc _removeAll_loop_greater (unseen: map<Object, Map_Entry<Object, Object>>, c: Collection): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         if (action CALL_METHOD(c, "contains", [curKey]))
@@ -315,7 +341,7 @@ automaton HashMap_KeySetAutomaton
     }
 
 
-    @Phantom proc _removeAll_loop_regular (iter: Iterator): void
+    @Phantom proc _removeAll_loop_less (iter: Iterator): void
     {
         val oKey: Object = action CALL_METHOD(iter, "next", []);
         if (action MAP_HAS_KEY(this.storage, oKey))
@@ -393,7 +419,6 @@ automaton HashMap_KeySetAutomaton
 
     @final fun *.spliterator (@target self: HashMap_KeySet): Spliterator
     {
-        // #question: This will be correct or not to create copy of references ? I suppose it can be incorrect for type Integer for example
         result = new HashMap_KeySpliteratorAutomaton(state=Initialized,
             keysStorage = _mapToKeysArray(),
             parent = this.parent
@@ -404,10 +429,11 @@ automaton HashMap_KeySetAutomaton
     // within java.util.Collection
     fun *.stream (@target self: HashMap_KeySet): Stream
     {
-        // #question: this is right realization ? Or it can be wrong to give such array like an argument to StreamAutomaton ?
+        // WARNING: no concurrent modification checks during stream object's lifetime
+        val items: array<Object> = _mapToKeysArray();
         result = new StreamAutomaton(state = Initialized,
-            storage = _mapToKeysArray(),
-            length = action MAP_SIZE(this.storage),
+            storage = items,
+            length = action ARRAY_SIZE(items),
             closeHandlers = action LIST_NEW()
         );
     }
@@ -473,7 +499,6 @@ automaton HashMap_KeySetAutomaton
             toArray_loop(i, result, unseen)
         );
 
-        // #question: this is correct ?
         if (aLen > len)
             result[len] = null;
     }
