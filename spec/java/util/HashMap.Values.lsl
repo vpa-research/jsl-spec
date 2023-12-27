@@ -203,6 +203,7 @@ automaton HashMap_ValuesAutomaton
         }
     }
 
+
     @Phantom proc containsAll_collector (i: int, unseen: map<Object, Map_Entry<Object, Object>>, thisValues: array<Object>): void
     {
         val key: Object = action MAP_GET_ANY_KEY(unseen);
@@ -213,20 +214,25 @@ automaton HashMap_ValuesAutomaton
         action MAP_REMOVE(unseen, key);
     }
 
+
     @Phantom proc containsAll_inspector (iter: Iterator<Object>, thisValues: array<Object>, thisSize: int, i: int, result: boolean): void
     {
         val value: Object = action CALL_METHOD(iter, "next", []);
 
+        result = false;
         i = 0;
         action LOOP_WHILE(
-            result && i != thisSize,
+            result == false && i != thisSize,
             containsAll_inspector_loop(i, value, thisValues, result)
         );
     }
 
+
     @Phantom proc containsAll_inspector_loop (i: int, value: Object, thisValues: array<Object>, result: boolean): void
     {
         result = action OBJECT_EQUALS(thisValues[i], value);
+
+        i += 1;
     }
 
 
