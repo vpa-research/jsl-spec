@@ -3,7 +3,7 @@ libsl "1.1.0";
 library std
     version "11"
     language "Java"
-    url "https://github.com/openjdk/jdk11/blob/master/src/java.base/share/classes/java/util/HashMap$ValueIterator.java";
+    url "https://github.com/openjdk/jdk11/blob/master/src/java.base/share/classes/java/util/HashMap.java#L1519";
 
 // imports
 
@@ -91,14 +91,14 @@ automaton HashMap_ValueIteratorAutomaton
                 size != 0 && HashMapAutomaton(this.parent).modCount == this.expectedModCount,
                 forEachRemaining_loop(userAction, parentStorage, size)
             );
-
-            _checkForComodification();
         }
     }
 
 
     @Phantom proc forEachRemaining_loop (userAction: Consumer, parentStorage: map<Object, Object>, size: int): void
     {
+        _checkForComodification();
+
         val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(parentStorage, curKey);
         val curValue: Object = action CALL_METHOD(entry, "getValue", []);
@@ -121,9 +121,8 @@ automaton HashMap_ValueIteratorAutomaton
 
         val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(this.unseen, curKey);
-        val curValue: Object = action CALL_METHOD(entry, "getValue", []);
+        result = action CALL_METHOD(entry, "getValue", []);
         action MAP_REMOVE(this.unseen, curKey);
-        result = curValue;
         this.currentKey = curKey;
     }
 
