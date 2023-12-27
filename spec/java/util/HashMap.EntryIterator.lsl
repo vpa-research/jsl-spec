@@ -117,6 +117,9 @@ automaton HashMap_EntryIteratorAutomaton
     {
         _checkForComodification();
 
+        if (action MAP_SIZE(this.unseen) == 0)
+            action THROW_NEW("java.util.NoSuchElementException", []);
+
         val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(this.unseen, curKey);
         action MAP_REMOVE(this.unseen, curKey);

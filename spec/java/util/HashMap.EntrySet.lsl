@@ -103,6 +103,24 @@ automaton HashMap_EntrySetAutomaton
     }
 
 
+    @Phantom proc _equals (result: boolean, c: Collection): void
+    {
+        result = true;
+        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+
+        action LOOP_WHILE(
+            result && action CALL_METHOD(iter, "hasNext", []),
+            containsAll_loop(result, iter)
+        );
+    }
+
+
+    @Phantom proc _catch_proc_equals (result: boolean): void
+    {
+        result = false;
+    }
+
+
     // constructors
 
     @private constructor *.`<init>` (@target self: HashMap_EntrySet, _this: HashMap)
@@ -149,7 +167,7 @@ automaton HashMap_EntrySetAutomaton
             val entryParam: Map_Entry<Object, Object> = o as Map_Entry<Object, Object>;
             val key: Object = action CALL_METHOD(entryParam, "getKey", []);
             val value: Object = action CALL_METHOD(entryParam, "getValue", []);
-            if (!action MAP_HAS_KEY(this.storageRef, key))
+            if (action MAP_HAS_KEY(this.storageRef, key) == false)
             {
                 result = false;
             }
@@ -170,7 +188,7 @@ automaton HashMap_EntrySetAutomaton
         val iter: Iterator<Map_Entry<Object, Object>> = action CALL_METHOD(c, "iterator", []) as Iterator<Map_Entry<Object, Object>>;
 
         action LOOP_WHILE(
-            action CALL_METHOD(iter, "hasNext", []) && result == true,
+            result && action CALL_METHOD(iter, "hasNext", []),
             containsAll_loop(result, iter)
         );
     }
@@ -202,41 +220,32 @@ automaton HashMap_EntrySetAutomaton
         }
         else
         {
-            if (other has HashMap_EntrySetAutomaton)
+            if (other is Set)
             {
-                val otherStorage: map<Object, Map_Entry<Object, Object>> = HashMap_EntrySetAutomaton(other).storageRef;
-                val otherLength: int = action MAP_SIZE(otherStorage);
+                val c: Collection = other as Collection;
+                val cLength: int = action CALL_METHOD(c, "size", []);
                 val thisLength: int = action MAP_SIZE(this.storageRef);
 
-                if (thisLength == otherLength)
+                if (thisLength == cLength)
                 {
-                    val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
-                    result = true;
-                    action LOOP_WHILE(
-                        result == true,
-                        equals_loop(result, otherStorage, unseen)
+                    action TRY_CATCH(
+                        _equals(result, c),
+                        [
+                            ["java.lang.ClassCastException", _catch_proc_equals(result)],
+                            ["java.lang.NullPointerException", _catch_proc_equals(result)],
+                        ]
                     );
                 }
                 else
+                {
                     result = false;
+                }
             }
             else
             {
                 result = false;
             }
         }
-    }
-
-
-    @Phantom proc equals_loop (result: boolean, otherStorage: map<Object, Map_Entry<Object, Object>>, unseen: map<Object, Map_Entry<Object, Object>>): void
-    {
-        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(this.storageRef, curKey);
-        if (!action MAP_HAS_KEY(otherStorage, curKey))
-            result = false;
-        else
-            result = action OBJECT_EQUALS(entry, action MAP_GET(otherStorage, curKey));
-        action MAP_REMOVE(unseen, curKey);
     }
 
 
@@ -299,10 +308,10 @@ automaton HashMap_EntrySetAutomaton
     fun *.parallelStream (@target self: HashMap_EntrySet): Stream
     {
         // #note: temporary decision (we don't support multithreading yet)
-        val storageEntry: array<Object> = _mapToEntryArray();
+        val items: array<Object> = _mapToEntryArray();
         result = new StreamAutomaton(state = Initialized,
-            storage = storageEntry,
-            length = action ARRAY_SIZE(storageEntry),
+            storage = items,
+            length = action ARRAY_SIZE(items),
             closeHandlers = action LIST_NEW()
         );
     }
@@ -343,7 +352,7 @@ automaton HashMap_EntrySetAutomaton
 
         if (startStorageSize > collectionSize)
         {
-            val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+            val iter: Iterator<Map_Entry<Object, Object>> = action CALL_METHOD(c, "iterator", []) as Iterator<Map_Entry<Object, Object>>;
             action LOOP_WHILE(
                 action CALL_METHOD(iter, "hasNext", []),
                 removeAll_loop_regular(iter)
@@ -360,8 +369,7 @@ automaton HashMap_EntrySetAutomaton
         }
 
         val resultStorageSize: int = action MAP_SIZE(this.storageRef);
-        HashMapAutomaton(this.parent).modCount += 1;
-        result = startStorageSize == resultStorageSize;
+        result = startStorageSize != resultStorageSize;
     }
 
 
@@ -370,7 +378,10 @@ automaton HashMap_EntrySetAutomaton
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(this.storageRef, curKey);
         if (action CALL_METHOD(c, "contains", [entry]))
+        {
             action MAP_REMOVE(this.storageRef, curKey);
+            HashMapAutomaton(this.parent).modCount += 1;
+        }
         action MAP_REMOVE(unseen, curKey);
     }
 
@@ -382,7 +393,10 @@ automaton HashMap_EntrySetAutomaton
         if (action MAP_HAS_KEY(this.storageRef, oKey))
         {
             if (action OBJECT_EQUALS(o, action MAP_GET(this.storageRef, oKey)))
+            {
                 action MAP_REMOVE(this.storageRef, oKey);
+                HashMapAutomaton(this.parent).modCount += 1;
+            }
         }
     }
 
@@ -404,7 +418,7 @@ automaton HashMap_EntrySetAutomaton
         );
 
         val resultStorageSize: int = action MAP_SIZE(this.storageRef);
-        result = startStorageSize == resultStorageSize;
+        result = startStorageSize != resultStorageSize;
     }
 
 
@@ -413,7 +427,10 @@ automaton HashMap_EntrySetAutomaton
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
         if (action CALL(filter, [entry]))
+        {
             action MAP_REMOVE(this.storageRef, curKey);
+            HashMapAutomaton(this.parent).modCount += 1;
+        }
         action MAP_REMOVE(unseen, curKey);
     }
 
@@ -435,7 +452,7 @@ automaton HashMap_EntrySetAutomaton
         );
 
         val resultStorageSize: int = action MAP_SIZE(this.storageRef);
-        result = startStorageSize == resultStorageSize;
+        result = startStorageSize != resultStorageSize;
     }
 
 
@@ -443,8 +460,11 @@ automaton HashMap_EntrySetAutomaton
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
-        if (!action CALL_METHOD(c, "contains", [entry]))
+        if (action CALL_METHOD(c, "contains", [entry]) == false)
+        {
             action MAP_REMOVE(this.storageRef, curKey);
+            HashMapAutomaton(this.parent).modCount += 1;
+        }
     }
 
 
@@ -466,10 +486,10 @@ automaton HashMap_EntrySetAutomaton
     // within java.util.Collection
     fun *.stream (@target self: HashMap_EntrySet): Stream
     {
-        val storageEntry: array<Object> = _mapToEntryArray();
+        val items: array<Object> = _mapToEntryArray();
         result = new StreamAutomaton(state = Initialized,
-            storage = storageEntry,
-            length = action ARRAY_SIZE(storageEntry),
+            storage = items,
+            length = action ARRAY_SIZE(items),
             closeHandlers = action LIST_NEW()
         );
     }
@@ -493,8 +513,7 @@ automaton HashMap_EntrySetAutomaton
     @Phantom proc toArray_loop (i: int, result: array<Object>, unseen: map<Object, Map_Entry<Object, Object>>): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
-        result[i] = entry;
+        result[i] = action MAP_GET(unseen, curKey);
         action MAP_REMOVE(unseen, curKey);
     }
 

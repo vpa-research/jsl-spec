@@ -141,6 +141,45 @@ automaton HashMapAutomaton
     }
 
 
+    @Phantom proc _equals (result: boolean, m: Map, thisLength: int): void
+    {
+        result = true;
+        val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+        action LOOP_WHILE(
+            result && thisLength != 0,
+            equals_loop(result, unseen, m, thisLength)
+        );
+    }
+
+
+    @Phantom proc equals_loop (result: boolean, unseen: map<Object, Map_Entry<Object, Object>>, m: Map, thisLength: int): void
+    {
+        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
+        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
+        if (curValue == null)
+        {
+            if (action CALL_METHOD(m, "get", [curKey]) != null)
+                result = false;
+            else if (action CALL_METHOD(m, "containsKey", [curKey]) == false)
+                result = false;
+        }
+        else
+        {
+            val mValue: Object = action CALL_METHOD(m, "get", [curKey]);
+            result = action OBJECT_EQUALS(curValue, mValue);
+        }
+        action MAP_REMOVE(unseen, curKey);
+        thisLength -= 1;
+    }
+
+
+    @Phantom proc _catch_proc_equals (result: boolean): void
+    {
+        result = false;
+    }
+
+
     // constructors
 
     constructor *.`<init>` (@target self: HashMap)
@@ -391,16 +430,17 @@ automaton HashMapAutomaton
             if (other is Map)
             {
                 val m: Map = other as Map;
-                val otherLength: int = action CALL_METHOD(m, "size", []);
+                val mLength: int = action CALL_METHOD(m, "size", []);
                 var thisLength: int = action MAP_SIZE(this.storage);
 
-                if (thisLength == otherLength)
+                if (thisLength == mLength)
                 {
-                    result = true;
-                    val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
-                    action LOOP_WHILE(
-                        thisLength != 0 && result == true,
-                        equals_loop(result, unseen, m, thisLength)
+                    action TRY_CATCH(
+                        _equals(result, m, thisLength),
+                        [
+                            ["java.lang.ClassCastException", _catch_proc_equals(result)],
+                            ["java.lang.NullPointerException", _catch_proc_equals(result)],
+                        ]
                     );
                 }
                 else
@@ -413,28 +453,6 @@ automaton HashMapAutomaton
                 result = false;
             }
         }
-    }
-
-
-    @Phantom proc equals_loop (result: boolean, unseen: map<Object, Map_Entry<Object, Object>>, m: Map, thisLength: int): void
-    {
-        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, curKey);
-        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
-        if (curValue == null)
-        {
-            if (action CALL_METHOD(m, "get", [curKey]) != null)
-                result = false;
-            else if (action CALL_METHOD(m, "containsKey", [curKey]) == false)
-                result = false;
-        }
-        else
-        {
-            val mValue: Object = action CALL_METHOD(m, "get", [curKey]);
-            result = action OBJECT_EQUALS(curValue, mValue);
-        }
-        action MAP_REMOVE(unseen, curKey);
-        thisLength -= 1;
     }
 
 
@@ -710,7 +728,6 @@ automaton HashMapAutomaton
     // within java.util.AbstractMap
     fun *.toString (@target self: HashMap): String
     {
-        // #question: Can we make such realization ? Or we need such realization: "key + "=" + value" ?
         result = action OBJECT_TO_STRING(this.storage);
     }
 

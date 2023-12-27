@@ -141,20 +141,20 @@ automaton HashMap_ValuesAutomaton
     @final fun *.contains (@target self: HashMap_Values, value: Object): boolean
     {
         result = false;
-        val storageSize: int = action MAP_SIZE(this.storageRef);
+        var storageSize: int = action MAP_SIZE(this.storageRef);
         if (storageSize != 0)
         {
             val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
             var i: int = 0;
             action LOOP_WHILE(
-                result != true,
-                contains_loop(result, unseen, value)
+                result != true && storageSize != 0,
+                contains_loop(result, unseen, value, storageSize)
             );
         }
     }
 
 
-    @Phantom proc contains_loop (result: boolean, unseen: map<Object, Map_Entry<Object, Object>>, value: Object): void
+    @Phantom proc contains_loop (result: boolean, unseen: map<Object, Map_Entry<Object, Object>>, value: Object, storageSize: int): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
@@ -163,6 +163,7 @@ automaton HashMap_ValuesAutomaton
             result = true;
         else
             action MAP_REMOVE(unseen, curKey);
+        storageSize -= 1;
     }
 
 
@@ -248,7 +249,7 @@ automaton HashMap_ValuesAutomaton
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
         val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
-        if (!action OBJECT_EQUALS(curValue, item))
+        if (action OBJECT_EQUALS(curValue, item) == false)
         {
             result = false;
             action LOOP_BREAK();
@@ -351,6 +352,7 @@ automaton HashMap_ValuesAutomaton
         {
             action MAP_REMOVE(this.storageRef, curKey);
             result = true;
+            HashMapAutomaton(this.parent).modCount += 1;
         }
         action MAP_REMOVE(unseen, curKey);
         thisSize -= 1;
@@ -366,6 +368,7 @@ automaton HashMap_ValuesAutomaton
         {
             action MAP_REMOVE(this.storageRef, curKey);
             result = true;
+            HashMapAutomaton(this.parent).modCount += 1;
         }
         action MAP_REMOVE(unseen, curKey);
         thisSize -= 1;
@@ -479,8 +482,11 @@ automaton HashMap_ValuesAutomaton
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
         val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
-        if (!action CALL_METHOD(c, "contains", [curValue]))
+        if (action CALL_METHOD(c, "contains", [curValue]) == false)
+        {
             action MAP_REMOVE(this.storageRef, curKey);
+            HashMapAutomaton(this.parent).modCount += 1;
+        }
         action MAP_REMOVE(unseen, curKey);
     }
 

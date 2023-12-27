@@ -119,6 +119,9 @@ automaton HashMap_ValueIteratorAutomaton
     {
         _checkForComodification();
 
+        if (action MAP_SIZE(this.unseen) == 0)
+            action THROW_NEW("java.util.NoSuchElementException", []);
+
         val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(this.unseen, curKey);
         result = action CALL_METHOD(entry, "getValue", []);
@@ -138,7 +141,6 @@ automaton HashMap_ValueIteratorAutomaton
 
         _checkForComodification();
 
-        // #question: this is right ? Or not ?
         action MAP_REMOVE(this.unseen, this.currentKey);
         val parentStorage: map<Object, Map_Entry<Object, Object>> = HashMapAutomaton(this.parent).storage;
         action MAP_REMOVE(parentStorage, this.currentKey);

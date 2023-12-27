@@ -181,7 +181,7 @@ automaton HashMap_KeySetAutomaton
         val iter: Iterator = action CALL_METHOD(c, "iterator", []);
 
         action LOOP_WHILE(
-            action CALL_METHOD(iter, "hasNext", []) && result == true,
+            result && action CALL_METHOD(iter, "hasNext", []),
             containsAll_loop(result, iter)
         );
     }
@@ -331,7 +331,7 @@ automaton HashMap_KeySetAutomaton
         }
 
         val resultStorageSize: int = action MAP_SIZE(this.storageRef);
-        result = startStorageSize == resultStorageSize;
+        result = startStorageSize != resultStorageSize;
     }
 
 
@@ -339,7 +339,10 @@ automaton HashMap_KeySetAutomaton
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         if (action CALL_METHOD(c, "contains", [curKey]))
+        {
             action MAP_REMOVE(this.storageRef, curKey);
+            HashMapAutomaton(this.parent).modCount += 1;
+        }
         action MAP_REMOVE(unseen, curKey);
     }
 
@@ -350,6 +353,7 @@ automaton HashMap_KeySetAutomaton
         if (action MAP_HAS_KEY(this.storageRef, oKey))
         {
             action MAP_REMOVE(this.storageRef, oKey);
+            HashMapAutomaton(this.parent).modCount += 1;
         }
     }
 
@@ -371,7 +375,7 @@ automaton HashMap_KeySetAutomaton
         );
 
         val resultStorageSize: int = action MAP_SIZE(this.storageRef);
-        result = startStorageSize == resultStorageSize;
+        result = startStorageSize != resultStorageSize;
     }
 
 
@@ -379,7 +383,10 @@ automaton HashMap_KeySetAutomaton
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         if (action CALL(filter, [curKey]))
+        {
             action MAP_REMOVE(this.storageRef, curKey);
+            HashMapAutomaton(this.parent).modCount += 1;
+        }
         action MAP_REMOVE(unseen, curKey);
     }
 
@@ -401,15 +408,18 @@ automaton HashMap_KeySetAutomaton
         );
 
         val resultStorageSize: int = action MAP_SIZE(this.storageRef);
-        result = startStorageSize == resultStorageSize;
+        result = startStorageSize != resultStorageSize;
     }
 
 
     @Phantom proc retainAll_loop (unseen: map<Object, Map_Entry<Object, Object>>, c: Collection): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
-        if (!action CALL_METHOD(c, "contains", [curKey]))
+        if (action CALL_METHOD(c, "contains", [curKey]) == false)
+        {
             action MAP_REMOVE(this.storageRef, curKey);
+            HashMapAutomaton(this.parent).modCount += 1;
+        }
         action MAP_REMOVE(unseen, curKey);
     }
 
