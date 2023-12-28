@@ -30,6 +30,12 @@ import java/util/stream/IntStream;
 
 automaton ByteBufferAsCharBufferBAutomaton
 (
+    var bb: ByteBuffer,
+    var mark: int,
+    var position: int,
+    var limit: int,
+    var capacity: int,
+    var address: int
 )
 : ByteBufferAsCharBufferB
 {

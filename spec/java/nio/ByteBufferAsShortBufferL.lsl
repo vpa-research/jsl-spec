@@ -28,6 +28,12 @@ import java/nio/ShortBuffer;
 
 automaton ByteBufferAsShortBufferLAutomaton
 (
+    var bb: ByteBuffer,
+    var mark: int,
+    var position: int,
+    var limit: int,
+    var capacity: int,
+    var address: int
 )
 : ByteBufferAsShortBufferL
 {

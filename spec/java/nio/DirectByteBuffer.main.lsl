@@ -819,8 +819,8 @@ automaton DirectByteBufferAutomaton
            else result = (new ByteBufferAsCharBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as CharBuffer;
         } else
         {
-            if (this.nativeByteOrder == true) result = (new DirectCharBufferUAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = off)) as CharBuffer;
-            else result = (new DirectCharBufferSAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = off)) as CharBuffer;
+            if (this.nativeByteOrder == true) result = (new DirectCharBufferUAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as CharBuffer;
+            else result = (new DirectCharBufferSAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as CharBuffer;
         }
     }
 
@@ -840,8 +840,8 @@ automaton DirectByteBufferAutomaton
            else result = (new ByteBufferAsDoubleBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as DoubleBuffer;
         } else
         {
-            if (this.nativeByteOrder == true) result = (new DirectDoubleBufferUAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = off)) as DoubleBuffer;
-            else result = (new DirectDoubleBufferSAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = off)) as DoubleBuffer;
+            if (this.nativeByteOrder == true) result = (new DirectDoubleBufferUAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as DoubleBuffer;
+            else result = (new DirectDoubleBufferSAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as DoubleBuffer;
         }
     }
 
@@ -861,8 +861,8 @@ automaton DirectByteBufferAutomaton
            else result = (new ByteBufferAsFloatBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as FloatBuffer;
         } else
         {
-            if (this.nativeByteOrder == true) result = (new DirectFloatBufferUAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = off)) as FloatBuffer;
-            else result = (new DirectFloatBufferSAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = off)) as FloatBuffer;
+            if (this.nativeByteOrder == true) result = (new DirectFloatBufferUAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as FloatBuffer;
+            else result = (new DirectFloatBufferSAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as FloatBuffer;
         }
     }
 
@@ -882,8 +882,8 @@ automaton DirectByteBufferAutomaton
            else result = (new ByteBufferAsIntBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as IntBuffer;
         } else
         {
-            if (this.nativeByteOrder == true) result = (new DirectIntBufferUAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = off)) as IntBuffer;
-            else result = (new DirectIntBufferSAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = off)) as IntBuffer;
+            if (this.nativeByteOrder == true) result = (new DirectIntBufferUAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as IntBuffer;
+            else result = (new DirectIntBufferSAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as IntBuffer;
         }
     }
 
@@ -903,15 +903,15 @@ automaton DirectByteBufferAutomaton
            else result = (new ByteBufferAsLongBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as LongBuffer;
         } else
         {
-            if (this.nativeByteOrder == true) result = (new DirectLongBufferUAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = off)) as LongBuffer;
-            else result = (new DirectLongBufferSAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = off)) as LongBuffer;
+            if (this.nativeByteOrder == true) result = (new DirectLongBufferUAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as LongBuffer;
+            else result = (new DirectLongBufferSAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as LongBuffer;
         }
     }
 
 
     fun *.asReadOnlyBuffer (@target self: DirectByteBuffer): ByteBuffer
     {
-        result = new DirectByteBufferRAutomaton(state = Initialized, bb = self, mark = this.mark, position = this.position, limit = this.limit, capacity = this.capacity, address = 0);
+        result = new DirectByteBufferRAutomaton(state = Initialized, att = self, mark = this.mark, position = this.position, limit = this.limit, capacity = this.capacity, offset = 0);
     }
 
 
@@ -930,8 +930,8 @@ automaton DirectByteBufferAutomaton
            else result = (new ByteBufferAsShortBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as ShortBuffer;
         } else
         {
-            if (this.nativeByteOrder == true) result = (new DirectShortBufferUAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = off)) as ShortBuffer;
-            else result = (new DirectShortBufferSAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = off)) as ShortBuffer;
+            if (this.nativeByteOrder == true) result = (new DirectShortBufferUAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as ShortBuffer;
+            else result = (new DirectShortBufferSAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as ShortBuffer;
         }
     }
 

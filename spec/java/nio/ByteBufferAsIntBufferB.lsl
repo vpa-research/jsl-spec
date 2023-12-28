@@ -28,6 +28,12 @@ import java/nio/IntBuffer;
 
 automaton ByteBufferAsIntBufferBAutomaton
 (
+    var bb: ByteBuffer,
+    var mark: int,
+    var position: int,
+    var limit: int,
+    var capacity: int,
+    var address: int
 )
 : ByteBufferAsIntBufferB
 {
