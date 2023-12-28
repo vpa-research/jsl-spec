@@ -927,7 +927,7 @@ automaton DirectByteBufferAutomaton
         if (UNALIGNED == false && ((this.address + off) % (1 << 1) != 0))
         {
            if (this.bigEndian == true) result = (new ByteBufferAsShortBufferBAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as ShortBuffer;
-           else result = (new ByteBufferAsLongBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as ShortBuffer;
+           else result = (new ByteBufferAsShortBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as ShortBuffer;
         } else
         {
             if (this.nativeByteOrder == true) result = (new DirectShortBufferUAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = off)) as ShortBuffer;
