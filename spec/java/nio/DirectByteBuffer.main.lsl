@@ -369,7 +369,7 @@ automaton DirectByteBufferAutomaton
     //for putChar
 
     proc _putChar(offset: long, x: char): void
-    {
+{
         var y: short = _convEndian(x) as short;
         _putShortUnaligned(offset, (y >>> 0) as byte, (y >>> 8) as byte);
     }
@@ -829,7 +829,7 @@ automaton DirectByteBufferAutomaton
     {
         var off: int = this.position;
         var lim: int = this.limit;
-        if (pos > lim)
+        if (off > lim)
             action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (off <= lim) in original
         var rem: int = _remaining();
         var size: int = rem >> 3;
@@ -850,7 +850,7 @@ automaton DirectByteBufferAutomaton
     {
         var off: int = this.position;
         var lim: int = this.limit;
-        if (pos > lim)
+        if (off > lim)
             action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (off <= lim) in original
         var rem: int = _remaining();
         var size: int = rem >> 2;
@@ -871,7 +871,7 @@ automaton DirectByteBufferAutomaton
     {
         var off: int = this.position;
         var lim: int = this.limit;
-        if (pos > lim)
+        if (off > lim)
             action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (off <= lim) in original
         var rem: int = _remaining();
         var size: int = rem >> 2;
@@ -892,7 +892,7 @@ automaton DirectByteBufferAutomaton
     {
         var off: int = this.position;
         var lim: int = this.limit;
-        if (pos > lim)
+        if (off > lim)
             action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (off <= lim) in original
         var rem: int = _remaining();
         var size: int = rem >> 3;
@@ -919,7 +919,7 @@ automaton DirectByteBufferAutomaton
     {
         var off: int = this.position;
         var lim: int = this.limit;
-        if (pos > lim)
+        if (off > lim)
             action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (off <= lim) in original
         var rem: int = _remaining();
         var size: int = rem >> 1;
@@ -1018,7 +1018,6 @@ automaton DirectByteBufferAutomaton
         }
         else {
             var rem: int = _remaining();
-            var that_rem: int = action CALL_METHOD(that, "remaining", []);
             result = rem - that_rem;
         }
     }
@@ -1064,7 +1063,7 @@ automaton DirectByteBufferAutomaton
     // within java.nio.Buffer
     fun *.flip (@target self: DirectByteBuffer): Buffer
     {
-        this.limit = position;
+        this.limit = this.position;
         this.position = 0;
         this.mark = -1;
         result = self;
@@ -1287,8 +1286,8 @@ automaton DirectByteBufferAutomaton
         if (that_rem < len)
             len = that_rem;
 
-        var r: int = _mismaatch(this.position, that, len);
-        if (r == -1 && _remaining() != that.remaining()) result = len;
+        var r: int = _mismatch(this.position, that, len);
+        if (r == -1 && _remaining() != that_rem) result = len;
         else result = r;
     }
 
@@ -1305,7 +1304,7 @@ automaton DirectByteBufferAutomaton
     @final fun *.order (@target self: DirectByteBuffer, bo: ByteOrder): ByteBuffer
     {
         this.bigEndian = (bo == BYTEORDER_BIG_ENDIAN);
-        this.nativeByteOrder = bigEndian == (action CALL_METHOD(null as ByteOrder, "nativeOrder", []) == BYTEORDER_BIG_ENDIAN);
+        this.nativeByteOrder = this.bigEndian == (action CALL_METHOD(null as ByteOrder, "nativeOrder", []) == BYTEORDER_BIG_ENDIAN);
         result = self;
     }
 
@@ -1362,15 +1361,15 @@ automaton DirectByteBufferAutomaton
             _position(pos + srem);
         } else if (src_hb != null) {
 
-            var spos: int = action CALL_METHOD(src, "position", []);
-            var slim: int = action CALL_METHOD(src, "limit", []);
-            if (spos > slim)
+            var spos2: int = action CALL_METHOD(src, "position", []);
+            var slim2: int = action CALL_METHOD(src, "limit", []);
+            if (spos2 > slim2)
                 action THROW_NEW("java.lang.AssertionError", []);   // #warning: assert (spos <= slim) in original
 
-            var srem: int = slim - spos;
+            var srem2: int = slim2 - spos2;
             var src_offset: int = action CALL_METHOD(src, "_offset", []);
-            _put(src_hb, src_offset + spos, srem);
-            action CALL_METHOD(src, "position", [spos + srem]);
+            _put(src_hb, src_offset + spos2, srem2);
+            action CALL_METHOD(src, "position", [spos2 + srem2]);
         } else {
             _super_put(self, src);
         }
@@ -1521,10 +1520,9 @@ automaton DirectByteBufferAutomaton
     // within java.nio.Buffer
     fun *.reset (@target self: DirectByteBuffer): Buffer
     {
-        var m: int = mark;
-        if (m < 0)
+        if (this.mark < 0)
             action THROW_NEW("java.nio.InvalidMarkException", []);
-        this.position = m;
+        this.position = this.mark;
         result = self;
     }
 

@@ -28,6 +28,9 @@ import java/lang/Number;
     @static fun *.isInfinite(x: float): boolean;
 
     @static fun *.valueOf(x: float): Number; // #problem: self-reference
+
+    @static fun *.intBitsToFloat (value: int): Number;
+    @static fun *.floatToRawIntBits(value: float): int;
 }
 
 val FLOAT_POSITIVE_INFINITY: float = 1.0f / 0.0f;

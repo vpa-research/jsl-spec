@@ -19,6 +19,7 @@ import java/nio/Buffer;
     for Buffer
 {
      fun *.get(dst: array<byte>, offset: int, length: int): any; //ByteBuffer
+     fun *.get(index: int): byte;
 }
 
 
