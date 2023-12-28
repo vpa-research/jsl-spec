@@ -30,6 +30,12 @@ import sun/nio/ch/DirectBuffer;
 
 automaton DirectFloatBufferSAutomaton
 (
+    var att: Object,
+    var mark: int,
+    var position: int,
+    var limit: int,
+    var capacity: int,
+    var offset: int
 )
 : DirectFloatBufferS
 {
