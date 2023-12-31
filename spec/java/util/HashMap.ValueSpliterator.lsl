@@ -9,9 +9,10 @@ library std
 
 import java/lang/Object;
 import java/util/Comparator;
-import java/util/HashMap;
 import java/util/Spliterator;
 import java/util/function/Consumer;
+
+import java/util/HashMap;
 
 
 // automata
@@ -25,13 +26,7 @@ automaton HashMap_ValueSpliteratorAutomaton
 {
     // states and shifts
 
-    initstate Allocated;
-    state Initialized;
-
-    shift Allocated -> Initialized by [
-        // constructors
-        `<init>`,
-    ];
+    initstate Initialized;
 
     shift Initialized -> self by [
         // instance methods
@@ -86,12 +81,6 @@ automaton HashMap_ValueSpliteratorAutomaton
 
 
     // constructors
-
-    @private constructor *.`<init>` (@target self: HashMap_ValueSpliterator, m: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
-    {
-        action ERROR("Private constructor call");
-    }
-
 
     // static methods
 

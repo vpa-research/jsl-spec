@@ -8,9 +8,9 @@ library std
 
 // imports
 
+import java/io/Serializable;
 import java/lang/Object;
 import java/util/Set;
-import java/io/Serializable;
 
 
 // primary semantic types
@@ -51,18 +51,4 @@ import java/io/Serializable;
     fun *.getValue(): Object;
 
     fun *.setValue(value: Object): Object;
-}
-
-
-// global aliases and type overrides
-
-
-@GenerateMe
-@implements("java.io.Serializable")
-@implements("java.util.Map.Entry")
-@public type AbstractMap_SimpleEntry
-    is java.util.AbstractMap_SimpleEntry
-    for Map_Entry, Serializable
-{
-    @private @static val serialVersionUID: long = -8499721149061103585L;
 }
