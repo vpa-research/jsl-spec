@@ -9,6 +9,8 @@ library std
 // imports
 
 import java/lang/Object;
+import java/util/Set;
+import java/io/Serializable;
 
 
 // primary semantic types
@@ -35,6 +37,8 @@ import java/lang/Object;
     fun *.remove(key: Object, value: Object): boolean;
 
     fun *.clear(): void;
+
+    fun *.entrySet(): Set;
 }
 
 @Parameterized(["K", "V"])
@@ -52,3 +56,13 @@ import java/lang/Object;
 
 // global aliases and type overrides
 
+
+@GenerateMe
+@implements("java.io.Serializable")
+@implements("java.util.Map.Entry")
+@public type AbstractMap_SimpleEntry
+    is java.util.AbstractMap_SimpleEntry
+    for Map_Entry, Serializable
+{
+    @private @static val serialVersionUID: long = -8499721149061103585L;
+}
