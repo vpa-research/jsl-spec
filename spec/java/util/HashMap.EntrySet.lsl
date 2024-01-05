@@ -151,10 +151,6 @@ automaton HashMap_EntrySetAutomaton
                 val entry: Map_Entry<Object, Object> = action MAP_GET(this.storageRef, key);
                 result = action OBJECT_EQUALS(entry, oEntry);
             }
-            else
-            {
-                result = false;
-            }
         }
     }
 
@@ -163,8 +159,8 @@ automaton HashMap_EntrySetAutomaton
     fun *.containsAll (@target self: HashMap_EntrySet, c: Collection): boolean
     {
         result = true;
-        val iter: Iterator<Map_Entry<Object, Object>> = action CALL_METHOD(c, "iterator", []) as Iterator<Map_Entry<Object, Object>>;
 
+        val iter: Iterator<Map_Entry<Object, Object>> = action CALL_METHOD(c, "iterator", []) as Iterator<Map_Entry<Object, Object>>;
         action LOOP_WHILE(
             result && action CALL_METHOD(iter, "hasNext", []),
             containsAll_loop(result, iter)
@@ -222,8 +218,8 @@ automaton HashMap_EntrySetAutomaton
     @Phantom proc equals_try (result: boolean, c: Collection): void
     {
         result = true;
-        val iter: Iterator<Map_Entry<Object, Object>> = action CALL_METHOD(c, "iterator", []) as Iterator<Map_Entry<Object, Object>>;
 
+        val iter: Iterator<Map_Entry<Object, Object>> = action CALL_METHOD(c, "iterator", []) as Iterator<Map_Entry<Object, Object>>;
         action LOOP_WHILE(
             result && action CALL_METHOD(iter, "hasNext", []),
             containsAll_loop(result, iter)
@@ -241,15 +237,16 @@ automaton HashMap_EntrySetAutomaton
         if (userAction == null)
             _throwNPE();
 
-        var storageSize: int = action MAP_SIZE(this.storageRef);
-        if (storageSize > 0)
+        val size: int = action MAP_SIZE(this.storageRef);
+        if (size > 0)
         {
             val expectedModCount: int = HashMapAutomaton(this.parent).modCount;
 
             val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
-            action LOOP_WHILE(
-                storageSize != 0,
-                forEach_loop(storageSize, unseen, userAction)
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, size, +1,
+                forEach_loop(unseen, userAction)
             );
 
             HashMapAutomaton(this.parent)._checkForComodification(expectedModCount);
@@ -257,7 +254,7 @@ automaton HashMap_EntrySetAutomaton
     }
 
 
-    @Phantom proc forEach_loop (storageSize: int, unseen: map<Object, Map_Entry<Object, Object>>, userAction: Consumer): void
+    @Phantom proc forEach_loop (unseen: map<Object, Map_Entry<Object, Object>>, userAction: Consumer): void
     {
         val key: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(this.storageRef, key);
@@ -265,7 +262,6 @@ automaton HashMap_EntrySetAutomaton
         action CALL(userAction, [entry]);
 
         action MAP_REMOVE(unseen, key);
-        storageSize -= 1;
     }
 
 
@@ -301,7 +297,8 @@ automaton HashMap_EntrySetAutomaton
         result = new StreamAutomaton(state = Initialized,
             storage = items,
             length = action ARRAY_SIZE(items),
-            closeHandlers = action LIST_NEW()
+            closeHandlers = action LIST_NEW(),
+            isParallel = true
         );
     }
 
@@ -490,7 +487,8 @@ automaton HashMap_EntrySetAutomaton
         result = new StreamAutomaton(state = Initialized,
             storage = items,
             length = action ARRAY_SIZE(items),
-            closeHandlers = action LIST_NEW()
+            closeHandlers = action LIST_NEW(),
+            isParallel = false
         );
     }
 
@@ -582,13 +580,14 @@ automaton HashMap_EntrySetAutomaton
         else
         {
             result = "[";
-            val endIndex: int = size - 1;
+
+            val lastIndex: int = size - 1;
 
             val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
             var i: int = 0;
             action LOOP_FOR(
                 i, 0, size, +1,
-                toString_loop(i, unseen, endIndex, result)
+                toString_loop(i, unseen, lastIndex, result)
             );
 
             result += "]";
@@ -596,7 +595,7 @@ automaton HashMap_EntrySetAutomaton
     }
 
 
-    @Phantom proc toString_loop (i: int, unseen: map<Object, Map_Entry<Object, Object>>, endIndex: int, result: String): void
+    @Phantom proc toString_loop (i: int, unseen: map<Object, Map_Entry<Object, Object>>, lastIndex: int, result: String): void
     {
         val key: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, key);
@@ -604,7 +603,8 @@ automaton HashMap_EntrySetAutomaton
         val value: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
 
         result += action OBJECT_TO_STRING(key) + "=" + action OBJECT_TO_STRING(value);
-        if (i != endIndex)
+
+        if (i != lastIndex)
             result += ", ";
 
         action MAP_REMOVE(unseen, key);

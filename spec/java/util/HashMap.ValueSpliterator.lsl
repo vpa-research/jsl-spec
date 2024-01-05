@@ -72,10 +72,9 @@ automaton HashMap_ValueSpliteratorAutomaton
     }
 
 
-    proc _checkForComodification (): void
+    @AutoInline @Phantom proc _checkForComodification (): void
     {
-        val modCount: int = HashMapAutomaton(this.parent).modCount;
-        if (this.expectedModCount != modCount)
+        if (HashMapAutomaton(this.parent).modCount != this.expectedModCount)
             action THROW_NEW("java.util.ConcurrentModificationException", []);
     }
 
@@ -115,8 +114,8 @@ automaton HashMap_ValueSpliteratorAutomaton
 
         if(hi < 0)
         {
-            this.expectedModCount = HashMapAutomaton(this.parent).modCount;
-            mc = this.expectedModCount;
+            mc = HashMapAutomaton(this.parent).modCount;
+            this.expectedModCount = mc;
             this.fence = storageSize;
             hi = storageSize;
         }
@@ -139,8 +138,8 @@ automaton HashMap_ValueSpliteratorAutomaton
 
     @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int): void
     {
-        var curValue: Object = this.valuesStorage[i];
-        action CALL(userAction, [curValue]);
+        action CALL(userAction, [this.valuesStorage[i]]);
+
         i += 1;
     }
 
@@ -176,14 +175,18 @@ automaton HashMap_ValueSpliteratorAutomaton
 
         if(i < hi)
         {
-            var curValue: Object = this.valuesStorage[i];
-            action CALL(userAction, [curValue]);
-            this.index += 1;
+            this.index = i + 1;
+
+            action CALL(userAction, [this.valuesStorage[i]]);
+
             _checkForComodification();
+
             result = true;
         }
-
-        result = false;
+        else
+        {
+            result = false;
+        }
     }
 
 

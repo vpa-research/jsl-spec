@@ -684,8 +684,6 @@ automaton HashMapAutomaton
 
     fun *.remove (@target self: HashMap, key: Object, value: Object): boolean
     {
-        result = false;
-
         if (action MAP_HAS_KEY(this.storage, key))
         {
             val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, key);
@@ -698,18 +696,25 @@ automaton HashMapAutomaton
                 result = true;
             }
         }
+        else
+        {
+            result = false;
+        }
     }
 
 
     fun *.replace (@target self: HashMap, key: Object, value: Object): Object
     {
-        result = null;
         if (action MAP_HAS_KEY(this.storage, key))
         {
             val entry: Map_Entry<Object, Object> = action MAP_GET(this.storage, key);
 
             result = AbstractMap_SimpleEntryAutomaton(entry).value;
             AbstractMap_SimpleEntryAutomaton(entry).value = value;
+        }
+        else
+        {
+            result = null;
         }
     }
 

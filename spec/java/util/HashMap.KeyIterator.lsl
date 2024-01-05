@@ -26,13 +26,7 @@ automaton HashMap_KeyIteratorAutomaton
 {
     // states and shifts
 
-    initstate Allocated;
-    state Initialized;
-
-    shift Allocated -> Initialized by [
-        // constructors
-        `<init>`,
-    ];
+    initstate Initialized;
 
     shift Initialized -> self by [
         // instance methods
@@ -55,21 +49,14 @@ automaton HashMap_KeyIteratorAutomaton
     }
 
 
-    proc _checkForComodification (): void
+    @AutoInline @Phantom proc _checkForComodification (): void
     {
-        val modCount: int = HashMapAutomaton(this.parent).modCount;
-        if (modCount != this.expectedModCount)
+        if (HashMapAutomaton(this.parent).modCount != this.expectedModCount)
             _throwCME();
     }
 
 
     // constructors
-
-    @private constructor *.`<init>` (@target self: HashMap_KeyIterator, _this: HashMap)
-    {
-        action ERROR("Private constructor call");
-    }
-
 
     // static methods
 
@@ -84,24 +71,22 @@ automaton HashMap_KeyIteratorAutomaton
         var size: int = action MAP_SIZE(this.unseen);
 
         if (size != 0)
-        {
-            val parentStorage: map<Object, Map_Entry<Object, Object>> = HashMapAutomaton(this.parent).storage;
-
             action LOOP_WHILE(
                 size != 0 && HashMapAutomaton(this.parent).modCount == this.expectedModCount,
-                forEachRemaining_loop(userAction, parentStorage, size)
+                forEachRemaining_loop(userAction, size)
             );
-        }
     }
 
 
-    @Phantom proc forEachRemaining_loop (userAction: Consumer, parentStorage: map<Object, Map_Entry<Object, Object>>, size: int): void
+    @Phantom proc forEachRemaining_loop (userAction: Consumer, size: int): void
     {
         _checkForComodification();
 
-        val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
-        action CALL(userAction, [curKey]);
-        action MAP_REMOVE(this.unseen, curKey);
+        val key: Object = action MAP_GET_ANY_KEY(this.unseen);
+
+        action CALL(userAction, [key]);
+
+        action MAP_REMOVE(this.unseen, key);
         size -= 1;
     }
 
@@ -120,10 +105,10 @@ automaton HashMap_KeyIteratorAutomaton
         if (action MAP_SIZE(this.unseen) == 0)
             action THROW_NEW("java.util.NoSuchElementException", []);
 
-        val curKey: Object = action MAP_GET_ANY_KEY(this.unseen);
-        action MAP_REMOVE(this.unseen, curKey);
-        result = curKey;
-        this.currentKey = curKey;
+        result = action MAP_GET_ANY_KEY(this.unseen);
+
+        action MAP_REMOVE(this.unseen, result);
+        this.currentKey = result;
     }
 
 
@@ -133,14 +118,14 @@ automaton HashMap_KeyIteratorAutomaton
         // relax state/error discovery process
         action ASSUME(this.parent != null);
 
-        if (this.currentKey == null)
+        val key: Object = this.currentKey;
+        if (key == null)
             action THROW_NEW("java.lang.IllegalStateException", []);
 
         _checkForComodification();
 
-        action MAP_REMOVE(this.unseen, this.currentKey);
-        val parentStorage: map<Object, Map_Entry<Object, Object>> = HashMapAutomaton(this.parent).storage;
-        action MAP_REMOVE(parentStorage, this.currentKey);
+        action MAP_REMOVE(this.unseen, key);
+        action MAP_REMOVE(HashMapAutomaton(this.parent).storage, key);
         HashMapAutomaton(this.parent).modCount += 1;
 
         this.expectedModCount = HashMapAutomaton(this.parent).modCount;
