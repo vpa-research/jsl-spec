@@ -409,7 +409,16 @@ automaton LinkedListAutomaton
             val otherLength: int = action CALL_METHOD(c, "size", []);
             if (otherLength == 0)
             {
-                result = false;
+                if (complement)
+                {
+                    result = true;
+                    this.storage = action LIST_NEW();
+                    this.modCount += 1;
+                }
+                else
+                {
+                    result = false;
+                }
             }
             else
             {
@@ -677,12 +686,11 @@ automaton LinkedListAutomaton
 
     fun *.descendingIterator (@target self: LinkedList): Iterator
     {
-        // #problem: not implemented
-        /*
-        result = new DescendingIterator(state = Created);
-        */
-        result = action SYMBOLIC("java.util.Iterator");
-        action ASSUME(result != null);
+        result = new LinkedList_DescendingIteratorAutomaton(state = Initialized,
+            parent = self,
+            cursor = action LIST_SIZE(this.storage),
+            expectedModCount = this.modCount
+        );
     }
 
 

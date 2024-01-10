@@ -378,7 +378,16 @@ automaton ArrayListAutomaton
             val otherLength: int = action CALL_METHOD(c, "size", []);
             if (otherLength == 0)
             {
-                result = false;
+                if (complement)
+                {
+                    result = true;
+                    this.storage = action LIST_NEW();
+                    this.modCount += 1;
+                }
+                else
+                {
+                    result = false;
+                }
             }
             else
             {
