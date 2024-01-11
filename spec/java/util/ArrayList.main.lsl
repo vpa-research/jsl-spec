@@ -368,6 +368,9 @@ automaton ArrayListAutomaton
 
     @KeepVisible proc _batchRemove (c: Collection, complement: boolean, start: int, end: int): boolean
     {
+        if (c == null)
+            _throwNPE();
+
         val oldLength: int = action LIST_SIZE(this.storage);
         if (oldLength == 0 || start >= end)
         {

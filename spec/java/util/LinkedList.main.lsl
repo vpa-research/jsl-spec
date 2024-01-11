@@ -399,6 +399,9 @@ automaton LinkedListAutomaton
 
     @KeepVisible proc _batchRemove (c: Collection, complement: boolean, start: int, end: int): boolean
     {
+        if (c == null)
+            _throwNPE();
+
         val oldSize: int = action LIST_SIZE(this.storage);
         if (oldSize == 0 || start >= end)
         {
