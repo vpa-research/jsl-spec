@@ -7,15 +7,15 @@ library std
 
 // imports
 import sun/nio/ch/DirectBuffer;
-
+import java/nio/MappedByteBuffer;
 
 // local semantic types
 
 @extends("java.nio.MappedByteBuffer")
 @implements("sun.nio.ch.DirectBuffer")
-@public @private type DirectByteBuffer
+@public type DirectByteBuffer
     is java.nio.DirectByteBuffer
-    for DirectBuffer
+    for DirectBuffer, MappedByteBuffer
 {
 }
 

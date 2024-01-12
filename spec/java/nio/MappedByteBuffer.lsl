@@ -10,6 +10,7 @@ library std
 
 import java/lang/Object;
 import java/lang/String;
+import java/nio/ByteBuffer;
 
 
 // local semantic types
@@ -17,7 +18,7 @@ import java/lang/String;
 @extends("java.nio.ByteBuffer")
 @abstract type MappedByteBuffer
     is java.nio.MappedByteBuffer
-    for Object
+    for ByteBuffer
 {
 }
 

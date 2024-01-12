@@ -169,14 +169,14 @@ automaton DirectByteBufferAutomaton
             action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
     }
 
-    @KeepVisible proc _hb(): array<byte>
-    {
-        result = this.hb;
-    }
-
     @KeepVisible proc _offset(): int
     {
         result = this.offset;
+    }
+
+    @KeepVisible proc _hb(): int
+    {
+        result = this.hb;
     }
 
     proc _get(i: int): byte
