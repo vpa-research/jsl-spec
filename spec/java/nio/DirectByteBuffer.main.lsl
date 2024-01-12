@@ -22,6 +22,34 @@ import java/nio/MappedByteBuffer;
 import java/nio/ShortBuffer;
 import jdk/internal/ref/Cleaner;
 
+import java/nio/ByteBufferAsCharBufferB;
+import java/nio/ByteBufferAsCharBufferL;
+import java/nio/ByteBufferAsDoubleBufferB;
+import java/nio/ByteBufferAsDoubleBufferL;
+import java/nio/ByteBufferAsFloatBufferB;
+import java/nio/ByteBufferAsFloatBufferL;
+import java/nio/ByteBufferAsIntBufferB;
+import java/nio/ByteBufferAsIntBufferL;
+import java/nio/ByteBufferAsLongBufferB;
+import java/nio/ByteBufferAsLongBufferL;
+import java/nio/ByteBufferAsShortBufferB;
+import java/nio/ByteBufferAsShortBufferL;
+
+import java/nio/DirectByteBufferR;
+
+import java/nio/DirectCharBufferS;
+import java/nio/DirectCharBufferU;
+import java/nio/DirectDoubleBufferS;
+import java/nio/DirectDoubleBufferU;
+import java/nio/DirectFloatBufferS;
+import java/nio/DirectFloatBufferU;
+import java/nio/DirectIntBufferS;
+import java/nio/DirectIntBufferU;
+import java/nio/DirectLongBufferS;
+import java/nio/DirectLongBufferU;
+import java/nio/DirectShortBufferS;
+import java/nio/DirectShortBufferU;
+
 // automata
 
 automaton DirectByteBufferAutomaton
