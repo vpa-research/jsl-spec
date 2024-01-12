@@ -15,15 +15,6 @@ import java/util/function/Supplier;
 import java/util/OptionalInt;
 
 
-// globals
-
-val EMPTY_OPTIONAL_INT: OptionalInt
-    = new OptionalIntAutomaton(state = Initialized,
-        value = 0,
-        present = false
-    );
-
-
 // automata
 
 automaton OptionalIntAutomaton
@@ -92,7 +83,7 @@ automaton OptionalIntAutomaton
 
     @static fun *.empty (): OptionalInt
     {
-        result = EMPTY_OPTIONAL_INT;
+        result = EMPTY;
     }
 
 
@@ -277,6 +268,17 @@ automaton OptionalIntAutomaton
         {
             result = "OptionalInt.empty";
         }
+    }
+
+
+    // special
+
+    @Phantom @static fun *.`<clinit>` (): void
+    {
+        EMPTY = new OptionalIntAutomaton(state = Initialized,
+            value = 0,
+            present = false
+        );
     }
 
 }

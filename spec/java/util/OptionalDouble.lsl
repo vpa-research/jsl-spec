@@ -38,5 +38,7 @@ import java/lang/Object;
     is java.util.OptionalDouble
     for OptionalDouble
 {
+    @private @static var EMPTY: OptionalDouble = null;
+
     // NOTE: value is stored within the automaton
 }
