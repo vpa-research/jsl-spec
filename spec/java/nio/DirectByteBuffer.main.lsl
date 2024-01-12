@@ -143,11 +143,11 @@ automaton DirectByteBufferAutomaton
 
 
     //ByteBuffer variables
-     var hb: array<byte> = null;
-     var isReadOnly: boolean = false;
+    var hb: array<byte> = null;
+    var isReadOnly: boolean = false;
 
-     var bigEndian: boolean = true;
-     var nativeByteOrder: boolean = false;
+    var bigEndian: boolean = true;
+    var nativeByteOrder: boolean = false;
 
     // utilities
 
@@ -157,11 +157,13 @@ automaton DirectByteBufferAutomaton
             action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
     }
 
+
     proc _checkIndex(i: int): void
     {
         if ((i < 0) || (i >= this.limit))
             action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
     }
+
 
     proc _checkIndex(i: int, nb: int): void
     {
@@ -169,21 +171,25 @@ automaton DirectByteBufferAutomaton
             action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
     }
 
+
     @KeepVisible proc _offset(): int
     {
         result = this.offset;
     }
+
 
     @KeepVisible proc _hb(): int
     {
         result = this.hb;
     }
 
+
     proc _get(i: int): byte
     {
         var ind: int = _nextGetIndex(i);
         result = this.storage[ind];
     }
+
 
     proc _get(dst: array<byte>, offset: int, length: int): void
     {
@@ -202,6 +208,7 @@ automaton DirectByteBufferAutomaton
             _get_loop(dst, i, src_ind)
         );
     }
+
 
     @Phantom proc _get_loop(dst: array<byte>, i: int, src_ind: int): void
     {
@@ -266,6 +273,7 @@ automaton DirectByteBufferAutomaton
         result = this.limit - this.position;
     }
 
+
     proc _alignmentOffset(index: int, unitSize: int): int
     {
         if (index < 0 || unitSize < 1 || (unitSize & (unitSize - 1)) != 0)
@@ -274,6 +282,7 @@ automaton DirectByteBufferAutomaton
         //    action THROW_NEW("java.lang.UnsupportedOperationException", []);
         result = ((this.address + index) % unitSize) as int;
     }
+
 
     proc _slice(self: DirectByteBuffer, pos: int, lim: int): DirectByteBuffer
     {
@@ -284,6 +293,7 @@ automaton DirectByteBufferAutomaton
         result = new DirectByteBufferAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = rem, capacity = rem, offset = pos);
     }
 
+
     proc _nextGetIndex(): int
     {
         if (this.position >= this.limit)
@@ -291,6 +301,7 @@ automaton DirectByteBufferAutomaton
         this.position += 1;
         result = this.position;
     }
+
 
     proc _nextGetIndex(nb: int): int
     {
@@ -301,6 +312,7 @@ automaton DirectByteBufferAutomaton
         result = p;
     }
 
+
     proc _nextPutIndex(): int
     {
         if (this.position >= this.limit)
@@ -308,6 +320,7 @@ automaton DirectByteBufferAutomaton
         this.position += 1;
         result = this.position;
     }
+
 
     proc _nextPutIndex(nb: int): int
     {
@@ -317,6 +330,7 @@ automaton DirectByteBufferAutomaton
         this.position += nb;
         result = p;
     }
+
 
     proc _mismatch(that: ByteBuffer, that_pos: int, len: int): int
     {
@@ -333,6 +347,7 @@ automaton DirectByteBufferAutomaton
         result = i;
     }
 
+
     @Phantom proc _mismatch_loop(i: int, this_pos: int, that: ByteBuffer, that_pos: int, returned: boolean): void
     {
         var that_got_loop: byte = action CALL_METHOD(that, "get", [that_pos + i]);
@@ -343,6 +358,7 @@ automaton DirectByteBufferAutomaton
             action LOOP_BREAK();
         }
     }
+
 
     //utilities for getChar
 
@@ -366,10 +382,11 @@ automaton DirectByteBufferAutomaton
         else result = action CALL_METHOD(null as Character, "reverseBytes", [n]);
     }
 
+
     //for putChar
 
     proc _putChar(offset: long, x: char): void
-{
+    {
         var y: short = _convEndian(x) as short;
         _putShortUnaligned(offset, (y >>> 0) as byte, (y >>> 8) as byte);
     }
@@ -399,6 +416,7 @@ automaton DirectByteBufferAutomaton
                                   (y >>> 56) as byte);
     }
 
+
     //utilities for getFloat
 
     proc _getFloat(offset: long): float
@@ -407,6 +425,7 @@ automaton DirectByteBufferAutomaton
         var endian_x: int = _convEndian(x);
         result = action CALL_METHOD(null as Float, "intBitsToFloat", [endian_x]);
     }
+
 
     //for putFloat
 
@@ -419,6 +438,7 @@ automaton DirectByteBufferAutomaton
                                  (y >>> 16) as byte,
                                  (y >>> 24) as byte);
     }
+
 
     //utilities for getInt
 
@@ -440,6 +460,7 @@ automaton DirectByteBufferAutomaton
                           this.storage[nextIndex3]);
     }
 
+
     proc _convEndian(n: int): int
     {
         if (this.bigEndian == true) result = n;
@@ -450,15 +471,17 @@ automaton DirectByteBufferAutomaton
     proc _makeInt(i0: byte, i1: byte, i2: byte, i3: byte): int
     {
         result = ((_toUnsignedInt(i0) << _pickPos(24, 0))
-              | (_toUnsignedInt(i1) << _pickPos(24, 8))
-              | (_toUnsignedInt(i2) << _pickPos(24, 16))
-              | (_toUnsignedInt(i3) << _pickPos(24, 24)));
+                | (_toUnsignedInt(i1) << _pickPos(24, 8))
+                | (_toUnsignedInt(i2) << _pickPos(24, 16))
+                | (_toUnsignedInt(i3) << _pickPos(24, 24)));
     }
+
 
     proc _toUnsignedInt(n: byte): int
     {
         result = n & 255;
     }
+
 
     // for putInt
 
@@ -484,6 +507,7 @@ automaton DirectByteBufferAutomaton
         this.storage[nextIndex3] = _pick(i3, i0);
     }
 
+
     //utilities for getLong
 
     proc _getLong(offset: long): long
@@ -491,6 +515,7 @@ automaton DirectByteBufferAutomaton
         var x: long = _getLongUnaligned(offset);
         result = _convEndian(x);
     }
+
 
     proc _getLongUnaligned(offset: long): long
     {
@@ -538,6 +563,7 @@ automaton DirectByteBufferAutomaton
         result = n & 255L;
     }
 
+
     // for putLong
 
     proc _putLong(offset: long, x: long): void
@@ -574,6 +600,7 @@ automaton DirectByteBufferAutomaton
         this.storage[nextIndex7] = _pick(i7, i0);
     }
 
+
     //utilities for getShort
 
     proc _getShort(offset: long): short
@@ -582,6 +609,7 @@ automaton DirectByteBufferAutomaton
         result = _convEndian(x);
     }
 
+
     proc _getShortUnaligned(offset: long): short
     {
         var nextIndex1: long = offset + 1;
@@ -589,11 +617,13 @@ automaton DirectByteBufferAutomaton
         result = _makeShort(this.storage[offset], this.storage[nextIndex1]);
     }
 
+
     proc _convEndian(n: short): short
     {
         if (this.bigEndian == true) result = n;
         else result = action CALL_METHOD(null as Short, "reverseBytes", [n]);
     }
+
 
     proc _makeShort(i0: byte, i1: byte): short
     {
@@ -601,12 +631,15 @@ automaton DirectByteBufferAutomaton
             | (_toUnsignedInt(i1) << _pickPos(8, 8))) as short;
     }
 
+
     //for putShort
+
     proc _putShort(offset: long, x: short): void
     {
         var y: short = _convEndian(x);
         _putShortUnaligned(offset, (y >>> 0) as byte, (y >>> 8) as byte);
     }
+
 
     proc _putShortUnaligned(offset: long, i0: byte, i1: byte): void
     {
@@ -632,6 +665,7 @@ automaton DirectByteBufferAutomaton
         else result = le;
     }
 
+
     // constructors proc
 
     proc _mappedByteBuffer_constructor(mark: int, pos: int, lim: int, cap: int, fd: FileDescriptor): void
@@ -640,12 +674,14 @@ automaton DirectByteBufferAutomaton
         this.fd = fd;
     }
 
+
     proc _byteBuffer_constructor(mark: int, pos: int, lim: int, cap: int, hb: array<byte>, offset: int): void
     {
         _buffer_constructor(mark, pos, lim, cap);
         this.hb = hb;
         this.offset = offset;
     }
+
 
     proc _buffer_constructor(mark: int, pos: int, lim: int, cap: int): void
     {
@@ -664,8 +700,8 @@ automaton DirectByteBufferAutomaton
         }
     }
 
-    // put
 
+    // put
 
     proc _super_put(self: ByteBuffer, src: ByteBuffer): ByteBuffer
     {
@@ -686,6 +722,7 @@ automaton DirectByteBufferAutomaton
             _super_put_loop(i, src, get_byte)
         );
     }
+
 
     @Phantom proc _super_put_loop(i: int, src: ByteBuffer, get_byte: byte): void
     {
@@ -815,8 +852,8 @@ automaton DirectByteBufferAutomaton
 
         if (UNALIGNED == false && ((this.address + off) % (1 << 1) != 0))
         {
-           if (this.bigEndian == true) result = (new ByteBufferAsCharBufferBAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as CharBuffer;
-           else result = (new ByteBufferAsCharBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as CharBuffer;
+            if (this.bigEndian == true) result = (new ByteBufferAsCharBufferBAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as CharBuffer;
+            else result = (new ByteBufferAsCharBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as CharBuffer;
         } else
         {
             if (this.nativeByteOrder == true) result = (new DirectCharBufferUAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as CharBuffer;
@@ -836,8 +873,8 @@ automaton DirectByteBufferAutomaton
 
         if (UNALIGNED == false && ((this.address + off) % (1 << 3) != 0))
         {
-           if (this.bigEndian == true) result = (new ByteBufferAsDoubleBufferBAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as DoubleBuffer;
-           else result = (new ByteBufferAsDoubleBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as DoubleBuffer;
+            if (this.bigEndian == true) result = (new ByteBufferAsDoubleBufferBAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as DoubleBuffer;
+            else result = (new ByteBufferAsDoubleBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as DoubleBuffer;
         } else
         {
             if (this.nativeByteOrder == true) result = (new DirectDoubleBufferUAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as DoubleBuffer;
@@ -857,8 +894,8 @@ automaton DirectByteBufferAutomaton
 
         if (UNALIGNED == false && ((this.address + off) % (1 << 2) != 0))
         {
-           if (this.bigEndian == true) result = (new ByteBufferAsFloatBufferBAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as FloatBuffer;
-           else result = (new ByteBufferAsFloatBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as FloatBuffer;
+            if (this.bigEndian == true) result = (new ByteBufferAsFloatBufferBAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as FloatBuffer;
+            else result = (new ByteBufferAsFloatBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as FloatBuffer;
         } else
         {
             if (this.nativeByteOrder == true) result = (new DirectFloatBufferUAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as FloatBuffer;
@@ -878,8 +915,8 @@ automaton DirectByteBufferAutomaton
 
         if (UNALIGNED == false && ((this.address + off) % (1 << 2) != 0))
         {
-           if (this.bigEndian == true) result = (new ByteBufferAsIntBufferBAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as IntBuffer;
-           else result = (new ByteBufferAsIntBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as IntBuffer;
+            if (this.bigEndian == true) result = (new ByteBufferAsIntBufferBAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as IntBuffer;
+            else result = (new ByteBufferAsIntBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as IntBuffer;
         } else
         {
             if (this.nativeByteOrder == true) result = (new DirectIntBufferUAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as IntBuffer;
@@ -899,8 +936,8 @@ automaton DirectByteBufferAutomaton
 
         if (UNALIGNED == false && ((this.address + off) % (1 << 3) != 0))
         {
-           if (this.bigEndian == true) result = (new ByteBufferAsLongBufferBAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as LongBuffer;
-           else result = (new ByteBufferAsLongBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as LongBuffer;
+            if (this.bigEndian == true) result = (new ByteBufferAsLongBufferBAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as LongBuffer;
+            else result = (new ByteBufferAsLongBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as LongBuffer;
         } else
         {
             if (this.nativeByteOrder == true) result = (new DirectLongBufferUAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as LongBuffer;
@@ -926,8 +963,8 @@ automaton DirectByteBufferAutomaton
 
         if (UNALIGNED == false && ((this.address + off) % (1 << 1) != 0))
         {
-           if (this.bigEndian == true) result = (new ByteBufferAsShortBufferBAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as ShortBuffer;
-           else result = (new ByteBufferAsShortBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as ShortBuffer;
+            if (this.bigEndian == true) result = (new ByteBufferAsShortBufferBAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as ShortBuffer;
+            else result = (new ByteBufferAsShortBufferLAutomaton(state = Initialized, bb = self, mark = -1, position = 0, limit = size, capacity = size, address = this.address + off)) as ShortBuffer;
         } else
         {
             if (this.nativeByteOrder == true) result = (new DirectShortBufferUAutomaton(state = Initialized, att = self, mark = -1, position = 0, limit = size, capacity = size, offset = off)) as ShortBuffer;
@@ -964,6 +1001,7 @@ automaton DirectByteBufferAutomaton
         result = self;
     }
 
+
     fun *.compact (@target self: DirectByteBuffer): ByteBuffer
     {
 
@@ -987,6 +1025,7 @@ automaton DirectByteBufferAutomaton
         this.mark = -1;
         result = self;
     }
+
 
     @Phantom proc _compact_loop(i: int, cur_pos: int): void
     {
@@ -1221,6 +1260,7 @@ automaton DirectByteBufferAutomaton
         result = h;
     }
 
+
     @Phantom proc _genHash_loop(h: int, i: int): void
     {
         h = 31 * h + (_get(i) as int);
@@ -1382,6 +1422,7 @@ automaton DirectByteBufferAutomaton
         this.storage[i] = src_array[src_i];
         src_i += 1;
     }
+
 
     fun *.put (@target self: DirectByteBuffer, x: byte): ByteBuffer
     {
@@ -1559,5 +1600,4 @@ automaton DirectByteBufferAutomaton
         result += action OBJECT_TO_STRING(this.capacity);
         result += "]";
     }
-
 }
