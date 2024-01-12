@@ -362,16 +362,16 @@ automaton DirectByteBufferAutomaton
 
     //utilities for getChar
 
-    proc _getChar(offset: long): char
+    proc _getChar(offset: int): char
     {
         var character: char = _getCharUnaligned(offset);
         result = _convEndian(character);
     }
 
 
-    proc _getCharUnaligned(offset: long): char
+    proc _getCharUnaligned(offset: int): char
     {
-        var nextIndex1: long = offset + 1;
+        var nextIndex1: int = offset + 1;
         result = _makeShort(this.storage[offset], this.storage[nextIndex1]) as char;
     }
 
@@ -385,7 +385,7 @@ automaton DirectByteBufferAutomaton
 
     //for putChar
 
-    proc _putChar(offset: long, x: char): void
+    proc _putChar(offset: int, x: char): void
     {
         var y: short = _convEndian(x) as short;
         _putShortUnaligned(offset, (y >>> 0) as byte, (y >>> 8) as byte);
@@ -393,16 +393,16 @@ automaton DirectByteBufferAutomaton
 
     //utilities for getDouble
 
-    proc _getDouble(offset: long): double
+    proc _getDouble(offset: int): double
     {
         var x: long = _getLongUnaligned(offset);
-        var endian_x: long = _convEndian(x);
+        var endian_x: int = _convEndian(x);
         result = action CALL_METHOD(null as Double, "longBitsToDouble", [endian_x]);
     }
 
     // for put Double
 
-    proc _putDouble(offset: long, x: double): void
+    proc _putDouble(offset: int, x: double): void
     {
         var conv_x: long = action CALL_METHOD(null as Double, "doubleToRawLongBits", [x]);
         var y: long = _convEndian(conv_x);
@@ -419,7 +419,7 @@ automaton DirectByteBufferAutomaton
 
     //utilities for getFloat
 
-    proc _getFloat(offset: long): float
+    proc _getFloat(offset: int): float
     {
         var x: int = _getIntUnaligned(offset);
         var endian_x: int = _convEndian(x);
@@ -429,7 +429,7 @@ automaton DirectByteBufferAutomaton
 
     //for putFloat
 
-    proc _putFloat(offset: long, x: float): void
+    proc _putFloat(offset: int, x: float): void
     {
         var conv_x: int = action CALL_METHOD(null as Float, "floatToRawIntBits", [x]);
         var y: int = _convEndian(conv_x);
@@ -442,17 +442,17 @@ automaton DirectByteBufferAutomaton
 
     //utilities for getInt
 
-    proc _getInt(offset: long): int
+    proc _getInt(offset: int): int
     {
         var x: int = _getIntUnaligned(offset);
         result = _convEndian(x);
     }
 
-    proc _getIntUnaligned(offset: long): int
+    proc _getIntUnaligned(offset: int): int
     {
-        var nextIndex1: long = offset + 1;
-        var nextIndex2: long = offset + 2;
-        var nextIndex3: long = offset + 3;
+        var nextIndex1: int = offset + 1;
+        var nextIndex2: int = offset + 2;
+        var nextIndex3: int = offset + 3;
 
         result = _makeInt(this.storage[offset],
                           this.storage[nextIndex1],
@@ -485,7 +485,7 @@ automaton DirectByteBufferAutomaton
 
     // for putInt
 
-    proc _putInt(offset: long, x: int): void
+    proc _putInt(offset: int, x: int): void
     {
         var y: int = _convEndian(x);
         _putIntUnaligned(offset, (y >>> 0) as byte,
@@ -495,11 +495,11 @@ automaton DirectByteBufferAutomaton
     }
 
 
-    proc _putIntUnaligned(offset: long, i0: byte, i1: byte, i2: byte, i3: byte): void
+    proc _putIntUnaligned(offset: int, i0: byte, i1: byte, i2: byte, i3: byte): void
     {
-        var nextIndex1: long = offset + 1;
-        var nextIndex2: long = offset + 2;
-        var nextIndex3: long = offset + 3;
+        var nextIndex1: int = offset + 1;
+        var nextIndex2: int = offset + 2;
+        var nextIndex3: int = offset + 3;
 
         this.storage[offset] = _pick(i0, i3);
         this.storage[nextIndex1] = _pick(i1, i2);
@@ -510,22 +510,22 @@ automaton DirectByteBufferAutomaton
 
     //utilities for getLong
 
-    proc _getLong(offset: long): long
+    proc _getLong(offset: int): long
     {
         var x: long = _getLongUnaligned(offset);
         result = _convEndian(x);
     }
 
 
-    proc _getLongUnaligned(offset: long): long
+    proc _getLongUnaligned(offset: int): long
     {
-        var nextIndex1: long = offset + 1;
-        var nextIndex2: long = offset + 2;
-        var nextIndex3: long = offset + 3;
-        var nextIndex4: long = offset + 4;
-        var nextIndex5: long = offset + 5;
-        var nextIndex6: long = offset + 6;
-        var nextIndex7: long = offset + 7;
+        var nextIndex1: int = offset + 1;
+        var nextIndex2: int = offset + 2;
+        var nextIndex3: int = offset + 3;
+        var nextIndex4: int = offset + 4;
+        var nextIndex5: int = offset + 5;
+        var nextIndex6: int = offset + 6;
+        var nextIndex7: int = offset + 7;
 
         result = _makeLong(this.storage[offset],
                          this.storage[nextIndex1],
@@ -566,7 +566,7 @@ automaton DirectByteBufferAutomaton
 
     // for putLong
 
-    proc _putLong(offset: long, x: long): void
+    proc _putLong(offset: int, x: long): void
     {
         var y: long = _convEndian(x);
         _putLongUnaligned(offset, (y >>> 0) as byte,
@@ -580,15 +580,15 @@ automaton DirectByteBufferAutomaton
     }
 
 
-    proc _putLongUnaligned(offset: long, i0: byte, i1: byte, i2: byte, i3: byte, i4: byte, i5: byte, i6: byte, i7: byte): void
+    proc _putLongUnaligned(offset: int, i0: byte, i1: byte, i2: byte, i3: byte, i4: byte, i5: byte, i6: byte, i7: byte): void
     {
-        var nextIndex1: long = offset + 1;
-        var nextIndex2: long = offset + 2;
-        var nextIndex3: long = offset + 3;
-        var nextIndex4: long = offset + 4;
-        var nextIndex5: long = offset + 5;
-        var nextIndex6: long = offset + 6;
-        var nextIndex7: long = offset + 7;
+        var nextIndex1: int = offset + 1;
+        var nextIndex2: int = offset + 2;
+        var nextIndex3: int = offset + 3;
+        var nextIndex4: int = offset + 4;
+        var nextIndex5: int = offset + 5;
+        var nextIndex6: int = offset + 6;
+        var nextIndex7: int = offset + 7;
 
         this.storage[offset] = _pick(i0, i7);
         this.storage[nextIndex1] = _pick(i1, i6);
@@ -603,16 +603,16 @@ automaton DirectByteBufferAutomaton
 
     //utilities for getShort
 
-    proc _getShort(offset: long): short
+    proc _getShort(offset: int): short
     {
         var x: short = _getShortUnaligned(offset);
         result = _convEndian(x);
     }
 
 
-    proc _getShortUnaligned(offset: long): short
+    proc _getShortUnaligned(offset: int): short
     {
-        var nextIndex1: long = offset + 1;
+        var nextIndex1: int = offset + 1;
 
         result = _makeShort(this.storage[offset], this.storage[nextIndex1]);
     }
@@ -634,16 +634,16 @@ automaton DirectByteBufferAutomaton
 
     //for putShort
 
-    proc _putShort(offset: long, x: short): void
+    proc _putShort(offset: int, x: short): void
     {
         var y: short = _convEndian(x);
         _putShortUnaligned(offset, (y >>> 0) as byte, (y >>> 8) as byte);
     }
 
 
-    proc _putShortUnaligned(offset: long, i0: byte, i1: byte): void
+    proc _putShortUnaligned(offset: int, i0: byte, i1: byte): void
     {
-        var nextIndex1: long = offset + 1;
+        var nextIndex1: int = offset + 1;
 
         this.storage[offset] = _pick(i0, i1);
         this.storage[nextIndex1] = _pick(i1, i0);
@@ -1149,84 +1149,84 @@ automaton DirectByteBufferAutomaton
     fun *.getChar (@target self: DirectByteBuffer): char
     {
         var next_index: int = _nextGetIndex(2);
-        result = _getChar(next_index as long);
+        result = _getChar(next_index);
     }
 
 
     fun *.getChar (@target self: DirectByteBuffer, i: int): char
     {
         _checkIndex(i, 2);
-        result = _getChar(i as long);
+        result = _getChar(i);
     }
 
 
     fun *.getDouble (@target self: DirectByteBuffer): double
     {
         var next_index: int = _nextGetIndex(8);
-        result = _getDouble(next_index as long);
+        result = _getDouble(next_index);
     }
 
 
     fun *.getDouble (@target self: DirectByteBuffer, i: int): double
     {
         _checkIndex(i, 8);
-        result = _getDouble(i as long);
+        result = _getDouble(i);
     }
 
 
     fun *.getFloat (@target self: DirectByteBuffer): float
     {
         var next_index: int = _nextGetIndex(4);
-        result = _getFloat(next_index as long);
+        result = _getFloat(next_index);
     }
 
 
     fun *.getFloat (@target self: DirectByteBuffer, i: int): float
     {
         _checkIndex(i, 4);
-        result = _getFloat(i as long);
+        result = _getFloat(i);
     }
 
 
     fun *.getInt (@target self: DirectByteBuffer): int
     {
         var next_index: int = _nextGetIndex(4);
-        result = _getInt(next_index as long);
+        result = _getInt(next_index);
     }
 
 
     fun *.getInt (@target self: DirectByteBuffer, i: int): int
     {
         _checkIndex(i, 4);
-        result = _getInt(i as long);
+        result = _getInt(i);
     }
 
 
     fun *.getLong (@target self: DirectByteBuffer): long
     {
         var next_index: int = _nextGetIndex(8);
-        result = _getLong(next_index as long);
+        result = _getLong(next_index);
     }
 
 
     fun *.getLong (@target self: DirectByteBuffer, i: int): long
     {
         _checkIndex(i, 8);
-        result = _getLong(i as long);
+        result = _getLong(i);
     }
 
 
     fun *.getShort (@target self: DirectByteBuffer): short
     {
         var next_index: int = _nextGetIndex(2);
-        result = _getShort(next_index as long);
+        result = _getShort(next_index);
     }
 
 
     fun *.getShort (@target self: DirectByteBuffer, i: int): short
     {
         _checkIndex(i, 2);
-        result = _getShort(i as long);
+        result = _getShort(i);
     }
 
 
@@ -1458,7 +1458,7 @@ automaton DirectByteBufferAutomaton
     fun *.putChar (@target self: DirectByteBuffer, x: char): ByteBuffer
     {
         var next_index: int = _nextPutIndex(2);
-        _putChar(next_index as long, x);
+        _putChar(next_index, x);
         result = self;
     }
 
@@ -1466,7 +1466,7 @@ automaton DirectByteBufferAutomaton
     fun *.putChar (@target self: DirectByteBuffer, i: int, x: char): ByteBuffer
     {
         _checkIndex(i, 2);
-        _putChar(i as long, x);
+        _putChar(i, x);
         result = self;
     }
 
@@ -1474,7 +1474,7 @@ automaton DirectByteBufferAutomaton
     fun *.putDouble (@target self: DirectByteBuffer, x: double): ByteBuffer
     {
         var next_index: int = _nextPutIndex(8);
-        _putDouble(next_index as long, x);
+        _putDouble(next_index, x);
         result = self;
     }
 
@@ -1482,7 +1482,7 @@ automaton DirectByteBufferAutomaton
     fun *.putDouble (@target self: DirectByteBuffer, i: int, x: double): ByteBuffer
     {
         _checkIndex(i, 8);
-        _putDouble(i as long, x);
+        _putDouble(i, x);
         result = self;
     }
 
@@ -1490,7 +1490,7 @@ automaton DirectByteBufferAutomaton
     fun *.putFloat (@target self: DirectByteBuffer, x: float): ByteBuffer
     {
         var next_index: int = _nextPutIndex(4);
-        _putFloat(next_index as long, x);
+        _putFloat(next_index, x);
         result = self;
     }
 
@@ -1498,7 +1498,7 @@ automaton DirectByteBufferAutomaton
     fun *.putFloat (@target self: DirectByteBuffer, i: int, x: float): ByteBuffer
     {
         _checkIndex(i, 4);
-        _putFloat(i as long, x);
+        _putFloat(i, x);
         result = self;
     }
 
@@ -1506,7 +1506,7 @@ automaton DirectByteBufferAutomaton
     fun *.putInt (@target self: DirectByteBuffer, x: int): ByteBuffer
     {
         var next_index: int = _nextPutIndex(4);
-        _putInt(next_index as long, x);
+        _putInt(next_index, x);
         result = self;
     }
 
@@ -1514,7 +1514,7 @@ automaton DirectByteBufferAutomaton
     fun *.putInt (@target self: DirectByteBuffer, i: int, x: int): ByteBuffer
     {
         _checkIndex(i, 4);
-        _putInt(i as long, x);
+        _putInt(i, x);
         result = self;
     }
 
@@ -1522,7 +1522,7 @@ automaton DirectByteBufferAutomaton
     fun *.putLong (@target self: DirectByteBuffer, i: int, x: long): ByteBuffer
     {
         _checkIndex(i, 8);
-        _putLong(i as long, x);
+        _putLong(i, x);
         result = self;
     }
 
@@ -1530,7 +1530,7 @@ automaton DirectByteBufferAutomaton
     fun *.putLong (@target self: DirectByteBuffer, x: long): ByteBuffer
     {
         var next_index: int = _nextPutIndex(8);
-        _putLong(next_index as long, x);
+        _putLong(next_index, x);
         result = self;
     }
 
@@ -1538,7 +1538,7 @@ automaton DirectByteBufferAutomaton
     fun *.putShort (@target self: DirectByteBuffer, i: int, x: short): ByteBuffer
     {
         _checkIndex(i, 2);
-        _putShort(i as long, x);
+        _putShort(i, x);
         result = self;
     }
 
@@ -1546,7 +1546,7 @@ automaton DirectByteBufferAutomaton
     fun *.putShort (@target self: DirectByteBuffer, x: short): ByteBuffer
     {
         var next_index: int = _nextPutIndex(2);
-        _putShort(next_index as long, x);
+        _putShort(next_index, x);
         result = self;
     }
 
