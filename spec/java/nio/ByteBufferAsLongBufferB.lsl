@@ -7,10 +7,6 @@ library std
 
 // imports
 
-import java/lang/Object;
-import java/lang/String;
-import java/nio/ByteBuffer;
-import java/nio/ByteOrder;
 import java/nio/LongBuffer;
 
 

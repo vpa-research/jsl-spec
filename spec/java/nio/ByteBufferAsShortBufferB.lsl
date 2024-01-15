@@ -17,7 +17,7 @@ import java/nio/ShortBuffer;
 // local semantic types
 
 @extends("java.nio.ShortBuffer")
-ype ByteBufferAsShortBufferB
+type ByteBufferAsShortBufferB
     is java.nio.ByteBufferAsShortBufferB
     for ShortBuffer
 {

@@ -13,7 +13,7 @@ import java/nio/MappedByteBuffer;
 
 @extends("java.nio.MappedByteBuffer")
 @implements("sun.nio.ch.DirectBuffer")
-@public type DirectByteBuffer
+type DirectByteBuffer
     is java.nio.DirectByteBuffer
     for DirectBuffer, MappedByteBuffer
 {
@@ -27,5 +27,4 @@ import java/nio/MappedByteBuffer;
     for DirectByteBuffer
 {
     @static var UNALIGNED: boolean = true;
-
 }

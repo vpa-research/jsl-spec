@@ -6,11 +6,6 @@ library std
     url "https://github.com/openjdk/jdk11/blob/master/src/java.base/share/classes/java/nio/ByteBufferAsLongBufferL.java";
 
 // imports
-
-import java/lang/Object;
-import java/lang/String;
-import java/nio/ByteBuffer;
-import java/nio/ByteOrder;
 import java/nio/LongBuffer;
 
 

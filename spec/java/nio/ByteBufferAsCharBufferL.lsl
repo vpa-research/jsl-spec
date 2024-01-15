@@ -7,13 +7,7 @@ library std
 
 // imports
 
-import java/lang/CharSequence;
-import java/lang/Object;
-import java/lang/String;
-import java/nio/ByteBuffer;
-import java/nio/ByteOrder;
 import java/nio/CharBuffer;
-import java/util/stream/IntStream;
 
 
 // local semantic types
