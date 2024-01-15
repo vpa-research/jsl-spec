@@ -10,6 +10,7 @@ import sun/nio/ch/DirectBuffer;
 import java/nio/MappedByteBuffer;
 
 // local semantic types
+@GenerateMe
 @extends("java.nio.MappedByteBuffer")
 @implements("sun.nio.ch.DirectBuffer")
 type DirectByteBuffer

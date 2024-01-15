@@ -1,4 +1,3 @@
-//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -16,7 +15,7 @@ import java/nio/ByteBuffer;
 // local semantic types
 
 @extends("java.nio.ByteBuffer")
-@abstract type MappedByteBuffer
+@public @abstract type MappedByteBuffer
     is java.nio.MappedByteBuffer
     for ByteBuffer
 {

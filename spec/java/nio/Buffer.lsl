@@ -13,7 +13,7 @@ import java/lang/Object;
 
 // primary semantic types
 
-@abstract type Buffer
+@public @abstract type Buffer
     is java.nio.Buffer
     for Object
 {

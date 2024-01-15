@@ -206,7 +206,7 @@ automaton DirectByteBufferAutomaton
     }
 
 
-    @KeepVisible proc _hb(): int
+    @KeepVisible proc _hb(): array<byte>
     {
         result = this.hb;
     }
