@@ -14,7 +14,7 @@ import java/lang/Object;
 // primary semantic types
 
 @abstract type Buffer
-    is java.lang.Buffer
+    is java.nio.Buffer
     for Object
 {
     fun *.capacity(): int;
