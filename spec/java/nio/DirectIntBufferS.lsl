@@ -22,6 +22,7 @@ type DirectIntBufferS
 }
 
 
+@GenerateMe
 @extends("java.nio.IntBuffer")
 @implements("sun.nio.ch.DirectBuffer")
 @public type LSLDirectIntBufferS

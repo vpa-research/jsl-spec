@@ -13,7 +13,7 @@ import java/lang/Runnable;
 
 // primary semantic types
 
-type Cleaner
+@public type Cleaner
     is jdk.internal.ref.Cleaner
     for PhantomReference
 {

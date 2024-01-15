@@ -22,6 +22,7 @@ type DirectFloatBufferU
 }
 
 
+@GenerateMe
 @extends("java.nio.FloatBuffer")
 @implements("sun.nio.ch.DirectBuffer")
 @public type LSLDirectFloatBufferU

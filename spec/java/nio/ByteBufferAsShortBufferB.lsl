@@ -24,6 +24,7 @@ type ByteBufferAsShortBufferB
 }
 
 
+@GenerateMe
 @extends("java.nio.ShortBuffer")
 @public type LSLByteBufferAsShortBufferB
     is java.nio.ByteBufferAsShortBufferB

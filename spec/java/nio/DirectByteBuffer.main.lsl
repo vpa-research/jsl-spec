@@ -424,7 +424,7 @@ automaton DirectByteBufferAutomaton
     proc _getDouble(offset: int): double
     {
         var x: long = _getLongUnaligned(offset);
-        var endian_x: int = _convEndian(x);
+        var endian_x: long = _convEndian(x);
         result = action CALL_METHOD(null as Double, "longBitsToDouble", [endian_x]);
     }
 
@@ -1026,7 +1026,7 @@ automaton DirectByteBufferAutomaton
         this.position = 0;
         this.limit = this.capacity;
         this.mark = -1;
-        result = self;
+        result = self as Buffer;
     }
 
 

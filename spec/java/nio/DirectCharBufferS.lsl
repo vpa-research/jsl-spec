@@ -12,7 +12,6 @@ import sun/nio/ch/DirectBuffer;
 
 
 // local semantic types
-
 @extends("java.nio.CharBuffer")
 @implements("sun.nio.ch.DirectBuffer")
 type DirectCharBufferS
@@ -22,6 +21,7 @@ type DirectCharBufferS
 }
 
 
+@GenerateMe
 @extends("java.nio.CharBuffer")
 @implements("sun.nio.ch.DirectBuffer")
 @public type LSLDirectCharBufferS

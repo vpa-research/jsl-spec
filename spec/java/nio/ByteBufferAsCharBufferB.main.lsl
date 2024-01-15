@@ -24,7 +24,7 @@ automaton ByteBufferAsCharBufferBAutomaton
     var position: int,
     var limit: int,
     var capacity: int,
-    var address: int
+    var address: long
 )
 : LSLByteBufferAsCharBufferB
 {

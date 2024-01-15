@@ -7,21 +7,23 @@ library std
 
 // imports
 
-import java/nio/DirectByteBuffer;
+//import java/nio/DirectByteBuffer;
 import sun/nio/ch/DirectBuffer;
 
 
 // local semantic types
-
-@extends("java.nio.DirectByteBuffer")
+@GenerateMe
+//@extends("java.nio.DirectByteBuffer")
 @implements("sun.nio.ch.DirectBuffer")
 type DirectByteBufferR
     is java.nio.DirectByteBufferR
-    for DirectByteBuffer, DirectBuffer
+    for DirectBuffer // DirectByteBuffer,
 {
 }
 
-@extends("java.nio.DirectByteBuffer")
+
+@GenerateMe
+//@extends("java.nio.DirectByteBuffer")
 @implements("sun.nio.ch.DirectBuffer")
 @public type LSLDirectByteBufferR
     is java.nio.DirectByteBufferR

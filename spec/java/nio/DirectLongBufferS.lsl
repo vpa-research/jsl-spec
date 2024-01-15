@@ -21,6 +21,7 @@ type DirectLongBufferS
 }
 
 
+@GenerateMe
 @extends("java.nio.LongBuffer")
 @implements("sun.nio.ch.DirectBuffer")
 @public type LSLDirectLongBufferS

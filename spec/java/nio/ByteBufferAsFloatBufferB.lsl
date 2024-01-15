@@ -20,6 +20,7 @@ type ByteBufferAsFloatBufferB
 }
 
 
+@GenerateMe
 @extends("java.nio.FloatBuffer")
 @public type LSLByteBufferAsFloatBufferB
     is java.nio.ByteBufferAsFloatBufferB

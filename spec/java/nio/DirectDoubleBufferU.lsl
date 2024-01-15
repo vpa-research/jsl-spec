@@ -22,6 +22,7 @@ type DirectDoubleBufferU
 }
 
 
+@GenerateMe
 @extends("java.nio.DoubleBuffer")
 @implements("sun.nio.ch.DirectBuffer")
 @public type LSLDirectDoubleBufferU

@@ -20,6 +20,7 @@ type ByteBufferAsCharBufferB
 }
 
 
+@GenerateMe
 @extends("java.nio.CharBuffer")
 @public type LSLByteBufferAsCharBufferB
     is java.nio.ByteBufferAsCharBufferB

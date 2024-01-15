@@ -11,7 +11,6 @@ import java/nio/FloatBuffer;
 
 
 // local semantic types
-
 @extends("java.nio.FloatBuffer")
 type ByteBufferAsFloatBufferL
     is java.nio.ByteBufferAsFloatBufferL
@@ -20,6 +19,7 @@ type ByteBufferAsFloatBufferL
 }
 
 
+@GenerateMe
 @extends("java.nio.FloatBuffer")
 @public type LSLByteBufferAsFloatBufferL
     is java.nio.ByteBufferAsFloatBufferL

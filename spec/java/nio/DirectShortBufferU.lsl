@@ -22,6 +22,7 @@ type DirectShortBufferU
 }
 
 
+@GenerateMe
 @extends("java.nio.ShortBuffer")
 @implements("sun.nio.ch.DirectBuffer")
 @public type LSLDirectShortBufferU

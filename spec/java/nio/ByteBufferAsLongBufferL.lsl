@@ -19,6 +19,7 @@ type ByteBufferAsLongBufferL
 }
 
 
+@GenerateMe
 @extends("java.nio.LongBuffer")
 @public type LSLByteBufferAsLongBufferL
     is java.nio.ByteBufferAsLongBufferL

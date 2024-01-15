@@ -23,7 +23,7 @@ automaton ByteBufferAsDoubleBufferLAutomaton
     var position: int,
     var limit: int,
     var capacity: int,
-    var address: int
+    var address: long
 )
 : LSLByteBufferAsDoubleBufferL
 {

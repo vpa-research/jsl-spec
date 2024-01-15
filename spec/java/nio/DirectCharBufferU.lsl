@@ -22,6 +22,7 @@ type DirectCharBufferU
 }
 
 
+@GenerateMe
 @extends("java.nio.CharBuffer")
 @implements("sun.nio.ch.DirectBuffer")
 @public type LSLDirectCharBufferU
