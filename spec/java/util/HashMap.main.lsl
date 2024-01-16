@@ -459,11 +459,11 @@ automaton HashMapAutomaton
         val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
         action LOOP_WHILE(
             result && thisLength != 0,
-            equals_loop(result, unseen, m, thisLength)
+            equals_try_loop(result, unseen, m, thisLength)
         );
     }
 
-    @Phantom proc equals_loop (result: boolean, unseen: map<Object, Map_Entry<Object, Object>>, m: Map<Object, Object>, thisLength: int): void
+    @Phantom proc equals_try_loop (result: boolean, unseen: map<Object, Map_Entry<Object, Object>>, m: Map<Object, Object>, thisLength: int): void
     {
         val key: Object = action MAP_GET_ANY_KEY(unseen);
 
@@ -592,15 +592,12 @@ automaton HashMapAutomaton
         }
         else
         {
-            if (value != null)
-            {
-                entry = new AbstractMap_SimpleEntryAutomaton(state = Initialized,
-                    key = key,
-                    value = value
-                );
-                action MAP_SET(this.storage, key, entry);
-                this.modCount += 1;
-            }
+            entry = new AbstractMap_SimpleEntryAutomaton(state = Initialized,
+                key = key,
+                value = value
+            );
+            action MAP_SET(this.storage, key, entry);
+            this.modCount += 1;
 
             result = value;
         }

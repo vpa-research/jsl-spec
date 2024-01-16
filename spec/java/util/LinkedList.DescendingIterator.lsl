@@ -3,7 +3,7 @@ libsl "1.1.0";
 library std
     version "11"
     language "Java"
-    url "https://github.com/openjdk/jdk11/blob/master/src/java.base/share/classes/java/util/LinkedList.java";
+    url "https://github.com/openjdk/jdk11/blob/master/src/java.base/share/classes/java/util/LinkedList.java#L996";
 
 // imports
 
@@ -47,10 +47,9 @@ automaton LinkedList_DescendingIteratorAutomaton
     }
 
 
-    proc _checkForComodification (): void
+    @AutoInline @Phantom proc _checkForComodification (): void
     {
-        val modCount: int = LinkedListAutomaton(this.parent).modCount;
-        if (modCount != this.expectedModCount)
+        if (LinkedListAutomaton(this.parent).modCount != this.expectedModCount)
             _throwCME();
     }
 
@@ -132,7 +131,7 @@ automaton LinkedList_DescendingIteratorAutomaton
 
         if (i < size)
         {
-            // using this exact loop form here due to coplex termination expression
+            // using this exact loop form here due to complex termination expression
             action LOOP_WHILE(
                 i < size && LinkedListAutomaton(this.parent).modCount == this.expectedModCount,
                 forEachRemaining_loop(userAction, es, i)
