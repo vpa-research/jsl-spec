@@ -153,8 +153,8 @@ automaton RandomAutomaton
     fun *.doubles (@target self: Random): DoubleStream
     {
         result = new DoubleStreamAutomaton(state = Initialized,
-            storage = _generateRandomDoubleArrayWithBounds(MAX_RANDOM_STREAM_SIZE, 0, 1),
-            length = MAX_RANDOM_STREAM_SIZE,
+            storage = _generateRandomDoubleArrayWithBounds(RANDOM_STREAM_SIZE_MAX, 0, 1),
+            length = RANDOM_STREAM_SIZE_MAX,
             closeHandlers = action LIST_NEW(),
         );
     }
@@ -165,8 +165,8 @@ automaton RandomAutomaton
         if (randomNumberOrigin >= randomNumberBound)
             _throwIAE();
         result = new DoubleStreamAutomaton(state = Initialized,
-            storage = _generateRandomDoubleArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound),
-            length = MAX_RANDOM_STREAM_SIZE,
+            storage = _generateRandomDoubleArrayWithBounds(RANDOM_STREAM_SIZE_MAX, randomNumberOrigin, randomNumberBound),
+            length = RANDOM_STREAM_SIZE_MAX,
             closeHandlers = action LIST_NEW(),
         );
     }
@@ -178,8 +178,8 @@ automaton RandomAutomaton
         if (size < 0)
             _throwIAE();
         // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
-        if (size > MAX_RANDOM_STREAM_SIZE)
-            size = MAX_RANDOM_STREAM_SIZE;
+        if (size > RANDOM_STREAM_SIZE_MAX)
+            size = RANDOM_STREAM_SIZE_MAX;
 
         result = new DoubleStreamAutomaton(state = Initialized,
             storage = action SYMBOLIC_ARRAY("double", size),
@@ -197,8 +197,8 @@ automaton RandomAutomaton
         if (randomNumberOrigin >= randomNumberBound)
             _throwIAE();
         // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
-        if (size > MAX_RANDOM_STREAM_SIZE)
-            size = MAX_RANDOM_STREAM_SIZE;
+        if (size > RANDOM_STREAM_SIZE_MAX)
+            size = RANDOM_STREAM_SIZE_MAX;
 
         result = new DoubleStreamAutomaton(state = Initialized,
             storage = _generateRandomDoubleArrayWithBounds(size, randomNumberOrigin, randomNumberBound),
@@ -211,8 +211,8 @@ automaton RandomAutomaton
     fun *.ints (@target self: Random): IntStream
     {
         result = new IntStreamAutomaton(state = Initialized,
-            storage = action SYMBOLIC_ARRAY("int", MAX_RANDOM_STREAM_SIZE),
-            length = MAX_RANDOM_STREAM_SIZE,
+            storage = action SYMBOLIC_ARRAY("int", RANDOM_STREAM_SIZE_MAX),
+            length = RANDOM_STREAM_SIZE_MAX,
             closeHandlers = action LIST_NEW(),
         );
     }
@@ -223,8 +223,8 @@ automaton RandomAutomaton
         if (randomNumberOrigin >= randomNumberBound)
             _throwIAE();
         result = new IntStreamAutomaton(state = Initialized,
-            storage = _generateRandomIntegerArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound),
-            length = MAX_RANDOM_STREAM_SIZE,
+            storage = _generateRandomIntegerArrayWithBounds(RANDOM_STREAM_SIZE_MAX, randomNumberOrigin, randomNumberBound),
+            length = RANDOM_STREAM_SIZE_MAX,
             closeHandlers = action LIST_NEW(),
         );
     }
@@ -236,8 +236,8 @@ automaton RandomAutomaton
         if (size < 0)
             _throwIAE();
         // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
-        if (size > MAX_RANDOM_STREAM_SIZE)
-            size = MAX_RANDOM_STREAM_SIZE;
+        if (size > RANDOM_STREAM_SIZE_MAX)
+            size = RANDOM_STREAM_SIZE_MAX;
 
         result = new IntStreamAutomaton(state = Initialized,
             storage = action SYMBOLIC_ARRAY("int", size),
@@ -255,8 +255,8 @@ automaton RandomAutomaton
         if (randomNumberOrigin >= randomNumberBound)
             _throwIAE();
         // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
-        if (size > MAX_RANDOM_STREAM_SIZE)
-            size = MAX_RANDOM_STREAM_SIZE;
+        if (size > RANDOM_STREAM_SIZE_MAX)
+            size = RANDOM_STREAM_SIZE_MAX;
 
         result = new IntStreamAutomaton(state = Initialized,
             storage = _generateRandomIntegerArrayWithBounds(size, randomNumberOrigin, randomNumberBound),
@@ -269,8 +269,8 @@ automaton RandomAutomaton
     fun *.longs (@target self: Random): LongStream
     {
         result = new LongStreamAutomaton(state = Initialized,
-            storage = action SYMBOLIC_ARRAY("long", MAX_RANDOM_STREAM_SIZE),
-            length = MAX_RANDOM_STREAM_SIZE,
+            storage = action SYMBOLIC_ARRAY("long", RANDOM_STREAM_SIZE_MAX),
+            length = RANDOM_STREAM_SIZE_MAX,
             closeHandlers = action LIST_NEW(),
         );
     }
@@ -282,8 +282,8 @@ automaton RandomAutomaton
         if (size < 0)
             _throwIAE();
         // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
-        if (size > MAX_RANDOM_STREAM_SIZE)
-            size = MAX_RANDOM_STREAM_SIZE;
+        if (size > RANDOM_STREAM_SIZE_MAX)
+            size = RANDOM_STREAM_SIZE_MAX;
 
         result = new LongStreamAutomaton(state = Initialized,
             storage = action SYMBOLIC_ARRAY("long", size),
@@ -298,8 +298,8 @@ automaton RandomAutomaton
         if (randomNumberOrigin >= randomNumberBound)
             _throwIAE();
         result = new LongStreamAutomaton(state = Initialized,
-            storage = _generateRandomLongArrayWithBounds(MAX_RANDOM_STREAM_SIZE, randomNumberOrigin, randomNumberBound),
-            length = MAX_RANDOM_STREAM_SIZE,
+            storage = _generateRandomLongArrayWithBounds(RANDOM_STREAM_SIZE_MAX, randomNumberOrigin, randomNumberBound),
+            length = RANDOM_STREAM_SIZE_MAX,
             closeHandlers = action LIST_NEW(),
         );
     }
@@ -313,8 +313,8 @@ automaton RandomAutomaton
         if (randomNumberOrigin >= randomNumberBound)
             _throwIAE();
         // WARNING: this is our special constraint; We must constraint infinite stream for USVM.
-        if (size > MAX_RANDOM_STREAM_SIZE)
-            size = MAX_RANDOM_STREAM_SIZE;
+        if (size > RANDOM_STREAM_SIZE_MAX)
+            size = RANDOM_STREAM_SIZE_MAX;
 
         result = new LongStreamAutomaton(state = Initialized,
             storage = _generateRandomLongArrayWithBounds(size, randomNumberOrigin, randomNumberBound),

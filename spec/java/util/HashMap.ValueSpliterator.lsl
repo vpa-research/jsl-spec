@@ -9,9 +9,10 @@ library std
 
 import java/lang/Object;
 import java/util/Comparator;
-import java/util/HashMap;
 import java/util/Spliterator;
 import java/util/function/Consumer;
+
+import java/util/HashMap;
 
 
 // automata
@@ -25,13 +26,7 @@ automaton HashMap_ValueSpliteratorAutomaton
 {
     // states and shifts
 
-    initstate Allocated;
-    state Initialized;
-
-    shift Allocated -> Initialized by [
-        // constructors
-        `<init>`,
-    ];
+    initstate Initialized;
 
     shift Initialized -> self by [
         // instance methods
@@ -77,21 +72,14 @@ automaton HashMap_ValueSpliteratorAutomaton
     }
 
 
-    proc _checkForComodification (): void
+    @AutoInline @Phantom proc _checkForComodification (): void
     {
-        val modCount: int = HashMapAutomaton(this.parent).modCount;
-        if (this.expectedModCount != modCount)
+        if (HashMapAutomaton(this.parent).modCount != this.expectedModCount)
             action THROW_NEW("java.util.ConcurrentModificationException", []);
     }
 
 
     // constructors
-
-    @private constructor *.`<init>` (@target self: HashMap_ValueSpliterator, m: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
-    {
-        action ERROR("Private constructor call");
-    }
-
 
     // static methods
 
@@ -126,8 +114,8 @@ automaton HashMap_ValueSpliteratorAutomaton
 
         if(hi < 0)
         {
-            this.expectedModCount = HashMapAutomaton(this.parent).modCount;
-            mc = this.expectedModCount;
+            mc = HashMapAutomaton(this.parent).modCount;
+            this.expectedModCount = mc;
             this.fence = storageSize;
             hi = storageSize;
         }
@@ -150,8 +138,8 @@ automaton HashMap_ValueSpliteratorAutomaton
 
     @Phantom proc forEachRemaining_loop (userAction: Consumer, i: int): void
     {
-        var curValue: Object = this.valuesStorage[i];
-        action CALL(userAction, [curValue]);
+        action CALL(userAction, [this.valuesStorage[i]]);
+
         i += 1;
     }
 
@@ -187,14 +175,18 @@ automaton HashMap_ValueSpliteratorAutomaton
 
         if(i < hi)
         {
-            var curValue: Object = this.valuesStorage[i];
-            action CALL(userAction, [curValue]);
-            this.index += 1;
+            this.index = i + 1;
+
+            action CALL(userAction, [this.valuesStorage[i]]);
+
             _checkForComodification();
+
             result = true;
         }
-
-        result = false;
+        else
+        {
+            result = false;
+        }
     }
 
 

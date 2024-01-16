@@ -11,13 +11,14 @@ import java/lang/Object;
 import java/lang/String;
 import java/util/AbstractSet;
 import java/util/Collection;
-import java/util/HashMap;
 import java/util/Iterator;
 import java/util/Spliterator;
 import java/util/function/Consumer;
 import java/util/function/IntFunction;
 import java/util/function/Predicate;
 import java/util/stream/Stream;
+
+import java/util/HashMap;
 
 
 // automata
@@ -285,7 +286,8 @@ automaton HashMap_KeySetAutomaton
         result = new StreamAutomaton(state = Initialized,
             storage = _mapToKeysArray(),
             length = action ARRAY_SIZE(items),
-            closeHandlers = action LIST_NEW()
+            closeHandlers = action LIST_NEW(),
+            isParallel = true
         );
     }
 
@@ -457,7 +459,8 @@ automaton HashMap_KeySetAutomaton
         result = new StreamAutomaton(state = Initialized,
             storage = items,
             length = action ARRAY_SIZE(items),
-            closeHandlers = action LIST_NEW()
+            closeHandlers = action LIST_NEW(),
+            isParallel = false
         );
     }
 
@@ -539,24 +542,39 @@ automaton HashMap_KeySetAutomaton
     // within java.util.AbstractCollection
     fun *.toString (@target self: HashMap_KeySet): String
     {
-        val storageSize: int = action MAP_SIZE(this.storageRef);
-        val arrayKeys: array<Object> = action ARRAY_NEW("java.lang.Object", storageSize);
-        val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, storageSize, +1,
-            toString_loop(i, unseen, arrayKeys)
-        );
+        val size: int = action MAP_SIZE(this.storageRef);
+        if (size == 0)
+        {
+            result = "[]";
+        }
+        else
+        {
+            result = "[";
 
-        result = action OBJECT_TO_STRING(arrayKeys);
+            val lastIndex: int = size - 1;
+
+            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, size, +1,
+                toString_loop(i, unseen, lastIndex, result)
+            );
+
+            result += "]";
+        }
     }
 
 
-    @Phantom proc toString_loop (i: int, unseen: map<Object, Map_Entry<Object, Object>>, arrayKeys: array<Object>): void
+    @Phantom proc toString_loop (i: int, unseen: map<Object, Map_Entry<Object, Object>>, lastIndex: int, result: String): void
     {
-        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
-        arrayKeys[i] = curKey;
-        action MAP_REMOVE(unseen, curKey);
+        val key: Object = action MAP_GET_ANY_KEY(unseen);
+
+        result += action OBJECT_TO_STRING(key);
+
+        if (i != lastIndex)
+            result += ", ";
+
+        action MAP_REMOVE(unseen, key);
     }
 
 }

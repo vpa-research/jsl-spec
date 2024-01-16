@@ -9,9 +9,10 @@ library std
 
 import java/lang/Object;
 import java/util/Comparator;
-import java/util/HashMap;
 import java/util/Spliterator;
 import java/util/function/Consumer;
+
+import java/util/HashMap;
 
 
 // automata
@@ -25,13 +26,7 @@ automaton HashMap_EntrySpliteratorAutomaton
 {
     // states and shifts
 
-    initstate Allocated;
-    state Initialized;
-
-    shift Allocated -> Initialized by [
-        // constructors
-        `<init>`,
-    ];
+    initstate Initialized;
 
     shift Initialized -> self by [
         // instance methods
@@ -76,21 +71,14 @@ automaton HashMap_EntrySpliteratorAutomaton
     }
 
 
-    proc _checkForComodification (): void
+    @AutoInline @Phantom proc _checkForComodification (): void
     {
-        val modCount: int = HashMapAutomaton(this.parent).modCount;
-        if (this.expectedModCount != modCount)
+        if (this.expectedModCount != HashMapAutomaton(this.parent).modCount)
             action THROW_NEW("java.util.ConcurrentModificationException", []);
     }
 
 
     // constructors
-
-    @private constructor *.`<init>` (@target self: HashMap_EntrySpliterator, m: HashMap, origin: int, fence: int, est: int, expectedModCount: int)
-    {
-        action ERROR("Private constructor call");
-    }
-
 
     // static methods
 
@@ -125,8 +113,8 @@ automaton HashMap_EntrySpliteratorAutomaton
 
         if(hi < 0)
         {
-            this.expectedModCount = HashMapAutomaton(this.parent).modCount;
-            mc = this.expectedModCount;
+            mc = HashMapAutomaton(this.parent).modCount;
+            this.expectedModCount = mc;
             this.fence = storageSize;
             hi = storageSize;
         }
@@ -140,8 +128,7 @@ automaton HashMap_EntrySpliteratorAutomaton
                 forEachRemaining_loop(userAction, i)
             );
 
-            val modCount: int = HashMapAutomaton(this.parent).modCount;
-            if (modCount != mc)
+            if (HashMapAutomaton(this.parent).modCount != mc)
                 action THROW_NEW("java.util.ConcurrentModificationException", []);
         }
     }
@@ -186,14 +173,18 @@ automaton HashMap_EntrySpliteratorAutomaton
 
         if(i < hi)
         {
-            var entry: Map_Entry<Object, Object> = this.entryStorage[i];
-            action CALL(userAction, [entry]);
-            this.index += 1;
+            this.index = i + 1;
+
+            action CALL(userAction, [this.entryStorage[i]]);
+
             _checkForComodification();
+
             result = true;
         }
-
-        result = false;
+        else
+        {
+            result = false;
+        }
     }
 
 

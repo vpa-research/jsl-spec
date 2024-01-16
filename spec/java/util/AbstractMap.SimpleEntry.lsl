@@ -9,7 +9,8 @@ library std
 
 import java/lang/Object;
 import java/lang/String;
-import java/util/Map;
+
+import java/util/AbstractMap;
 
 
 // automata

@@ -15,15 +15,6 @@ import java/util/function/Predicate;
 import java/util/Optional;
 
 
-// globals
-
-// #problem: type parameter is missing
-val EMPTY_OPTIONAL: Optional
-    = new OptionalAutomaton(state = Initialized,
-        value = null
-    );
-
-
 // automata
 
 @Parameterized(["T"])
@@ -111,7 +102,7 @@ automaton OptionalAutomaton
     @ParameterizedResult(["T"])
     @static fun *.empty (): Optional
     {
-        result = EMPTY_OPTIONAL;
+        result = EMPTY;
     }
 
 
@@ -135,7 +126,7 @@ automaton OptionalAutomaton
     @static fun *.ofNullable (obj: Object): Optional
     {
         if (obj == null)
-            result = EMPTY_OPTIONAL;
+            result = EMPTY;
         else
             result = new OptionalAutomaton(state = Initialized,
                 value = obj
@@ -188,7 +179,7 @@ automaton OptionalAutomaton
             if (sat)
                 result = self;
             else
-                result = EMPTY_OPTIONAL as Object as LSLOptional;
+                result = EMPTY as Object as LSLOptional;
         }
     }
 
@@ -206,7 +197,7 @@ automaton OptionalAutomaton
 
         if (this.value == null)
         {
-            result = EMPTY_OPTIONAL;
+            result = EMPTY;
         }
         else
         {
@@ -298,7 +289,7 @@ automaton OptionalAutomaton
 
         if (this.value == null)
         {
-            result = EMPTY_OPTIONAL;
+            result = EMPTY;
         }
         else
         {
@@ -306,7 +297,7 @@ automaton OptionalAutomaton
             val mappedValue: Object = action CALL(mapper, [this.value]);
 
             if (mappedValue == null)
-                result = EMPTY_OPTIONAL;
+                result = EMPTY;
             else
                 // #problem: how to parameterize the result?
                 result = new OptionalAutomaton(state = Initialized,
@@ -417,6 +408,17 @@ automaton OptionalAutomaton
             val valueStr: String = action OBJECT_TO_STRING(this.value);
             result = "Optional[" + valueStr + "]";
         }
+    }
+
+
+    // special
+
+    @Phantom @static fun *.`<clinit>` (): void
+    {
+        // #problem: type parameter is missing
+        EMPTY = new OptionalAutomaton(state = Initialized,
+            value = null
+        );
     }
 
 }

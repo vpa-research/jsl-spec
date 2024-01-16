@@ -15,15 +15,6 @@ import java/util/function/Supplier;
 import java/util/OptionalDouble;
 
 
-// globals
-
-val EMPTY_OPTIONAL_DOUBLE: OptionalDouble
-    = new OptionalDoubleAutomaton(state = Initialized,
-        value = 0.0,
-        present = false
-    );
-
-
 // automata
 
 automaton OptionalDoubleAutomaton
@@ -92,7 +83,7 @@ automaton OptionalDoubleAutomaton
 
     @static fun *.empty (): OptionalDouble
     {
-        result = EMPTY_OPTIONAL_DOUBLE;
+        result = EMPTY;
     }
 
 
@@ -277,6 +268,17 @@ automaton OptionalDoubleAutomaton
         {
             result = "OptionalDouble.empty";
         }
+    }
+
+
+    // special
+
+    @Phantom @static fun *.`<clinit>` (): void
+    {
+        EMPTY = new OptionalDoubleAutomaton(state = Initialized,
+            value = 0.0,
+            present = false
+        );
     }
 
 }

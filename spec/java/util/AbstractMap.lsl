@@ -8,6 +8,7 @@ library std
 
 // imports
 
+import java/io/Serializable;
 import java/util/Map;
 
 
@@ -18,6 +19,16 @@ import java/util/Map;
     is java.util.AbstractMap
     for Map
 {
+}
+
+@GenerateMe // #problem: unable to make inner classes by translator
+@implements("java.io.Serializable")
+@implements("java.util.Map.Entry")
+@public type AbstractMap_SimpleEntry
+    is java.util.AbstractMap_SimpleEntry
+    for Map_Entry, Serializable
+{
+    @private @static val serialVersionUID: long = -8499721149061103585L;
 }
 
 

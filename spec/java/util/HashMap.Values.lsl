@@ -16,6 +16,7 @@ import java/util/Set;
 import java/util/function/BiConsumer;
 import java/util/function/BiFunction;
 import java/util/function/Function;
+
 import java/util/HashMap;
 
 
@@ -30,13 +31,7 @@ automaton HashMap_ValuesAutomaton
 {
     // states and shifts
 
-    initstate Allocated;
-    state Initialized;
-
-    shift Allocated -> Initialized by [
-        // constructors
-        `<init>`,
-    ];
+    initstate Initialized;
 
     shift Initialized -> self by [
         // instance methods
@@ -80,33 +75,35 @@ automaton HashMap_ValuesAutomaton
 
     proc _mapToValuesArray (): array<Object>
     {
-        val storageSize: int = action MAP_SIZE(this.storageRef);
-        result = action ARRAY_NEW("java.lang.Object", storageSize);
-        val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
-        var i: int = 0;
-        action LOOP_FOR(
-            i, 0, storageSize, +1,
-            map_to_values_array_loop(i, result, unseen)
-        );
+        val size: int = action MAP_SIZE(this.storageRef);
+        result = action ARRAY_NEW("java.lang.Object", size);
+
+        if (size != 0)
+        {
+            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
+
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, size, +1,
+                map_to_values_array_loop(i, unseen, result)
+            );
+        }
+
     }
 
 
-    @Phantom proc map_to_values_array_loop (i: int, result: array<Object>, unseen: map<Object, Map_Entry<Object, Object>>): void
+    @Phantom proc map_to_values_array_loop (i: int, unseen: map<Object, Map_Entry<Object, Object>>, result: array<Object>): void
     {
         val curKey: Object = action MAP_GET_ANY_KEY(unseen);
         val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
+
         result[i] = AbstractMap_SimpleEntryAutomaton(entry).value;
+
         action MAP_REMOVE(unseen, curKey);
     }
 
 
     // constructors
-
-    @private constructor *.`<init>` (@target self: HashMap_Values, _this: HashMap)
-    {
-        action ERROR("Private constructor call");
-    }
-
 
     // static methods
 
@@ -141,28 +138,31 @@ automaton HashMap_ValuesAutomaton
     @final fun *.contains (@target self: HashMap_Values, value: Object): boolean
     {
         result = false;
-        var storageSize: int = action MAP_SIZE(this.storageRef);
-        if (storageSize != 0)
+
+        var size: int = action MAP_SIZE(this.storageRef);
+        if (size != 0)
         {
             val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
-            var i: int = 0;
+
             action LOOP_WHILE(
-                result != true && storageSize != 0,
-                contains_loop(result, unseen, value, storageSize)
+                result != true && size != 0,
+                contains_loop(result, unseen, value, size)
             );
         }
     }
 
 
-    @Phantom proc contains_loop (result: boolean, unseen: map<Object, Map_Entry<Object, Object>>, value: Object, storageSize: int): void
+    @Phantom proc contains_loop (result: boolean, unseen: map<Object, Map_Entry<Object, Object>>, value: Object, size: int): void
     {
-        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
+        val key: Object = action MAP_GET_ANY_KEY(unseen);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, key);
+
         val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
         if (action OBJECT_EQUALS(curValue, value))
             result = true;
-        action MAP_REMOVE(unseen, curKey);
-        storageSize -= 1;
+
+        action MAP_REMOVE(unseen, key);
+        size -= 1;
     }
 
 
@@ -251,15 +251,17 @@ automaton HashMap_ValuesAutomaton
 
     @Phantom proc containsAll_inside_loop (result: boolean, unseen: map<Object, Map_Entry<Object, Object>>, item: Object): void
     {
-        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
-        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
-        if (action OBJECT_EQUALS(curValue, item) == false)
+        val key: Object = action MAP_GET_ANY_KEY(unseen);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, key);
+
+        val value: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
+        if (action OBJECT_EQUALS(value, item) == false)
         {
             result = false;
             action LOOP_BREAK();
         }
-        action MAP_REMOVE(unseen, curKey);
+
+        action MAP_REMOVE(unseen, key);
     }
 
 
@@ -268,16 +270,18 @@ automaton HashMap_ValuesAutomaton
         if (userAction == null)
             _throwNPE();
 
-        val storageSize: int = action MAP_SIZE(this.storageRef);
-        if (storageSize > 0)
+        val size: int = action MAP_SIZE(this.storageRef);
+        if (size > 0)
         {
-            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
             val expectedModCount: int = HashMapAutomaton(this.parent).modCount;
+
+            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
             var i: int = 0;
             action LOOP_FOR(
-                i, 0, storageSize, +1,
+                i, 0, size, +1,
                 forEach_loop(unseen, userAction)
             );
+
             HashMapAutomaton(this.parent)._checkForComodification(expectedModCount);
         }
     }
@@ -285,11 +289,14 @@ automaton HashMap_ValuesAutomaton
 
     @Phantom proc forEach_loop (unseen: map<Object, Map_Entry<Object, Object>>, userAction: Consumer): void
     {
-        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
-        val curValue: Object = AbstractMap_SimpleEntryAutomaton(entry).value;
-        action CALL(userAction, [curValue]);
-        action MAP_REMOVE(unseen, curKey);
+        val key: Object = action MAP_GET_ANY_KEY(unseen);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, key);
+
+        action CALL(userAction, [
+            AbstractMap_SimpleEntryAutomaton(entry).value
+        ]);
+
+        action MAP_REMOVE(unseen, key);
     }
 
 
@@ -318,7 +325,8 @@ automaton HashMap_ValuesAutomaton
         result = new StreamAutomaton(state = Initialized,
             storage = items,
             length = action ARRAY_SIZE(items),
-            closeHandlers = action LIST_NEW()
+            closeHandlers = action LIST_NEW(),
+            isParallel = true
         );
     }
 
@@ -518,7 +526,8 @@ automaton HashMap_ValuesAutomaton
         result = new StreamAutomaton(state = Initialized,
             storage = items,
             length = action ARRAY_SIZE(items),
-            closeHandlers = action LIST_NEW()
+            closeHandlers = action LIST_NEW(),
+            isParallel = false
         );
     }
 
@@ -535,18 +544,20 @@ automaton HashMap_ValuesAutomaton
             var i: int = 0;
             action LOOP_FOR(
                 i, 0, len, +1,
-                toArray_loop(i, result, unseen)
+                toArray_loop(i, unseen, result)
             );
         }
     }
 
 
-    @Phantom proc toArray_loop (i: int, result: array<Object>, unseen: map<Object, Map_Entry<Object, Object>>): void
+    @Phantom proc toArray_loop (i: int, unseen: map<Object, Map_Entry<Object, Object>>, result: array<Object>): void
     {
-        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
+        val key: Object = action MAP_GET_ANY_KEY(unseen);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, key);
+
         result[i] = AbstractMap_SimpleEntryAutomaton(entry).value;
-        action MAP_REMOVE(unseen, curKey);
+
+        action MAP_REMOVE(unseen, key);
     }
 
 
@@ -601,32 +612,40 @@ automaton HashMap_ValuesAutomaton
     // within java.util.AbstractCollection
     fun *.toString (@target self: HashMap_Values): String
     {
-        val storageSize: int = action MAP_SIZE(this.storageRef);
-        if (storageSize != 0)
+        val size: int = action MAP_SIZE(this.storageRef);
+        if (size == 0)
         {
-            val arrayValues: array<Object> = action ARRAY_NEW("java.lang.Object", storageSize);
-            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
-            var i: int = 0;
-            action LOOP_FOR(
-                i, 0, storageSize, +1,
-                toString_loop(i, unseen, arrayValues)
-            );
-
-            result = action OBJECT_TO_STRING(arrayValues);
+            result = "[]";
         }
         else
         {
-            result = "[]";
+            result = "[";
+
+            val lastIndex: int = size - 1;
+
+            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storageRef);
+            var i: int = 0;
+            action LOOP_FOR(
+                i, 0, size, +1,
+                toString_loop(i, unseen, lastIndex, result)
+            );
+
+            result += "]";
         }
     }
 
 
-    @Phantom proc toString_loop (i: int, unseen: map<Object, Map_Entry<Object, Object>>, arrayValues: array<Object>): void
+    @Phantom proc toString_loop (i: int, unseen: map<Object, Map_Entry<Object, Object>>, lastIndex: int, result: String): void
     {
-        val curKey: Object = action MAP_GET_ANY_KEY(unseen);
-        val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, curKey);
-        arrayValues[i] = AbstractMap_SimpleEntryAutomaton(entry).value;
-        action MAP_REMOVE(unseen, curKey);
+        val key: Object = action MAP_GET_ANY_KEY(unseen);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, key);
+
+        result += action OBJECT_TO_STRING(AbstractMap_SimpleEntryAutomaton(entry).value);
+
+        if (i != lastIndex)
+            result += ", ";
+
+        action MAP_REMOVE(unseen, key);
     }
 
 }
