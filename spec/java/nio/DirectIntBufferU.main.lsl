@@ -104,14 +104,14 @@ automaton DirectIntBufferUAutomaton
 
 
     // within java.nio.IntBuffer
-    @final fun *.array (@target self: DirectIntBufferU): array<int>
+    @Phantom @final fun *.array (@target self: DirectIntBufferU): array<int>
     {
         action TODO();
     }
 
 
     // within java.nio.IntBuffer
-    @final fun *.arrayOffset (@target self: DirectIntBufferU): int
+    @Phantom @final fun *.arrayOffset (@target self: DirectIntBufferU): int
     {
         action TODO();
     }
@@ -130,7 +130,7 @@ automaton DirectIntBufferUAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.capacity (@target self: DirectIntBufferU): int
+    @Phantom @final fun *.capacity (@target self: DirectIntBufferU): int
     {
         action TODO();
     }
@@ -143,8 +143,9 @@ automaton DirectIntBufferUAutomaton
 
 
     // within java.nio.Buffer
-    fun *.clear (@target self: DirectIntBufferU): Buffer
+    @Phantom @final fun *.clear (@target self: DirectIntBufferU): Buffer
     {
+        // #warning: final in IntBuffer, used original method
         action TODO();
     }
 
@@ -176,8 +177,9 @@ automaton DirectIntBufferUAutomaton
 
 
     // within java.nio.Buffer
-    fun *.flip (@target self: DirectIntBufferU): Buffer
+    @Phantom @final fun *.flip (@target self: DirectIntBufferU): Buffer
     {
+        // #warning: final in IntBuffer, used original method
         action TODO();
     }
 
@@ -208,14 +210,14 @@ automaton DirectIntBufferUAutomaton
 
 
     // within java.nio.IntBuffer
-    @final fun *.hasArray (@target self: DirectIntBufferU): boolean
+    @Phantom @final fun *.hasArray (@target self: DirectIntBufferU): boolean
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    @final fun *.hasRemaining (@target self: DirectIntBufferU): boolean
+    @Phantom @final fun *.hasRemaining (@target self: DirectIntBufferU): boolean
     {
         action TODO();
     }
@@ -241,22 +243,24 @@ automaton DirectIntBufferUAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.limit (@target self: DirectIntBufferU): int
+    @Phantom @final fun *.limit (@target self: DirectIntBufferU): int
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.limit (@target self: DirectIntBufferU, newLimit: int): Buffer
+    @Phantom @final fun *.limit (@target self: DirectIntBufferU, newLimit: int): Buffer
     {
+        // #warning: final in IntBuffer, used original method
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.mark (@target self: DirectIntBufferU): Buffer
+    @Phantom @final fun *.mark (@target self: DirectIntBufferU): Buffer
     {
+        // #warning: final in IntBuffer, used original method
         action TODO();
     }
 
@@ -275,15 +279,16 @@ automaton DirectIntBufferUAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.position (@target self: DirectIntBufferU): int
+    @Phantom @final fun *.position (@target self: DirectIntBufferU): int
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.position (@target self: DirectIntBufferU, newPosition: int): Buffer
+    @Phantom @final fun *.position (@target self: DirectIntBufferU, newPosition: int): Buffer
     {
+        // #warning: final in IntBuffer, used original method
         action TODO();
     }
 
@@ -307,7 +312,7 @@ automaton DirectIntBufferUAutomaton
 
 
     // within java.nio.IntBuffer
-    @final fun *.put (@target self: DirectIntBufferU, src: array<int>): IntBuffer
+    @Phantom @final fun *.put (@target self: DirectIntBufferU, src: array<int>): IntBuffer
     {
         action TODO();
     }
@@ -320,22 +325,24 @@ automaton DirectIntBufferUAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.remaining (@target self: DirectIntBufferU): int
+    @Phantom @final fun *.remaining (@target self: DirectIntBufferU): int
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.reset (@target self: DirectIntBufferU): Buffer
+    @Phantom @final fun *.reset (@target self: DirectIntBufferU): Buffer
     {
+        // #warning: final in IntBuffer, used original method
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.rewind (@target self: DirectIntBufferU): Buffer
+    @Phantom @final fun *.rewind (@target self: DirectIntBufferU): Buffer
     {
+        // #warning: final in IntBuffer, used original method
         action TODO();
     }
 

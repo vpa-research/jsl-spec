@@ -50,6 +50,7 @@ automaton ByteBufferAsCharBufferBAutomaton
         capacity,
         charAt,
         chars,
+        charRegionOrder,
         clear,
         codePoints,
         compact,
@@ -135,14 +136,14 @@ automaton ByteBufferAsCharBufferBAutomaton
 
 
     // within java.nio.CharBuffer
-    @final fun *.array (@target self: ByteBufferAsCharBufferB): array<char>
+    @Phantom @final fun *.array (@target self: ByteBufferAsCharBufferB): array<char>
     {
         action TODO();
     }
 
 
     // within java.nio.CharBuffer
-    @final fun *.arrayOffset (@target self: ByteBufferAsCharBufferB): int
+    @Phantom @final fun *.arrayOffset (@target self: ByteBufferAsCharBufferB): int
     {
         action TODO();
     }
@@ -155,14 +156,21 @@ automaton ByteBufferAsCharBufferBAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.capacity (@target self: ByteBufferAsCharBufferB): int
+    @Phantom @final fun *.capacity (@target self: ByteBufferAsCharBufferB): int
     {
         action TODO();
     }
 
 
     // within java.nio.CharBuffer
-    @final fun *.charAt (@target self: ByteBufferAsCharBufferB, index: int): char
+    @Phantom @final fun *.charAt (@target self: ByteBufferAsCharBufferB, index: int): char
+    {
+        action TODO();
+    }
+
+
+    // within java.nio.CharBuffer
+    fun *.charRegionOrder (@target self: ByteBufferAsCharBufferB): ByteOrder
     {
         action TODO();
     }
@@ -176,8 +184,9 @@ automaton ByteBufferAsCharBufferBAutomaton
 
 
     // within java.nio.Buffer
-    fun *.clear (@target self: ByteBufferAsCharBufferB): Buffer
+    @Phantom @final fun *.clear (@target self: ByteBufferAsCharBufferB): Buffer
     {
+        // #warning: final in CharBuffer, used original method
         action TODO();
     }
 
@@ -216,8 +225,9 @@ automaton ByteBufferAsCharBufferBAutomaton
 
 
     // within java.nio.Buffer
-    fun *.flip (@target self: ByteBufferAsCharBufferB): Buffer
+    @Phantom @final fun *.flip (@target self: ByteBufferAsCharBufferB): Buffer
     {
+        // #warning: final in CharBuffer, used original method
         action TODO();
     }
 
@@ -249,14 +259,14 @@ automaton ByteBufferAsCharBufferBAutomaton
 
 
     // within java.nio.CharBuffer
-    @final fun *.hasArray (@target self: ByteBufferAsCharBufferB): boolean
+    @Phantom @final fun *.hasArray (@target self: ByteBufferAsCharBufferB): boolean
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    @final fun *.hasRemaining (@target self: ByteBufferAsCharBufferB): boolean
+    @Phantom @final fun *.hasRemaining (@target self: ByteBufferAsCharBufferB): boolean
     {
         action TODO();
     }
@@ -282,29 +292,31 @@ automaton ByteBufferAsCharBufferBAutomaton
 
 
     // within java.nio.CharBuffer
-    @final fun *.length (@target self: ByteBufferAsCharBufferB): int
+    @Phantom @final fun *.length (@target self: ByteBufferAsCharBufferB): int
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    @final fun *.limit (@target self: ByteBufferAsCharBufferB): int
+    @Phantom @final fun *.limit (@target self: ByteBufferAsCharBufferB): int
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.limit (@target self: ByteBufferAsCharBufferB, newLimit: int): Buffer
+    @Phantom @final fun *.limit (@target self: ByteBufferAsCharBufferB, newLimit: int): Buffer
     {
+        // #warning: final in CharBuffer, used original method
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.mark (@target self: ByteBufferAsCharBufferB): Buffer
+    @Phantom @final fun *.mark (@target self: ByteBufferAsCharBufferB): Buffer
     {
+        // #warning: final in CharBuffer, used original method
         action TODO();
     }
 
@@ -323,15 +335,16 @@ automaton ByteBufferAsCharBufferBAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.position (@target self: ByteBufferAsCharBufferB): int
+    @Phantom @final fun *.position (@target self: ByteBufferAsCharBufferB): int
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.position (@target self: ByteBufferAsCharBufferB, newPosition: int): Buffer
+    @Phantom @final fun *.position (@target self: ByteBufferAsCharBufferB, newPosition: int): Buffer
     {
+        // #warning: final in CharBuffer, used original method
         action TODO();
     }
 
@@ -344,7 +357,7 @@ automaton ByteBufferAsCharBufferBAutomaton
 
 
     // within java.nio.CharBuffer
-    @final fun *.put (@target self: ByteBufferAsCharBufferB, src: String): CharBuffer
+    @Phantom @final fun *.put (@target self: ByteBufferAsCharBufferB, src: String): CharBuffer
     {
         action TODO();
     }
@@ -364,7 +377,7 @@ automaton ByteBufferAsCharBufferBAutomaton
 
 
     // within java.nio.CharBuffer
-    @final fun *.put (@target self: ByteBufferAsCharBufferB, src: array<char>): CharBuffer
+    @Phantom @final fun *.put (@target self: ByteBufferAsCharBufferB, src: array<char>): CharBuffer
     {
         action TODO();
     }
@@ -392,22 +405,24 @@ automaton ByteBufferAsCharBufferBAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.remaining (@target self: ByteBufferAsCharBufferB): int
+    @Phantom @final fun *.remaining (@target self: ByteBufferAsCharBufferB): int
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.reset (@target self: ByteBufferAsCharBufferB): Buffer
+    @Phantom @final fun *.reset (@target self: ByteBufferAsCharBufferB): Buffer
     {
+        // #warning: final in CharBuffer, used original method
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.rewind (@target self: ByteBufferAsCharBufferB): Buffer
+    @Phantom @final fun *.rewind (@target self: ByteBufferAsCharBufferB): Buffer
     {
+        // #warning: final in CharBuffer, used original method
         action TODO();
     }
 

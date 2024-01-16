@@ -165,28 +165,28 @@ automaton DirectByteBufferRAutomaton
 
 
     // within java.nio.ByteBuffer
-    @final fun *.alignedSlice (@target self: DirectByteBufferR, unitSize: int): ByteBuffer
+    @Phantom @final fun *.alignedSlice (@target self: DirectByteBufferR, unitSize: int): ByteBuffer
     {
         action TODO();
     }
 
 
     // within java.nio.ByteBuffer
-    @final fun *.alignmentOffset (@target self: DirectByteBufferR, index: int, unitSize: int): int
+    @Phantom @final fun *.alignmentOffset (@target self: DirectByteBufferR, index: int, unitSize: int): int
     {
         action TODO();
     }
 
 
     // within java.nio.ByteBuffer
-    @final fun *.array (@target self: DirectByteBufferR): array<byte>
+    @Phantom @final fun *.array (@target self: DirectByteBufferR): array<byte>
     {
         action TODO();
     }
 
 
     // within java.nio.ByteBuffer
-    @final fun *.arrayOffset (@target self: DirectByteBufferR): int
+    @Phantom @final fun *.arrayOffset (@target self: DirectByteBufferR): int
     {
         action TODO();
     }
@@ -242,7 +242,7 @@ automaton DirectByteBufferRAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.capacity (@target self: DirectByteBufferR): int
+    @Phantom @final fun *.capacity (@target self: DirectByteBufferR): int
     {
         action TODO();
     }
@@ -296,7 +296,7 @@ automaton DirectByteBufferRAutomaton
 
 
     // within java.nio.MappedByteBuffer
-    @final fun *.force (@target self: DirectByteBufferR): MappedByteBuffer
+    @Phantom @final fun *.force (@target self: DirectByteBufferR): MappedByteBuffer
     {
         action TODO();
     }
@@ -415,14 +415,14 @@ automaton DirectByteBufferRAutomaton
 
 
     // within java.nio.ByteBuffer
-    @final fun *.hasArray (@target self: DirectByteBufferR): boolean
+    @Phantom @final fun *.hasArray (@target self: DirectByteBufferR): boolean
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    @final fun *.hasRemaining (@target self: DirectByteBufferR): boolean
+    @Phantom @final fun *.hasRemaining (@target self: DirectByteBufferR): boolean
     {
         action TODO();
     }
@@ -442,7 +442,7 @@ automaton DirectByteBufferRAutomaton
 
 
     // within java.nio.MappedByteBuffer
-    @final fun *.isLoaded (@target self: DirectByteBufferR): boolean
+    @Phantom @final fun *.isLoaded (@target self: DirectByteBufferR): boolean
     {
         action TODO();
     }
@@ -455,7 +455,7 @@ automaton DirectByteBufferRAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.limit (@target self: DirectByteBufferR): int
+    @Phantom @final fun *.limit (@target self: DirectByteBufferR): int
     {
         action TODO();
     }
@@ -469,7 +469,7 @@ automaton DirectByteBufferRAutomaton
 
 
     // within java.nio.MappedByteBuffer
-    @final fun *.load (@target self: DirectByteBufferR): MappedByteBuffer
+    @Phantom @final fun *.load (@target self: DirectByteBufferR): MappedByteBuffer
     {
         action TODO();
     }
@@ -490,21 +490,21 @@ automaton DirectByteBufferRAutomaton
 
 
     // within java.nio.ByteBuffer
-    @final fun *.order (@target self: DirectByteBufferR): ByteOrder
+    @Phantom @final fun *.order (@target self: DirectByteBufferR): ByteOrder
     {
         action TODO();
     }
 
 
     // within java.nio.ByteBuffer
-    @final fun *.order (@target self: DirectByteBufferR, bo: ByteOrder): ByteBuffer
+    @Phantom @final fun *.order (@target self: DirectByteBufferR, bo: ByteOrder): ByteBuffer
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    @final fun *.position (@target self: DirectByteBufferR): int
+    @Phantom @final fun *.position (@target self: DirectByteBufferR): int
     {
         action TODO();
     }
@@ -530,7 +530,7 @@ automaton DirectByteBufferRAutomaton
 
 
     // within java.nio.ByteBuffer
-    @final fun *.put (@target self: DirectByteBufferR, src: array<byte>): ByteBuffer
+    @Phantom @final fun *.put (@target self: DirectByteBufferR, src: array<byte>): ByteBuffer
     {
         action TODO();
     }
@@ -621,7 +621,7 @@ automaton DirectByteBufferRAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.remaining (@target self: DirectByteBufferR): int
+    @Phantom @final fun *.remaining (@target self: DirectByteBufferR): int
     {
         action TODO();
     }

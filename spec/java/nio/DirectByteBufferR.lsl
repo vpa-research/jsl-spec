@@ -13,7 +13,7 @@ import sun/nio/ch/DirectBuffer;
 
 // local semantic types
 @GenerateMe
-//@extends("java.nio.DirectByteBuffer")
+@extends("java.nio.DirectByteBuffer")
 @implements("sun.nio.ch.DirectBuffer")
 type DirectByteBufferR
     is java.nio.DirectByteBufferR
@@ -23,7 +23,7 @@ type DirectByteBufferR
 
 
 @GenerateMe
-//@extends("java.nio.DirectByteBuffer")
+@extends("java.nio.DirectByteBuffer")
 @implements("sun.nio.ch.DirectBuffer")
 @public type LSLDirectByteBufferR
     is java.nio.DirectByteBufferR

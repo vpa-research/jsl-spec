@@ -101,14 +101,14 @@ automaton ByteBufferAsLongBufferBAutomaton
     // methods
 
     // within java.nio.LongBuffer
-    @final fun *.array (@target self: ByteBufferAsLongBufferB): array<long>
+    @Phantom @final fun *.array (@target self: ByteBufferAsLongBufferB): array<long>
     {
         action TODO();
     }
 
 
     // within java.nio.LongBuffer
-    @final fun *.arrayOffset (@target self: ByteBufferAsLongBufferB): int
+    @Phantom @final fun *.arrayOffset (@target self: ByteBufferAsLongBufferB): int
     {
         action TODO();
     }
@@ -121,15 +121,16 @@ automaton ByteBufferAsLongBufferBAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.capacity (@target self: ByteBufferAsLongBufferB): int
+    @Phantom @final fun *.capacity (@target self: ByteBufferAsLongBufferB): int
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.clear (@target self: ByteBufferAsLongBufferB): Buffer
+    @Phantom @final fun *.clear (@target self: ByteBufferAsLongBufferB): Buffer
     {
+        // #warning: final in LongBuffer, used original method
         action TODO();
     }
 
@@ -161,8 +162,9 @@ automaton ByteBufferAsLongBufferBAutomaton
 
 
     // within java.nio.Buffer
-    fun *.flip (@target self: ByteBufferAsLongBufferB): Buffer
+    @Phantom @final fun *.flip (@target self: ByteBufferAsLongBufferB): Buffer
     {
+        // #warning: final in LongBuffer, used original method
         action TODO();
     }
 
@@ -194,14 +196,14 @@ automaton ByteBufferAsLongBufferBAutomaton
 
 
     // within java.nio.LongBuffer
-    @final fun *.hasArray (@target self: ByteBufferAsLongBufferB): boolean
+    @Phantom @final fun *.hasArray (@target self: ByteBufferAsLongBufferB): boolean
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    @final fun *.hasRemaining (@target self: ByteBufferAsLongBufferB): boolean
+    @Phantom @final fun *.hasRemaining (@target self: ByteBufferAsLongBufferB): boolean
     {
         action TODO();
     }
@@ -227,22 +229,24 @@ automaton ByteBufferAsLongBufferBAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.limit (@target self: ByteBufferAsLongBufferB): int
+    @Phantom @final fun *.limit (@target self: ByteBufferAsLongBufferB): int
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.limit (@target self: ByteBufferAsLongBufferB, newLimit: int): Buffer
+    @Phantom @final fun *.limit (@target self: ByteBufferAsLongBufferB, newLimit: int): Buffer
     {
+        // #warning: final in LongBuffer, used original method
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.mark (@target self: ByteBufferAsLongBufferB): Buffer
+    @Phantom @final fun *.mark (@target self: ByteBufferAsLongBufferB): Buffer
     {
+        // #warning: final in LongBuffer, used original method
         action TODO();
     }
 
@@ -261,15 +265,16 @@ automaton ByteBufferAsLongBufferBAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.position (@target self: ByteBufferAsLongBufferB): int
+    @Phantom @final fun *.position (@target self: ByteBufferAsLongBufferB): int
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.position (@target self: ByteBufferAsLongBufferB, newPosition: int): Buffer
+    @Phantom @final fun *.position (@target self: ByteBufferAsLongBufferB, newPosition: int): Buffer
     {
+        // #warning: final in LongBuffer, used original method
         action TODO();
     }
 
@@ -294,7 +299,7 @@ automaton ByteBufferAsLongBufferBAutomaton
 
 
     // within java.nio.LongBuffer
-    @final fun *.put (@target self: ByteBufferAsLongBufferB, src: array<long>): LongBuffer
+    @Phantom @final fun *.put (@target self: ByteBufferAsLongBufferB, src: array<long>): LongBuffer
     {
         action TODO();
     }
@@ -308,22 +313,24 @@ automaton ByteBufferAsLongBufferBAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.remaining (@target self: ByteBufferAsLongBufferB): int
+    @Phantom @final fun *.remaining (@target self: ByteBufferAsLongBufferB): int
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.reset (@target self: ByteBufferAsLongBufferB): Buffer
+    @Phantom @final fun *.reset (@target self: ByteBufferAsLongBufferB): Buffer
     {
+        // #warning: final in LongBuffer, used original method
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.rewind (@target self: ByteBufferAsLongBufferB): Buffer
+    @Phantom @final fun *.rewind (@target self: ByteBufferAsLongBufferB): Buffer
     {
+        // #warning: final in LongBuffer, used original method
         action TODO();
     }
 

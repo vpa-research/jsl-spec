@@ -101,14 +101,14 @@ automaton ByteBufferAsShortBufferBAutomaton
     // methods
 
     // within java.nio.ShortBuffer
-    @final fun *.array (@target self: ByteBufferAsShortBufferB): array<short>
+    @Phantom @final fun *.array (@target self: ByteBufferAsShortBufferB): array<short>
     {
         action TODO();
     }
 
 
     // within java.nio.ShortBuffer
-    @final fun *.arrayOffset (@target self: ByteBufferAsShortBufferB): int
+    @Phantom @final fun *.arrayOffset (@target self: ByteBufferAsShortBufferB): int
     {
         action TODO();
     }
@@ -121,15 +121,16 @@ automaton ByteBufferAsShortBufferBAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.capacity (@target self: ByteBufferAsShortBufferB): int
+    @Phantom @final fun *.capacity (@target self: ByteBufferAsShortBufferB): int
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.clear (@target self: ByteBufferAsShortBufferB): Buffer
+    @Phantom @final fun *.clear (@target self: ByteBufferAsShortBufferB): Buffer
     {
+        // #warning: final in ShortBuffer, used original method
         action TODO();
     }
 
@@ -161,8 +162,9 @@ automaton ByteBufferAsShortBufferBAutomaton
 
 
     // within java.nio.Buffer
-    fun *.flip (@target self: ByteBufferAsShortBufferB): Buffer
+    @Phantom @final fun *.flip (@target self: ByteBufferAsShortBufferB): Buffer
     {
+        // #warning: final in ShortBuffer, used original method
         action TODO();
     }
 
@@ -194,14 +196,14 @@ automaton ByteBufferAsShortBufferBAutomaton
 
 
     // within java.nio.ShortBuffer
-    @final fun *.hasArray (@target self: ByteBufferAsShortBufferB): boolean
+    @Phantom @final fun *.hasArray (@target self: ByteBufferAsShortBufferB): boolean
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    @final fun *.hasRemaining (@target self: ByteBufferAsShortBufferB): boolean
+    @Phantom @final fun *.hasRemaining (@target self: ByteBufferAsShortBufferB): boolean
     {
         action TODO();
     }
@@ -227,22 +229,24 @@ automaton ByteBufferAsShortBufferBAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.limit (@target self: ByteBufferAsShortBufferB): int
+    @Phantom @final fun *.limit (@target self: ByteBufferAsShortBufferB): int
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.limit (@target self: ByteBufferAsShortBufferB, newLimit: int): Buffer
+    @Phantom @final fun *.limit (@target self: ByteBufferAsShortBufferB, newLimit: int): Buffer
     {
+        // #warning: final in ShortBuffer, used original method
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.mark (@target self: ByteBufferAsShortBufferB): Buffer
+    @Phantom @final fun *.mark (@target self: ByteBufferAsShortBufferB): Buffer
     {
+        // #warning: final in ShortBuffer, used original method
         action TODO();
     }
 
@@ -261,15 +265,16 @@ automaton ByteBufferAsShortBufferBAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.position (@target self: ByteBufferAsShortBufferB): int
+    @Phantom @final fun *.position (@target self: ByteBufferAsShortBufferB): int
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.position (@target self: ByteBufferAsShortBufferB, newPosition: int): Buffer
+    @Phantom @final fun *.position (@target self: ByteBufferAsShortBufferB, newPosition: int): Buffer
     {
+        // #warning: final in ShortBuffer, used original method
         action TODO();
     }
 
@@ -294,7 +299,7 @@ automaton ByteBufferAsShortBufferBAutomaton
 
 
     // within java.nio.ShortBuffer
-    @final fun *.put (@target self: ByteBufferAsShortBufferB, src: array<short>): ShortBuffer
+    @Phantom @final fun *.put (@target self: ByteBufferAsShortBufferB, src: array<short>): ShortBuffer
     {
         action TODO();
     }
@@ -308,22 +313,24 @@ automaton ByteBufferAsShortBufferBAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.remaining (@target self: ByteBufferAsShortBufferB): int
+    @Phantom @final fun *.remaining (@target self: ByteBufferAsShortBufferB): int
     {
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.reset (@target self: ByteBufferAsShortBufferB): Buffer
+    @Phantom @final fun *.reset (@target self: ByteBufferAsShortBufferB): Buffer
     {
+        // #warning: final in ShortBuffer, used original method
         action TODO();
     }
 
 
     // within java.nio.Buffer
-    fun *.rewind (@target self: ByteBufferAsShortBufferB): Buffer
+    @Phantom @final fun *.rewind (@target self: ByteBufferAsShortBufferB): Buffer
     {
+        // #warning: final in ShortBuffer, used original method
         action TODO();
     }
 

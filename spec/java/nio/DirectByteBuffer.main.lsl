@@ -815,7 +815,7 @@ automaton DirectByteBufferAutomaton
 
 
     // within java.nio.ByteBuffer
-    @final fun *.alignedSlice (@target self: DirectByteBuffer, unitSize: int): ByteBuffer
+    @Phantom @final fun *.alignedSlice (@target self: DirectByteBuffer, unitSize: int): ByteBuffer
     {
         var pos: int = this.position;
         var lim: int = this.limit;
@@ -841,14 +841,14 @@ automaton DirectByteBufferAutomaton
 
 
     // within java.nio.ByteBuffer
-    @final fun *.alignmentOffset (@target self: DirectByteBuffer, index: int, unitSize: int): int
+    @Phantom @final fun *.alignmentOffset (@target self: DirectByteBuffer, index: int, unitSize: int): int
     {
         result = _alignmentOffset(index, unitSize);
     }
 
 
     // within java.nio.ByteBuffer
-    @final fun *.array (@target self: DirectByteBuffer): array<byte>
+    @Phantom @final fun *.array (@target self: DirectByteBuffer): array<byte>
     {
         if (this.hb == null)
             action THROW_NEW("java.lang.UnsupportedOperationException", []);
@@ -859,7 +859,7 @@ automaton DirectByteBufferAutomaton
 
 
     // within java.nio.ByteBuffer
-    @final fun *.arrayOffset (@target self: DirectByteBuffer): int
+    @Phantom @final fun *.arrayOffset (@target self: DirectByteBuffer): int
     {
         if (this.hb == null)
             action THROW_NEW("java.lang.UnsupportedOperationException", []);
@@ -1008,7 +1008,7 @@ automaton DirectByteBufferAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.capacity (@target self: DirectByteBuffer): int
+    @Phantom @final fun *.capacity (@target self: DirectByteBuffer): int
     {
         result = this.capacity;
     }
@@ -1021,8 +1021,9 @@ automaton DirectByteBufferAutomaton
 
 
     // within java.nio.Buffer
-    fun *.clear (@target self: DirectByteBuffer): Buffer
+    @Phantom @final fun *.clear (@target self: DirectByteBuffer): Buffer
     {
+        // #warning: final in MappedByteBuffer, used original method
         this.position = 0;
         this.limit = this.capacity;
         this.mark = -1;
@@ -1128,8 +1129,9 @@ automaton DirectByteBufferAutomaton
 
 
     // within java.nio.Buffer
-    fun *.flip (@target self: DirectByteBuffer): Buffer
+    @Phantom @final fun *.flip (@target self: DirectByteBuffer): Buffer
     {
+        // #warning: final in MappedByteBuffer, used original method
         this.limit = this.position;
         this.position = 0;
         this.mark = -1;
@@ -1138,7 +1140,7 @@ automaton DirectByteBufferAutomaton
 
 
     // within java.nio.MappedByteBuffer
-    @final fun *.force (@target self: DirectByteBuffer): MappedByteBuffer
+    @Phantom @final fun *.force (@target self: DirectByteBuffer): MappedByteBuffer
     {
         // #warning: write in file operation? how approximate it?
         result = self;
@@ -1259,14 +1261,14 @@ automaton DirectByteBufferAutomaton
 
 
     // within java.nio.ByteBuffer
-    @final fun *.hasArray (@target self: DirectByteBuffer): boolean
+    @Phantom @final fun *.hasArray (@target self: DirectByteBuffer): boolean
     {
         result = (this.hb != null) && !this.isReadOnly;
     }
 
 
     // within java.nio.Buffer
-    @final fun *.hasRemaining (@target self: DirectByteBuffer): boolean
+    @Phantom @final fun *.hasRemaining (@target self: DirectByteBuffer): boolean
     {
         result = this.position < this.limit;
     }
@@ -1302,7 +1304,7 @@ automaton DirectByteBufferAutomaton
 
 
     // within java.nio.MappedByteBuffer
-    @final fun *.isLoaded (@target self: DirectByteBuffer): boolean
+    @Phantom @final fun *.isLoaded (@target self: DirectByteBuffer): boolean
     {
         // #warning: operation with physical memory?
         result = action SYMBOLIC("boolean");
@@ -1316,22 +1318,23 @@ automaton DirectByteBufferAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.limit (@target self: DirectByteBuffer): int
+    @Phantom @final fun *.limit (@target self: DirectByteBuffer): int
     {
         result = this.limit;
     }
 
 
     // within java.nio.Buffer
-    fun *.limit (@target self: DirectByteBuffer, newLimit: int): Buffer
+    @Phantom @final fun *.limit (@target self: DirectByteBuffer, newLimit: int): Buffer
     {
+        // #warning: final in MappedByteBuffer, used original method
         _limit(newLimit);
         result = self;
     }
 
 
     // within java.nio.MappedByteBuffer
-    @final fun *.load (@target self: DirectByteBuffer): MappedByteBuffer
+    @Phantom @final fun *.load (@target self: DirectByteBuffer): MappedByteBuffer
     {
         // #warning: operation with physical memory?
         result = self;
@@ -1339,8 +1342,9 @@ automaton DirectByteBufferAutomaton
 
 
     // within java.nio.Buffer
-    fun *.mark (@target self: DirectByteBuffer): Buffer
+    @Phantom @final fun *.mark (@target self: DirectByteBuffer): Buffer
     {
+        // #warning: final in MappedByteBuffer, used original method
         this.mark = this.position;
         result = self;
     }
@@ -1361,7 +1365,7 @@ automaton DirectByteBufferAutomaton
 
 
     // within java.nio.ByteBuffer
-    @final fun *.order (@target self: DirectByteBuffer): ByteOrder
+    @Phantom @final fun *.order (@target self: DirectByteBuffer): ByteOrder
     {
         if (this.bigEndian) result = BYTEORDER_BIG_ENDIAN;
         else result = BYTEORDER_LITTLE_ENDIAN;
@@ -1369,7 +1373,7 @@ automaton DirectByteBufferAutomaton
 
 
     // within java.nio.ByteBuffer
-    @final fun *.order (@target self: DirectByteBuffer, bo: ByteOrder): ByteBuffer
+    @Phantom @final fun *.order (@target self: DirectByteBuffer, bo: ByteOrder): ByteBuffer
     {
         this.bigEndian = (bo == BYTEORDER_BIG_ENDIAN);
         this.nativeByteOrder = this.bigEndian == (action CALL_METHOD(null as ByteOrder, "nativeOrder", []) == BYTEORDER_BIG_ENDIAN);
@@ -1378,15 +1382,16 @@ automaton DirectByteBufferAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.position (@target self: DirectByteBuffer): int
+    @Phantom @final fun *.position (@target self: DirectByteBuffer): int
     {
         result = this.position;
     }
 
 
     // within java.nio.Buffer
-    fun *.position (@target self: DirectByteBuffer, newPosition: int): Buffer
+    @Phantom @final fun *.position (@target self: DirectByteBuffer, newPosition: int): Buffer
     {
+        // #warning: final in MappedByteBuffer, used original method
         _position(newPosition);
         result = self;
     }
@@ -1460,7 +1465,7 @@ automaton DirectByteBufferAutomaton
 
 
     // within java.nio.ByteBuffer
-    @final fun *.put (@target self: DirectByteBuffer, src: array<byte>): ByteBuffer
+    @Phantom @final fun *.put (@target self: DirectByteBuffer, src: array<byte>): ByteBuffer
     {
         var len: int = action ARRAY_SIZE(src);
         _put(src, 0, len);
@@ -1580,15 +1585,16 @@ automaton DirectByteBufferAutomaton
 
 
     // within java.nio.Buffer
-    @final fun *.remaining (@target self: DirectByteBuffer): int
+    @Phantom @final fun *.remaining (@target self: DirectByteBuffer): int
     {
         result = _remaining();
     }
 
 
     // within java.nio.Buffer
-    fun *.reset (@target self: DirectByteBuffer): Buffer
+    @Phantom @final fun *.reset (@target self: DirectByteBuffer): Buffer
     {
+        // #warning: final in MappedByteBuffer, used original method
         if (this.mark < 0)
             action THROW_NEW("java.nio.InvalidMarkException", []);
         this.position = this.mark;
@@ -1597,8 +1603,9 @@ automaton DirectByteBufferAutomaton
 
 
     // within java.nio.Buffer
-    fun *.rewind (@target self: DirectByteBuffer): Buffer
+    @Phantom @final fun *.rewind (@target self: DirectByteBuffer): Buffer
     {
+        // #warning: final in MappedByteBuffer, used original method
         this.position = 0;
         this.mark = -1;
         result = self;
