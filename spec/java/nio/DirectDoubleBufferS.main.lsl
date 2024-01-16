@@ -87,7 +87,7 @@ automaton DirectDoubleBufferSAutomaton
 
     // constructors
 
-    @private constructor *.`<init>` (@target self: DirectDoubleBufferS, db: DirectBuffer, mark: int, pos: int, lim: int, cap: int, off: int)
+    constructor *.`<init>` (@target self: DirectDoubleBufferS, db: DirectBuffer, mark: int, pos: int, lim: int, cap: int, off: int)
     {
         action TODO();
     }

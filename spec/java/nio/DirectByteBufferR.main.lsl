@@ -135,19 +135,19 @@ automaton DirectByteBufferRAutomaton
 
     // constructors
 
-    @private constructor *.`<init>` (@target self: DirectByteBufferR, db: DirectBuffer, mark: int, pos: int, lim: int, cap: int, off: int)
+    constructor *.`<init>` (@target self: DirectByteBufferR, db: DirectBuffer, mark: int, pos: int, lim: int, cap: int, off: int)
     {
         action TODO();
     }
 
 
-    @private constructor *.`<init>` (@target self: DirectByteBufferR, cap: int)
+    constructor *.`<init>` (@target self: DirectByteBufferR, cap: int)
     {
         action TODO();
     }
 
 
-    @protected constructor *.`<init>` (@target self: DirectByteBufferR, cap: int, addr: long, fd: FileDescriptor, unmapper: Runnable)
+    constructor *.`<init>` (@target self: DirectByteBufferR, cap: int, addr: long, fd: FileDescriptor, unmapper: Runnable)
     {
         action TODO();
     }

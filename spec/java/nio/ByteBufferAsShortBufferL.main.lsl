@@ -84,13 +84,13 @@ automaton ByteBufferAsShortBufferLAutomaton
 
     // constructors
 
-    @private constructor *.`<init>` (@target self: ByteBufferAsShortBufferL, bb: ByteBuffer)
+    constructor *.`<init>` (@target self: ByteBufferAsShortBufferL, bb: ByteBuffer)
     {
         action TODO();
     }
 
 
-    @private constructor *.`<init>` (@target self: ByteBufferAsShortBufferL, bb: ByteBuffer, mark: int, pos: int, lim: int, cap: int, addr: long)
+    constructor *.`<init>` (@target self: ByteBufferAsShortBufferL, bb: ByteBuffer, mark: int, pos: int, lim: int, cap: int, addr: long)
     {
         action TODO();
     }

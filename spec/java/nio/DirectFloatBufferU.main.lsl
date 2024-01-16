@@ -87,7 +87,7 @@ automaton DirectFloatBufferUAutomaton
 
     // constructors
 
-    @private constructor *.`<init>` (@target self: DirectFloatBufferU, db: DirectBuffer, mark: int, pos: int, lim: int, cap: int, off: int)
+    constructor *.`<init>` (@target self: DirectFloatBufferU, db: DirectBuffer, mark: int, pos: int, lim: int, cap: int, off: int)
     {
         action TODO();
     }

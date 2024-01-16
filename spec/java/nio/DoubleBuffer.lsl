@@ -1,4 +1,3 @@
-//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -20,7 +19,7 @@ import java/nio/Buffer;
 @implements("java.lang.Comparable")
 @abstract type DoubleBuffer
     is java.nio.DoubleBuffer
-    for Buffer
+    for Buffer, Comparable
 {
 }
 
