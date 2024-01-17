@@ -38,6 +38,14 @@ define action ARRAY_FILL (
         value: any
     ): void;
 
+// WARNING: do range checks ahead of time!
+define action ARRAY_FILL_RANGE (
+        arr: array<any>,
+        fromIndex: int32,
+        toIndex: int32,
+        value: any
+    ): void;
+
 define action ARRAY_COPY (
         src: array<any>,
         srcPos: int32,
