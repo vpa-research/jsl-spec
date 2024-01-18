@@ -28,6 +28,9 @@ import java/lang/Number;
     @static fun *.isInfinite(x: double): boolean;
 
     @static fun *.valueOf(x: double): Number; // #problem: self-reference
+
+    @static fun *.longBitsToDouble(value: long): Number;
+    @static fun *.doubleToRawLongBits(value: double): long;
 }
 
 

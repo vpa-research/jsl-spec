@@ -25,6 +25,8 @@ import java/lang/Comparable;
     fun *.charValue(): char;
 
     @static fun *.offsetByCodePoints(seq: CharSequence, index: int, codePointOffset: int): int;
+
+    @static fun *.reverseBytes(ch: char): char;
 }
 
 

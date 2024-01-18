@@ -14,7 +14,7 @@ import jdk/internal/ref/Cleaner;
 
 // primary semantic types
 
-@interface type DirectBuffer
+@public @interface type DirectBuffer
     is sun.nio.ch.DirectBuffer
     for Object
 {

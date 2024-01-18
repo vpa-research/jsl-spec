@@ -20,6 +20,8 @@ import java/lang/Number;
     for Comparable, Number
 {
     // WARNING: use 'shortValue' to get primitive value
+
+    @static fun *.reverseBytes(i: short): short;
 }
 
 

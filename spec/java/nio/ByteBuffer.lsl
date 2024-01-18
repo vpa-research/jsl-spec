@@ -1,4 +1,3 @@
-//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -14,11 +13,15 @@ import java/nio/Buffer;
 
 // primary semantic types
 
-@abstract type ByteBuffer
+@public @abstract type ByteBuffer
     is java.nio.ByteBuffer
     for Buffer
 {
      fun *.get(dst: array<byte>, offset: int, length: int): any; //ByteBuffer
+     fun *.get(index: int): byte;
+     fun *.get(): byte;
+     fun *._hb(): array<byte>;
+     fun *._offset(): int;
 }
 
 

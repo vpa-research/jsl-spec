@@ -23,6 +23,7 @@ import java/lang/Number;
     // WARNING: use 'intValue' to get primitive value
 
     @static fun *.valueOf(x: int): Number; // #problem: self-reference
+    @static fun *.reverseBytes(i: int): Number;
 }
 
 
