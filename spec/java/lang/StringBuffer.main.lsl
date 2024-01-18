@@ -1,4 +1,3 @@
-//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -376,7 +375,8 @@ automaton StringBufferAutomaton
     {
         _preconditionCheck();
 
-        action TODO();
+        val seq: String = action OBJECT_TO_STRING(str);
+        _appendCharSequence(seq, offset, len);
 
         result = self;
     }
@@ -430,7 +430,34 @@ automaton StringBufferAutomaton
     {
         _preconditionCheck();
 
-        action TODO();
+        val cnt: int = this.count;
+        val len: int = action ARRAY_SIZE(this.value);
+
+        if (action CALL_METHOD(null as Character, "isBmpCodePoint", [codePoint]))
+        {
+            // trim too long strings
+            if (cnt + 1 <= len)
+            {
+                this.value[cnt] = codePoint as char;
+
+                this.count = cnt + 1;
+            }
+        }
+        else if (action CALL_METHOD(null as Character, "isValidCodePoint", [codePoint]))
+        {
+            // trim too long strings
+            if (cnt + 2 <= len)
+            {
+                this.value[cnt + 1] = action CALL_METHOD(null as Character, "lowSurrogate",  [codePoint]);
+                this.value[cnt]     = action CALL_METHOD(null as Character, "highSurrogate", [codePoint]);
+
+                this.count = cnt + 2;
+            }
+        }
+        else
+        {
+            action THROW_NEW("java.lang.IllegalArgumentException", []);
+        }
 
         result = self;
     }
@@ -470,9 +497,10 @@ automaton StringBufferAutomaton
     {
         _preconditionCheck();
 
-        action TODO();
+        if ((index < 0) || (index >= this.count))
+            action THROW_NEW("java.lang.StringIndexOutOfBoundsException", [index]);
 
-        result = 0;
+        result = action CALL_METHOD(null as Character, "codePointAt", [this.value, index, this.count]);
     }
 
 
@@ -480,9 +508,11 @@ automaton StringBufferAutomaton
     {
         _preconditionCheck();
 
-        action TODO();
+        val i: int = index - 1;
+        if ((i < 0) || (i >= this.count))
+            action THROW_NEW("java.lang.StringIndexOutOfBoundsException", [index]);
 
-        result = 0;
+        result = action CALL_METHOD(null as Character, "codePointBefore", [this.value, index, 0]);
     }
 
 
@@ -490,9 +520,10 @@ automaton StringBufferAutomaton
     {
         _preconditionCheck();
 
-        action TODO();
+        if ((beginIndex < 0) || (beginIndex > endIndex) || (endIndex > this.count))
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
 
-        result = 0;
+        result = action CALL_METHOD(null as Character, "codePointCount", [this.value, beginIndex, endIndex - beginIndex]);
     }
 
 
@@ -769,9 +800,10 @@ automaton StringBufferAutomaton
     {
         _preconditionCheck();
 
-        action TODO();
+        if ((index < 0) || (index > this.count))
+            action THROW_NEW("java.lang.IndexOutOfBoundsException", []);
 
-        result = 0;
+        result = action CALL_METHOD(null as Character, "offsetByCodePoints", [this.value, 0, this.count, index, codePointOffset]);
     }
 
 
@@ -882,7 +914,7 @@ automaton StringBufferAutomaton
         }
         else if (newLength > this.count)
         {
-            action ARRAY_FILL_RANGE(this.value, this.count, newLength, '\0');
+            action ARRAY_FILL_RANGE(this.value, this.count, newLength, 0 as char);
             this.count = newLength;
         }
 
