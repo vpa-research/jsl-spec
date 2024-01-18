@@ -914,7 +914,7 @@ automaton StringBufferAutomaton
         }
         else if (newLength > this.count)
         {
-            action ARRAY_FILL_RANGE(this.value, this.count, newLength, 0 as char);
+            action ARRAY_FILL_RANGE(this.value, this.count, newLength, '\0');
             this.count = newLength;
         }
 
