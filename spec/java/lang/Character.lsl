@@ -25,6 +25,28 @@ import java/lang/Comparable;
     fun *.charValue(): char;
 
     @static fun *.offsetByCodePoints(seq: CharSequence, index: int, codePointOffset: int): int;
+
+    @static fun *.offsetByCodePoints(a: array<char>, start: int, count: int, index: int, codePointOffset: int): int;
+
+    @static fun *.isBmpCodePoint(codePoint: int): boolean;
+
+    @static fun *.isValidCodePoint(codePoint: int): boolean;
+
+    @static fun *.isSurrogate(ch: char): boolean;
+
+    @static fun *.isLowSurrogate(ch: char): boolean;
+
+    @static fun *.isHighSurrogate(ch: char): boolean;
+
+    @static fun *.lowSurrogate(codePoint: int): char;
+
+    @static fun *.highSurrogate(codePoint: int): char;
+
+    @static fun *.codePointAt(a: array<char>, index: int, limit: int): int;
+
+    @static fun *.codePointBefore(a: array<char>, index: int, limit: int): int;
+
+    @static fun *.codePointCount(a: array<char>, index: int, limit: int): int;
 }
 
 

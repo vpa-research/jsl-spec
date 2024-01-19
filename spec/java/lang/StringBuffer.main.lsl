@@ -17,7 +17,7 @@ import java/lang/Runnable;
 automaton StringBufferAutomaton
 (
     var value: array<char> = null, // WARNING: do not rename or change the type!
-    var count: int = 0,            // WARNING: do not rename or change the type!
+    var count: int = 0             // WARNING: do not rename or change the type!
 )
 : StringBuffer
 {
@@ -224,7 +224,7 @@ automaton StringBufferAutomaton
     constructor *.`<init>` (@target self: StringBuffer, seq: CharSequence)
     {
         if (seq == null)
-            _throwNPE();
+            action THROW_NEW("java.lang.NullPointerException", []);
 
         _init();
 
@@ -235,11 +235,11 @@ automaton StringBufferAutomaton
     constructor *.`<init>` (@target self: StringBuffer, str: String)
     {
         if (str == null)
-            _throwNPE();
+            action THROW_NEW("java.lang.NullPointerException", []);
 
         _init();
 
-        _appendString(str);
+         _appendCharSequence(str, 0, action CALL_METHOD(str, "length", []));
     }
 
 
@@ -271,7 +271,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.append (@target self: StringBuffer, s: CharSequence, start: int, end: int): StringBuffer
+    @synchronized fun *.append (@target self: StringBuffer, seq: CharSequence, start: int, end: int): StringBuffer
     {
         _preconditionCheck();
 
@@ -914,11 +914,9 @@ automaton StringBufferAutomaton
         }
         else if (newLength > this.count)
         {
-            action ARRAY_FILL_RANGE(this.value, this.count, newLength, '\0');
+            action ARRAY_FILL_RANGE(this.value, this.count, newLength, 0 as char);
             this.count = newLength;
         }
-
-        result = self;
     }
 
 
