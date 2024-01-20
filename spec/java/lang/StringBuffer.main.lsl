@@ -8,8 +8,9 @@ library std
 // imports
 
 import java/lang/Character;
+import java/util/stream/IntStream;
+
 import java/lang/StringBuffer;
-import java/lang/Runnable;
 
 
 // automata
