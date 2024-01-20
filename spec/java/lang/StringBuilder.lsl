@@ -24,6 +24,8 @@ import java/lang/Comparable;
     for Serializable, Comparable, CharSequence
 {
     @private @static val serialVersionUID: long = 4383685877147921099L;
+
+    @private @static val STRINGBUILDER_LENGTH_MAX: int = 50;
 }
 
 

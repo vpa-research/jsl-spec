@@ -4,6 +4,7 @@ library std
     version "11"
     language "Java"
     url "https://github.com/openjdk/jdk11/blob/master/src/java.base/share/classes/java/lang/StringBuffer.java";
+// NOTE: additional url - https://github.com/UnitTestBot/UTBotJava/blob/main/utbot-framework/src/main/java/org/utbot/engine/overrides/strings/UtStringBuffer.java
 
 // imports
 
@@ -261,13 +262,13 @@ automaton StringBufferAutomaton
     }
 
 
-    constructor *.`<init>` (@target self: StringBuffer, capacity: int)
+    constructor *.`<init>` (@target self: StringBuffer, cap: int)
     {
-        if (capacity < 0)
+        if (cap < 0)
             action THROW_NEW("java.lang.NegativeArraySizeException", []);
 
         // just an arbitrary limit that can be set externaly by the user
-        if (capacity > 1073741823) // Integer.MAX_VALUE / 2
+        if (cap > 1073741823) // Integer.MAX_VALUE / 2
             action THROW_NEW("java.lang.OutOfMemoryError", ["Requested array size exceeds VM limit"]);
 
         _init();
