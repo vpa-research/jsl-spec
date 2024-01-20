@@ -23,18 +23,15 @@ automaton StringBufferAutomaton
 {
     // states and shifts
 
-    initstate Allocated;
-    state Initialized;
+    initstate Initialized;  // NOTE: target type is being used too frequently - disabling automata features
 
-    shift Allocated -> Initialized by [
+    shift Initialized -> self by [
         // constructors
         `<init>` (StringBuffer),
         `<init>` (StringBuffer, CharSequence),
         `<init>` (StringBuffer, String),
         `<init>` (StringBuffer, int),
-    ];
 
-    shift Initialized -> self by [
         // instance methods
         append (StringBuffer, CharSequence),
         append (StringBuffer, CharSequence, int, int),
@@ -154,6 +151,26 @@ automaton StringBufferAutomaton
         {
             val symbols: array<char> = action ARRAY_NEW("char", len);
             action ARRAY_COPY(this.value, posStart, symbols, 0, len);
+            result = action OBJECT_TO_STRING(this.value);
+        }
+    }
+
+
+    @KeepVisible proc _asString (): String
+    {
+        val len: int = this.count;
+        if (len == 0)
+        {
+            result = "";
+        }
+        else if (len == action ARRAY_SIZE(this.value))
+        {
+            result = action OBJECT_TO_STRING(this.value);
+        }
+        else
+        {
+            val symbols: array<char> = action ARRAY_NEW("char", len);
+            action ARRAY_COPY(this.value, 0, symbols, 0, len);
             result = action OBJECT_TO_STRING(this.value);
         }
     }
@@ -487,9 +504,25 @@ automaton StringBufferAutomaton
     {
         _preconditionCheck();
 
-        action TODO();
+        val len: int = this.count;
+        val intValues: array<int> = action ARRAY_NEW("int", len);
 
-        result = null;
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, len, +1,
+            _toIntArray_loop(i, intValues)
+        );
+
+        result = new IntStreamAutomaton(state = Initialized,
+            storage = intValues,
+            length = len,
+            closeHandlers = action LIST_NEW()
+        );
+    }
+
+    @Phantom proc _toIntArray_loop(i: int, intValues: array<int>): void
+    {
+        intValues[i] = this.value[i] as int;
     }
 
 
@@ -532,9 +565,20 @@ automaton StringBufferAutomaton
     {
         _preconditionCheck();
 
-        action TODO();
+        val len: int = this.count;
+        val intValues: array<int> = action ARRAY_NEW("int", len);
 
-        result = null;
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, len, +1,
+            _toIntArray_loop(i, intValues)
+        );
+
+        result = new IntStreamAutomaton(state = Initialized,
+            storage = intValues,
+            length = len,
+            closeHandlers = action LIST_NEW()
+        );
     }
 
 
@@ -542,9 +586,17 @@ automaton StringBufferAutomaton
     {
         _preconditionCheck();
 
-        action TODO();
+        if (another == self)
+        {
+            result = 0;
+        }
+        else
+        {
+            val thisString: String = _asString();
+            val anotherString: String = StringBufferAutomaton(another)._asString();
 
-        result = 0;
+            result = action CALL_METHOD(thisString, "compareTo", [anotherString]);
+        }
     }
 
 
@@ -609,7 +661,7 @@ automaton StringBufferAutomaton
         _preconditionCheck();
 
         // note: UtBot implementation
-        result = action CALL_METHOD(_asString(0, this.count), "indexOf", [str, 0]);
+        result = action CALL_METHOD(_asString(), "indexOf", [str, 0]);
     }
 
 
@@ -618,7 +670,7 @@ automaton StringBufferAutomaton
         _preconditionCheck();
 
         // note: UtBot implementation
-        result = action CALL_METHOD(_asString(0, this.count), "indexOf", [str, fromIndex]);
+        result = action CALL_METHOD(_asString(), "indexOf", [str, fromIndex]);
     }
 
 
@@ -775,7 +827,7 @@ automaton StringBufferAutomaton
         _preconditionCheck();
 
         // note: UtBot implementation
-        result = action CALL_METHOD(_asString(0, this.count), "lastIndexOf", [str, this.count]);
+        result = action CALL_METHOD(_asString(), "lastIndexOf", [str, this.count]);
     }
 
 
@@ -784,7 +836,7 @@ automaton StringBufferAutomaton
         _preconditionCheck();
 
         // note: UtBot implementation
-        result = action CALL_METHOD(_asString(0, this.count), "lastIndexOf", [str, fromIndex]);
+        result = action CALL_METHOD(_asString(), "lastIndexOf", [str, fromIndex]);
     }
 
 
@@ -957,7 +1009,7 @@ automaton StringBufferAutomaton
     {
         _preconditionCheck();
 
-        result = _asString(0, this.count);
+        result = _asString();
     }
 
 
