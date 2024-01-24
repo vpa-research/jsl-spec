@@ -142,3 +142,11 @@ import java/lang/Object;
 
 // global aliases and type overrides
 
+@implements("java.io.Serializable")
+//@implements("java.lang.Comparable")
+//@implements("java.lang.CharSequence")
+type LSLString
+    is java.lang.String
+    for String
+{
+}
