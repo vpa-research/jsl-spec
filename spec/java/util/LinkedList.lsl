@@ -42,6 +42,15 @@ import java/util/List;
 
 
 @GenerateMe
+@implements("java.util.Iterator")
+@public @final type LinkedList_DescendingIterator
+    is java.util.LinkedList_DescendingIterator  // NOTE: do not use inner classes
+    for Iterator
+{
+}
+
+
+@GenerateMe
 @implements("java.util.Spliterator")
 @public @final type LinkedList_Spliterator
     is java.util.LinkedList_Spliterator  // NOTE: do not use inner classes

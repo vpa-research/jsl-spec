@@ -42,7 +42,7 @@ import java/lang/Object;
 
     fun contentEquals (cs: CharSequence): boolean;
 
-    // #problem: cyclic dependency, too primitive method resolution
+    // #problem: cyclic dependency
     //fun contentEquals (sb: StringBuffer): boolean;
 
     fun endsWith (suffix: string): boolean;
@@ -59,8 +59,7 @@ import java/lang/Object;
 
     fun getBytes (srcBegin: int, srcEnd: int, dst: array<byte>, dstBegin: int): void;
 
-    // #problem: too primitive method resolution
-    //fun getChars (srcBegin: int, srcEnd: int, dst: array<char>, dstBegin: int): void;
+    fun getChars (srcBegin: int, srcEnd: int, dst: array<char>, dstBegin: int): void;
 
     fun indexOf (str: string): int;
 

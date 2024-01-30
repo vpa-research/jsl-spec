@@ -38,5 +38,7 @@ import java/lang/Object;
     is java.util.OptionalInt
     for OptionalInt
 {
+    @private @static var EMPTY: OptionalInt = null;
+
     // NOTE: value is stored within the automaton
 }

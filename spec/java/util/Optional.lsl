@@ -43,5 +43,7 @@ import java/lang/Object;
     is java.util.Optional
     for Optional
 {
+    @private @static var EMPTY: Optional = null;
+
     // NOTE: value is stored within the automaton
 }

@@ -37,39 +37,36 @@ automaton HashSetAutomaton
         // constructors
         `<init>` (HashSet),
         `<init>` (HashSet, Collection),
+        `<init>` (HashSet, int),
         `<init>` (HashSet, int, float),
-        `<init>` (HashSet, int, float, boolean)
+        `<init>` (HashSet, int, float, boolean),
     ];
 
     shift Initialized -> self by [
-        // read operations
-        contains,
-        containsAll,
-        isEmpty,
-        size,
-
-        clone,
-        equals,
-        hashCode,
-
-        iterator,
-        spliterator,
-        stream,
-        parallelStream,
-        toArray (HashSet),
-        toArray (HashSet, array<Object>),
-        toArray (HashSet, IntFunction),
-        toString,
-
-        // write operations
+        // instance methods
         add,
         addAll,
         clear,
+        clone,
+        contains,
+        containsAll,
+        equals,
+        forEach,
+        hashCode,
+        isEmpty,
+        iterator,
+        parallelStream,
         remove,
         removeAll,
-        retainAll,
         removeIf,
-        forEach,
+        retainAll,
+        size,
+        spliterator,
+        stream,
+        toArray (HashSet),
+        toArray (HashSet, IntFunction),
+        toArray (HashSet, array<Object>),
+        toString,
     ];
 
     // internal variables

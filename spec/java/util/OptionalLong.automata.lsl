@@ -15,15 +15,6 @@ import java/util/function/Supplier;
 import java/util/OptionalLong;
 
 
-// globals
-
-val EMPTY_OPTIONAL_LONG: OptionalLong
-    = new OptionalLongAutomaton(state = Initialized,
-        value = 0L,
-        present = false
-    );
-
-
 // automata
 
 automaton OptionalLongAutomaton
@@ -92,7 +83,7 @@ automaton OptionalLongAutomaton
 
     @static fun *.empty (): OptionalLong
     {
-        result = EMPTY_OPTIONAL_LONG;
+        result = EMPTY;
     }
 
 
@@ -279,4 +270,16 @@ automaton OptionalLongAutomaton
         }
     }
 
+
+    // special
+
+    @Phantom @static fun *.`<clinit>` (): void
+    {
+        EMPTY = new OptionalLongAutomaton(state = Initialized,
+            value = 0L,
+            present = false
+        );
+    }
+
 }
+

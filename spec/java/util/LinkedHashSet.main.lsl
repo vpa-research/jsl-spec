@@ -41,34 +41,30 @@ automaton LinkedHashSetAutomaton
     ];
 
     shift Initialized -> self by [
-        // read operations
-        contains,
-        containsAll,
-        isEmpty,
-        size,
-
-        clone,
-        equals,
-        hashCode,
-
-        iterator,
-        spliterator,
-        stream,
-        parallelStream,
-        toArray(LinkedHashSet),
-        toArray(LinkedHashSet, array<Object>),
-        toArray(LinkedHashSet, IntFunction),
-        toString,
-
-        // write operations
+        // instance methods
         add,
         addAll,
         clear,
+        clone,
+        contains,
+        containsAll,
+        equals,
+        forEach,
+        hashCode,
+        isEmpty,
+        iterator,
+        parallelStream,
         remove,
         removeAll,
-        retainAll,
         removeIf,
-        forEach,
+        retainAll,
+        size,
+        spliterator,
+        stream,
+        toArray (LinkedHashSet),
+        toArray (LinkedHashSet, IntFunction),
+        toArray (LinkedHashSet, array<Object>),
+        toString,
     ];
 
     // internal variables
@@ -107,7 +103,7 @@ automaton LinkedHashSetAutomaton
     }
 
 
-    @Phantom proc _addAllElements_loop(iter: Iterator): void
+    @Phantom proc _addAllElements_loop (iter: Iterator): void
     {
         val key: Object = action CALL_METHOD(iter, "next", []);
 

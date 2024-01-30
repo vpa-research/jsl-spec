@@ -38,5 +38,7 @@ import java/lang/Object;
     is java.util.OptionalLong
     for OptionalLong
 {
+    @private @static var EMPTY: OptionalLong = null;
+
     // NOTE: value is stored within the automaton
 }

@@ -8,7 +8,9 @@ library std
 
 // imports
 
+import java/io/Serializable;
 import java/lang/Object;
+import java/util/Set;
 
 
 // primary semantic types
@@ -35,6 +37,8 @@ import java/lang/Object;
     fun *.remove(key: Object, value: Object): boolean;
 
     fun *.clear(): void;
+
+    fun *.entrySet(): Set;
 }
 
 @Parameterized(["K", "V"])
@@ -48,7 +52,3 @@ import java/lang/Object;
 
     fun *.setValue(value: Object): Object;
 }
-
-
-// global aliases and type overrides
-

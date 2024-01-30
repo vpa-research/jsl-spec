@@ -24,4 +24,4 @@ import java/io/ObjectStreamField;
     @private @static val serialPersistentFields: array<ObjectStreamField> = [];
 }
 
-val MAX_RANDOM_STREAM_SIZE: int = 100;
+val RANDOM_STREAM_SIZE_MAX: int = 100;

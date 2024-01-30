@@ -64,17 +64,16 @@ automaton ObjectAutomaton
 
 
     @throws(["java.lang.CloneNotSupportedException"])
-    @protected fun *.clone (@target self: LSLObject): Object
+    @Phantom @protected fun *.clone (@target self: LSLObject): Object
     {
+        // #todo: enable when such functionality will be available in USVM
+        // WARNING: using the original method for now
+
         if (self is Cloneable == false)
             action THROW_NEW("java.lang.CloneNotSupportedException", []);
 
-        result = action SYMBOLIC("java.lang.Object");
+        result = action SYMBOLIC(action TYPE_OF(self));
         action ASSUME(result != null);
-
-        val thisType: Class = action TYPE_OF(self);
-        val cloneType: Class = action TYPE_OF(result);
-        action ASSUME(thisType == cloneType);
     }
 
 
