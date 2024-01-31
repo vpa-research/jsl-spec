@@ -1,3 +1,4 @@
+// #pragma target:approximation
 libsl "1.1.0";
 
 library std

@@ -12,6 +12,8 @@ import java/lang/Runnable;
 import java/util/function/DoubleConsumer;
 import java/util/function/DoubleSupplier;
 import java/util/function/Supplier;
+import java/util/stream/DoubleStream;
+
 import java/util/OptionalDouble;
 
 
@@ -250,9 +252,23 @@ automaton OptionalDoubleAutomaton
 
     fun *.stream (@target self: LSLOptionalDouble): DoubleStream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.DoubleStream");
-        action ASSUME(result != null);
+        var items: array<double> = null;
+        if (this.present)
+        {
+            items = action ARRAY_NEW("double", 1);
+            items[0] = this.value;
+        }
+        else
+        {
+            items = action ARRAY_NEW("double", 0);
+        }
+
+        result = new DoubleStreamAutomaton(state = Initialized,
+            storage = items,
+            length = action ARRAY_SIZE(items),
+            closeHandlers = action LIST_NEW(),
+            isParallel = false,
+        );
     }
 
 

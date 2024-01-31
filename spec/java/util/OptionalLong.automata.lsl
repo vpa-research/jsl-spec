@@ -12,6 +12,8 @@ import java/lang/Runnable;
 import java/util/function/LongConsumer;
 import java/util/function/LongSupplier;
 import java/util/function/Supplier;
+import java/util/stream/LongStream;
+
 import java/util/OptionalLong;
 
 
@@ -250,9 +252,23 @@ automaton OptionalLongAutomaton
 
     fun *.stream (@target self: LSLOptionalLong): LongStream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.LongStream");
-        action ASSUME(result != null);
+        var items: array<long> = null;
+        if (this.present)
+        {
+            items = action ARRAY_NEW("long", 1);
+            items[0] = this.value;
+        }
+        else
+        {
+            items = action ARRAY_NEW("long", 0);
+        }
+
+        result = new LongStreamAutomaton(state = Initialized,
+            storage = items,
+            length = action ARRAY_SIZE(items),
+            closeHandlers = action LIST_NEW(),
+            isParallel = false,
+        );
     }
 
 
