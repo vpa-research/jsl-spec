@@ -206,10 +206,7 @@ automaton OptionalLongAutomaton
 
     fun *.orElseGet (@target self: LSLOptionalLong, supplier: LongSupplier): long
     {
-        requires supplier != null;
-
-        if (supplier == null)
-            _throwNPE();
+        requires (supplier != null && !this.present) || this.present;
 
         if (this.present)
             result = this.value;

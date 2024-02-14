@@ -206,10 +206,7 @@ automaton OptionalIntAutomaton
 
     fun *.orElseGet (@target self: LSLOptionalInt, supplier: IntSupplier): int
     {
-        requires supplier != null;
-
-        if (supplier == null)
-            _throwNPE();
+        requires (supplier != null && !this.present) || this.present;
 
         if (this.present)
             result = this.value;

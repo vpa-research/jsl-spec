@@ -344,10 +344,7 @@ automaton OptionalAutomaton
     fun *.orElseGet (@target @Parameterized(["T"]) self: LSLOptional,
                      @Parameterized(["? extends T"]) supplier: Supplier): Object
     {
-        requires supplier != null;
-
-        if (supplier == null)
-            _throwNPE();
+        requires (supplier != null && this.value == null) || this.value != null;
 
         if (this.value == null)
             result = action CALL(supplier, []);
