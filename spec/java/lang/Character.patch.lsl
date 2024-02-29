@@ -1,4 +1,4 @@
-// #pragma target:approximation
+//#! pragma: target=java
 libsl "1.1.0";
 
 library std
