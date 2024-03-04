@@ -985,7 +985,7 @@ automaton ArrayListAutomaton
     // special: serialization
 
     @throws(["java.io.IOException"])
-    @private fun writeObject (@target self: ArrayList, s: ObjectOutputStream): void
+    @private fun *.writeObject (@target self: ArrayList, s: ObjectOutputStream): void
     {
         // #question: do we actually need this method?
         action NOT_IMPLEMENTED("no serialization support yet");
@@ -993,7 +993,7 @@ automaton ArrayListAutomaton
 
 
     @throws(["java.io.IOException", "java.lang.ClassNotFoundException"])
-    @private fun readObject (@target self: ArrayList, s: ObjectInputStream): void
+    @private fun *.readObject (@target self: ArrayList, s: ObjectInputStream): void
     {
         // #question: do we actually need this method?
         action NOT_IMPLEMENTED("no serialization support yet");

@@ -1032,7 +1032,7 @@ automaton StringBuilderAutomaton
     // special: serialization
 
     @throws(["java.io.IOException"])
-    @private fun writeObject (@target self: StringBuilder, s: ObjectOutputStream): void
+    @private fun *.writeObject (@target self: StringBuilder, s: ObjectOutputStream): void
     {
         // #question: do we actually need this method?
         action NOT_IMPLEMENTED("no serialization support yet");
@@ -1040,7 +1040,7 @@ automaton StringBuilderAutomaton
 
 
     @throws(["java.io.IOException", "java.lang.ClassNotFoundException"])
-    @private fun readObject (@target self: StringBuilder, s: ObjectInputStream): void
+    @private fun *.readObject (@target self: StringBuilder, s: ObjectInputStream): void
     {
         // #question: do we actually need this method?
         action NOT_IMPLEMENTED("no serialization support yet");

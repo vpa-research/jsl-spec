@@ -36,7 +36,7 @@ automaton AutoCloseableAutomaton
 
     // methods
 
-    @default fun close (@target self: LSLAutoCloseable): void
+    @default fun *.close (@target self: LSLAutoCloseable): void
     {
         // UtBotJava: do nothing
     }
