@@ -1,4 +1,4 @@
-///#! pragma: non-synthesizable
+//#! pragma: target=java
 libsl "1.1.0";
 
 library std
@@ -12,6 +12,8 @@ import java/lang/Runnable;
 import java/util/function/IntConsumer;
 import java/util/function/IntSupplier;
 import java/util/function/Supplier;
+import java/util/stream/IntStream;
+
 import java/util/OptionalInt;
 
 
@@ -204,10 +206,7 @@ automaton OptionalIntAutomaton
 
     fun *.orElseGet (@target self: LSLOptionalInt, supplier: IntSupplier): int
     {
-        requires supplier != null;
-
-        if (supplier == null)
-            _throwNPE();
+        requires (supplier != null && !this.present) || this.present;
 
         if (this.present)
             result = this.value;
@@ -250,9 +249,23 @@ automaton OptionalIntAutomaton
 
     fun *.stream (@target self: LSLOptionalInt): IntStream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.IntStream");
-        action ASSUME(result != null);
+        var items: array<int> = null;
+        if (this.present)
+        {
+            items = action ARRAY_NEW("int", 1);
+            items[0] = this.value;
+        }
+        else
+        {
+            items = action ARRAY_NEW("int", 0);
+        }
+
+        result = new IntStreamAutomaton(state = Initialized,
+            storage = items,
+            length = action ARRAY_SIZE(items),
+            closeHandlers = action LIST_NEW(),
+            isParallel = false,
+        );
     }
 
 

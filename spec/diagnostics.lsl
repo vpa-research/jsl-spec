@@ -1,4 +1,3 @@
-//#! pragma: non-synthesizable
 libsl "1.5.0";
 
 // NOTE: this file is supposed to be auto-generated from USVM internal diagnostics list

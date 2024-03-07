@@ -1,4 +1,3 @@
-//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library std
@@ -18,7 +17,6 @@ import java/lang/Comparable;
 @implements("java.io.Serializable")
 @implements("java.lang.Comparable<StringBuilder>")
 @implements("java.lang.CharSequence")
-
 @final type StringBuilder
     is java.lang.StringBuilder
     for Serializable, Comparable, CharSequence
@@ -37,4 +35,6 @@ import java/lang/Comparable;
     for StringBuilder
 {
     @private @static val serialVersionUID: long = 4383685877147921099L;
+
+    @private @static val STRINGBUILDER_LENGTH_MAX: int = 50;
 }
