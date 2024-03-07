@@ -24,7 +24,7 @@ automaton StringBuilderAutomaton
     var value: array<char> = null, // WARNING: do not rename or change the type!
     var count: int = 0             // WARNING: do not rename or change the type!
 )
-: StringBuilder
+: LSLStringBuilder
 {
     // states and shifts
 
@@ -32,25 +32,25 @@ automaton StringBuilderAutomaton
 
     shift Initialized -> self by [
         // constructors
-        `<init>` (StringBuilder),
-        `<init>` (StringBuilder, CharSequence),
-        `<init>` (StringBuilder, String),
-        `<init>` (StringBuilder, int),
+        `<init>` (LSLStringBuilder),
+        `<init>` (LSLStringBuilder, CharSequence),
+        `<init>` (LSLStringBuilder, String),
+        `<init>` (LSLStringBuilder, int),
 
         // instance methods
-        append (StringBuilder, CharSequence),
-        append (StringBuilder, CharSequence, int, int),
-        append (StringBuilder, Object),
-        append (StringBuilder, String),
-        append (StringBuilder, StringBuffer),
-        append (StringBuilder, boolean),
-        append (StringBuilder, char),
-        append (StringBuilder, array<char>),
-        append (StringBuilder, array<char>, int, int),
-        append (StringBuilder, double),
-        append (StringBuilder, float),
-        append (StringBuilder, int),
-        append (StringBuilder, long),
+        append (LSLStringBuilder, CharSequence),
+        append (LSLStringBuilder, CharSequence, int, int),
+        append (LSLStringBuilder, Object),
+        append (LSLStringBuilder, String),
+        append (LSLStringBuilder, StringBuffer),
+        append (LSLStringBuilder, boolean),
+        append (LSLStringBuilder, char),
+        append (LSLStringBuilder, array<char>),
+        append (LSLStringBuilder, array<char>, int, int),
+        append (LSLStringBuilder, double),
+        append (LSLStringBuilder, float),
+        append (LSLStringBuilder, int),
+        append (LSLStringBuilder, long),
         appendCodePoint,
         capacity,
         charAt,
@@ -65,22 +65,22 @@ automaton StringBuilderAutomaton
         ensureCapacity,
         getChars,
         getValue,
-        indexOf (StringBuilder, String),
-        indexOf (StringBuilder, String, int),
-        insert (StringBuilder, int, CharSequence),
-        insert (StringBuilder, int, CharSequence, int, int),
-        insert (StringBuilder, int, Object),
-        insert (StringBuilder, int, String),
-        insert (StringBuilder, int, boolean),
-        insert (StringBuilder, int, char),
-        insert (StringBuilder, int, array<char>),
-        insert (StringBuilder, int, array<char>, int, int),
-        insert (StringBuilder, int, double),
-        insert (StringBuilder, int, float),
-        insert (StringBuilder, int, int),
-        insert (StringBuilder, int, long),
-        lastIndexOf (StringBuilder, String),
-        lastIndexOf (StringBuilder, String, int),
+        indexOf (LSLStringBuilder, String),
+        indexOf (LSLStringBuilder, String, int),
+        insert (LSLStringBuilder, int, CharSequence),
+        insert (LSLStringBuilder, int, CharSequence, int, int),
+        insert (LSLStringBuilder, int, Object),
+        insert (LSLStringBuilder, int, String),
+        insert (LSLStringBuilder, int, boolean),
+        insert (LSLStringBuilder, int, char),
+        insert (LSLStringBuilder, int, array<char>),
+        insert (LSLStringBuilder, int, array<char>, int, int),
+        insert (LSLStringBuilder, int, double),
+        insert (LSLStringBuilder, int, float),
+        insert (LSLStringBuilder, int, int),
+        insert (LSLStringBuilder, int, long),
+        lastIndexOf (LSLStringBuilder, String),
+        lastIndexOf (LSLStringBuilder, String, int),
         length,
         offsetByCodePoints,
         replace,
@@ -88,8 +88,8 @@ automaton StringBuilderAutomaton
         setCharAt,
         setLength,
         subSequence,
-        substring (StringBuilder, int),
-        substring (StringBuilder, int, int),
+        substring (LSLStringBuilder, int),
+        substring (LSLStringBuilder, int, int),
         toString,
         trimToSize,
     ];
@@ -237,13 +237,13 @@ automaton StringBuilderAutomaton
 
     // constructors
 
-    constructor *.`<init>` (@target self: StringBuilder)
+    constructor *.`<init>` (@target self: LSLStringBuilder)
     {
         _init();
     }
 
 
-    constructor *.`<init>` (@target self: StringBuilder, seq: CharSequence)
+    constructor *.`<init>` (@target self: LSLStringBuilder, seq: CharSequence)
     {
         if (seq == null)
             action THROW_NEW("java.lang.NullPointerException", []);
@@ -254,7 +254,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    constructor *.`<init>` (@target self: StringBuilder, str: String)
+    constructor *.`<init>` (@target self: LSLStringBuilder, str: String)
     {
         if (str == null)
             action THROW_NEW("java.lang.NullPointerException", []);
@@ -265,7 +265,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    constructor *.`<init>` (@target self: StringBuilder, cap: int)
+    constructor *.`<init>` (@target self: LSLStringBuilder, cap: int)
     {
         if (cap < 0)
             action THROW_NEW("java.lang.NegativeArraySizeException", []);
@@ -280,7 +280,7 @@ automaton StringBuilderAutomaton
 
     // methods
 
-    fun *.append (@target self: StringBuilder, seq: CharSequence): StringBuilder
+    fun *.append (@target self: LSLStringBuilder, seq: CharSequence): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -293,7 +293,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.append (@target self: StringBuilder, seq: CharSequence, start: int, end: int): StringBuilder
+    fun *.append (@target self: LSLStringBuilder, seq: CharSequence, start: int, end: int): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -306,7 +306,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.append (@target self: StringBuilder, obj: Object): StringBuilder
+    fun *.append (@target self: LSLStringBuilder, obj: Object): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -324,7 +324,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.append (@target self: StringBuilder, str: String): StringBuilder
+    fun *.append (@target self: LSLStringBuilder, str: String): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -337,7 +337,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.append (@target self: StringBuilder, sb: StringBuffer): StringBuilder
+    fun *.append (@target self: LSLStringBuilder, sb: StringBuffer): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -355,7 +355,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.append (@target self: StringBuilder, x: boolean): StringBuilder
+    fun *.append (@target self: LSLStringBuilder, x: boolean): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -368,7 +368,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.append (@target self: StringBuilder, x: char): StringBuilder
+    fun *.append (@target self: LSLStringBuilder, x: char): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -382,7 +382,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.append (@target self: StringBuilder, str: array<char>): StringBuilder
+    fun *.append (@target self: LSLStringBuilder, str: array<char>): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -393,7 +393,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.append (@target self: StringBuilder, str: array<char>, offset: int, len: int): StringBuilder
+    fun *.append (@target self: LSLStringBuilder, str: array<char>, offset: int, len: int): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -404,7 +404,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.append (@target self: StringBuilder, x: double): StringBuilder
+    fun *.append (@target self: LSLStringBuilder, x: double): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -415,7 +415,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.append (@target self: StringBuilder, x: float): StringBuilder
+    fun *.append (@target self: LSLStringBuilder, x: float): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -426,7 +426,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.append (@target self: StringBuilder, x: int): StringBuilder
+    fun *.append (@target self: LSLStringBuilder, x: int): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -437,7 +437,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.append (@target self: StringBuilder, x: long): StringBuilder
+    fun *.append (@target self: LSLStringBuilder, x: long): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -448,7 +448,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.appendCodePoint (@target self: StringBuilder, codePoint: int): StringBuilder
+    fun *.appendCodePoint (@target self: LSLStringBuilder, codePoint: int): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -485,7 +485,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.capacity (@target self: StringBuilder): int
+    fun *.capacity (@target self: LSLStringBuilder): int
     {
         _preconditionCheck();
 
@@ -493,7 +493,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.charAt (@target self: StringBuilder, index: int): char
+    fun *.charAt (@target self: LSLStringBuilder, index: int): char
     {
         _preconditionCheck();
 
@@ -505,7 +505,7 @@ automaton StringBuilderAutomaton
 
 
     // within java.lang.AbstractStringBuilder
-    fun *.chars (@target self: StringBuilder): IntStream
+    fun *.chars (@target self: LSLStringBuilder): IntStream
     {
         _preconditionCheck();
 
@@ -531,7 +531,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.codePointAt (@target self: StringBuilder, index: int): int
+    fun *.codePointAt (@target self: LSLStringBuilder, index: int): int
     {
         _preconditionCheck();
 
@@ -542,7 +542,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.codePointBefore (@target self: StringBuilder, index: int): int
+    fun *.codePointBefore (@target self: LSLStringBuilder, index: int): int
     {
         _preconditionCheck();
 
@@ -554,7 +554,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.codePointCount (@target self: StringBuilder, beginIndex: int, endIndex: int): int
+    fun *.codePointCount (@target self: LSLStringBuilder, beginIndex: int, endIndex: int): int
     {
         _preconditionCheck();
 
@@ -566,7 +566,7 @@ automaton StringBuilderAutomaton
 
 
     // within java.lang.AbstractStringBuilder
-    fun *.codePoints (@target self: StringBuilder): IntStream
+    fun *.codePoints (@target self: LSLStringBuilder): IntStream
     {
         _preconditionCheck();
 
@@ -587,7 +587,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.compareTo (@target self: StringBuilder, another: StringBuilder): int
+    fun *.compareTo (@target self: LSLStringBuilder, another: LSLStringBuilder): int
     {
         _preconditionCheck();
 
@@ -605,7 +605,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.delete (@target self: StringBuilder, start: int, end: int): StringBuilder
+    fun *.delete (@target self: LSLStringBuilder, start: int, end: int): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -615,7 +615,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.deleteCharAt (@target self: StringBuilder, index: int): StringBuilder
+    fun *.deleteCharAt (@target self: LSLStringBuilder, index: int): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -625,14 +625,14 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.ensureCapacity (@target self: StringBuilder, minimumCapacity: int): void
+    fun *.ensureCapacity (@target self: LSLStringBuilder, minimumCapacity: int): void
     {
         // note: UtBot implementation
         action DO_NOTHING();
     }
 
 
-    fun *.getChars (@target self: StringBuilder, srcBegin: int, srcEnd: int, dst: array<char>, dstBegin: int): void
+    fun *.getChars (@target self: LSLStringBuilder, srcBegin: int, srcEnd: int, dst: array<char>, dstBegin: int): void
     {
         _preconditionCheck();
 
@@ -653,7 +653,7 @@ automaton StringBuilderAutomaton
 
 
     // UtBot note: Needed by String for the contentEquals method
-    fun *.getValue (@target self: StringBuilder): array<char>
+    fun *.getValue (@target self: LSLStringBuilder): array<char>
     {
         _preconditionCheck();
 
@@ -661,7 +661,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.indexOf (@target self: StringBuilder, str: String): int
+    fun *.indexOf (@target self: LSLStringBuilder, str: String): int
     {
         _preconditionCheck();
 
@@ -670,7 +670,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.indexOf (@target self: StringBuilder, str: String, fromIndex: int): int
+    fun *.indexOf (@target self: LSLStringBuilder, str: String, fromIndex: int): int
     {
         _preconditionCheck();
 
@@ -679,7 +679,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuilder, dstOffset: int, s: CharSequence): StringBuilder
+    fun *.insert (@target self: LSLStringBuilder, dstOffset: int, s: CharSequence): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -692,7 +692,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuilder, dstOffset: int, s: CharSequence, start: int, end: int): StringBuilder
+    fun *.insert (@target self: LSLStringBuilder, dstOffset: int, s: CharSequence, start: int, end: int): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -705,7 +705,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuilder, dstOffset: int, obj: Object): StringBuilder
+    fun *.insert (@target self: LSLStringBuilder, dstOffset: int, obj: Object): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -723,7 +723,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuilder, dstOffset: int, s: String): StringBuilder
+    fun *.insert (@target self: LSLStringBuilder, dstOffset: int, s: String): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -736,7 +736,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuilder, dstOffset: int, x: boolean): StringBuilder
+    fun *.insert (@target self: LSLStringBuilder, dstOffset: int, x: boolean): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -747,7 +747,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuilder, dstOffset: int, x: char): StringBuilder
+    fun *.insert (@target self: LSLStringBuilder, dstOffset: int, x: char): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -758,7 +758,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuilder, dstOffset: int, x: array<char>): StringBuilder
+    fun *.insert (@target self: LSLStringBuilder, dstOffset: int, x: array<char>): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -769,7 +769,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuilder, index: int, str: array<char>, offset: int, len: int): StringBuilder
+    fun *.insert (@target self: LSLStringBuilder, index: int, str: array<char>, offset: int, len: int): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -783,7 +783,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuilder, dstOffset: int, x: double): StringBuilder
+    fun *.insert (@target self: LSLStringBuilder, dstOffset: int, x: double): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -794,7 +794,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuilder, dstOffset: int, x: float): StringBuilder
+    fun *.insert (@target self: LSLStringBuilder, dstOffset: int, x: float): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -805,7 +805,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuilder, dstOffset: int, x: int): StringBuilder
+    fun *.insert (@target self: LSLStringBuilder, dstOffset: int, x: int): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -816,7 +816,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuilder, dstOffset: int, x: long): StringBuilder
+    fun *.insert (@target self: LSLStringBuilder, dstOffset: int, x: long): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -827,7 +827,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.lastIndexOf (@target self: StringBuilder, str: String): int
+    fun *.lastIndexOf (@target self: LSLStringBuilder, str: String): int
     {
         _preconditionCheck();
 
@@ -836,7 +836,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.lastIndexOf (@target self: StringBuilder, str: String, fromIndex: int): int
+    fun *.lastIndexOf (@target self: LSLStringBuilder, str: String, fromIndex: int): int
     {
         _preconditionCheck();
 
@@ -845,7 +845,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.length (@target self: StringBuilder): int
+    fun *.length (@target self: LSLStringBuilder): int
     {
         _preconditionCheck();
 
@@ -853,7 +853,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.offsetByCodePoints (@target self: StringBuilder, index: int, codePointOffset: int): int
+    fun *.offsetByCodePoints (@target self: LSLStringBuilder, index: int, codePointOffset: int): int
     {
         _preconditionCheck();
 
@@ -864,7 +864,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.replace (@target self: StringBuilder, start: int, end: int, s: String): StringBuilder
+    fun *.replace (@target self: LSLStringBuilder, start: int, end: int, s: String): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -879,7 +879,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.reverse (@target self: StringBuilder): StringBuilder
+    fun *.reverse (@target self: LSLStringBuilder): LSLStringBuilder
     {
         _preconditionCheck();
 
@@ -941,7 +941,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.setCharAt (@target self: StringBuilder, index: int, x: char): void
+    fun *.setCharAt (@target self: LSLStringBuilder, index: int, x: char): void
     {
         _preconditionCheck();
 
@@ -952,7 +952,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.setLength (@target self: StringBuilder, newLength: int): void
+    fun *.setLength (@target self: LSLStringBuilder, newLength: int): void
     {
         _preconditionCheck();
 
@@ -977,7 +977,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.subSequence (@target self: StringBuilder, start: int, end: int): CharSequence
+    fun *.subSequence (@target self: LSLStringBuilder, start: int, end: int): CharSequence
     {
         _preconditionCheck();
 
@@ -988,7 +988,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.substring (@target self: StringBuilder, start: int): String
+    fun *.substring (@target self: LSLStringBuilder, start: int): String
     {
         _preconditionCheck();
 
@@ -999,7 +999,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.substring (@target self: StringBuilder, start: int, end: int): String
+    fun *.substring (@target self: LSLStringBuilder, start: int, end: int): String
     {
         _preconditionCheck();
 
@@ -1010,7 +1010,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.toString (@target self: StringBuilder): String
+    fun *.toString (@target self: LSLStringBuilder): String
     {
         _preconditionCheck();
 
@@ -1018,7 +1018,7 @@ automaton StringBuilderAutomaton
     }
 
 
-    fun *.trimToSize (@target self: StringBuilder): void
+    fun *.trimToSize (@target self: LSLStringBuilder): void
     {
         _preconditionCheck();
 
@@ -1032,7 +1032,7 @@ automaton StringBuilderAutomaton
     // special: serialization
 
     @throws(["java.io.IOException"])
-    @private fun *.writeObject (@target self: StringBuilder, s: ObjectOutputStream): void
+    @private fun *.writeObject (@target self: LSLStringBuilder, s: ObjectOutputStream): void
     {
         // #question: do we actually need this method?
         action NOT_IMPLEMENTED("no serialization support yet");
@@ -1040,7 +1040,7 @@ automaton StringBuilderAutomaton
 
 
     @throws(["java.io.IOException", "java.lang.ClassNotFoundException"])
-    @private fun *.readObject (@target self: StringBuilder, s: ObjectInputStream): void
+    @private fun *.readObject (@target self: LSLStringBuilder, s: ObjectInputStream): void
     {
         // #question: do we actually need this method?
         action NOT_IMPLEMENTED("no serialization support yet");

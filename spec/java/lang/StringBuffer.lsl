@@ -18,14 +18,11 @@ import java/lang/Comparable;
 @implements("java.io.Serializable")
 @implements("java.lang.Comparable<StringBuffer>")
 @implements("java.lang.CharSequence")
-
 @final type StringBuffer
     is java.lang.StringBuffer
     for Serializable, Appendable, Comparable, CharSequence
 {
     @private @static val serialVersionUID: long = 3388685877147921107L;
-
-    @private @static val STRINGBUFFER_LENGTH_MAX: int = 50;
 }
 
 
@@ -39,4 +36,6 @@ import java/lang/Comparable;
     for StringBuffer
 {
     @private @static val serialVersionUID: long = 3388685877147921107L;
+
+    @private @static val STRINGBUFFER_LENGTH_MAX: int = 50;
 }

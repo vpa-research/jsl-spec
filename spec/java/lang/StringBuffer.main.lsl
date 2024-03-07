@@ -22,7 +22,7 @@ automaton StringBufferAutomaton
     var value: array<char> = null, // WARNING: do not rename or change the type!
     var count: int = 0             // WARNING: do not rename or change the type!
 )
-: StringBuffer
+: LSLStringBuffer
 {
     // states and shifts
 
@@ -30,25 +30,25 @@ automaton StringBufferAutomaton
 
     shift Initialized -> self by [
         // constructors
-        `<init>` (StringBuffer),
-        `<init>` (StringBuffer, CharSequence),
-        `<init>` (StringBuffer, String),
-        `<init>` (StringBuffer, int),
+        `<init>` (LSLStringBuffer),
+        `<init>` (LSLStringBuffer, CharSequence),
+        `<init>` (LSLStringBuffer, String),
+        `<init>` (LSLStringBuffer, int),
 
         // instance methods
-        append (StringBuffer, CharSequence),
-        append (StringBuffer, CharSequence, int, int),
-        append (StringBuffer, Object),
-        append (StringBuffer, String),
-        append (StringBuffer, StringBuffer),
-        append (StringBuffer, boolean),
-        append (StringBuffer, char),
-        append (StringBuffer, array<char>),
-        append (StringBuffer, array<char>, int, int),
-        append (StringBuffer, double),
-        append (StringBuffer, float),
-        append (StringBuffer, int),
-        append (StringBuffer, long),
+        append (LSLStringBuffer, CharSequence),
+        append (LSLStringBuffer, CharSequence, int, int),
+        append (LSLStringBuffer, Object),
+        append (LSLStringBuffer, String),
+        append (LSLStringBuffer, StringBuffer),
+        append (LSLStringBuffer, boolean),
+        append (LSLStringBuffer, char),
+        append (LSLStringBuffer, array<char>),
+        append (LSLStringBuffer, array<char>, int, int),
+        append (LSLStringBuffer, double),
+        append (LSLStringBuffer, float),
+        append (LSLStringBuffer, int),
+        append (LSLStringBuffer, long),
         appendCodePoint,
         capacity,
         charAt,
@@ -63,22 +63,22 @@ automaton StringBufferAutomaton
         ensureCapacity,
         getChars,
         getValue,
-        indexOf (StringBuffer, String),
-        indexOf (StringBuffer, String, int),
-        insert (StringBuffer, int, CharSequence),
-        insert (StringBuffer, int, CharSequence, int, int),
-        insert (StringBuffer, int, Object),
-        insert (StringBuffer, int, String),
-        insert (StringBuffer, int, boolean),
-        insert (StringBuffer, int, char),
-        insert (StringBuffer, int, array<char>),
-        insert (StringBuffer, int, array<char>, int, int),
-        insert (StringBuffer, int, double),
-        insert (StringBuffer, int, float),
-        insert (StringBuffer, int, int),
-        insert (StringBuffer, int, long),
-        lastIndexOf (StringBuffer, String),
-        lastIndexOf (StringBuffer, String, int),
+        indexOf (LSLStringBuffer, String),
+        indexOf (LSLStringBuffer, String, int),
+        insert (LSLStringBuffer, int, CharSequence),
+        insert (LSLStringBuffer, int, CharSequence, int, int),
+        insert (LSLStringBuffer, int, Object),
+        insert (LSLStringBuffer, int, String),
+        insert (LSLStringBuffer, int, boolean),
+        insert (LSLStringBuffer, int, char),
+        insert (LSLStringBuffer, int, array<char>),
+        insert (LSLStringBuffer, int, array<char>, int, int),
+        insert (LSLStringBuffer, int, double),
+        insert (LSLStringBuffer, int, float),
+        insert (LSLStringBuffer, int, int),
+        insert (LSLStringBuffer, int, long),
+        lastIndexOf (LSLStringBuffer, String),
+        lastIndexOf (LSLStringBuffer, String, int),
         length,
         offsetByCodePoints,
         replace,
@@ -86,8 +86,8 @@ automaton StringBufferAutomaton
         setCharAt,
         setLength,
         subSequence,
-        substring (StringBuffer, int),
-        substring (StringBuffer, int, int),
+        substring (LSLStringBuffer, int),
+        substring (LSLStringBuffer, int, int),
         toString,
         trimToSize,
     ];
@@ -235,13 +235,13 @@ automaton StringBufferAutomaton
 
     // constructors
 
-    constructor *.`<init>` (@target self: StringBuffer)
+    constructor *.`<init>` (@target self: LSLStringBuffer)
     {
         _init();
     }
 
 
-    constructor *.`<init>` (@target self: StringBuffer, seq: CharSequence)
+    constructor *.`<init>` (@target self: LSLStringBuffer, seq: CharSequence)
     {
         if (seq == null)
             action THROW_NEW("java.lang.NullPointerException", []);
@@ -252,7 +252,7 @@ automaton StringBufferAutomaton
     }
 
 
-    constructor *.`<init>` (@target self: StringBuffer, str: String)
+    constructor *.`<init>` (@target self: LSLStringBuffer, str: String)
     {
         if (str == null)
             action THROW_NEW("java.lang.NullPointerException", []);
@@ -263,7 +263,7 @@ automaton StringBufferAutomaton
     }
 
 
-    constructor *.`<init>` (@target self: StringBuffer, cap: int)
+    constructor *.`<init>` (@target self: LSLStringBuffer, cap: int)
     {
         if (cap < 0)
             action THROW_NEW("java.lang.NegativeArraySizeException", []);
@@ -278,7 +278,7 @@ automaton StringBufferAutomaton
 
     // methods
 
-    @synchronized fun *.append (@target self: StringBuffer, seq: CharSequence): StringBuffer
+    @synchronized fun *.append (@target self: LSLStringBuffer, seq: CharSequence): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -291,7 +291,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.append (@target self: StringBuffer, seq: CharSequence, start: int, end: int): StringBuffer
+    @synchronized fun *.append (@target self: LSLStringBuffer, seq: CharSequence, start: int, end: int): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -304,7 +304,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.append (@target self: StringBuffer, obj: Object): StringBuffer
+    @synchronized fun *.append (@target self: LSLStringBuffer, obj: Object): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -322,7 +322,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.append (@target self: StringBuffer, str: String): StringBuffer
+    @synchronized fun *.append (@target self: LSLStringBuffer, str: String): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -335,7 +335,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.append (@target self: StringBuffer, sb: StringBuffer): StringBuffer
+    @synchronized fun *.append (@target self: LSLStringBuffer, sb: StringBuffer): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -353,7 +353,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.append (@target self: StringBuffer, x: boolean): StringBuffer
+    @synchronized fun *.append (@target self: LSLStringBuffer, x: boolean): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -366,7 +366,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.append (@target self: StringBuffer, x: char): StringBuffer
+    @synchronized fun *.append (@target self: LSLStringBuffer, x: char): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -380,7 +380,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.append (@target self: StringBuffer, str: array<char>): StringBuffer
+    @synchronized fun *.append (@target self: LSLStringBuffer, str: array<char>): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -391,7 +391,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.append (@target self: StringBuffer, str: array<char>, offset: int, len: int): StringBuffer
+    @synchronized fun *.append (@target self: LSLStringBuffer, str: array<char>, offset: int, len: int): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -402,7 +402,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.append (@target self: StringBuffer, x: double): StringBuffer
+    @synchronized fun *.append (@target self: LSLStringBuffer, x: double): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -413,7 +413,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.append (@target self: StringBuffer, x: float): StringBuffer
+    @synchronized fun *.append (@target self: LSLStringBuffer, x: float): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -424,7 +424,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.append (@target self: StringBuffer, x: int): StringBuffer
+    @synchronized fun *.append (@target self: LSLStringBuffer, x: int): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -435,7 +435,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.append (@target self: StringBuffer, x: long): StringBuffer
+    @synchronized fun *.append (@target self: LSLStringBuffer, x: long): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -446,7 +446,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.appendCodePoint (@target self: StringBuffer, codePoint: int): StringBuffer
+    @synchronized fun *.appendCodePoint (@target self: LSLStringBuffer, codePoint: int): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -483,7 +483,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.capacity (@target self: StringBuffer): int
+    @synchronized fun *.capacity (@target self: LSLStringBuffer): int
     {
         _preconditionCheck();
 
@@ -491,7 +491,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.charAt (@target self: StringBuffer, index: int): char
+    @synchronized fun *.charAt (@target self: LSLStringBuffer, index: int): char
     {
         _preconditionCheck();
 
@@ -503,7 +503,7 @@ automaton StringBufferAutomaton
 
 
     // within java.lang.AbstractStringBuilder
-    fun *.chars (@target self: StringBuffer): IntStream
+    fun *.chars (@target self: LSLStringBuffer): IntStream
     {
         _preconditionCheck();
 
@@ -529,7 +529,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.codePointAt (@target self: StringBuffer, index: int): int
+    @synchronized fun *.codePointAt (@target self: LSLStringBuffer, index: int): int
     {
         _preconditionCheck();
 
@@ -540,7 +540,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.codePointBefore (@target self: StringBuffer, index: int): int
+    @synchronized fun *.codePointBefore (@target self: LSLStringBuffer, index: int): int
     {
         _preconditionCheck();
 
@@ -552,7 +552,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.codePointCount (@target self: StringBuffer, beginIndex: int, endIndex: int): int
+    @synchronized fun *.codePointCount (@target self: LSLStringBuffer, beginIndex: int, endIndex: int): int
     {
         _preconditionCheck();
 
@@ -564,7 +564,7 @@ automaton StringBufferAutomaton
 
 
     // within java.lang.AbstractStringBuilder
-    fun *.codePoints (@target self: StringBuffer): IntStream
+    fun *.codePoints (@target self: LSLStringBuffer): IntStream
     {
         _preconditionCheck();
 
@@ -585,7 +585,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.compareTo (@target self: StringBuffer, another: StringBuffer): int
+    @synchronized fun *.compareTo (@target self: LSLStringBuffer, another: LSLStringBuffer): int
     {
         _preconditionCheck();
 
@@ -603,7 +603,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.delete (@target self: StringBuffer, start: int, end: int): StringBuffer
+    @synchronized fun *.delete (@target self: LSLStringBuffer, start: int, end: int): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -613,7 +613,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.deleteCharAt (@target self: StringBuffer, index: int): StringBuffer
+    @synchronized fun *.deleteCharAt (@target self: LSLStringBuffer, index: int): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -623,14 +623,14 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.ensureCapacity (@target self: StringBuffer, minimumCapacity: int): void
+    @synchronized fun *.ensureCapacity (@target self: LSLStringBuffer, minimumCapacity: int): void
     {
         // note: UtBot implementation
         action DO_NOTHING();
     }
 
 
-    @synchronized fun *.getChars (@target self: StringBuffer, srcBegin: int, srcEnd: int, dst: array<char>, dstBegin: int): void
+    @synchronized fun *.getChars (@target self: LSLStringBuffer, srcBegin: int, srcEnd: int, dst: array<char>, dstBegin: int): void
     {
         _preconditionCheck();
 
@@ -651,7 +651,7 @@ automaton StringBufferAutomaton
 
 
     // UtBot note: Needed by String for the contentEquals method
-    fun *.getValue (@target self: StringBuffer): array<char>
+    fun *.getValue (@target self: LSLStringBuffer): array<char>
     {
         _preconditionCheck();
 
@@ -659,7 +659,7 @@ automaton StringBufferAutomaton
     }
 
 
-    fun *.indexOf (@target self: StringBuffer, str: String): int
+    fun *.indexOf (@target self: LSLStringBuffer, str: String): int
     {
         _preconditionCheck();
 
@@ -668,7 +668,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.indexOf (@target self: StringBuffer, str: String, fromIndex: int): int
+    @synchronized fun *.indexOf (@target self: LSLStringBuffer, str: String, fromIndex: int): int
     {
         _preconditionCheck();
 
@@ -677,7 +677,7 @@ automaton StringBufferAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuffer, dstOffset: int, s: CharSequence): StringBuffer
+    fun *.insert (@target self: LSLStringBuffer, dstOffset: int, s: CharSequence): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -690,7 +690,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.insert (@target self: StringBuffer, dstOffset: int, s: CharSequence, start: int, end: int): StringBuffer
+    @synchronized fun *.insert (@target self: LSLStringBuffer, dstOffset: int, s: CharSequence, start: int, end: int): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -703,7 +703,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.insert (@target self: StringBuffer, dstOffset: int, obj: Object): StringBuffer
+    @synchronized fun *.insert (@target self: LSLStringBuffer, dstOffset: int, obj: Object): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -721,7 +721,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.insert (@target self: StringBuffer, dstOffset: int, s: String): StringBuffer
+    @synchronized fun *.insert (@target self: LSLStringBuffer, dstOffset: int, s: String): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -734,7 +734,7 @@ automaton StringBufferAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuffer, dstOffset: int, x: boolean): StringBuffer
+    fun *.insert (@target self: LSLStringBuffer, dstOffset: int, x: boolean): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -745,7 +745,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.insert (@target self: StringBuffer, dstOffset: int, x: char): StringBuffer
+    @synchronized fun *.insert (@target self: LSLStringBuffer, dstOffset: int, x: char): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -756,7 +756,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.insert (@target self: StringBuffer, dstOffset: int, x: array<char>): StringBuffer
+    @synchronized fun *.insert (@target self: LSLStringBuffer, dstOffset: int, x: array<char>): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -767,7 +767,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.insert (@target self: StringBuffer, index: int, str: array<char>, offset: int, len: int): StringBuffer
+    @synchronized fun *.insert (@target self: LSLStringBuffer, index: int, str: array<char>, offset: int, len: int): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -781,7 +781,7 @@ automaton StringBufferAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuffer, dstOffset: int, x: double): StringBuffer
+    fun *.insert (@target self: LSLStringBuffer, dstOffset: int, x: double): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -792,7 +792,7 @@ automaton StringBufferAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuffer, dstOffset: int, x: float): StringBuffer
+    fun *.insert (@target self: LSLStringBuffer, dstOffset: int, x: float): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -803,7 +803,7 @@ automaton StringBufferAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuffer, dstOffset: int, x: int): StringBuffer
+    fun *.insert (@target self: LSLStringBuffer, dstOffset: int, x: int): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -814,7 +814,7 @@ automaton StringBufferAutomaton
     }
 
 
-    fun *.insert (@target self: StringBuffer, dstOffset: int, x: long): StringBuffer
+    fun *.insert (@target self: LSLStringBuffer, dstOffset: int, x: long): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -825,7 +825,7 @@ automaton StringBufferAutomaton
     }
 
 
-    fun *.lastIndexOf (@target self: StringBuffer, str: String): int
+    fun *.lastIndexOf (@target self: LSLStringBuffer, str: String): int
     {
         _preconditionCheck();
 
@@ -834,7 +834,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.lastIndexOf (@target self: StringBuffer, str: String, fromIndex: int): int
+    @synchronized fun *.lastIndexOf (@target self: LSLStringBuffer, str: String, fromIndex: int): int
     {
         _preconditionCheck();
 
@@ -843,7 +843,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.length (@target self: StringBuffer): int
+    @synchronized fun *.length (@target self: LSLStringBuffer): int
     {
         _preconditionCheck();
 
@@ -851,7 +851,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.offsetByCodePoints (@target self: StringBuffer, index: int, codePointOffset: int): int
+    @synchronized fun *.offsetByCodePoints (@target self: LSLStringBuffer, index: int, codePointOffset: int): int
     {
         _preconditionCheck();
 
@@ -862,7 +862,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.replace (@target self: StringBuffer, start: int, end: int, s: String): StringBuffer
+    @synchronized fun *.replace (@target self: LSLStringBuffer, start: int, end: int, s: String): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -877,7 +877,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.reverse (@target self: StringBuffer): StringBuffer
+    @synchronized fun *.reverse (@target self: LSLStringBuffer): LSLStringBuffer
     {
         _preconditionCheck();
 
@@ -939,7 +939,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.setCharAt (@target self: StringBuffer, index: int, x: char): void
+    @synchronized fun *.setCharAt (@target self: LSLStringBuffer, index: int, x: char): void
     {
         _preconditionCheck();
 
@@ -950,7 +950,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.setLength (@target self: StringBuffer, newLength: int): void
+    @synchronized fun *.setLength (@target self: LSLStringBuffer, newLength: int): void
     {
         _preconditionCheck();
 
@@ -975,7 +975,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.subSequence (@target self: StringBuffer, start: int, end: int): CharSequence
+    @synchronized fun *.subSequence (@target self: LSLStringBuffer, start: int, end: int): CharSequence
     {
         _preconditionCheck();
 
@@ -986,7 +986,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.substring (@target self: StringBuffer, start: int): String
+    @synchronized fun *.substring (@target self: LSLStringBuffer, start: int): String
     {
         _preconditionCheck();
 
@@ -997,7 +997,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.substring (@target self: StringBuffer, start: int, end: int): String
+    @synchronized fun *.substring (@target self: LSLStringBuffer, start: int, end: int): String
     {
         _preconditionCheck();
 
@@ -1008,7 +1008,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.toString (@target self: StringBuffer): String
+    @synchronized fun *.toString (@target self: LSLStringBuffer): String
     {
         _preconditionCheck();
 
@@ -1016,7 +1016,7 @@ automaton StringBufferAutomaton
     }
 
 
-    @synchronized fun *.trimToSize (@target self: StringBuffer): void
+    @synchronized fun *.trimToSize (@target self: LSLStringBuffer): void
     {
         _preconditionCheck();
 
