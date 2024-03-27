@@ -47,10 +47,10 @@ import java/lang/Number;
     @static val MIN_EXPONENT: int = -126;
 
     // #problem: no "scientific" notation support
-    @static val MAX_VALUE: float = action DEBUG_DO("3.4028235e+38f");
-    @static val MIN_VALUE: float = action DEBUG_DO("1.4e-45f");
+    @static val MAX_VALUE: float = 3.4028235e+38f;
+    @static val MIN_VALUE: float = 1.4e-45f;
 
-    @static val MIN_NORMAL: float = action DEBUG_DO("1.17549435e-38f");
+    @static val MIN_NORMAL: float = 1.17549435e-38f;
 
     @static val NEGATIVE_INFINITY: float = -1.0f / 0.0f;
     @static val POSITIVE_INFINITY: float = 1.0f / 0.0f;

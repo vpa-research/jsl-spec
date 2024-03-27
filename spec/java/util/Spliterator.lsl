@@ -33,14 +33,14 @@ import java/util/function/LongConsumer;
     fun *.trySplit(): Object; //Spliterator; // #problem: self-reference
 }
 
-val SPLITERATOR_DISTINCT:   int = 1;
-val SPLITERATOR_SORTED:     int = 4;
-val SPLITERATOR_ORDERED:    int = 16;
-val SPLITERATOR_SIZED:      int = 64;
-val SPLITERATOR_NONNULL:    int = 256;
-val SPLITERATOR_IMMUTABLE:  int = 1024;
-val SPLITERATOR_CONCURRENT: int = 4096;
-val SPLITERATOR_SUBSIZED:   int = 16384;
+val SPLITERATOR_DISTINCT:   int = 0x00000001;
+val SPLITERATOR_SORTED:     int = 0x00000004;
+val SPLITERATOR_ORDERED:    int = 0x00000010;
+val SPLITERATOR_SIZED:      int = 0x00000040;
+val SPLITERATOR_NONNULL:    int = 0x00000100;
+val SPLITERATOR_IMMUTABLE:  int = 0x00000400;
+val SPLITERATOR_CONCURRENT: int = 0x00001000;
+val SPLITERATOR_SUBSIZED:   int = 0x00004000;
 
 
 @interface type Spliterator_OfPrimitive
