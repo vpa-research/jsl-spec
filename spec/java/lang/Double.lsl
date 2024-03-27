@@ -47,9 +47,9 @@ import java/lang/Number;
     @static val MIN_EXPONENT: int = -1022;
 
     // #problem: no support for scientific notation
-    @static val MAX_VALUE: double = action DEBUG_DO("1.7976931348623157E308");
-    @static val MIN_VALUE: double = action DEBUG_DO("4.9E-324");
-    @static val MIN_NORMAL: double = action DEBUG_DO("2.2250738585072014E-308");
+    @static val MAX_VALUE: double = 1.7976931348623157E308;
+    @static val MIN_VALUE: double = 4.9E-324;
+    @static val MIN_NORMAL: double = 2.2250738585072014E-308;
 
     @static val POSITIVE_INFINITY: double = 1.0 / 0.0;
     @static val NEGATIVE_INFINITY: double = -1.0 / 0.0;
