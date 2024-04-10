@@ -1,4 +1,3 @@
-//#! pragma: non-synthesizable
 libsl "1.1.0";
 
 library any
@@ -35,6 +34,14 @@ define action ARRAY_SIZE (
 // #question: do we actually need this?
 define action ARRAY_FILL (
         arr: array<any>,
+        value: any
+    ): void;
+
+// WARNING: do range checks ahead of time!
+define action ARRAY_FILL_RANGE (
+        arr: array<any>,
+        fromIndex: int32,
+        toIndex: int32,
         value: any
     ): void;
 

@@ -1,4 +1,4 @@
-///#! pragma: non-synthesizable
+//#! pragma: target=java
 libsl "1.1.0";
 
 library std
@@ -12,6 +12,8 @@ import java/lang/Object;
 import java/lang/Runnable;
 import java/util/function/Consumer;
 import java/util/function/Predicate;
+import java/util/stream/Stream;
+
 import java/util/Optional;
 
 
@@ -342,10 +344,7 @@ automaton OptionalAutomaton
     fun *.orElseGet (@target @Parameterized(["T"]) self: LSLOptional,
                      @Parameterized(["? extends T"]) supplier: Supplier): Object
     {
-        requires supplier != null;
-
-        if (supplier == null)
-            _throwNPE();
+        requires (supplier != null && this.value == null) || this.value != null;
 
         if (this.value == null)
             result = action CALL(supplier, []);
@@ -390,9 +389,23 @@ automaton OptionalAutomaton
     @ParameterizedResult(["T"])
     fun *.stream (@target @Parameterized(["T"]) self: LSLOptional): Stream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
+        var items: array<Object> = null;
+        if (this.value == null)
+        {
+            items = action ARRAY_NEW("java.lang.Object", 0);
+        }
+        else
+        {
+            items = action ARRAY_NEW("java.lang.Object", 1);
+            items[0] = this.value;
+        }
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = items,
+            length = action ARRAY_SIZE(items),
+            closeHandlers = action LIST_NEW(),
+            isParallel = false,
+        );
     }
 
 

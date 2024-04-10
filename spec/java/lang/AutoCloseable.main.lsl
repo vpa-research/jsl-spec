@@ -1,3 +1,4 @@
+//#! pragma: target=java
 libsl "1.1.0";
 
 library std
@@ -35,7 +36,7 @@ automaton AutoCloseableAutomaton
 
     // methods
 
-    @default fun close (@target self: LSLAutoCloseable): void
+    @default fun *.close (@target self: LSLAutoCloseable): void
     {
         // UtBotJava: do nothing
     }
