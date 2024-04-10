@@ -93,7 +93,6 @@ automaton LinkedHashSet_KeyIteratorAutomaton
 
         val key: Object = action MAP_GET_ANY_KEY(this.unseenKeys);
         action MAP_REMOVE(this.unseenKeys, key);
-        action ASSUME(key != this.currentKey);
 
         this.currentKey = key;
         result = key;
