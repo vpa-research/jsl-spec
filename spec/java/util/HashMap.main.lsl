@@ -779,7 +779,39 @@ automaton HashMapAutomaton
     // within java.util.AbstractMap
     fun *.toString (@target self: HashMap): String
     {
-        result = action OBJECT_TO_STRING(this.storage);
+        var count: int = action MAP_SIZE(this.storage);
+        if (count == 0)
+        {
+            result = "{}";
+        }
+        else
+        {
+            result = "{";
+
+            val unseen: map<Object, Map_Entry<Object, Object>> = action MAP_CLONE(this.storage);
+            count = action MAP_SIZE(unseen); // make semantic link
+            action ASSUME(count > 0);
+
+            action LOOP_WHILE(
+                count != 0,
+                toString_loop(unseen, count, result)
+            );
+
+            result += "}";
+        }
+    }
+
+    @Phantom proc toString_loop (unseen: map<Object, Map_Entry<Object, Object>>, count: int, result: String): void
+    {
+        val key: Object = action MAP_GET_ANY_KEY(unseen);
+        val entry: Map_Entry<Object, Object> = action MAP_GET(unseen, key);
+        action MAP_REMOVE(unseen, key);
+
+        result += action OBJECT_TO_STRING(entry);
+
+        count -= 1;
+        if (count != 0)
+            result += ", ";
     }
 
 

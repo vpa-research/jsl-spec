@@ -115,7 +115,7 @@ automaton AbstractMap_SimpleEntryAutomaton
 
     fun *.toString (@target self: AbstractMap_SimpleEntry): String
     {
-        result = action OBJECT_TO_STRING(this.value);
+        result = action OBJECT_TO_STRING(this.key) + "=" + action OBJECT_TO_STRING(this.value);
     }
 
 }
