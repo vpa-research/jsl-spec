@@ -153,10 +153,33 @@ automaton LinkedList_SubListAutomaton
 
     proc _makeStream (parallel: boolean): Stream
     {
-        // #todo: use custom stream implementation
-        result = action SYMBOLIC("java.util.stream.Stream");
-        action ASSUME(result != null);
-        action ASSUME(action CALL_METHOD(result, "isParallel", []) == parallel);
+        action ASSUME(this.root != null);
+
+        _checkForComodification();
+        val parentStorage: list<Object> = LinkedListAutomaton(this.root).storage;
+
+        val count: int = this.length;
+        val items: array<Object> = action ARRAY_NEW("java.lang.Object", count);
+
+        var i: int = 0;
+        action LOOP_FOR(
+            i, 0, count, +1,
+            _makeStream_loop(i, parentStorage, items)
+        );
+
+        // #problem: unable to catch concurrent modifications during stream processing
+
+        result = new StreamAutomaton(state = Initialized,
+            storage = items,
+            length = count,
+            closeHandlers = action LIST_NEW(),
+            isParallel = parallel,
+        );
+    }
+
+    @Phantom proc _makeStream_loop (i: int, parentStorage: list<Object>, items: array<Object>): void
+    {
+        items[i] = action LIST_GET(parentStorage, this.offset + i);
     }
 
 
