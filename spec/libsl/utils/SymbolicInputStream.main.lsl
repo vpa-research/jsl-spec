@@ -300,9 +300,9 @@ automaton SymbolicInputStreamAutomaton
 
 
     @throws(["java.io.IOException"])
-    fun *.transferTo (@target self: SymbolicInputStream, out: OutputStream): long
+    fun *.transferTo (@target self: SymbolicInputStream, output: OutputStream): long
     {
-        if (out == null)
+        if (output == null)
             action THROW_NEW("java.lang.NullPointerException", []);
 
         _ensureOpen();
