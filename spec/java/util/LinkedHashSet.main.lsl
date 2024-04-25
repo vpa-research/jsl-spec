@@ -368,7 +368,7 @@ automaton LinkedHashSetAutomaton
         {
             val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
             action LOOP_WHILE(
-                i < action MAP_SIZE(this.storage),
+                i < lengthBeforeRemoving,
                 _removeAllElements_loop_indirect(i, c, unseenKeys)
             );
         }
@@ -512,11 +512,12 @@ automaton LinkedHashSetAutomaton
             _throwNPE();
 
         val lengthBeforeAdd: int = action MAP_SIZE(this.storage);
-        val iter: Iterator = action CALL_METHOD(c, "iterator", []);
+        val unseenKeys: map<Object, Object> = action MAP_CLONE(this.storage);
+        var i: int = 0;
 
         action LOOP_WHILE(
-            action CALL_METHOD(iter, "hasNext", []),
-            _retainAllElements_loop(iter)
+            i < lengthBeforeAdd,
+            _retainAllElements_loop(i, c, unseenKeys)
         );
 
         if (lengthBeforeAdd != action MAP_SIZE(this.storage))
@@ -531,12 +532,15 @@ automaton LinkedHashSetAutomaton
     }
 
 
-    @Phantom proc _retainAllElements_loop(iter: Iterator): void
+    @Phantom proc _retainAllElements_loop(i: int, c: Collection, unseenKeys: map<Object, Object>): void
     {
-        val key: Object = action CALL_METHOD(iter, "next", []);
+        val key: Object = action MAP_GET_ANY_KEY(unseenKeys);
+        action MAP_REMOVE(unseenKeys, key);
 
-        if (action MAP_HAS_KEY(this.storage, key) == false)
+        if (action CALL_METHOD(c, "contains", [key]) == false)
             action MAP_REMOVE(this.storage, key);
+
+        i += 1;
     }
 
 

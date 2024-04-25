@@ -469,21 +469,21 @@ automaton SystemAutomaton
     @static fun *.setErr (stream: PrintStream): void
     {
         _checkIO();
-        err = stream;
+        `err` = stream;
     }
 
 
     @static fun *.setIn (stream: InputStream): void
     {
         _checkIO();
-        in = stream;
+        `in` = stream;
     }
 
 
     @static fun *.setOut (stream: PrintStream): void
     {
         _checkIO();
-        out = stream;
+        `out` = stream;
     }
 
 
@@ -553,9 +553,9 @@ automaton SystemAutomaton
             supportMarks = false,
         );
         // #todo: unsafe operations in BufferedInputStream
-        in = newInput;//action DEBUG_DO("new java.io.BufferedInputStream(newInput)");
-        out = new System_PrintStreamAutomaton(state = Initialized);
-        err = new System_PrintStreamAutomaton(state = Initialized);
+        `in` = newInput;//action DEBUG_DO("new java.io.BufferedInputStream(newInput)");
+        `out` = new System_PrintStreamAutomaton(state = Initialized);
+        `err` = new System_PrintStreamAutomaton(state = Initialized);
 
         // #problem: no OS signal support
         //Terminator.setup();
@@ -622,9 +622,9 @@ automaton SystemAutomaton
             supportMarks = false,
         );
         // #todo: unsafe operations in BufferedInputStream
-        in = newInput;//action DEBUG_DO("new java.io.BufferedInputStream(newInput)");
-        out = new System_PrintStreamAutomaton(state = Initialized);
-        err = new System_PrintStreamAutomaton(state = Initialized);
+        `in` = newInput;//action DEBUG_DO("new java.io.BufferedInputStream(newInput)");
+        `out` = new System_PrintStreamAutomaton(state = Initialized);
+        `err` = new System_PrintStreamAutomaton(state = Initialized);
 
         // #problem: thread group initialization
 

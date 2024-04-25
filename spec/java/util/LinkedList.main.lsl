@@ -1023,27 +1023,37 @@ automaton LinkedListAutomaton
 
     fun *.removeLastOccurrence (@target self: LinkedList, o: Object): boolean
     {
-        val index: int = action LIST_FIND(this.storage, o, 0, action LIST_SIZE(this.storage));
-        if (index == -1)
+        val size: int = action LIST_SIZE(this.storage);
+        if (size == 0)
         {
             result = false;
         }
         else
         {
-            result = true;
+            action ASSUME(size > 0);
 
-            // there should be no elements to the right of the previously found position
-            val nextIndex: int = index + 1;
-            if (nextIndex < action LIST_SIZE(this.storage))
+            // find the item index
+            var index: int = size - 1;
+            action LOOP_FOR(
+                index, index, -1, -1,
+                removeLastOccurrence_loop(index, o)
+            );
+
+            result = index != -1;
+            if (result)
             {
-                val rightIndex: int = action LIST_FIND(this.storage, o, nextIndex, action LIST_SIZE(this.storage));
-                action ASSUME(rightIndex == -1);
+                // actual removal and associated modifications
+                action LIST_REMOVE(this.storage, index);
+                this.modCount += 1;
             }
-
-            // actual removal and associated modifications
-            action LIST_REMOVE(this.storage, index);
-            this.modCount += 1;
         }
+    }
+
+    @Phantom proc removeLastOccurrence_loop (index: int, o: Object): void
+    {
+        val item: Object = action LIST_GET(this.storage, index);
+        if (action OBJECT_EQUALS(item, o))
+            action LOOP_BREAK();
     }
 
 

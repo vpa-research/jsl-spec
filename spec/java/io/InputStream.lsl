@@ -49,7 +49,7 @@ type InputStream
     fun *.skip(n: long): long;
 
     @throws(["java.io.IOException"])
-    fun *.transferTo(out: OutputStream): long;
+    fun *.transferTo(output: OutputStream): long;
 }
 
 

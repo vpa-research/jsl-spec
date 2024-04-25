@@ -184,9 +184,9 @@ automaton VoidInputStreamAutomaton
 
 
     @throws(["java.io.IOException"])
-    fun *.transferTo (@target self: VoidInputStream, out: OutputStream): long
+    fun *.transferTo (@target self: VoidInputStream, output: OutputStream): long
     {
-        if (out == null)
+        if (output == null)
             action THROW_NEW("java.lang.NullPointerException", []);
 
         _ensureOpen();

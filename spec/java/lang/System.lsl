@@ -65,9 +65,9 @@ import java/util/Properties;
     // #todo: attach I/O streams from this
     @private @static var console: Console = null;
 
-    @public @static var in: InputStream = null;  // WARNING: do not change!
-    @public @static var out: PrintStream = null; // WARNING: do not change!
-    @public @static var err: PrintStream = null; // WARNING: do not change!
+    @public @static var `in`: InputStream = null;  // WARNING: do not change!
+    @public @static var `out`: PrintStream = null; // WARNING: do not change!
+    @public @static var `err`: PrintStream = null; // WARNING: do not change!
 
     @private @static val NANOTIME_BEGINNING_OF_TIME: long = 1000L;
     @private @static val NANOTIME_WARP_MAX: long = 1000L;
